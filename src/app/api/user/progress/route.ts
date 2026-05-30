@@ -72,7 +72,7 @@ export async function GET() {
         longestStreak: streak.longestStreak,
         lastActivityAt: streak.lastActivityAt,
       },
-      badges: userBadges.map((ub) => ({
+      badges: userBadges.map((ub: (typeof userBadges)[number]) => ({
         id: ub.badge.id,
         name: ub.badge.name,
         description: ub.badge.description,
