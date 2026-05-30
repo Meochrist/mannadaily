@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    const user = await db.$transaction(async (tx) => {
+    const user = await db.$transaction(async (tx: Parameters<Parameters<typeof db.$transaction>[0]>[0]) => {
       const newUser = await tx.user.create({
         data: {
           name,
