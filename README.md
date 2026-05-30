@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MannaDaily 🌾
 
-## Getting Started
+MannaDaily est une application web moderne et interactive de croissance spirituelle ludique, conçue pour accompagner les croyants au quotidien. Inspirée du modèle d'apprentissage actif (type Duolingo), l'application propose de la méditation biblique guidée par l'IA, de la mémorisation active de versets, et des proclamations de foi quotidiennes avec une mascotte animée interactive, "Manny".
 
-First, run the development server:
+---
 
+## 🛠️ Stack Technique
+
+L'application est bâtie sur les technologies les plus modernes et fiables de l'écosystème web :
+
+- **Frontend & Routing** : Next.js 14 / Next.js 16 (App Router) avec TypeScript.
+- **Styling** : Tailwind CSS pour une interface responsive et un design premium sombre et chaleureux.
+- **Base de Données & ORM** : Prisma ORM v7 connecté à une base de données Neon PostgreSQL.
+- **Authentification** : NextAuth.js v5 (beta) prenant en charge la connexion par e-mail/mot de passe (Credentials) et Google OAuth.
+- **Moteur d'IA (Triple Fallback)** : Intégration de Gemini 2.5 Flash, Groq Llama 3.3, et GPT-4o Azure, garantissant une résilience maximale et gratuite.
+- **Mascotte & Animations** : SVG pur React animé de manière fluide avec Framer Motion.
+- **E-mails & Cron** : Rappels programmés par Vercel Cron.
+
+---
+
+## 🚀 Guide de Démarrage & Configuration Locale
+
+Suivez ces étapes simples pour faire fonctionner le projet localement sur votre machine :
+
+### 1. Cloner le dépôt
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <URL_DU_REPO>
+cd mannadaily
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Installer les dépendances
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Configurer les variables d'environnement
+Créez un fichier `.env.local` (et un `.env` s'il n'existe pas) à la racine du projet et configurez les variables requises (voir liste ci-dessous).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Générer le client Prisma
+Générez les types TypeScript pour la base de données :
+```bash
+npx prisma generate
+```
 
-## Learn More
+### 5. Lancer le serveur de développement
+Démarrez l'application localement :
+```bash
+npm run dev
+```
+Ouvrez ensuite [http://localhost:3000](http://localhost:3000) dans votre navigateur.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔑 Variables d'Environnement Requises
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Voici la liste des variables d'environnement nécessaires au fonctionnement de l'application (à configurer dans votre `.env.local`) :
 
-## Deploy on Vercel
+```env
+# Connexion Base de Données
+DATABASE_URL=
+DIRECT_URL=
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Authentification NextAuth
+NEXTAUTH_URL=
+NEXTAUTH_SECRET=
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Google OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# Moteur d'IA (API Keys)
+GEMINI_API_KEY=
+GROQ_API_KEY=
+GITHUB_TOKEN=
+
+# Services Externes
+RESEND_API_KEY=
+CRON_SECRET=
+```

@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String             @id @default(cuid())
+  name          String?
+  email         String?            @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  accounts      Account[]
+  sessions      DailySession[]
+  xpTransactions XPTransaction[]
+  streak        Streak?
+  badges        UserBadge[]
+  progress      UserProgress?
+  proclamations UserProclamation[]
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?  @db.Text
+  access_token      String?  @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?  @db.Text
+  session_state     String?
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Verse {
+  id            String             @id @default(cuid())
+  book          String
+  chapter       Int
+  verse         Int
+  text          String             @db.Text
+  translation   String             @default("LSG")
+  createdAt     DateTime           @default(now())
+  themes        VerseTheme[]
+  meditations   Meditation[]
+  proclamations UserProclamation[]
+
+  @@unique([book, chapter, verse, translation])
+}
+
+model Theme {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  description String?      @db.Text
+  icon        String
+  color       String
+  verses      VerseTheme[]
+}
+
+model VerseTheme {
+  id      String @id @default(cuid())
+  verseId String
+  themeId String
+  verse   Verse  @relation(fields: [verseId], references: [id], onDelete: Cascade)
+  theme   Theme  @relation(fields: [themeId], references: [id], onDelete: Cascade)
+
+  @@unique([verseId, themeId])
+}
+
+model Meditation {
+  id        String   @id @default(cuid())
+  verseId   String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  verse     Verse    @relation(fields: [verseId], references: [id], onDelete: Cascade)
+}
+
+model DailySession {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // classic / thematic / proclamation
+  xpEarned  Int
+  duration  Int      // in seconds
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model XPTransaction {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int
+  reason    String   // e.g. "daily_verse", "proclamation_session"
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Streak {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  currentStreak  Int      @default(0)
+  longestStreak  Int      @default(0)
+  lastActivityAt DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Badge {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  description String
+  icon        String
+  condition   String
+  users       UserBadge[]
+}
+
+model UserBadge {
+  id       String   @id @default(cuid())
+  userId   String
+  badgeId  String
+  earnedAt DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge    Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+}
+
+model UserProgress {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  totalXP       Int      @default(0)
+  level         String   @default("Semence")
+  versesLearned Int      @default(0)
+  sessionsTotal Int      @default(0)
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserProclamation {
+  id      String   @id @default(cuid())
+  userId  String
+  verseId String
+  count   Int      @default(0)
+  lastAt  DateTime @default(now())
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verse   Verse    @relation(fields: [verseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, verseId])
+}
