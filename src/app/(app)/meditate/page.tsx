@@ -238,17 +238,17 @@ export default function MeditatePage() {
 
     const nextStep = (currentStep + 1) as 2 | 3 | 4 | 5 | 6 | 7;
 
+    // Jouer le son engageant de passage d'étape
+    sounds.playStepComplete();
+
     // CORRECTION 1 : L'étape 2 (Contexte biblique) est locale et ne fait plus de fetch IA
     if (nextStep === 3 && !historicalContext) {
-      sounds.playSessionStart();
       setCurrentStep(nextStep);
       await fetchHistoricalContext(dailyVerse);
     } else if (nextStep === 7 && !prayerContent) {
-      sounds.playSessionStart();
       setCurrentStep(nextStep);
       await fetchPrayer(dailyVerse);
     } else {
-      sounds.playSuccess();
       setCurrentStep(nextStep);
     }
   };
@@ -386,7 +386,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
         return {
           name: "Gédéon",
           emoji: "🛡️",
-          text: "Lis 2-3 versets avant et après dans ta Bible !",
+          text: "Lis 2-3 versets avant et après dans ta Bible.",
           bgColor: "bg-amber-50 border-amber-200/60 text-amber-900",
           badgeColor: "bg-amber-100 text-amber-800",
           closeBg: "hover:bg-amber-200/70"
@@ -395,7 +395,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
         return {
           name: "Gédéon",
           emoji: "📖",
-          text: "Cherche le mot clé dans un dictionnaire Strong pour aller plus loin !",
+          text: "Cherche le mot clé dans un dictionnaire Strong pour aller plus loin.",
           bgColor: "bg-amber-50 border-amber-200/60 text-amber-900",
           badgeColor: "bg-amber-100 text-amber-800",
           closeBg: "hover:bg-amber-200/70"
@@ -404,7 +404,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
         return {
           name: "Noé",
           emoji: "🕊️",
-          text: "Lis ce verset dans une autre traduction (Darby, TOB, NBS) !",
+          text: "Lis ce verset dans une autre traduction (Darby, TOB, NBS).",
           bgColor: "bg-sky-50 border-sky-200/60 text-sky-900",
           badgeColor: "bg-sky-100 text-sky-850",
           closeBg: "hover:bg-sky-200/70"
@@ -413,7 +413,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
         return {
           name: "Esther",
           emoji: "👑",
-          text: "Cherche ce passage dans un commentaire biblique en ligne !",
+          text: "Cherche ce passage dans un commentaire biblique en ligne.",
           bgColor: "bg-fuchsia-50 border-fuchsia-200/60 text-fuchsia-900",
           badgeColor: "bg-fuchsia-100 text-fuchsia-850",
           closeBg: "hover:bg-fuchsia-200/70"
@@ -422,7 +422,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
         return {
           name: "Samson",
           emoji: "💪",
-          text: "Maintenant applique cette vérité ! La foi sans les œuvres est morte !",
+          text: "Maintenant applique cette vérité. La foi sans les œuvres est morte.",
           bgColor: "bg-orange-50 border-orange-200/60 text-orange-900",
           badgeColor: "bg-orange-100 text-orange-850",
           closeBg: "hover:bg-orange-200/70"
@@ -950,7 +950,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
 
                       <div className="text-center space-y-2">
                         <h2 className="text-3xl font-black text-slate-800 tracking-tight">
-                          Session validée ! 🎉
+                          Session validée 🎉
                         </h2>
                         <p className="text-slate-500 font-medium text-sm">
                           {getMannyMessage("session_complete", userName, sessionResult.streak)}
@@ -987,7 +987,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                           <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-4 translate-y-4">
                             <Award className="w-24 h-24" />
                           </div>
-                          <h4 className="font-black text-lg tracking-tight">FÉLICITATIONS ! 🎉 NIVEAU SUPÉRIEUR</h4>
+                          <h4 className="font-black text-lg tracking-tight">FÉLICITATIONS 🎉 NIVEAU SUPÉRIEUR</h4>
                           <p className="text-sm font-extrabold">
                             {getMannyMessage("level_up", userName, sessionResult.streak)}
                           </p>
@@ -996,7 +996,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
 
                       {sessionResult.newBadges.length > 0 && (
                         <div className="w-full space-y-3 text-center">
-                          <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Nouveaux Badges obtenus !</h4>
+                          <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Nouveaux Badges obtenus</h4>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {sessionResult.newBadges.map((badge, idx) => (
                               <div key={idx} className="bg-white p-4 rounded-xl border border-amber-100 flex items-center gap-3 text-left shadow-sm">
@@ -1090,7 +1090,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
               
               <div className="space-y-2">
                 <h3 className="text-xl font-black text-slate-800">
-                  Ne pars pas déjà ! 🙏
+                  Ne pars pas déjà 🙏
                 </h3>
                 <p className="text-slate-500 font-medium text-sm leading-relaxed">
                   {abandonMessage}
