@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Manny from "@/components/mascot/Manny";
 import { cn } from "@/lib/utils";
-import { BookOpen, Sparkles, Send, Award, Flame, CheckCircle, ArrowRight, ArrowLeft } from "lucide-react";
+import { BookOpen, Sparkles, Send, Award, Flame, CheckCircle, ArrowRight } from "lucide-react";
+import { getMannyMessage } from "@/lib/mannyMessages";
+import * as sounds from "@/lib/sounds";
 
 const staticVerse = {
   text: "Je puis tout par celui qui me fortifie.",
@@ -40,10 +42,45 @@ export default function MeditatePage() {
   const [error, setError] = useState("");
   const router = useRouter();
 
+  // Données utilisateur pour messages personnalisés
+  const [userName, setUserName] = useState("Ami");
+  const [streakCount, setStreakCount] = useState(0);
+
+  // Modal d'abandon
+  const [showAbandonModal, setShowAbandonModal] = useState(false);
+  const [abandonMessage, setAbandonMessage] = useState("");
+
+  // Messages dynamiques de Manny par étape
+  const [welcomeMessage, setWelcomeMessage] = useState("");
+  const [loadingMessage, setLoadingMessage] = useState("");
+
+  useEffect(() => {
+    // Récupérer le nom et le streak de l'utilisateur
+    fetch("/api/user/progress")
+      .then((res) => res.json())
+      .then((data) => {
+        const name = data.userName || "Ami";
+        const streak = data.streak?.currentStreak || 0;
+        setUserName(name);
+        setStreakCount(streak);
+        
+        // Initialiser les messages avec les vraies données
+        setWelcomeMessage(getMannyMessage("welcome", name, streak));
+      })
+      .catch((err) => {
+        console.warn("Failed to fetch user data for messages:", err);
+        setWelcomeMessage(getMannyMessage("welcome", "Ami", 0));
+      });
+  }, []);
+
   const handleStartMeditation = async () => {
+    sounds.playSessionStart();
     setCurrentStep(2);
     setLoading(true);
     setError("");
+
+    // Choisir un message de chargement dynamique
+    setLoadingMessage(getMannyMessage("loading", userName, streakCount));
 
     try {
       const res = await fetch("/api/meditation/generate", {
@@ -62,6 +99,7 @@ export default function MeditatePage() {
       }
 
       setMeditation(data.meditation);
+      sounds.playSuccess();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue lors de l'appel IA.");
     } finally {
@@ -87,6 +125,13 @@ export default function MeditatePage() {
 
       setSessionResult(data);
       setCurrentStep(4);
+      
+      // Jouer les sons de réussite et de montée de niveau
+      if (data.leveledUp) {
+        sounds.playLevelUp();
+      } else {
+        sounds.playXPGain();
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue lors de la validation.");
     } finally {
@@ -94,9 +139,27 @@ export default function MeditatePage() {
     }
   };
 
+  // Déclencher le modal d'abandon
+  const handleTriggerAbandon = () => {
+    sounds.playAbandonWarning();
+    setAbandonMessage(getMannyMessage("abandon_attempt", userName, streakCount));
+    setShowAbandonModal(true);
+  };
+
+  const handleConfirmStay = () => {
+    setShowAbandonModal(false);
+  };
+
+  const handleConfirmAbandon = () => {
+    setShowAbandonModal(false);
+    setCurrentStep(1);
+    setMeditation("");
+    setAnswers({ situation: "", truth: "", decision: "" });
+  };
+
   return (
     <div className={cn(
-      "w-full max-w-4xl mx-auto rounded-3xl p-6 md:p-10 transition-all duration-700 min-h-[80vh] flex flex-col justify-between space-y-8",
+      "w-full max-w-4xl mx-auto rounded-3xl p-6 md:p-10 transition-all duration-700 min-h-[80vh] flex flex-col justify-between space-y-8 relative",
       currentStep === 1 && "bg-transparent",
       currentStep === 2 && "bg-slate-950 text-slate-100 shadow-2xl border border-slate-900",
       currentStep === 3 && "bg-transparent",
@@ -132,6 +195,12 @@ export default function MeditatePage() {
               className="space-y-8 flex flex-col items-center"
             >
               <Manny mood="happy" size={120} />
+              
+              {welcomeMessage && (
+                <div className="text-center bg-indigo-50/50 border border-indigo-100/50 text-indigo-800 p-4 px-6 rounded-2xl text-sm font-extrabold max-w-md shadow-sm">
+                  {welcomeMessage}
+                </div>
+              )}
 
               <div className="w-full bg-white p-8 md:p-10 rounded-3xl border border-slate-100 shadow-lg text-center space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
@@ -150,7 +219,7 @@ export default function MeditatePage() {
 
               <button
                 onClick={handleStartMeditation}
-                className="flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white font-extrabold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base"
+                className="flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white font-extrabold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base animate-pulse"
               >
                 <Sparkles className="w-5 h-5 fill-white/10" />
                 Commencer la méditation
@@ -171,8 +240,8 @@ export default function MeditatePage() {
                 <div className="flex flex-col items-center justify-center space-y-6 py-12">
                   <Manny mood="thinking" size={130} />
                   <div className="text-center space-y-3">
-                    <h3 className="text-xl font-black text-slate-800 tracking-tight">
-                      Manny prépare ta méditation...
+                    <h3 className="text-xl font-black text-slate-100 tracking-tight">
+                      {loadingMessage}
                     </h3>
                     <p className="text-slate-400 font-medium text-sm animate-pulse max-w-xs">
                       Je puise dans les profondeurs de l'Écriture pour éclairer ton chemin.
@@ -181,9 +250,9 @@ export default function MeditatePage() {
                   <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : error ? (
-                <div className="bg-rose-50 border border-rose-100 p-8 rounded-2xl text-center space-y-4 max-w-md mx-auto">
-                  <h3 className="text-lg font-bold text-rose-700">Une erreur est survenue</h3>
-                  <p className="text-rose-600 text-sm font-semibold">{error}</p>
+                <div className="bg-rose-950/40 border border-rose-900/60 p-8 rounded-2xl text-center space-y-4 max-w-md mx-auto">
+                  <h3 className="text-lg font-bold text-rose-400">Une erreur est survenue</h3>
+                  <p className="text-rose-300 text-sm font-semibold">{error}</p>
                   <button
                     onClick={handleStartMeditation}
                     className="px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-sm shadow-md"
@@ -194,7 +263,7 @@ export default function MeditatePage() {
               ) : (
                 <div className="space-y-6 flex flex-col items-center">
                   <Manny mood="happy" size={80} />
-                  <div className="bg-indigo-955 bg-slate-900 text-white p-8 md:p-10 rounded-3xl shadow-xl space-y-6 border border-slate-850 relative">
+                  <div className="bg-slate-900 text-white p-8 md:p-10 rounded-3xl shadow-xl space-y-6 border border-slate-800 relative">
                     <div className="flex items-center gap-2 border-b border-slate-800 pb-4">
                       <Sparkles className="w-5 h-5 text-amber-400 fill-amber-400" />
                       <h3 className="text-sm font-bold uppercase tracking-wider text-indigo-300">Méditation inspirée par l'IA</h3>
@@ -204,13 +273,24 @@ export default function MeditatePage() {
                     </p>
                   </div>
 
-                  <button
-                    onClick={() => setCurrentStep(3)}
-                    className="flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white font-extrabold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0"
-                  >
-                    Continuer
-                    <ArrowRight className="w-5 h-5" />
-                  </button>
+                  <div className="flex gap-4 mt-6">
+                    <button
+                      onClick={handleTriggerAbandon}
+                      className="px-6 py-3.5 bg-slate-900 text-slate-400 hover:text-rose-400 border border-slate-800 rounded-xl font-bold transition-all text-sm"
+                    >
+                      Abandonner
+                    </button>
+                    <button
+                      onClick={() => {
+                        sounds.playSuccess();
+                        setCurrentStep(3);
+                      }}
+                      className="flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white font-extrabold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                    >
+                      Continuer
+                      <ArrowRight className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
               )}
             </motion.div>
@@ -276,11 +356,10 @@ export default function MeditatePage() {
 
               <div className="flex gap-4 mt-6">
                 <button
-                  onClick={() => setCurrentStep(2)}
+                  onClick={handleTriggerAbandon}
                   className="flex items-center gap-2 px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm shadow-sm"
                 >
-                  <ArrowLeft className="w-4 h-4" />
-                  Retour
+                  Abandonner
                 </button>
                 <button
                   onClick={handleCompleteSession}
@@ -310,7 +389,7 @@ export default function MeditatePage() {
                   Session validée ! 🎉
                 </h2>
                 <p className="text-slate-500 font-medium text-sm">
-                  Ta persévérance porte ses fruits. Continue sur cette voie.
+                  {getMannyMessage("session_complete", userName, sessionResult.streak)}
                 </p>
               </div>
 
@@ -325,7 +404,7 @@ export default function MeditatePage() {
                 </div>
 
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
-                  <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500 mb-2">
+                  <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500 mb-2 animate-bounce">
                     <Flame className="w-6 h-6 fill-orange-500" />
                   </div>
                   <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Série actuelle</span>
@@ -346,7 +425,7 @@ export default function MeditatePage() {
                   </div>
                   <h4 className="font-black text-lg tracking-tight">FÉLICITATIONS ! 🎉 NIVEAU SUPÉRIEUR</h4>
                   <p className="text-sm font-extrabold">
-                    Tu es passé au niveau {sessionResult.newLevel} : <span className="underline">{sessionResult.levelName}</span> !
+                    {getMannyMessage("level_up", userName, sessionResult.streak)}
                   </p>
                 </motion.div>
               )}
@@ -380,6 +459,46 @@ export default function MeditatePage() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Modal d'abandon Manny */}
+      <AnimatePresence>
+        {showAbandonModal && (
+          <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-150 flex flex-col items-center text-center space-y-6"
+            >
+              <Manny mood="encouraging" size={120} />
+              
+              <div className="space-y-2">
+                <h3 className="text-xl font-black text-slate-800">
+                  Ne pars pas déjà ! 🙏
+                </h3>
+                <p className="text-slate-500 font-medium text-sm leading-relaxed">
+                  {abandonMessage}
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-3 w-full pt-2">
+                <button
+                  onClick={handleConfirmStay}
+                  className="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-xl shadow-md transition-all active:scale-[0.98] text-sm"
+                >
+                  Rester avec Dieu
+                </button>
+                <button
+                  onClick={handleConfirmAbandon}
+                  className="py-3.5 px-4 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl font-bold transition-all text-sm"
+                >
+                  Quitter quand même
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

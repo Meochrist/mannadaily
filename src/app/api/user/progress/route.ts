@@ -72,6 +72,8 @@ export async function GET() {
         longestStreak: streak.longestStreak,
         lastActivityAt: streak.lastActivityAt,
       },
+      userName: session.user.name || "Ami",
+      userEmail: session.user.email,
       badges: userBadges.map((ub: (typeof userBadges)[number]) => ({
         id: ub.badge.id,
         name: ub.badge.name,

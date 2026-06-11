@@ -14,11 +14,11 @@ import {
   CheckCircle, 
   ArrowRight, 
   Play, 
-  Pause, 
-  RotateCcw,
-  Sparkles,
-  ArrowLeft
+  Pause,
+  Sparkles
 } from "lucide-react";
+import { getMannyMessage } from "@/lib/mannyMessages";
+import * as sounds from "@/lib/sounds";
 
 const proclamationVerses = [
   {
@@ -68,18 +68,53 @@ export default function ProclaimPage() {
   const [error, setError] = useState("");
   const router = useRouter();
 
+  // Données utilisateur pour messages personnalisés
+  const [userName, setUserName] = useState("Ami");
+  const [streakCount, setStreakCount] = useState(0);
+
+  // Modal d'abandon
+  const [showAbandonModal, setShowAbandonModal] = useState(false);
+  const [abandonMessage, setAbandonMessage] = useState("");
+
+  // Messages dynamiques Manny
+  const [welcomeMessage, setWelcomeMessage] = useState("");
+
+  useEffect(() => {
+    // Récupérer le nom et le streak de l'utilisateur
+    fetch("/api/user/progress")
+      .then((res) => res.json())
+      .then((data) => {
+        const name = data.userName || "Ami";
+        const streak = data.streak?.currentStreak || 0;
+        setUserName(name);
+        setStreakCount(streak);
+        
+        setWelcomeMessage(getMannyMessage("welcome", name, streak));
+      })
+      .catch((err) => {
+        console.warn("Failed to fetch user data for messages:", err);
+        setWelcomeMessage(getMannyMessage("welcome", "Ami", 0));
+      });
+  }, []);
+
   // Timer countdown hook
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (phase === 2 && isRunning && timeLeft > 0) {
       interval = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
+        setTimeLeft((prev) => {
+          if (prev === 1) {
+            sounds.playSuccess(); // Son de réussite du verset quand le timer s'arrête
+          }
+          return prev - 1;
+        });
       }, 1000);
     }
     return () => clearInterval(interval);
   }, [phase, isRunning, timeLeft]);
 
   const handleStartProclamations = () => {
+    sounds.playSessionStart();
     setPhase(2);
     setCurrentVerseIndex(0);
     setTimeLeft(30);
@@ -89,6 +124,7 @@ export default function ProclaimPage() {
   };
 
   const handleNextVerse = () => {
+    sounds.playSuccess();
     if (currentVerseIndex < proclamationVerses.length - 1) {
       setCurrentVerseIndex((prev) => prev + 1);
       setTimeLeft(30);
@@ -117,6 +153,12 @@ export default function ProclaimPage() {
 
       setSessionResult(data);
       setPhase(3);
+
+      if (data.leveledUp) {
+        sounds.playLevelUp();
+      } else {
+        sounds.playXPGain();
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue lors de la validation.");
     } finally {
@@ -125,6 +167,9 @@ export default function ProclaimPage() {
   };
 
   const toggleListening = () => {
+    if (!isListening) {
+      sounds.playSuccess();
+    }
     setIsListening((prev) => !prev);
   };
 
@@ -132,28 +177,47 @@ export default function ProclaimPage() {
   const progressPercent = (timeLeft / 30) * 100;
   const canGoNext = timeLeft <= 20; // 10 secondes écoulées (30 - 20)
 
-  // Manny mood logic for phase 2
+  // Gestion de l'humeur de Manny
   const getMannyMood = () => {
     if (timeLeft === 0) return "celebrating";
     return "praying";
   };
 
+  // Déclencher le modal d'abandon
+  const handleTriggerAbandon = () => {
+    sounds.playAbandonWarning();
+    setAbandonMessage(getMannyMessage("abandon_attempt", userName, streakCount));
+    setShowAbandonModal(true);
+  };
+
+  const handleConfirmStay = () => {
+    setShowAbandonModal(false);
+  };
+
+  const handleConfirmAbandon = () => {
+    setShowAbandonModal(false);
+    setPhase(1);
+    setCurrentVerseIndex(0);
+    setTimeLeft(30);
+    setIsRunning(false);
+  };
+
   return (
     <div className={cn(
-      "w-full max-w-4xl mx-auto rounded-3xl p-6 md:p-10 transition-all duration-700 min-h-[80vh] flex flex-col justify-between space-y-8",
+      "w-full max-w-4xl mx-auto rounded-3xl p-6 md:p-10 transition-all duration-700 min-h-[80vh] flex flex-col justify-between space-y-8 relative",
       phase === 1 && "bg-transparent",
       phase === 2 && "bg-indigo-950 text-indigo-100 shadow-2xl border border-indigo-900 relative overflow-hidden",
       phase === 3 && "bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-yellow-500/5 border border-amber-500/20 shadow-2xl"
     )}>
-      {/* Background soft glowing lights for phase 2 */}
+      {/* Halo lumineux d'arrière-plan immersif en phase 2 */}
       {phase === 2 && (
         <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" />
         </div>
       )}
 
-      {/* Header bar */}
+      {/* Barre d'étape / progression globale */}
       <div className="w-full">
         <div className="flex justify-between items-center mb-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
           <span>Proclamations Quotidiennes</span>
@@ -185,6 +249,12 @@ export default function ProclaimPage() {
               className="space-y-8 flex flex-col items-center"
             >
               <Manny mood="praying" size={120} />
+
+              {welcomeMessage && (
+                <div className="text-center bg-indigo-50/50 border border-indigo-100/50 text-indigo-800 p-4 px-6 rounded-2xl text-sm font-extrabold max-w-md shadow-sm">
+                  {welcomeMessage}
+                </div>
+              )}
 
               <div className="text-center space-y-3">
                 <h1 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tight">
@@ -234,7 +304,7 @@ export default function ProclaimPage() {
               className="space-y-8 flex flex-col items-center"
             >
               <div className="flex justify-between w-full items-center">
-                {/* Minuteur & Controls */}
+                {/* Minuteur & Boutons de Contrôle */}
                 <div className="flex items-center gap-3 bg-indigo-900/60 p-2 px-4 rounded-full border border-indigo-800">
                   <button 
                     onClick={() => setIsRunning(!isRunning)}
@@ -254,7 +324,7 @@ export default function ProclaimPage() {
                 </div>
               </div>
 
-              {/* Timer Progress Bar */}
+              {/* Barre de progression du minuteur */}
               <div className="w-full h-1.5 bg-indigo-900/50 rounded-full overflow-hidden">
                 <motion.div 
                   initial={{ width: "100%" }}
@@ -264,12 +334,11 @@ export default function ProclaimPage() {
                 />
               </div>
 
-              {/* Character mascot */}
               <div className="py-2">
                 <Manny mood={getMannyMood()} size={120} />
               </div>
 
-              {/* Main Verse Proclamation Card */}
+              {/* Conteneur principal de proclamation */}
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentVerseIndex}
@@ -288,7 +357,7 @@ export default function ProclaimPage() {
                 </motion.div>
               </AnimatePresence>
 
-              {/* Interactive Voice Simulator */}
+              {/* Simulateur Audio Interactif */}
               <div className="flex flex-col items-center gap-2">
                 <button
                   onClick={toggleListening}
@@ -301,7 +370,7 @@ export default function ProclaimPage() {
                 >
                   {isListening ? (
                     <>
-                      <Mic className="w-5 h-5 text-white" />
+                      <Mic className="w-5 h-5 text-white animate-bounce" />
                       <span>Écoute active en cours...</span>
                     </>
                   ) : (
@@ -316,14 +385,10 @@ export default function ProclaimPage() {
                 </p>
               </div>
 
-              {/* Bottom Buttons */}
+              {/* Pied de carte interactif */}
               <div className="flex gap-4 w-full justify-center pt-4 border-t border-indigo-900/60">
                 <button
-                  onClick={() => {
-                    if (confirm("Voulez-vous vraiment quitter la session en cours ?")) {
-                      setPhase(1);
-                    }
-                  }}
+                  onClick={handleTriggerAbandon}
                   className="px-6 py-3 bg-indigo-950 text-indigo-300 border border-indigo-900/60 rounded-xl hover:bg-indigo-900/50 font-bold transition-all text-sm"
                 >
                   Abandonner
@@ -335,7 +400,7 @@ export default function ProclaimPage() {
                   className={cn(
                     "flex items-center gap-2 px-8 py-3.5 font-extrabold rounded-xl transition-all shadow-lg text-sm",
                     canGoNext 
-                      ? "bg-purple-500 text-white hover:bg-purple-650" 
+                      ? "bg-purple-500 text-white hover:bg-purple-650 cursor-pointer" 
                       : "bg-indigo-900/50 text-indigo-400 cursor-not-allowed border border-indigo-800/20"
                   )}
                 >
@@ -371,7 +436,7 @@ export default function ProclaimPage() {
                   Proclamations terminées ! 🎉
                 </h2>
                 <p className="text-slate-500 font-medium text-sm">
-                  Ta bouche a déclaré la Parole, ton esprit est renouvelé et fortifié.
+                  {getMannyMessage("session_complete", userName, sessionResult.streak)}
                 </p>
               </div>
 
@@ -407,7 +472,7 @@ export default function ProclaimPage() {
                   </div>
                   <h4 className="font-black text-lg tracking-tight">NOUVEAU NIVEAU ATTEINT ! 🎉</h4>
                   <p className="text-sm font-extrabold">
-                    Félicitations, tu passes au niveau {sessionResult.newLevel} : <span className="underline">{sessionResult.levelName}</span> !
+                    {getMannyMessage("level_up", userName, sessionResult.streak)}
                   </p>
                 </motion.div>
               )}
@@ -441,6 +506,46 @@ export default function ProclaimPage() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Modal d'abandon Manny */}
+      <AnimatePresence>
+        {showAbandonModal && (
+          <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-150 flex flex-col items-center text-center space-y-6"
+            >
+              <Manny mood="encouraging" size={120} />
+              
+              <div className="space-y-2 text-slate-800">
+                <h3 className="text-xl font-black text-slate-850">
+                  Ne pars pas déjà ! 🙏
+                </h3>
+                <p className="text-slate-500 font-medium text-sm leading-relaxed">
+                  {abandonMessage}
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-3 w-full pt-2">
+                <button
+                  onClick={handleConfirmStay}
+                  className="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-xl shadow-md transition-all active:scale-[0.98] text-sm"
+                >
+                  Rester avec Dieu
+                </button>
+                <button
+                  onClick={handleConfirmAbandon}
+                  className="py-3.5 px-4 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl font-bold transition-all text-sm"
+                >
+                  Quitter quand même
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
