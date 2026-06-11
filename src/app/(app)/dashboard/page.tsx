@@ -8,6 +8,7 @@ import RandomMascotMessage from "@/components/dashboard/RandomMascotMessage";
 import XPBar from "@/components/gamification/XPBar";
 import StreakCounter from "@/components/gamification/StreakCounter";
 import BadgeCard from "@/components/gamification/BadgeCard";
+import LingotsCounter from "@/components/gamification/LingotsCounter";
 import { BookOpen, Play, CheckCircle } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +30,8 @@ export default async function DashboardPage() {
   let currentStreak = 0;
   let longestStreak = 0;
   let badges: Array<{ id: string; name: string; description: string; icon: string; earnedAt: string }> = [];
+  let lingots = 0;
+  let freezesAvailable = 0;
 
   if (userId) {
     try {
@@ -45,6 +48,7 @@ export default async function DashboardPage() {
             level: "Semence",
             versesLearned: 0,
             sessionsTotal: 0,
+            lingots: 0,
           },
         });
       }
@@ -52,6 +56,13 @@ export default async function DashboardPage() {
       totalXP = progress.totalXP;
       versesLearned = progress.versesLearned;
       sessionsTotal = progress.sessionsTotal;
+      lingots = progress.lingots;
+
+      // Récupérer le streak freeze
+      const streakFreeze = await db.streakFreeze.findUnique({
+        where: { userId }
+      });
+      freezesAvailable = streakFreeze ? streakFreeze.freezesAvailable : 0;
 
       // Calcul des niveaux et pourcentage de progression en local
       const levelInfo = getLevelFromXP(totalXP);
@@ -139,6 +150,9 @@ export default async function DashboardPage() {
           </p>
         </div>
       </section>
+
+      {/* COMPTEUR DE LINGOTS ET STREAK FREEZE */}
+      <LingotsCounter initialLingots={lingots} initialFreezes={freezesAvailable} />
 
       <section className="flex justify-center md:justify-start">
         <RandomMascotMessage

@@ -22,6 +22,7 @@ model User {
   badges        UserBadge[]
   progress      UserProgress?
   proclamations UserProclamation[]
+  streakFreeze  StreakFreeze?
 }
 
 model Account {
@@ -141,6 +142,7 @@ model UserProgress {
   level         String   @default("Semence")
   versesLearned Int      @default(0)
   sessionsTotal Int      @default(0)
+  lingots       Int      @default(0)
   updatedAt     DateTime @updatedAt
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -155,4 +157,13 @@ model UserProclamation {
   verse   Verse    @relation(fields: [verseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, verseId])
+}
+
+model StreakFreeze {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  freezesAvailable Int      @default(0)
+  lastUsedAt       DateTime?
+  createdAt        DateTime @default(now())
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
