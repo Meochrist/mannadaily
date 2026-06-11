@@ -91,6 +91,7 @@ model DailySession {
   type      String   // classic / thematic / proclamation
   xpEarned  Int
   duration  Int      // in seconds
+  notes     String?  @db.Text
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

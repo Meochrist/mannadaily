@@ -1,7 +1,9 @@
 import React from "react";
 import Link from "next/link";
-import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { getLevelFromXP, getXPProgress } from "@/lib/gamification";
+import { getDailyVerse } from "@/lib/verses";
 import MannyMessage from "@/components/mascot/MannyMessage";
 import XPBar from "@/components/gamification/XPBar";
 import StreakCounter from "@/components/gamification/StreakCounter";
@@ -10,65 +12,90 @@ import { BookOpen, Play, CheckCircle } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-interface ProgressData {
-  progress: {
-    totalXP: number;
-    levelName: string;
-    progressPercent: number;
-    versesLearned: number;
-    sessionsTotal: number;
-  };
-  streak: {
-    currentStreak: number;
-    longestStreak: number;
-  };
-  badges: Array<{
-    id: string;
-    name: string;
-    description: string;
-    icon: string;
-    earnedAt: string;
-  }>;
-}
-
 export default async function DashboardPage() {
   const session = await auth();
+  const userId = session?.user?.id;
   const userName = session?.user?.name || "Ami";
 
-  let data: ProgressData = {
-    progress: {
-      totalXP: 0,
-      levelName: "Semence",
-      progressPercent: 0,
-      versesLearned: 0,
-      sessionsTotal: 0,
-    },
-    streak: {
-      currentStreak: 0,
-      longestStreak: 0,
-    },
-    badges: [],
-  };
+  // Récupérer le verset quotidien dynamique via notre système de rotation
+  const dailyVerse = getDailyVerse();
 
-  try {
-    const reqHeaders = await headers();
-    const cookie = reqHeaders.get("cookie");
-    const host = reqHeaders.get("host") || "localhost:3000";
-    const protocol = host.includes("localhost") ? "http" : "https";
-    const baseUrl = `${protocol}://${host}`;
+  // Initialisation des données par défaut
+  let totalXP = 0;
+  let levelName = "Semence";
+  let progressPercent = 0;
+  let versesLearned = 0;
+  let sessionsTotal = 0;
+  let currentStreak = 0;
+  let longestStreak = 0;
+  let badges: Array<{ id: string; name: string; description: string; icon: string; earnedAt: string }> = [];
 
-    const res = await fetch(`${baseUrl}/api/user/progress`, {
-      cache: "no-store",
-      headers: {
-        cookie: cookie || "",
-      },
-    });
+  if (userId) {
+    try {
+      // 1. Récupération directe de la progression de l'utilisateur
+      let progress = await db.userProgress.findUnique({
+        where: { userId },
+      });
 
-    if (res.ok) {
-      data = await res.json();
+      if (!progress) {
+        progress = await db.userProgress.create({
+          data: {
+            userId,
+            totalXP: 0,
+            level: "Semence",
+            versesLearned: 0,
+            sessionsTotal: 0,
+          },
+        });
+      }
+
+      totalXP = progress.totalXP;
+      versesLearned = progress.versesLearned;
+      sessionsTotal = progress.sessionsTotal;
+
+      // Calcul des niveaux et pourcentage de progression en local
+      const levelInfo = getLevelFromXP(totalXP);
+      levelName = levelInfo.name;
+      progressPercent = getXPProgress(totalXP);
+
+      // 2. Récupération directe du streak
+      let streak = await db.streak.findUnique({
+        where: { userId },
+      });
+
+      if (!streak) {
+        streak = await db.streak.create({
+          data: {
+            userId,
+            currentStreak: 0,
+            longestStreak: 0,
+            lastActivityAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+          },
+        });
+      }
+
+      currentStreak = streak.currentStreak;
+      longestStreak = streak.longestStreak;
+
+      // 3. Récupération directe des badges
+      const userBadges = await db.userBadge.findMany({
+        where: { userId },
+        include: {
+          badge: true,
+        },
+      });
+
+      badges = userBadges.map((ub) => ({
+        id: ub.badge.id,
+        name: ub.badge.name,
+        description: ub.badge.description,
+        icon: ub.badge.icon,
+        earnedAt: ub.earnedAt.toISOString(),
+      }));
+
+    } catch (error) {
+      console.error("Error fetching user data directly in DashboardPage:", error);
     }
-  } catch (error) {
-    console.warn("Failed to fetch user progress from API, using default static values:", error);
   }
 
   const defaultBadges = [
@@ -93,7 +120,7 @@ export default async function DashboardPage() {
   ];
 
   const badgesToDisplay = defaultBadges.map((db) => {
-    const earned = data.badges.find((b) => b.name === db.name);
+    const earned = badges.find((b) => b.name === db.name);
     return {
       ...db,
       earnedAt: earned ? earned.earnedAt : null,
@@ -124,15 +151,15 @@ export default async function DashboardPage() {
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
           <XPBar
-            currentXP={data.progress.totalXP}
-            levelName={data.progress.levelName}
-            progressPercent={data.progress.progressPercent}
+            currentXP={totalXP}
+            levelName={levelName}
+            progressPercent={progressPercent}
           />
         </div>
         <div>
           <StreakCounter
-            currentStreak={data.streak.currentStreak}
-            longestStreak={data.streak.longestStreak}
+            currentStreak={currentStreak}
+            longestStreak={longestStreak}
           />
         </div>
       </section>
@@ -145,13 +172,13 @@ export default async function DashboardPage() {
 
           <div className="space-y-4 relative z-10">
             <div className="inline-block px-3.5 py-1 bg-indigo-800/80 rounded-full border border-indigo-700/60 text-xs font-bold uppercase tracking-wider text-indigo-200">
-              Verset du jour
+              Verset du jour (Thème : {dailyVerse.theme})
             </div>
             <blockquote className="text-2xl font-black leading-snug tracking-tight italic">
-              « Je puis tout par celui qui me fortifie. »
+              « {dailyVerse.text} »
             </blockquote>
             <cite className="block text-sm font-bold text-indigo-300 not-italic uppercase tracking-widest">
-              — Philippiens 4:13
+              — {dailyVerse.reference}
             </cite>
           </div>
 
@@ -178,11 +205,11 @@ export default async function DashboardPage() {
           <div className="space-y-4 flex-1 flex flex-col justify-center">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <span className="text-slate-500 font-medium text-sm">Sessions totales</span>
-              <span className="text-slate-800 font-black text-lg">{data.progress.sessionsTotal}</span>
+              <span className="text-slate-800 font-black text-lg">{sessionsTotal}</span>
             </div>
             <div className="flex items-center justify-between pt-1">
               <span className="text-slate-500 font-medium text-sm">Versets mémorisés</span>
-              <span className="text-slate-800 font-black text-lg">{data.progress.versesLearned}</span>
+              <span className="text-slate-800 font-black text-lg">{versesLearned}</span>
             </div>
           </div>
           <div className="text-[11px] font-bold text-indigo-600 bg-indigo-50/50 p-2.5 rounded-lg border border-indigo-100/30 text-center mt-4">
@@ -195,7 +222,7 @@ export default async function DashboardPage() {
         <div className="flex items-center justify-between">
           <h3 className="text-xl font-black text-slate-800 tracking-tight">Mes badges spirituels</h3>
           <span className="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
-            {data.badges.length} / {defaultBadges.length} obtenus
+            {badges.length} / {defaultBadges.length} obtenus
           </span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">

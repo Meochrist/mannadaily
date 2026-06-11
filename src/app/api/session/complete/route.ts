@@ -15,14 +15,17 @@ export async function POST(req: Request) {
 
     const userId = session.user.id;
     const body = await req.json();
-    const { type } = body;
+    const { type, notes } = body;
 
     const allowedTypes = ["classic", "thematic", "proclaim", "proclamation"];
     if (!type || !allowedTypes.includes(type)) {
       return NextResponse.json({ error: "Invalid or missing session type" }, { status: 400 });
     }
 
-    const xpEarned = XP_RULES.DAILY_MEDITATION;
+    // Si le type est proclamation, on applique les règles d'XP de proclamation
+    const isProclamation = type === "proclamation" || type === "proclaim";
+    const xpReason = isProclamation ? "PROCLAMATION_SESSION" : "DAILY_MEDITATION";
+    const xpEarned = XP_RULES[xpReason];
 
     await db.dailySession.create({
       data: {
@@ -30,10 +33,11 @@ export async function POST(req: Request) {
         type,
         xpEarned,
         duration: 120,
+        notes: notes || null,
       },
     });
 
-    const xpResult = await awardXP(userId, "DAILY_MEDITATION");
+    const xpResult = await awardXP(userId, xpReason);
 
     const currentStreak = await updateStreak(userId);
 

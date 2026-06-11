@@ -1,9 +1,9 @@
 import React from "react";
-import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { LEVELS } from "@/types";
 import { cn } from "@/lib/utils";
+import { getLevelFromXP, getXPProgress } from "@/lib/gamification";
 import MannyMessage from "@/components/mascot/MannyMessage";
 import XPBar from "@/components/gamification/XPBar";
 import StreakCounter from "@/components/gamification/StreakCounter";
@@ -78,7 +78,6 @@ export default async function ProgressPage() {
 
   if (userId) {
     try {
-      // Récupérer la date d'inscription réelle en base
       const dbUser = await db.user.findUnique({
         where: { id: userId },
         select: { createdAt: true },
@@ -87,25 +86,74 @@ export default async function ProgressPage() {
         signUpDate = dbUser.createdAt;
       }
 
-      // Fetch progress data from API
-      const reqHeaders = await headers();
-      const cookie = reqHeaders.get("cookie");
-      const host = reqHeaders.get("host") || "localhost:3000";
-      const protocol = host.includes("localhost") ? "http" : "https";
-      const baseUrl = `${protocol}://${host}`;
+      let progress = await db.userProgress.findUnique({
+        where: { userId },
+      });
 
-      const res = await fetch(`${baseUrl}/api/user/progress`, {
-        cache: "no-store",
-        headers: {
-          cookie: cookie || "",
+      if (!progress) {
+        progress = await db.userProgress.create({
+          data: {
+            userId,
+            totalXP: 0,
+            level: "Semence",
+            versesLearned: 0,
+            sessionsTotal: 0,
+          },
+        });
+      }
+
+      let streak = await db.streak.findUnique({
+        where: { userId },
+      });
+
+      if (!streak) {
+        streak = await db.streak.create({
+          data: {
+            userId,
+            currentStreak: 0,
+            longestStreak: 0,
+            lastActivityAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+          },
+        });
+      }
+
+      const userBadges = await db.userBadge.findMany({
+        where: { userId },
+        include: {
+          badge: true,
         },
       });
 
-      if (res.ok) {
-        data = await res.json();
-      }
+      const levelInfo = getLevelFromXP(progress.totalXP);
+      const progressPercent = getXPProgress(progress.totalXP);
+
+      data = {
+        progress: {
+          totalXP: progress.totalXP,
+          level: progress.level,
+          levelNumber: levelInfo.level,
+          levelName: levelInfo.name,
+          xpRequired: levelInfo.xpRequired,
+          xpNext: levelInfo.xpNext,
+          progressPercent,
+          versesLearned: progress.versesLearned,
+          sessionsTotal: progress.sessionsTotal,
+        },
+        streak: {
+          currentStreak: streak.currentStreak,
+          longestStreak: streak.longestStreak,
+          lastActivityAt: streak.lastActivityAt.toISOString(),
+        },
+        badges: userBadges.map((ub) => ({
+          id: ub.badge.id,
+          name: ub.badge.name,
+          description: ub.badge.description,
+          icon: ub.badge.icon,
+          earnedAt: ub.earnedAt.toISOString(),
+        })),
+      };
     } catch (error) {
-      console.warn("Failed to fetch custom progress in ProgressPage:", error);
+      console.error("Error fetching custom progress in ProgressPage:", error);
     }
   }
 

@@ -9,11 +9,7 @@ import { BookOpen, Sparkles, Send, Award, Flame, CheckCircle, ArrowRight } from 
 import { getMannyMessage } from "@/lib/mannyMessages";
 import * as sounds from "@/lib/sounds";
 
-const staticVerse = {
-  text: "Je puis tout par celui qui me fortifie.",
-  reference: "Philippiens 4:13",
-  theme: "Foi",
-};
+import { getDailyVerse, Verse as DailyVerseType } from "@/lib/verses";
 
 interface SessionResult {
   xpEarned: number;
@@ -38,6 +34,7 @@ export default function MeditatePage() {
     truth: "",
     decision: "",
   });
+  const [dailyVerse, setDailyVerse] = useState<DailyVerseType | null>(null);
   const [sessionResult, setSessionResult] = useState<SessionResult | null>(null);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -55,6 +52,9 @@ export default function MeditatePage() {
   const [loadingMessage, setLoadingMessage] = useState("");
 
   useEffect(() => {
+    // Initialiser le verset du jour
+    setDailyVerse(getDailyVerse());
+
     // Récupérer le nom et le streak de l'utilisateur
     fetch("/api/user/progress")
       .then((res) => res.json())
@@ -87,9 +87,9 @@ export default function MeditatePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          verse: staticVerse.text,
-          reference: staticVerse.reference,
-          theme: staticVerse.theme,
+          verse: dailyVerse?.text || "Je puis tout par celui qui me fortifie.",
+          reference: dailyVerse?.reference || "Philippiens 4:13",
+          theme: dailyVerse?.theme || "Foi",
         }),
       });
 
@@ -112,10 +112,15 @@ export default function MeditatePage() {
     setError("");
 
     try {
+      const journalNotes = `1. Situation : ${answers.situation}\n2. Vérité : ${answers.truth}\n3. Décision : ${answers.decision}`;
+
       const res = await fetch("/api/session/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "classic" }),
+        body: JSON.stringify({ 
+          type: "classic",
+          notes: journalNotes 
+        }),
       });
 
       const data = await res.json();
@@ -207,13 +212,13 @@ export default function MeditatePage() {
                   <BookOpen className="w-24 h-24" />
                 </div>
                 <span className="inline-block px-3 py-1 bg-indigo-50 text-indigo-700 font-extrabold text-xs uppercase tracking-wider rounded-full">
-                  Thème : {staticVerse.theme}
+                  Thème : {dailyVerse?.theme || "Foi"}
                 </span>
                 <blockquote className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight leading-snug">
-                  « {staticVerse.text} »
+                  « {dailyVerse?.text || "Je puis tout par celui qui me fortifie."} »
                 </blockquote>
                 <cite className="block text-sm font-bold text-slate-400 uppercase tracking-widest not-italic">
-                  — {staticVerse.reference}
+                  — {dailyVerse?.reference || "Philippiens 4:13"}
                 </cite>
               </div>
 
