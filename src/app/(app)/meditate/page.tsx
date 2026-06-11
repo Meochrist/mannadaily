@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Manny from "@/components/mascot/Manny";
-import MannyMessage from "@/components/mascot/MannyMessage";
 import { cn } from "@/lib/utils";
 import { 
   BookOpen, 
@@ -15,15 +14,13 @@ import {
   CheckCircle, 
   ArrowRight, 
   ArrowLeft,
-  Info,
-  HelpCircle,
-  Clock,
   Heart,
-  MessageSquare
+  HelpCircle,
+  Clock
 } from "lucide-react";
 import { getMannyMessage } from "@/lib/mannyMessages";
 import * as sounds from "@/lib/sounds";
-import { getDailyVerse, Verse as DailyVerseType } from "@/lib/verses";
+import { getDailyVerse, getVerseContext, Verse as DailyVerseType } from "@/lib/verses";
 
 interface SessionResult {
   xpEarned: number;
@@ -71,8 +68,10 @@ export default function MeditatePage() {
   // Verset du jour
   const [dailyVerse, setDailyVerse] = useState<DailyVerseType | null>(null);
 
-  // Contenus générés par l'IA
-  const [bibleContext, setBibleContext] = useState("");
+  // Contexte biblique (lecture seule en local)
+  const [bibleContext, setBibleContext] = useState<{ before: DailyVerseType[]; after: DailyVerseType[] }>({ before: [], after: [] });
+
+  // Contenus générés par l'IA (historique et prière)
   const [historicalContext, setHistoricalContext] = useState("");
   const [prayerContent, setPrayerContent] = useState("");
 
@@ -111,10 +110,11 @@ export default function MeditatePage() {
   // Suggestions des mascottes : visibilité individuelle
   const [showSuggestion, setShowSuggestion] = useState(true);
 
-  // Charger le profil utilisateur et initialiser le verset
+  // Charger le profil utilisateur, initialiser le verset et son contexte
   useEffect(() => {
     const verse = getDailyVerse();
     setDailyVerse(verse);
+    setBibleContext(getVerseContext(verse.reference));
 
     fetch("/api/user/progress")
       .then((res) => res.json())
@@ -136,33 +136,42 @@ export default function MeditatePage() {
     setShowSuggestion(true);
   }, [currentStep]);
 
-  // Appel IA pour l'étape 2 (Contexte biblique)
-  const fetchBibleContext = async (verseObj: DailyVerseType) => {
-    setLoading(true);
-    setError("");
-    setLoadingMessage(getMannyMessage("loading", userName, streakCount));
-
-    try {
-      const res = await fetch("/api/meditation/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          verse: verseObj.text,
-          reference: verseObj.reference,
-          theme: verseObj.theme,
-          type: "contexte_biblique"
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Échec de la génération du contexte biblique.");
-      setBibleContext(data.meditation);
-      sounds.playSuccess();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Erreur inconnue");
-    } finally {
-      setLoading(false);
-    }
+  // CORRECTION 2 : Validation des étapes (min. 10 caractères dans au moins 1 textarea)
+  const isStepValid = () => {
+    switch (currentStep) {
+      case 2:
+        return (
+          answers.step2_who.trim().length >= 10 ||
+          answers.step2_whom.trim().length >= 10 ||
+          answers.step2_before.trim().length >= 10
+        );
+      case 3:
+        return (
+          answers.step3_epoch.trim().length >= 10 ||
+          answers.step3_dest.trim().length >= 10 ||
+          answers.step3_problem.trim().length >= 10
+        );
+      case 4:
+        return (
+          answers.step4_actors.trim().length >= 10 ||
+          answers.step4_repeats.trim().length >= 10 ||
+          answers.step4_action.trim().length >= 10
+        );
+      case 5:
+        return (
+          answers.step5_author.trim().length >= 10 ||
+          answers.step5_jesus.trim().length >= 10 ||
+          answers.step5_summary.trim().length >= 10
+        );
+      case 6:
+        return (
+          answers.step6_situation.trim().length >= 10 ||
+          answers.step6_transform.trim().length >= 10 ||
+          answers.step6_decision.trim().length >= 10
+        );
+      default:
+        return true; // Étape 1 et 7 sont toujours libres/valides d'office
+     }
   };
 
   // Appel IA pour l'étape 3 (Contexte historique)
@@ -229,11 +238,8 @@ export default function MeditatePage() {
 
     const nextStep = (currentStep + 1) as 2 | 3 | 4 | 5 | 6 | 7;
 
-    if (nextStep === 2 && !bibleContext) {
-      sounds.playSessionStart();
-      setCurrentStep(nextStep);
-      await fetchBibleContext(dailyVerse);
-    } else if (nextStep === 3 && !historicalContext) {
+    // CORRECTION 1 : L'étape 2 (Contexte biblique) est locale et ne fait plus de fetch IA
+    if (nextStep === 3 && !historicalContext) {
       sounds.playSessionStart();
       setCurrentStep(nextStep);
       await fetchHistoricalContext(dailyVerse);
@@ -351,7 +357,6 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
   const handleConfirmAbandon = () => {
     setShowAbandonModal(false);
     setCurrentStep(1);
-    setBibleContext("");
     setHistoricalContext("");
     setPrayerContent("");
     setAnswers({
@@ -374,31 +379,92 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
     setSessionResult(null);
   };
 
-  // Mascotte / Suggestion cliquable en bas
-  const renderMascotSuggestion = (mascotName: string, promptText: string, themeColor: string) => {
-    if (!showSuggestion) return null;
+  // CORRECTION 3 : Redesign des suggestions mascottes sous forme de notification Duolingo
+  const getMascotForStep = () => {
+    switch (currentStep) {
+      case 2:
+        return {
+          name: "Gédéon",
+          emoji: "🛡️",
+          text: "Lis 2-3 versets avant et après dans ta Bible !",
+          bgColor: "bg-amber-50 border-amber-200/60 text-amber-900",
+          badgeColor: "bg-amber-100 text-amber-800",
+          closeBg: "hover:bg-amber-200/70"
+        };
+      case 3:
+        return {
+          name: "Gédéon",
+          emoji: "📖",
+          text: "Cherche le mot clé dans un dictionnaire Strong pour aller plus loin !",
+          bgColor: "bg-amber-50 border-amber-200/60 text-amber-900",
+          badgeColor: "bg-amber-100 text-amber-800",
+          closeBg: "hover:bg-amber-200/70"
+        };
+      case 4:
+        return {
+          name: "Noé",
+          emoji: "🕊️",
+          text: "Lis ce verset dans une autre traduction (Darby, TOB, NBS) !",
+          bgColor: "bg-sky-50 border-sky-200/60 text-sky-900",
+          badgeColor: "bg-sky-100 text-sky-850",
+          closeBg: "hover:bg-sky-200/70"
+        };
+      case 5:
+        return {
+          name: "Esther",
+          emoji: "👑",
+          text: "Cherche ce passage dans un commentaire biblique en ligne !",
+          bgColor: "bg-fuchsia-50 border-fuchsia-200/60 text-fuchsia-900",
+          badgeColor: "bg-fuchsia-100 text-fuchsia-850",
+          closeBg: "hover:bg-fuchsia-200/70"
+        };
+      case 6:
+        return {
+          name: "Samson",
+          emoji: "💪",
+          text: "Maintenant applique cette vérité ! La foi sans les œuvres est morte !",
+          bgColor: "bg-orange-50 border-orange-200/60 text-orange-900",
+          badgeColor: "bg-orange-100 text-orange-850",
+          closeBg: "hover:bg-orange-200/70"
+        };
+      default:
+        return null;
+    }
+  };
+
+  const renderDuolingoMascot = () => {
+    const mascotData = getMascotForStep();
+    if (!mascotData || !showSuggestion) return null;
 
     return (
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }}
+      <motion.div
+        initial={{ opacity: 0, y: 35 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 10 }}
-        onClick={() => setShowSuggestion(false)}
+        exit={{ opacity: 0, y: 35 }}
+        transition={{ type: "spring", stiffness: 260, damping: 22 }}
         className={cn(
-          "w-full cursor-pointer p-4 rounded-2xl border flex items-start gap-4 transition shadow-sm hover:shadow-md relative overflow-hidden group",
-          themeColor
+          "w-full flex items-center justify-between p-4.5 rounded-2xl border shadow-sm relative overflow-hidden transition-all duration-300",
+          mascotData.bgColor
         )}
       >
-        <div className="flex-shrink-0 pt-1">
-          <Info className="w-5 h-5 opacity-80" />
+        <div className="flex items-center gap-3.5 flex-1 pr-4">
+          <span className="text-3xl select-none filter drop-shadow-sm">{mascotData.emoji}</span>
+          <div className="space-y-0.5">
+            <span className={cn("inline-block text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full select-none", mascotData.badgeColor)}>
+              {mascotData.name} suggère
+            </span>
+            <p className="text-xs md:text-sm font-extrabold leading-normal">{mascotData.text}</p>
+          </div>
         </div>
-        <div className="flex-1 space-y-1">
-          <h5 className="font-black text-xs uppercase tracking-wider opacity-90">Suggestion de {mascotName}</h5>
-          <p className="text-xs font-semibold leading-relaxed">{promptText}</p>
-        </div>
-        <div className="absolute right-2 top-2 text-[10px] font-bold opacity-0 group-hover:opacity-40 transition-opacity">
-          Cliquer pour masquer
-        </div>
+        <button
+          onClick={() => setShowSuggestion(false)}
+          className={cn(
+            "w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors font-black text-sm",
+            mascotData.closeBg
+          )}
+        >
+          ×
+        </button>
       </motion.div>
     );
   };
@@ -451,7 +517,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                 <p className="text-slate-400 font-semibold text-sm animate-pulse max-w-xs mx-auto">
                   {currentStep === 7 
                     ? "Je rédige une prière inspirée pour sceller ton temps de méditation..." 
-                    : "J'analyse le texte sacré pour te fournir des clés de compréhension."
+                    : "J'analyse l'arrière-plan historique de l'Écriture..."
                   }
                 </p>
               </div>
@@ -467,7 +533,6 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
               <p className="text-rose-600 text-sm font-semibold leading-relaxed">{error}</p>
               <button
                 onClick={() => {
-                  if (currentStep === 2 && dailyVerse) fetchBibleContext(dailyVerse);
                   if (currentStep === 3 && dailyVerse) fetchHistoricalContext(dailyVerse);
                   if (currentStep === 7 && dailyVerse) fetchPrayer(dailyVerse);
                 }}
@@ -520,7 +585,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                 </motion.div>
               )}
 
-              {/* ÉTAPE 2 : CONTEXTE BIBLIQUE */}
+              {/* ÉTAPE 2 : CONTEXTE BIBLIQUE (CORRECTION 1 : Versets voisins réels en lecture seule) */}
               {currentStep === 2 && dailyVerse && (
                 <motion.div
                   key="step2"
@@ -529,14 +594,42 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   exit={{ opacity: 0, scale: 0.98 }}
                   className="space-y-6"
                 >
-                  <div className="bg-indigo-50/30 p-6 rounded-2xl border border-indigo-100/50 space-y-3">
-                    <div className="flex items-center gap-2 text-indigo-800">
+                  <div className="space-y-4 bg-indigo-50/35 p-6 rounded-2xl border border-indigo-100/50">
+                    <div className="flex items-center gap-2 text-indigo-800 border-b border-indigo-100 pb-2 mb-3">
                       <BookOpen className="w-5 h-5 text-indigo-600" />
-                      <h4 className="font-black text-sm uppercase tracking-wider">Contexte Biblique (IA)</h4>
+                      <h4 className="font-black text-sm uppercase tracking-wider">Contexte Biblique Immédiat</h4>
                     </div>
-                    <p className="text-slate-700 font-medium text-sm md:text-base leading-relaxed whitespace-pre-line text-justify">
-                      {bibleContext}
-                    </p>
+                    
+                    <div className="space-y-4">
+                      {bibleContext.before.length > 0 && (
+                        <div className="space-y-2">
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Avant...</span>
+                          {bibleContext.before.map((v, i) => (
+                            <p key={i} className="text-xs md:text-sm font-bold text-slate-500 leading-relaxed italic">
+                              « {v.text} » <span className="text-[9px] font-black text-slate-400 not-italic uppercase">({v.reference})</span>
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                      
+                      <div className="p-3.5 bg-white border border-indigo-100/70 rounded-xl space-y-1">
+                        <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest block">Verset à l'étude :</span>
+                        <p className="text-sm md:text-base font-extrabold text-slate-800 leading-relaxed">
+                          « {dailyVerse.text} » <span className="text-xs font-black text-indigo-600 uppercase">({dailyVerse.reference})</span>
+                        </p>
+                      </div>
+
+                      {bibleContext.after.length > 0 && (
+                        <div className="space-y-2">
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Après...</span>
+                          {bibleContext.after.map((v, i) => (
+                            <p key={i} className="text-xs md:text-sm font-bold text-slate-500 leading-relaxed italic">
+                              « {v.text} » <span className="text-[9px] font-black text-slate-400 not-italic uppercase">({v.reference})</span>
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="space-y-4">
@@ -576,7 +669,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                     </div>
                   </div>
 
-                  {renderMascotSuggestion("Gédéon", "Lis 2-3 versets avant et après dans ta Bible !", "bg-emerald-50/70 border-emerald-100/50 text-emerald-800")}
+                  {renderDuolingoMascot()}
                 </motion.div>
               )}
 
@@ -625,7 +718,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                     </div>
 
                     <div className="space-y-3">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quel problème ou situation ce texte adressait-il ?</label>
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quel problem ou situation ce texte adressait-il ?</label>
                       <textarea
                         rows={2}
                         value={answers.step3_problem}
@@ -636,7 +729,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                     </div>
                   </div>
 
-                  {renderMascotSuggestion("Gédéon", "Cherche le mot clé dans un dictionnaire Strong pour aller plus loin !", "bg-amber-50/70 border-amber-100/50 text-amber-800")}
+                  {renderDuolingoMascot()}
                 </motion.div>
               )}
 
@@ -690,7 +783,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                     </div>
                   </div>
 
-                  {renderMascotSuggestion("Noé", "Lis ce verset dans une autre traduction (Darby, TOB, NBS) !", "bg-blue-50/70 border-blue-100/50 text-blue-800")}
+                  {renderDuolingoMascot()}
                 </motion.div>
               )}
 
@@ -744,7 +837,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                     </div>
                   </div>
 
-                  {renderMascotSuggestion("Esther", "Cherche ce passage dans un commentaire biblique en ligne !", "bg-purple-50/70 border-purple-100/50 text-purple-800")}
+                  {renderDuolingoMascot()}
                 </motion.div>
               )}
 
@@ -798,7 +891,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                     </div>
                   </div>
 
-                  {renderMascotSuggestion("Samson", "Maintenant applique cette vérité ! La foi sans les œuvres est morte !", "bg-rose-50/75 border-rose-100/50 text-rose-800")}
+                  {renderDuolingoMascot()}
                 </motion.div>
               )}
 
@@ -937,30 +1030,49 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
 
       {/* 3. BARRE DE COMMANDE DE NAVIGATION EN BAS */}
       {!loading && !sessionResult && currentStep > 1 && currentStep < 7 && (
-        <div className="flex justify-between items-center pt-6 border-t border-slate-100/60 mt-4">
-          <button
-            onClick={handlePrevStep}
-            className="flex items-center gap-2 px-5 py-3 hover:bg-slate-50 text-slate-500 hover:text-slate-800 rounded-xl font-bold transition text-sm"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Retour
-          </button>
-          
-          <div className="flex gap-3">
+        <div className="flex flex-col pt-6 border-t border-slate-100/60 mt-4 space-y-3">
+          <div className="flex justify-between items-center w-full">
             <button
-              onClick={handleTriggerAbandon}
-              className="px-5 py-3 text-slate-400 hover:text-rose-600 rounded-xl font-bold transition text-sm"
+              onClick={handlePrevStep}
+              className="flex items-center gap-2 px-5 py-3 hover:bg-slate-50 text-slate-500 hover:text-slate-800 rounded-xl font-bold transition text-sm"
             >
-              Abandonner
+              <ArrowLeft className="w-4 h-4" />
+              Retour
             </button>
-            <button
-              onClick={handleNextStep}
-              className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-xl shadow-md hover:shadow-lg transition transform active:scale-98 text-sm"
-            >
-              Suivant
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            
+            <div className="flex gap-3 items-center">
+              <button
+                onClick={handleTriggerAbandon}
+                className="px-5 py-3 text-slate-400 hover:text-rose-600 rounded-xl font-bold transition text-sm"
+              >
+                Abandonner
+              </button>
+              <button
+                onClick={handleNextStep}
+                disabled={!isStepValid()}
+                className={cn(
+                  "flex items-center gap-2 px-6 py-3 font-extrabold rounded-xl shadow-md transition transform text-sm",
+                  isStepValid()
+                    ? "bg-indigo-600 hover:bg-indigo-700 text-white hover:shadow-lg active:scale-98"
+                    : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed shadow-none"
+                )}
+              >
+                Suivant
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
+
+          {/* CORRECTION 2 : Message discret sous le bouton */}
+          {!isStepValid() && (
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-xs font-bold text-rose-500 text-right animate-pulse pr-2"
+            >
+              Réponds à au moins une question pour continuer (min. 10 caractères)
+            </motion.p>
+          )}
         </div>
       )}
 

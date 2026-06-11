@@ -539,3 +539,28 @@ export function getDailyVerse(): Verse {
   const index = dayOfYear % verses.length;
   return verses[index];
 }
+
+export function getVerseContext(verseRef: string) {
+  const index = verses.findIndex((v) => v.reference === verseRef);
+  if (index === -1) {
+    return { before: [], after: [] };
+  }
+  
+  const before: Verse[] = [];
+  for (let i = 2; i >= 1; i--) {
+    const idx = index - i;
+    if (idx >= 0) {
+      before.push(verses[idx]);
+    }
+  }
+  
+  const after: Verse[] = [];
+  for (let i = 1; i <= 2; i++) {
+    const idx = index + i;
+    if (idx < verses.length) {
+      after.push(verses[idx]);
+    }
+  }
+  
+  return { before, after };
+}
