@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getLevelFromXP, getXPProgress } from "@/lib/gamification";
 import { getDailyVerse } from "@/lib/verses";
-import MannyMessage from "@/components/mascot/MannyMessage";
+import RandomMascotMessage from "@/components/dashboard/RandomMascotMessage";
 import XPBar from "@/components/gamification/XPBar";
 import StreakCounter from "@/components/gamification/StreakCounter";
 import BadgeCard from "@/components/gamification/BadgeCard";
@@ -141,10 +141,9 @@ export default async function DashboardPage() {
       </section>
 
       <section className="flex justify-center md:justify-start">
-        <MannyMessage
-          mood="happy"
-          message={`"Chaque parole de Dieu est pure. Il est un bouclier pour ceux qui cherchent en lui un refuge."\n\nQue ta journée soit remplie de Sa présence, ${userName} !`}
-          size={110}
+        <RandomMascotMessage
+          userName={userName}
+          streakCount={currentStreak}
         />
       </section>
 

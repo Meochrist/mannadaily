@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Manny from "@/components/mascot/Manny";
+import MascotMessage from "@/components/mascot/MascotMessage";
+import { MannyMood } from "@/types";
 import { cn } from "@/lib/utils";
 import { 
   BookOpen, 
@@ -379,89 +381,55 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
     setSessionResult(null);
   };
 
-  // CORRECTION 3 : Redesign des suggestions mascottes sous forme de notification Duolingo
-  const getMascotForStep = () => {
+  // Rendu de la suggestion de la bonne mascotte avec MascotMessage (Tâche #39)
+  const renderMascotSuggestion = () => {
+    if (!showSuggestion) return null;
+
+    let mascot: "samson" | "esther" | "gedeon" | "noe" | "manny" = "manny";
+    let mood: MannyMood = "happy";
+    let message = "";
+
     switch (currentStep) {
       case 2:
-        return {
-          name: "Gédéon",
-          emoji: "🛡️",
-          text: "Lis 2-3 versets avant et après dans ta Bible.",
-          bgColor: "bg-amber-50 border-amber-200/60 text-amber-900",
-          badgeColor: "bg-amber-100 text-amber-800",
-          closeBg: "hover:bg-amber-200/70"
-        };
+        mascot = "gedeon";
+        mood = "encouraging";
+        message = "Lis 2-3 versets avant et après dans ta Bible.";
+        break;
       case 3:
-        return {
-          name: "Gédéon",
-          emoji: "📖",
-          text: "Cherche le mot clé dans un dictionnaire Strong pour aller plus loin.",
-          bgColor: "bg-amber-50 border-amber-200/60 text-amber-900",
-          badgeColor: "bg-amber-100 text-amber-800",
-          closeBg: "hover:bg-amber-200/70"
-        };
+        mascot = "gedeon";
+        mood = "thinking";
+        message = "Cherche le mot clé dans un dictionnaire Strong pour aller plus loin.";
+        break;
       case 4:
-        return {
-          name: "Noé",
-          emoji: "🕊️",
-          text: "Lis ce verset dans une autre traduction (Darby, TOB, NBS).",
-          bgColor: "bg-sky-50 border-sky-200/60 text-sky-900",
-          badgeColor: "bg-sky-100 text-sky-850",
-          closeBg: "hover:bg-sky-200/70"
-        };
+        mascot = "noe";
+        mood = "encouraging";
+        message = "Lis ce verset dans une autre traduction (Darby, TOB, NBS).";
+        break;
       case 5:
-        return {
-          name: "Esther",
-          emoji: "👑",
-          text: "Cherche ce passage dans un commentaire biblique en ligne.",
-          bgColor: "bg-fuchsia-50 border-fuchsia-200/60 text-fuchsia-900",
-          badgeColor: "bg-fuchsia-100 text-fuchsia-850",
-          closeBg: "hover:bg-fuchsia-200/70"
-        };
+        mascot = "esther";
+        mood = "thinking";
+        message = "Cherche ce passage dans un commentaire biblique en ligne.";
+        break;
       case 6:
-        return {
-          name: "Samson",
-          emoji: "💪",
-          text: "Maintenant applique cette vérité. La foi sans les œuvres est morte.",
-          bgColor: "bg-orange-50 border-orange-200/60 text-orange-900",
-          badgeColor: "bg-orange-100 text-orange-850",
-          closeBg: "hover:bg-orange-200/70"
-        };
+        mascot = "samson";
+        mood = "encouraging";
+        message = "Maintenant applique cette vérité. La foi sans les œuvres est morte.";
+        break;
       default:
         return null;
     }
-  };
-
-  const renderDuolingoMascot = () => {
-    const mascotData = getMascotForStep();
-    if (!mascotData || !showSuggestion) return null;
 
     return (
       <motion.div
-        initial={{ opacity: 0, y: 35 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 35 }}
-        transition={{ type: "spring", stiffness: 260, damping: 22 }}
-        className={cn(
-          "w-full flex items-center justify-between p-4.5 rounded-2xl border shadow-sm relative overflow-hidden transition-all duration-300",
-          mascotData.bgColor
-        )}
+        exit={{ opacity: 0, y: 20 }}
+        className="relative w-full max-w-xl mx-auto"
       >
-        <div className="flex items-center gap-3.5 flex-1 pr-4">
-          <span className="text-3xl select-none filter drop-shadow-sm">{mascotData.emoji}</span>
-          <div className="space-y-0.5">
-            <span className={cn("inline-block text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full select-none", mascotData.badgeColor)}>
-              {mascotData.name} suggère
-            </span>
-            <p className="text-xs md:text-sm font-extrabold leading-normal">{mascotData.text}</p>
-          </div>
-        </div>
+        <MascotMessage mascot={mascot} mood={mood} message={message} size={95} />
         <button
           onClick={() => setShowSuggestion(false)}
-          className={cn(
-            "w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors font-black text-sm",
-            mascotData.closeBg
-          )}
+          className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 transition-colors font-black text-base z-10"
         >
           ×
         </button>
@@ -669,7 +637,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                     </div>
                   </div>
 
-                  {renderDuolingoMascot()}
+                  {renderMascotSuggestion()}
                 </motion.div>
               )}
 
@@ -729,7 +697,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                     </div>
                   </div>
 
-                  {renderDuolingoMascot()}
+                  {renderMascotSuggestion()}
                 </motion.div>
               )}
 
@@ -783,7 +751,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                     </div>
                   </div>
 
-                  {renderDuolingoMascot()}
+                  {renderMascotSuggestion()}
                 </motion.div>
               )}
 
@@ -837,7 +805,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                     </div>
                   </div>
 
-                  {renderDuolingoMascot()}
+                  {renderMascotSuggestion()}
                 </motion.div>
               )}
 
@@ -891,7 +859,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                     </div>
                   </div>
 
-                  {renderDuolingoMascot()}
+                  {renderMascotSuggestion()}
                 </motion.div>
               )}
 
@@ -907,10 +875,13 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   {/* CAS 7A : ATTENTE DE VALIDATION DE SESSION */}
                   {!sessionResult ? (
                     <>
-                      <Manny mood="praying" size={120} />
-                      <div className="text-center space-y-2">
-                        <h2 className="text-2xl font-black text-slate-800 tracking-tight">Prière inspirée</h2>
-                        <p className="text-slate-400 font-semibold text-xs">Reçois cette prière écrite pour sceller ton temps d'étude</p>
+                      <div className="w-full flex justify-center mb-4">
+                        <MascotMessage
+                          mascot="manny"
+                          mood="praying"
+                          message="Reçois cette prière écrite pour sceller ton temps d'étude."
+                          size={100}
+                        />
                       </div>
 
                       <div className="w-full bg-white p-8 rounded-3xl border border-indigo-100 shadow-lg relative overflow-hidden flex flex-col space-y-4">
