@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { verse, reference, theme } = body;
+    const { verse, reference, theme, type = "meditation" } = body;
 
     if (!verse || !reference || !theme) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -54,14 +54,17 @@ export async function POST(req: Request) {
       },
     });
 
-    const meditationText = await generateMeditation(verse, reference, theme);
+    const meditationText = await generateMeditation(verse, reference, theme, type);
 
-    await db.meditation.create({
-      data: {
-        verseId: dbVerse.id,
-        content: meditationText,
-      },
-    });
+    // On ne sauvegarde dans l'historique d'étude que la méditation classique de base
+    if (type === "meditation") {
+      await db.meditation.create({
+        data: {
+          verseId: dbVerse.id,
+          content: meditationText,
+        },
+      });
+    }
 
     return NextResponse.json({ meditation: meditationText });
   } catch (error: unknown) {

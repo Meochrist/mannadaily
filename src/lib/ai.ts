@@ -57,17 +57,42 @@ async function callGitHub(prompt: string, modelName: string = "gpt-4o"): Promise
 export async function generateMeditation(
   verse: string,
   reference: string,
-  theme: string
+  theme: string,
+  type: "meditation" | "contexte_biblique" | "contexte_historique" | "priere" = "meditation"
 ): Promise<string> {
   if (isBuildTime()) {
+    if (type === "contexte_biblique") {
+      return `Contexte biblique factice pour ${reference} : 2-3 versets de contexte et explication du passage.`;
+    }
+    if (type === "contexte_historique") {
+      return `Contexte historique factice pour ${reference} : détails sur l'époque, les destinataires d'origine et le problème adressé.`;
+    }
+    if (type === "priere") {
+      return `Seigneur Jésus-Christ, nous prions pour que ta paix et ta vérité habitent en nous selon ${reference}. Amen.`;
+    }
     return `Méditation factice générée lors du build pour le verset ${reference} ("${verse}") sous le thème ${theme}. Que la grâce et la paix de notre Seigneur Jésus-Christ vous accompagnent tout au long de cette journée de croissance spirituelle.`;
   }
 
-  const prompt = `Génère une méditation biblique en français (150-200 mots) pour ce verset : ${reference} "${verse}"
+  let prompt = "";
+  if (type === "contexte_biblique") {
+    prompt = `Génère le contexte biblique immédiat en français (2-3 phrases ou versets) autour de ce verset : ${reference} "${verse}"
+Structure : Donne 2-3 versets immédiatement avant et/ou après, avec une brève explication du lien direct avec le verset principal.
+Style : clair, instructif, ancré dans le texte. Prose fluide sans titres ni numéros.`;
+  } else if (type === "contexte_historique") {
+    prompt = `Génère le contexte historique et culturel en français (2-3 phrases) pour ce passage biblique : ${reference} "${verse}"
+Structure : Précise qui a écrit le passage (si connu), à quelle époque, à quel peuple/personne ce message était originellement destiné, et quel problème ou situation ce texte adressait.
+Style : historique, simple et éclairant. Prose fluide sans titres ni numéros.`;
+  } else if (type === "priere") {
+    prompt = `Génère une prière personnalisée, courte et inspirante en français (3-4 phrases) basée sur ce verset : ${reference} "${verse}" sous le thème "${theme}".
+Structure : Une prière qui aide l'utilisateur à appliquer cette Parole dans sa vie quotidienne et à entrer dans la présence de Dieu.
+Style : intime, bienveillant, sincère. Pas de titres ni de numéros.`;
+  } else {
+    prompt = `Génère une méditation biblique en français (150-200 mots) pour ce verset : ${reference} "${verse}"
 Thème : ${theme}
 Structure : contexte (2-3 phrases) → enseignement clé (3-4 phrases) → application pratique (2-3 phrases) → prière courte (2-3 phrases)
 Style : chaleureux, encourageant, ancré dans la grâce de Dieu.
 Prose fluide sans titres ni numéros.`;
+  }
 
   try {
     return await callGemini(prompt, "gemini-2.5-flash");
