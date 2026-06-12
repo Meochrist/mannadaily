@@ -1,18 +1,19 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ombre nette au sol -->
+    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
     
-      <!-- Jambes fléchies en l'air -->
-      <rect x="180" y="325" width="35" height="75" rx="17.5" fill="#FDE68A" transform="rotate(-30 180 325)" />
-      <rect x="285" y="325" width="35" height="75" rx="17.5" fill="#FDE68A" transform="rotate(30 285 325)" />
-      <!-- Pieds -->
-      <rect x="140" y="365" width="50" height="20" rx="10" fill="#F472B6" transform="rotate(-30 140 365)" />
-      <rect x="310" y="365" width="50" height="20" rx="10" fill="#F472B6" transform="rotate(30 310 365)" />
-      <!-- Bras levés de joie -->
-      <rect x="110" y="140" width="35" height="110" rx="17.5" fill="#FDE68A" transform="rotate(45 110 140)" />
-      <rect x="355" y="140" width="35" height="110" rx="17.5" fill="#FDE68A" transform="rotate(-45 355 140)" />
+      <!-- Jambes pliées vers l'extérieur -->
+      <path d="M210 340 L180 395" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
+      <path d="M160 390 h40 c5 0, 5 15, 0 15 h-40 z" fill="#BE185D" transform="rotate(-15 160 390)" />
+      <path d="M290 340 L320 395" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
+      <path d="M300 390 h40 c5 0, 5 15, 0 15 h-40 z" fill="#BE185D" transform="rotate(15 300 390)" />
+      <!-- Bras levés en signe de victoire -->
+      <path d="M140 220 Q90 145, 80 120" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
+      <path d="M360 220 Q410 145, 420 120" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
     
     
-      <path d="M155 210 h190 L370 370 H130 Z" fill="#EC4899" />
-      <rect x="180" y="200" width="140" height="25" fill="#F472B6" rx="10" />
+      <path d="M150 215 h200 L370 360 H130 Z" fill="#EC4899" />
+      <rect x="175" y="210" width="150" height="22" fill="#BE185D" rx="8" />
     
     
   </svg>

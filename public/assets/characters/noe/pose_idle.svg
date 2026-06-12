@@ -1,18 +1,27 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ombre nette au sol -->
+    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
     
       <!-- Jambes droites -->
-      <rect x="200" y="350" width="35" height="75" rx="17.5" fill="#FED7AA" />
-      <rect x="265" y="350" width="35" height="75" rx="17.5" fill="#FED7AA" />
-      <!-- Pieds/Chaussures -->
-      <rect x="185" y="410" width="50" height="20" rx="10" fill="#A16207" />
-      <rect x="265" y="410" width="50" height="20" rx="10" fill="#A16207" />
-      <!-- Bras -->
-      <rect x="125" y="220" width="35" height="110" rx="17.5" fill="#FED7AA" />
-      <rect x="340" y="220" width="35" height="110" rx="17.5" fill="#FED7AA" />
+      <rect x="205" y="340" width="30" height="90" rx="15" fill="#FED7AA" />
+      <rect x="265" y="340" width="30" height="90" rx="15" fill="#FED7AA" />
+      <!-- Sandales / Chaussures nettes -->
+      <path d="M190 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="#451A03" />
+      <path d="M260 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="#451A03" />
+      <!-- Bras ballants stables -->
+      <path d="M135 240 v100" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
+      <path d="M365 240 v100" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
     
     
-      <!-- Tunique / Torse -->
-      <rect x="155" y="210" width="190" height="150" rx="40" fill="#854D0E" />
+      <!-- Tunique drapée -->
+      <rect x="145" y="215" width="210" height="150" rx="40" fill="#78350F" />
+      <!-- Ombre nette sur la tunique pour donner de la profondeur (Duolingo 2.0) -->
+      <path d="M145 270 C145 330, 355 330, 355 270 V325 C355 350, 145 350, 145 325 Z" fill="#451A03" opacity="0.3" />
     
-    <line x1="110" y1="190" x2="110" y2="420" stroke="#78350F" stroke-width="20" stroke-linecap="round" />
+    
+      <!-- Petite colombe plate mignonne -->
+      <path d="M110 200 c5 -15, 25 -15, 30 0 v15 h-30z" fill="#FFFFFF" stroke="#1E293B" stroke-width="4" />
+      <path d="M140 205 L155 195 L145 210 Z" fill="#FBBF24" /> <!-- Bec -->
+      <circle cx="125" cy="205" r="2" fill="#1E293B" /> <!-- Oeil colombe -->
+    
   </svg>

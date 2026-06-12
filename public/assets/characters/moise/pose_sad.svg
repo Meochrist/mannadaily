@@ -1,18 +1,29 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ombre nette au sol -->
+    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
     
-      <!-- Jambes -->
-      <rect x="205" y="360" width="30" height="70" rx="15" fill="#FDE68A" />
-      <rect x="265" y="360" width="30" height="70" rx="15" fill="#FDE68A" />
-      <!-- Bras ballants tristes -->
-      <rect x="130" y="240" width="30" height="110" rx="15" fill="#FDE68A" transform="rotate(5 130 240)" />
-      <rect x="340" y="240" width="30" height="110" rx="15" fill="#FDE68A" transform="rotate(-5 340 240)" />
+      <!-- Jambes légèrement pliées de tristesse -->
+      <path d="M210 350 v60 h-10" fill="none" stroke="#FDBA74" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M290 350 v60 h10" fill="none" stroke="#FDBA74" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M185 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="#991B1B" />
+      <path d="M280 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="#991B1B" />
+      <!-- Bras refermés ou tombants d'abattement -->
+      <path d="M140 250 Q115 310, 125 350" fill="none" stroke="#FDBA74" stroke-width="18" stroke-linecap="round" />
+      <path d="M360 250 Q385 310, 375 350" fill="none" stroke="#FDBA74" stroke-width="18" stroke-linecap="round" />
     
     
-      <!-- Torse affaissé -->
-      <rect x="160" y="220" width="180" height="150" rx="40" fill="#4B5563" />
+      <!-- Torse affaissé (plus petit) -->
+      <rect x="150" y="225" width="200" height="140" rx="35" fill="#DC2626" />
     
     
-      <rect x="210" y="260" width="80" height="100" rx="15" fill="#9CA3AF" />
-      <line x1="250" y1="260" x2="250" y2="360" stroke="#4B5563" stroke-width="10" />
+      <g id="tablets" transform="translate(110, 240) rotate(-5)">
+        <rect x="0" y="0" width="70" height="90" rx="15" fill="#9CA3AF" stroke="#1E293B" stroke-width="6" />
+        <line x1="35" y1="5" x2="35" y2="85" stroke="#4B5563" stroke-width="4" />
+        <!-- Inscriptions hébraïques factices (points/traits fins net) -->
+        <line x1="10" y1="25" x2="25" y2="25" stroke="#374151" stroke-width="3" stroke-linecap="round" />
+        <line x1="10" y1="45" x2="28" y2="45" stroke="#374151" stroke-width="3" stroke-linecap="round" />
+        <line x1="45" y1="25" x2="60" y2="25" stroke="#374151" stroke-width="3" stroke-linecap="round" />
+        <line x1="45" y1="45" x2="58" y2="45" stroke="#374151" stroke-width="3" stroke-linecap="round" />
+      </g>
     
   </svg>

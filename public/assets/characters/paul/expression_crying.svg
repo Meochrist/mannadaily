@@ -1,18 +1,14 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-    <path d="M 165 155 C 160 60 340 60 335 155 Z" fill="#78350F" />
-    <circle cx="250" cy="140" r="75" fill="#FED7AA" />
-    <path d="M 180 170 C 190 225 310 225 320 170 Z" fill="#78350F" />
+    <path d="M 175 175 C 170 85 330 85 325 175 Z" fill="#78350F" />
+    <circle cx="250" cy="175" r="70" fill="#FED7AA" />
+    <path d="M 185 195 C 190 220 310 220 315 195 Z" fill="#78350F" />
     
-      <!-- Sourcils tristes -->
-      <path d="M215 125 Q225 130 L235 120" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
-      <path d="M265 120 Q275 130 L285 125" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
-      <!-- Yeux tristes -->
-      <path d="M215 145 Q225 160 L235 145" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
-      <path d="M265 145 Q275 160 L285 145" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
-      <!-- Bouche -->
-      <path d="M235 175 Q250 165 L265 175" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
-      <!-- Larmes -->
-      <path d="M225 155 v45" stroke="#3B82F6" stroke-width="10" stroke-linecap="round" />
-      <path d="M275 155 v45" stroke="#3B82F6" stroke-width="10" stroke-linecap="round" />
+    
+      <path d="M214 183 Q228 197 L242 183" stroke="#1E293B" stroke-width="8" stroke-linecap="round" fill="none" />
+      <path d="M258 183 Q272 197 L286 183" stroke="#1E293B" stroke-width="8" stroke-linecap="round" fill="none" />
+
+      <path d="M234 210 Q250 197 L266 210" stroke="#1E293B" stroke-width="7" stroke-linecap="round" fill="none" />
+      <path d="M228 187 v40 c0 6, 10 6, 10 0 v-40z" fill="#60A5FA" />
+      <path d="M262 187 v40 c0 6, 10 6, 10 0 v-40z" fill="#60A5FA" />
     
   </svg>

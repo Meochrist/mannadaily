@@ -1,18 +1,17 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-    <path d="M 165 150 C 160 50 340 50 335 150 Z" fill="#CBD5E1" />
-    <circle cx="250" cy="135" r="75" fill="#FED7AA" />
-    <path d="M 175 160 C 175 275 325 275 325 160 Z" fill="#E2E8F0" />
+    <path d="M 170 175 C 160 80 340 80 330 175 Z" fill="#CBD5E1" opacity="0.8" />
+    <circle cx="250" cy="175" r="70" fill="#FED7AA" />
+    <path d="M 180 200 C 180 270 320 270 320 200 Z" fill="#CBD5E1" />
     
-      <!-- Sourcils levés -->
-      <path d="M215 105 Q225 100 L235 110" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
-      <path d="M265 110 Q275 100 L285 105" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
-      <!-- Yeux plissés -->
-      <path d="M215 135 Q225 120 L235 135" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
-      <path d="M265 135 Q275 120 L285 135" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
-      <!-- Blush -->
-      <ellipse cx="205" cy="150" rx="12.5" ry="7.5" fill="#FDA4AF" opacity="0.7" />
-      <ellipse cx="295" cy="150" rx="12.5" ry="7.5" fill="#FDA4AF" opacity="0.7" />
-      <!-- Bouche riante -->
-      <path d="M235 155 Q250 180 L265 155" fill="#EF4444" />
+    
+      <!-- Yeux joyeux arqués -->
+      <path d="M212 180 Q228 157 L244 180" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+      <path d="M256 180 Q272 157 L288 180" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+
+      <ellipse cx="208" cy="200" rx="18" ry="11" fill="#FDA4AF" opacity="0.75" />
+      <ellipse cx="292" cy="200" rx="18" ry="11" fill="#FDA4AF" opacity="0.75" />
+
+      <path d="M236 200 Q250 230 L264 200 Z" fill="#EF4444" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
+      <path d="M243 217 Q250 207 L257 217 Q250 227 L243 217" fill="#F472B6" />
     
   </svg>

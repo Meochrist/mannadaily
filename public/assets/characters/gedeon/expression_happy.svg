@@ -1,22 +1,20 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
     
-      <path d="M 170 155 C 175 75 325 75 330 155 Z" fill="#451A03" />
-      <path d="M 150 145 C 150 50 350 50 350 145 L 360 150 C 310 135 190 135 140 150 Z" fill="#B45309" />
-      <rect x="235" y="50" width="30" height="30" fill="#F59E0B" rx="5" />
-    
-    <circle cx="250" cy="160" r="75" fill="#FDBA74" />
+    <circle cx="250" cy="175" r="70" fill="#FDBA74" />
     
     
-      <!-- Sourcils levés -->
-      <path d="M215 130 Q225 125 L235 135" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
-      <path d="M265 135 Q275 125 L285 130" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
-      <!-- Yeux plissés -->
-      <path d="M215 160 Q225 145 L235 160" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
-      <path d="M265 160 Q275 145 L285 160" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
-      <!-- Blush -->
-      <ellipse cx="205" cy="175" rx="12.5" ry="7.5" fill="#FDA4AF" opacity="0.7" />
-      <ellipse cx="295" cy="175" rx="12.5" ry="7.5" fill="#FDA4AF" opacity="0.7" />
-      <!-- Bouche riante -->
-      <path d="M235 180 Q250 205 L265 180" fill="#EF4444" />
+      <path d="M 180 130 C 180 75 320 75 320 130 Z" fill="#D97706" />
+      <rect x="235" y="70" width="30" height="25" fill="#EF4444" rx="5" /> <!-- Plumet rouge -->
+    
+    
+      <!-- Yeux joyeux arqués -->
+      <path d="M212 180 Q228 157 L244 180" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+      <path d="M256 180 Q272 157 L288 180" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+
+      <ellipse cx="208" cy="200" rx="18" ry="11" fill="#FDA4AF" opacity="0.75" />
+      <ellipse cx="292" cy="200" rx="18" ry="11" fill="#FDA4AF" opacity="0.75" />
+
+      <path d="M236 200 Q250 230 L264 200 Z" fill="#EF4444" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
+      <path d="M243 217 Q250 207 L257 217 Q250 227 L243 217" fill="#F472B6" />
     
   </svg>

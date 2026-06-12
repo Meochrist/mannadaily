@@ -1,25 +1,19 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
     
-      <path d="M 170 155 C 175 75 325 75 330 155 Z" fill="#451A03" />
-      <path d="M 150 145 C 150 50 350 50 350 145 L 360 150 C 310 135 190 135 140 150 Z" fill="#B45309" />
-      <rect x="235" y="50" width="30" height="30" fill="#F59E0B" rx="5" />
-    
-    <circle cx="250" cy="160" r="75" fill="#FDBA74" />
+    <circle cx="250" cy="175" r="70" fill="#FDBA74" />
     
     
-      <!-- Sourcils inquiets -->
-      <path d="M215 140 Q225 145 L235 135" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
-      <path d="M265 135 Q275 145 L285 140" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
-      <!-- Yeux -->
-      <circle cx="225" cy="160" r="10" fill="#1E293B" />
-      <circle cx="222" cy="157" r="3" fill="#FFFFFF" />
-      <circle cx="275" cy="160" r="10" fill="#1E293B" />
-      <circle cx="272" cy="157" r="3" fill="#FFFFFF" />
-      <!-- Blush -->
-      <ellipse cx="205" cy="175" rx="9" ry="5" fill="#FDA4AF" opacity="0.5" />
-      <ellipse cx="295" cy="175" rx="9" ry="5" fill="#FDA4AF" opacity="0.5" />
-      <!-- Bouche inquiète + Sueur -->
-      <path d="M235 185 h30" stroke="#1E293B" stroke-width="9" stroke-linecap="round" />
-      <path d="M305 125 Q315 160 L295 160" fill="#3B82F6" opacity="0.8" />
+      <path d="M 180 130 C 180 75 320 75 320 130 Z" fill="#D97706" />
+      <rect x="235" y="70" width="30" height="25" fill="#EF4444" rx="5" /> <!-- Plumet rouge -->
+    
+    
+      <path d="M215 180 h25" stroke="#1E293B" stroke-width="8" stroke-linecap="round" />
+      <path d="M260 180 h25" stroke="#1E293B" stroke-width="8" stroke-linecap="round" />
+
+      <ellipse cx="208" cy="200" rx="14" ry="8" fill="#FDA4AF" opacity="0.5" />
+      <ellipse cx="292" cy="200" rx="14" ry="8" fill="#FDA4AF" opacity="0.5" />
+
+      <ellipse cx="250" cy="200" rx="12" ry="7" fill="#1E293B" />
+      <path d="M300 145 Q310 175 L290 175 Z" fill="#3B82F6" stroke="#1E293B" stroke-width="4" stroke-linejoin="round" />
     
   </svg>

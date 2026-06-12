@@ -1,15 +1,20 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ombre nette au sol -->
+    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
     
-      <!-- Jambes en course -->
-      <rect x="170" y="340" width="35" height="80" rx="17.5" fill="#FDE68A" transform="rotate(-40 170 340)" />
-      <rect x="260" y="340" width="35" height="80" rx="17.5" fill="#FDE68A" transform="rotate(30 260 340)" />
-      <!-- Bras course -->
-      <rect x="110" y="230" width="35" height="100" rx="17.5" fill="#FDE68A" transform="rotate(45 110 230)" />
-      <rect x="340" y="210" width="35" height="100" rx="17.5" fill="#FDE68A" transform="rotate(-30 340 210)" />
+      <!-- Jambe arrière en course -->
+      <path d="M200 340 L160 400" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
+      <path d="M140 395 h40 c5 0, 5 15, 0 15 h-40 z" fill="#BE185D" transform="rotate(-15 140 395)" />
+      <!-- Jambe avant en foulée -->
+      <path d="M280 340 Q320 375, 300 420" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
+      <path d="M285 415 h40 c5 0, 5 15, 0 15 h-40 z" fill="#BE185D" transform="rotate(10 285 415)" />
+      <!-- Bras de course fléchis -->
+      <path d="M140 230 Q90 260, 115 300" fill="none" stroke="#FED7AA" stroke-width="18" stroke-linecap="round" />
+      <path d="M360 220 Q400 190, 385 155" fill="none" stroke="#FED7AA" stroke-width="18" stroke-linecap="round" />
     
     
-      <path d="M155 210 h190 L370 370 H130 Z" fill="#EC4899" />
-      <rect x="180" y="200" width="140" height="25" fill="#F472B6" rx="10" />
+      <path d="M150 215 h200 L370 360 H130 Z" fill="#EC4899" />
+      <rect x="175" y="210" width="150" height="22" fill="#BE185D" rx="8" />
     
     
   </svg>

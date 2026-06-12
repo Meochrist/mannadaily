@@ -1,16 +1,28 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ombre nette au sol -->
+    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
     
-      <!-- Jambes -->
-      <rect x="205" y="360" width="30" height="70" rx="15" fill="#FDBA74" />
-      <rect x="265" y="360" width="30" height="70" rx="15" fill="#FDBA74" />
-      <!-- Bras ballants tristes -->
-      <rect x="130" y="240" width="30" height="110" rx="15" fill="#FDBA74" transform="rotate(5 130 240)" />
-      <rect x="340" y="240" width="30" height="110" rx="15" fill="#FDBA74" transform="rotate(-5 340 240)" />
+      <!-- Jambes légèrement pliées de tristesse -->
+      <path d="M210 350 v60 h-10" fill="none" stroke="#FDBA74" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M290 350 v60 h10" fill="none" stroke="#FDBA74" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M185 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="#B45309" />
+      <path d="M280 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="#B45309" />
+      <!-- Bras refermés ou tombants d'abattement -->
+      <path d="M140 250 Q115 310, 125 350" fill="none" stroke="#FDBA74" stroke-width="18" stroke-linecap="round" />
+      <path d="M360 250 Q385 310, 375 350" fill="none" stroke="#FDBA74" stroke-width="18" stroke-linecap="round" />
     
     
-      <!-- Torse affaissé -->
-      <rect x="160" y="220" width="180" height="150" rx="40" fill="#EA580C" />
+      <!-- Torse affaissé (plus petit) -->
+      <rect x="150" y="225" width="200" height="140" rx="35" fill="#EA580C" />
     
-    <circle cx="185" cy="250" r="15" fill="#B45309" />
-                   <circle cx="315" cy="250" r="15" fill="#B45309" />
+    
+      <!-- Pectoraux / Reliefs musculaires -->
+      <path d="M185 240 Q250 255 315 240" stroke="#B45309" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.4" />
+      <path d="M250 245 v60" stroke="#B45309" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.4" />
+      <circle cx="215" cy="275" r="5" fill="#B45309" opacity="0.3" />
+      <circle cx="285" cy="275" r="5" fill="#B45309" opacity="0.3" />
+      <!-- Bracelets de force dorés sur les bras -->
+      <rect x="120" y="280" width="30" height="20" rx="4" fill="#F59E0B" transform="rotate(-5 120 280)" />
+      <rect x="350" y="280" width="30" height="20" rx="4" fill="#F59E0B" transform="rotate(5 350 280)" />
+    
   </svg>

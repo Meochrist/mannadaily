@@ -1,15 +1,26 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ombre nette au sol -->
+    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
     
-      <!-- Jambes -->
-      <rect x="205" y="360" width="30" height="70" rx="15" fill="#FDBA74" />
-      <rect x="265" y="360" width="30" height="70" rx="15" fill="#FDBA74" />
-      <!-- Bras ballants tristes -->
-      <rect x="130" y="240" width="30" height="110" rx="15" fill="#FDBA74" transform="rotate(5 130 240)" />
-      <rect x="340" y="240" width="30" height="110" rx="15" fill="#FDBA74" transform="rotate(-5 340 240)" />
+      <!-- Jambes légèrement pliées de tristesse -->
+      <path d="M210 350 v60 h-10" fill="none" stroke="#FDBA74" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M290 350 v60 h10" fill="none" stroke="#FDBA74" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M185 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="#64748B" />
+      <path d="M280 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="#64748B" />
+      <!-- Bras refermés ou tombants d'abattement -->
+      <path d="M140 250 Q115 310, 125 350" fill="none" stroke="#FDBA74" stroke-width="18" stroke-linecap="round" />
+      <path d="M360 250 Q385 310, 375 350" fill="none" stroke="#FDBA74" stroke-width="18" stroke-linecap="round" />
     
     
-      <!-- Torse affaissé -->
-      <rect x="160" y="220" width="180" height="150" rx="40" fill="#F59E0B" />
+      <!-- Torse affaissé (plus petit) -->
+      <rect x="150" y="225" width="200" height="140" rx="35" fill="#E2E8F0" />
     
-    <path d="M 110 275 Q 80 330 110 375" fill="none" stroke="#78350F" stroke-width="10" />
+    
+      <g id="harp" transform="translate(120, 260) rotate(10)">
+        <path d="M 0 0 L 50 10 L 40 70 C 10 70, 0 40, 0 0 Z" fill="none" stroke="#F59E0B" stroke-width="8" />
+        <line x1="10" y1="5" x2="10" y2="65" stroke="#D97706" stroke-width="2" />
+        <line x1="20" y1="7" x2="20" y2="65" stroke="#D97706" stroke-width="2" />
+        <line x1="30" y1="9" x2="30" y2="65" stroke="#D97706" stroke-width="2" />
+      </g>
+    
   </svg>

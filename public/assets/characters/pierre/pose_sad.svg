@@ -1,15 +1,26 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ombre nette au sol -->
+    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
     
-      <!-- Jambes -->
-      <rect x="205" y="360" width="30" height="70" rx="15" fill="#F3F4F6" />
-      <rect x="265" y="360" width="30" height="70" rx="15" fill="#F3F4F6" />
-      <!-- Bras ballants tristes -->
-      <rect x="130" y="240" width="30" height="110" rx="15" fill="#F3F4F6" transform="rotate(5 130 240)" />
-      <rect x="340" y="240" width="30" height="110" rx="15" fill="#F3F4F6" transform="rotate(-5 340 240)" />
+      <!-- Jambes légèrement pliées de tristesse -->
+      <path d="M210 350 v60 h-10" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M290 350 v60 h10" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M185 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="#1D4ED8" />
+      <path d="M280 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="#1D4ED8" />
+      <!-- Bras refermés ou tombants d'abattement -->
+      <path d="M140 250 Q115 310, 125 350" fill="none" stroke="#FED7AA" stroke-width="18" stroke-linecap="round" />
+      <path d="M360 250 Q385 310, 375 350" fill="none" stroke="#FED7AA" stroke-width="18" stroke-linecap="round" />
     
     
-      <!-- Torse affaissé -->
-      <rect x="160" y="220" width="180" height="150" rx="40" fill="#2563EB" />
+      <!-- Torse affaissé (plus petit) -->
+      <rect x="150" y="225" width="200" height="140" rx="35" fill="#2563EB" />
     
-    <path d="M 160 210 Q 250 320 340 210" fill="none" stroke="#3B82F6" stroke-width="12" stroke-dasharray="10 10" />
+    
+      <g id="key" transform="translate(325, 260) rotate(-15)">
+        <circle cx="20" cy="20" r="20" fill="none" stroke="#FBBF24" stroke-width="8" />
+        <rect x="16" y="40" width="8" height="60" fill="#FBBF24" rx="2" />
+        <rect x="24" y="80" width="16" height="8" fill="#FBBF24" rx="2" />
+        <rect x="24" y="92" width="16" height="8" fill="#FBBF24" rx="2" />
+      </g>
+    
   </svg>

@@ -1,15 +1,24 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ombre nette au sol -->
+    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
     
-      <!-- Jambes -->
-      <rect x="205" y="360" width="30" height="70" rx="15" fill="#FED7AA" />
-      <rect x="265" y="360" width="30" height="70" rx="15" fill="#FED7AA" />
-      <!-- Bras ballants tristes -->
-      <rect x="130" y="240" width="30" height="110" rx="15" fill="#FED7AA" transform="rotate(5 130 240)" />
-      <rect x="340" y="240" width="30" height="110" rx="15" fill="#FED7AA" transform="rotate(-5 340 240)" />
+      <!-- Jambes légèrement pliées de tristesse -->
+      <path d="M210 350 v60 h-10" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M290 350 v60 h10" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M185 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="#451A03" />
+      <path d="M280 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="#451A03" />
+      <!-- Bras refermés ou tombants d'abattement -->
+      <path d="M140 250 Q115 310, 125 350" fill="none" stroke="#FED7AA" stroke-width="18" stroke-linecap="round" />
+      <path d="M360 250 Q385 310, 375 350" fill="none" stroke="#FED7AA" stroke-width="18" stroke-linecap="round" />
     
     
-      <!-- Torse affaissé -->
-      <rect x="160" y="220" width="180" height="150" rx="40" fill="#854D0E" />
+      <!-- Torse affaissé (plus petit) -->
+      <rect x="150" y="225" width="200" height="140" rx="35" fill="#78350F" />
     
-    <line x1="110" y1="190" x2="110" y2="420" stroke="#78350F" stroke-width="20" stroke-linecap="round" />
+    
+      <!-- Petite colombe plate mignonne -->
+      <path d="M110 200 c5 -15, 25 -15, 30 0 v15 h-30z" fill="#FFFFFF" stroke="#1E293B" stroke-width="4" />
+      <path d="M140 205 L155 195 L145 210 Z" fill="#FBBF24" /> <!-- Bec -->
+      <circle cx="125" cy="205" r="2" fill="#1E293B" /> <!-- Oeil colombe -->
+    
   </svg>

@@ -1,21 +1,14 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <path d="M 160 175 C 120 50 380 50 340 175 C 380 280 350 350 320 360 C 300 280 305 200 305 180 L 195 180 C 195 200 200 280 180 360 C 150 350 120 280 160 175 Z" fill="#1E293B" />
+    <circle cx="250" cy="175" r="70" fill="#FED7AA" />
     
-      <path d="M 150 130 C 125 50 375 50 350 130 C 375 275 360 350 330 360 C 310 300 310 210 310 190 L 190 190 C 190 210 190 300 170 360 C 140 350 125 275 150 130 Z" fill="#7C3AED" />
-      <path d="M 210 60 L 225 30 L 250 50 L 275 30 L 290 60 Z" fill="#FBBF24" />
+    <path d="M 210 115 L 225 90 L 250 105 L 275 90 L 290 115 Z" fill="#FBBF24" />
     
-    <circle cx="250" cy="130" r="75" fill="#FDE68A" />
-    
-    
-      <!-- Sourcils tristes -->
-      <path d="M215 115 Q225 120 L235 110" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
-      <path d="M265 110 Q275 120 L285 115" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
-      <!-- Yeux tristes -->
-      <path d="M215 135 Q225 150 L235 135" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
-      <path d="M265 135 Q275 150 L285 135" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
-      <!-- Bouche -->
-      <path d="M235 165 Q250 155 L265 165" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
-      <!-- Larmes -->
-      <path d="M225 145 v45" stroke="#3B82F6" stroke-width="10" stroke-linecap="round" />
-      <path d="M275 145 v45" stroke="#3B82F6" stroke-width="10" stroke-linecap="round" />
+      <path d="M214 183 Q228 197 L242 183" stroke="#1E293B" stroke-width="8" stroke-linecap="round" fill="none" />
+      <path d="M258 183 Q272 197 L286 183" stroke="#1E293B" stroke-width="8" stroke-linecap="round" fill="none" />
+
+      <path d="M234 210 Q250 197 L266 210" stroke="#1E293B" stroke-width="7" stroke-linecap="round" fill="none" />
+      <path d="M228 187 v40 c0 6, 10 6, 10 0 v-40z" fill="#60A5FA" />
+      <path d="M262 187 v40 c0 6, 10 6, 10 0 v-40z" fill="#60A5FA" />
     
   </svg>

@@ -1,15 +1,27 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ombre nette au sol -->
+    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
     
-      <!-- Jambes en course -->
-      <rect x="170" y="340" width="35" height="80" rx="17.5" fill="#FDBA74" transform="rotate(-40 170 340)" />
-      <rect x="260" y="340" width="35" height="80" rx="17.5" fill="#FDBA74" transform="rotate(30 260 340)" />
-      <!-- Bras course -->
-      <rect x="110" y="230" width="35" height="100" rx="17.5" fill="#FDBA74" transform="rotate(45 110 230)" />
-      <rect x="340" y="210" width="35" height="100" rx="17.5" fill="#FDBA74" transform="rotate(-30 340 210)" />
+      <!-- Jambe arrière en course -->
+      <path d="M200 340 L160 400" fill="none" stroke="#FDBA74" stroke-width="20" stroke-linecap="round" />
+      <path d="M140 395 h40 c5 0, 5 15, 0 15 h-40 z" fill="#64748B" transform="rotate(-15 140 395)" />
+      <!-- Jambe avant en foulée -->
+      <path d="M280 340 Q320 375, 300 420" fill="none" stroke="#FDBA74" stroke-width="20" stroke-linecap="round" />
+      <path d="M285 415 h40 c5 0, 5 15, 0 15 h-40 z" fill="#64748B" transform="rotate(10 285 415)" />
+      <!-- Bras de course fléchis -->
+      <path d="M140 230 Q90 260, 115 300" fill="none" stroke="#FDBA74" stroke-width="18" stroke-linecap="round" />
+      <path d="M360 220 Q400 190, 385 155" fill="none" stroke="#FDBA74" stroke-width="18" stroke-linecap="round" />
     
     
-      <!-- Torse incliné -->
-      <rect x="155" y="200" width="190" height="150" rx="40" fill="#F59E0B" transform="skewX(-8)" />
+      <!-- Torse projeté vers l'avant -->
+      <rect x="145" y="210" width="210" height="150" rx="40" fill="#E2E8F0" transform="skewX(-8 250 285)" />
     
-    <path d="M 110 275 Q 80 330 110 375" fill="none" stroke="#78350F" stroke-width="10" />
+    
+      <g id="harp" transform="translate(120, 260) rotate(10)">
+        <path d="M 0 0 L 50 10 L 40 70 C 10 70, 0 40, 0 0 Z" fill="none" stroke="#F59E0B" stroke-width="8" />
+        <line x1="10" y1="5" x2="10" y2="65" stroke="#D97706" stroke-width="2" />
+        <line x1="20" y1="7" x2="20" y2="65" stroke="#D97706" stroke-width="2" />
+        <line x1="30" y1="9" x2="30" y2="65" stroke="#D97706" stroke-width="2" />
+      </g>
+    
   </svg>

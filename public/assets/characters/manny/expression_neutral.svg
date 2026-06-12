@@ -1,23 +1,15 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-  <g id="eyes">
-    <!-- Grands yeux expressifs (Duolingo style) -->
-    <!-- Oeil gauche -->
-    <circle cx="205" cy="215" r="24" fill="#1E293B" />
-    <circle cx="197" cy="207" r="7" fill="#FFFFFF" /> <!-- Grand éclat blanc -->
-    <circle cx="212" cy="222" r="3" fill="#FFFFFF" /> <!-- Petit éclat secondaire -->
-
-    <!-- Oeil droit -->
-    <circle cx="295" cy="215" r="24" fill="#1E293B" />
-    <circle cx="287" cy="207" r="7" fill="#FFFFFF" />
-    <circle cx="302" cy="222" r="3" fill="#FFFFFF" />
-  </g>
-
-  <!-- Joues roses blush très mignonnes -->
-  <g id="blush">
-    <ellipse cx="170" cy="250" rx="18" ry="10" fill="#FDA4AF" opacity="0.65" />
-    <ellipse cx="330" cy="250" rx="18" ry="10" fill="#FDA4AF" opacity="0.65" />
-  </g>
-
-  <!-- Bouche souriante calme (arc noir épais) -->
-  <path d="M235 255 Q250 270 265 255" stroke="#1E293B" stroke-width="8" stroke-linecap="round" fill="none" />
-</svg>
+        <g id="eyes">
+          <circle cx="205" cy="215" r="24" fill="#64748B" />
+          <circle cx="197" cy="207" r="7" fill="#FFFFFF" />
+          <circle cx="212" cy="222" r="3" fill="#FFFFFF" />
+          <circle cx="295" cy="215" r="24" fill="#64748B" />
+          <circle cx="287" cy="207" r="7" fill="#FFFFFF" />
+          <circle cx="302" cy="222" r="3" fill="#FFFFFF" />
+        </g>
+        <g id="blush">
+          <ellipse cx="170" cy="250" rx="18" ry="10" fill="#FDA4AF" opacity="0.65" />
+          <ellipse cx="330" cy="250" rx="18" ry="10" fill="#FDA4AF" opacity="0.65" />
+        </g>
+        <path d="M235 255 Q250 270 265 255" stroke="#64748B" stroke-width="8" stroke-linecap="round" fill="none" />
+      </svg>

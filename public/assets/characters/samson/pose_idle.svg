@@ -1,19 +1,31 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ombre nette au sol -->
+    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
     
       <!-- Jambes droites -->
-      <rect x="200" y="350" width="35" height="75" rx="17.5" fill="#FDBA74" />
-      <rect x="265" y="350" width="35" height="75" rx="17.5" fill="#FDBA74" />
-      <!-- Pieds/Chaussures -->
-      <rect x="185" y="410" width="50" height="20" rx="10" fill="#DC2626" />
-      <rect x="265" y="410" width="50" height="20" rx="10" fill="#DC2626" />
-      <!-- Bras -->
-      <rect x="125" y="220" width="35" height="110" rx="17.5" fill="#FDBA74" />
-      <rect x="340" y="220" width="35" height="110" rx="17.5" fill="#FDBA74" />
+      <rect x="205" y="340" width="30" height="90" rx="15" fill="#FDBA74" />
+      <rect x="265" y="340" width="30" height="90" rx="15" fill="#FDBA74" />
+      <!-- Sandales / Chaussures nettes -->
+      <path d="M190 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="#B45309" />
+      <path d="M260 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="#B45309" />
+      <!-- Bras ballants stables -->
+      <path d="M135 240 v100" fill="none" stroke="#FDBA74" stroke-width="20" stroke-linecap="round" />
+      <path d="M365 240 v100" fill="none" stroke="#FDBA74" stroke-width="20" stroke-linecap="round" />
     
     
-      <!-- Tunique / Torse -->
-      <rect x="155" y="210" width="190" height="150" rx="40" fill="#EA580C" />
+      <!-- Tunique drapée -->
+      <rect x="145" y="215" width="210" height="150" rx="40" fill="#EA580C" />
+      <!-- Ombre nette sur la tunique pour donner de la profondeur (Duolingo 2.0) -->
+      <path d="M145 270 C145 330, 355 330, 355 270 V325 C355 350, 145 350, 145 325 Z" fill="#B45309" opacity="0.3" />
     
-    <circle cx="185" cy="250" r="15" fill="#B45309" />
-                   <circle cx="315" cy="250" r="15" fill="#B45309" />
+    
+      <!-- Pectoraux / Reliefs musculaires -->
+      <path d="M185 240 Q250 255 315 240" stroke="#B45309" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.4" />
+      <path d="M250 245 v60" stroke="#B45309" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.4" />
+      <circle cx="215" cy="275" r="5" fill="#B45309" opacity="0.3" />
+      <circle cx="285" cy="275" r="5" fill="#B45309" opacity="0.3" />
+      <!-- Bracelets de force dorés sur les bras -->
+      <rect x="120" y="280" width="30" height="20" rx="4" fill="#F59E0B" transform="rotate(-5 120 280)" />
+      <rect x="350" y="280" width="30" height="20" rx="4" fill="#F59E0B" transform="rotate(5 350 280)" />
+    
   </svg>

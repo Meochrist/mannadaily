@@ -1,18 +1,29 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ombre nette au sol -->
+    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
     
       <!-- Jambes droites -->
-      <rect x="200" y="350" width="35" height="75" rx="17.5" fill="#FDBA74" />
-      <rect x="265" y="350" width="35" height="75" rx="17.5" fill="#FDBA74" />
-      <!-- Pieds/Chaussures -->
-      <rect x="185" y="410" width="50" height="20" rx="10" fill="#FBBF24" />
-      <rect x="265" y="410" width="50" height="20" rx="10" fill="#FBBF24" />
-      <!-- Bras -->
-      <rect x="125" y="220" width="35" height="110" rx="17.5" fill="#FDBA74" />
-      <rect x="340" y="220" width="35" height="110" rx="17.5" fill="#FDBA74" />
+      <rect x="205" y="340" width="30" height="90" rx="15" fill="#FDBA74" />
+      <rect x="265" y="340" width="30" height="90" rx="15" fill="#FDBA74" />
+      <!-- Sandales / Chaussures nettes -->
+      <path d="M190 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="#64748B" />
+      <path d="M260 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="#64748B" />
+      <!-- Bras ballants stables -->
+      <path d="M135 240 v100" fill="none" stroke="#FDBA74" stroke-width="20" stroke-linecap="round" />
+      <path d="M365 240 v100" fill="none" stroke="#FDBA74" stroke-width="20" stroke-linecap="round" />
     
     
-      <!-- Tunique / Torse -->
-      <rect x="155" y="210" width="190" height="150" rx="40" fill="#F59E0B" />
+      <!-- Tunique drapée -->
+      <rect x="145" y="215" width="210" height="150" rx="40" fill="#E2E8F0" />
+      <!-- Ombre nette sur la tunique pour donner de la profondeur (Duolingo 2.0) -->
+      <path d="M145 270 C145 330, 355 330, 355 270 V325 C355 350, 145 350, 145 325 Z" fill="#64748B" opacity="0.3" />
     
-    <path d="M 110 275 Q 80 330 110 375" fill="none" stroke="#78350F" stroke-width="10" />
+    
+      <g id="harp" transform="translate(120, 260) rotate(10)">
+        <path d="M 0 0 L 50 10 L 40 70 C 10 70, 0 40, 0 0 Z" fill="none" stroke="#F59E0B" stroke-width="8" />
+        <line x1="10" y1="5" x2="10" y2="65" stroke="#D97706" stroke-width="2" />
+        <line x1="20" y1="7" x2="20" y2="65" stroke="#D97706" stroke-width="2" />
+        <line x1="30" y1="9" x2="30" y2="65" stroke="#D97706" stroke-width="2" />
+      </g>
+    
   </svg>

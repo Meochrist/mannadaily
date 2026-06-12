@@ -1,18 +1,20 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ombre nette au sol -->
+    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
     
       <!-- Jambes droites -->
-      <rect x="200" y="350" width="35" height="75" rx="17.5" fill="#FDE68A" />
-      <rect x="265" y="350" width="35" height="75" rx="17.5" fill="#FDE68A" />
-      <!-- Pieds/Chaussures -->
-      <rect x="185" y="410" width="50" height="20" rx="10" fill="#F472B6" />
-      <rect x="265" y="410" width="50" height="20" rx="10" fill="#F472B6" />
-      <!-- Bras -->
-      <rect x="125" y="220" width="35" height="110" rx="17.5" fill="#FDE68A" />
-      <rect x="340" y="220" width="35" height="110" rx="17.5" fill="#FDE68A" />
+      <rect x="205" y="340" width="30" height="90" rx="15" fill="#FED7AA" />
+      <rect x="265" y="340" width="30" height="90" rx="15" fill="#FED7AA" />
+      <!-- Sandales / Chaussures nettes -->
+      <path d="M190 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="#BE185D" />
+      <path d="M260 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="#BE185D" />
+      <!-- Bras ballants stables -->
+      <path d="M135 240 v100" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
+      <path d="M365 240 v100" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
     
     
-      <path d="M155 210 h190 L370 370 H130 Z" fill="#EC4899" />
-      <rect x="180" y="200" width="140" height="25" fill="#F472B6" rx="10" />
+      <path d="M150 215 h200 L370 360 H130 Z" fill="#EC4899" />
+      <rect x="175" y="210" width="150" height="22" fill="#BE185D" rx="8" />
     
     
   </svg>

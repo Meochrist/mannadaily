@@ -1,21 +1,32 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ombre nette au sol -->
+    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
     
       <!-- Jambes droites -->
-      <rect x="200" y="350" width="35" height="75" rx="17.5" fill="#FDE68A" />
-      <rect x="265" y="350" width="35" height="75" rx="17.5" fill="#FDE68A" />
-      <!-- Pieds/Chaussures -->
-      <rect x="185" y="410" width="50" height="20" rx="10" fill="#9CA3AF" />
-      <rect x="265" y="410" width="50" height="20" rx="10" fill="#9CA3AF" />
-      <!-- Bras -->
-      <rect x="125" y="220" width="35" height="110" rx="17.5" fill="#FDE68A" />
-      <rect x="340" y="220" width="35" height="110" rx="17.5" fill="#FDE68A" />
+      <rect x="205" y="340" width="30" height="90" rx="15" fill="#FDBA74" />
+      <rect x="265" y="340" width="30" height="90" rx="15" fill="#FDBA74" />
+      <!-- Sandales / Chaussures nettes -->
+      <path d="M190 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="#991B1B" />
+      <path d="M260 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="#991B1B" />
+      <!-- Bras ballants stables -->
+      <path d="M135 240 v100" fill="none" stroke="#FDBA74" stroke-width="20" stroke-linecap="round" />
+      <path d="M365 240 v100" fill="none" stroke="#FDBA74" stroke-width="20" stroke-linecap="round" />
     
     
-      <!-- Tunique / Torse -->
-      <rect x="155" y="210" width="190" height="150" rx="40" fill="#4B5563" />
+      <!-- Tunique drapée -->
+      <rect x="145" y="215" width="210" height="150" rx="40" fill="#DC2626" />
+      <!-- Ombre nette sur la tunique pour donner de la profondeur (Duolingo 2.0) -->
+      <path d="M145 270 C145 330, 355 330, 355 270 V325 C355 350, 145 350, 145 325 Z" fill="#991B1B" opacity="0.3" />
     
     
-      <rect x="210" y="260" width="80" height="100" rx="15" fill="#9CA3AF" />
-      <line x1="250" y1="260" x2="250" y2="360" stroke="#4B5563" stroke-width="10" />
+      <g id="tablets" transform="translate(110, 240) rotate(-5)">
+        <rect x="0" y="0" width="70" height="90" rx="15" fill="#9CA3AF" stroke="#1E293B" stroke-width="6" />
+        <line x1="35" y1="5" x2="35" y2="85" stroke="#4B5563" stroke-width="4" />
+        <!-- Inscriptions hébraïques factices (points/traits fins net) -->
+        <line x1="10" y1="25" x2="25" y2="25" stroke="#374151" stroke-width="3" stroke-linecap="round" />
+        <line x1="10" y1="45" x2="28" y2="45" stroke="#374151" stroke-width="3" stroke-linecap="round" />
+        <line x1="45" y1="25" x2="60" y2="25" stroke="#374151" stroke-width="3" stroke-linecap="round" />
+        <line x1="45" y1="45" x2="58" y2="45" stroke="#374151" stroke-width="3" stroke-linecap="round" />
+      </g>
     
   </svg>

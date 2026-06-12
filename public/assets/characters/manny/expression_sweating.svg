@@ -1,18 +1,12 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-  <g id="eyes">
-    <!-- Yeux plissés de fatigue/effort -->
-    <path d="M190 220 h30" stroke="#1E293B" stroke-width="9" stroke-linecap="round" />
-    <path d="M280 220 h30" stroke="#1E293B" stroke-width="9" stroke-linecap="round" />
-  </g>
-
-  <g id="blush">
-    <ellipse cx="170" cy="250" rx="16" ry="9" fill="#FDA4AF" opacity="0.5" />
-    <ellipse cx="330" cy="250" rx="16" ry="9" fill="#FDA4AF" opacity="0.5" />
-  </g>
-
-  <!-- Bouche ouverte fatiguée (ellipse noire avec relief) -->
-  <ellipse cx="250" cy="255" rx="14" ry="8" fill="#1E293B" />
-
-  <!-- Goutte de sueur 3D en aplat bleu (Flat) -->
-  <path d="M330 170 Q340 200 325 210 Q310 210 320 190 Z" fill="#3B82F6" stroke="#1E293B" stroke-width="4" stroke-linejoin="round" />
-</svg>
+        <g id="eyes">
+          <path d="M190 220 h30" stroke="#64748B" stroke-width="9" stroke-linecap="round" />
+          <path d="M280 220 h30" stroke="#64748B" stroke-width="9" stroke-linecap="round" />
+        </g>
+        <g id="blush">
+          <ellipse cx="170" cy="250" rx="16" ry="9" fill="#FDA4AF" opacity="0.5" />
+          <ellipse cx="330" cy="250" rx="16" ry="9" fill="#FDA4AF" opacity="0.5" />
+        </g>
+        <ellipse cx="250" cy="255" rx="14" ry="8" fill="#64748B" />
+        <path d="M330 170 Q340 200 325 210 Q310 210 320 190 Z" fill="#3B82F6" stroke="#64748B" stroke-width="4" stroke-linejoin="round" />
+      </svg>

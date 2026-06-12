@@ -1,19 +1,11 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-  <!-- Bonnet d'hiver rouge reposant sur le haut du livre -->
-  <g id="winter-hat">
-    <!-- Base du bonnet -->
-    <rect x="150" y="80" width="200" height="40" rx="15" fill="#EF4444" stroke="#1E293B" stroke-width="6" />
-    <!-- Corps du bonnet -->
-    <path d="M170 80 C170 30, 330 30, 330 80 Z" fill="#DC2626" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
-    <!-- Pompon blanc tricoté -->
-    <circle cx="250" cy="25" r="18" fill="#FFFFFF" stroke="#1E293B" stroke-width="6" />
-  </g>
-
-  <!-- Écharpe douillette enroulée autour du bas du livre -->
-  <g id="winter-scarf">
-    <!-- Noeud d'écharpe principal -->
-    <rect x="165" y="335" width="170" height="30" rx="12" fill="#EF4444" stroke="#1E293B" stroke-width="6" />
-    <!-- Pan d'écharpe pendant -->
-    <path d="M300 355 v55 c0 8, -25 8, -25 0 v-55z" fill="#DC2626" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
-  </g>
-</svg>
+      <g id="winter-hat">
+        <rect x="160" y="80" width="180" height="35" rx="15" fill="#EF4444" stroke="#1E293B" stroke-width="6" />
+        <path d="M175 80 C175 30, 325 30, 325 80 Z" fill="#DC2626" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
+        <circle cx="250" cy="25" r="16" fill="#FFFFFF" stroke="#1E293B" stroke-width="6" />
+      </g>
+      <g id="winter-scarf">
+        <rect x="165" y="325" width="170" height="30" rx="12" fill="#EF4444" stroke="#1E293B" stroke-width="6" />
+        <path d="M295 345 v50 c0 6, -20 6, -20 0 v-50z" fill="#DC2626" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
+      </g>
+    </svg>

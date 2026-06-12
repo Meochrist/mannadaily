@@ -1,24 +1,16 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <path d="M 170 175 C 120 50 380 50 330 175 C 360 220 370 310 330 330 C 310 250 310 210 310 190 L 190 190 C 190 210 190 250 170 330 C 130 310 140 220 170 175 Z" fill="#78350F" />
+    <circle cx="250" cy="175" r="70" fill="#FDBA74" />
     
-      <path d="M 160 140 C 150 25 350 25 340 140 C 360 225 370 300 350 325 C 325 300 310 225 310 200 L 190 200 C 190 225 175 300 150 325 C 130 300 140 225 160 140 Z" fill="#78350F" />
-      <rect x="170" y="70" width="160" height="20" fill="#DC2626" rx="5" />
+    <rect x="170" y="110" width="160" height="15" fill="#F59E0B" rx="5" />
     
-    <circle cx="250" cy="140" r="75" fill="#FDBA74" />
-    
-    
-      <!-- Sourcils inquiets -->
-      <path d="M215 120 Q225 125 L235 115" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
-      <path d="M265 115 Q275 125 L285 120" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
-      <!-- Yeux -->
-      <circle cx="225" cy="140" r="10" fill="#1E293B" />
-      <circle cx="222" cy="137" r="3" fill="#FFFFFF" />
-      <circle cx="275" cy="140" r="10" fill="#1E293B" />
-      <circle cx="272" cy="137" r="3" fill="#FFFFFF" />
-      <!-- Blush -->
-      <ellipse cx="205" cy="155" rx="9" ry="5" fill="#FDA4AF" opacity="0.5" />
-      <ellipse cx="295" cy="155" rx="9" ry="5" fill="#FDA4AF" opacity="0.5" />
-      <!-- Bouche inquiète + Sueur -->
-      <path d="M235 165 h30" stroke="#1E293B" stroke-width="9" stroke-linecap="round" />
-      <path d="M305 105 Q315 140 L295 140" fill="#3B82F6" opacity="0.8" />
+      <path d="M215 180 h25" stroke="#1E293B" stroke-width="8" stroke-linecap="round" />
+      <path d="M260 180 h25" stroke="#1E293B" stroke-width="8" stroke-linecap="round" />
+
+      <ellipse cx="208" cy="200" rx="14" ry="8" fill="#FDA4AF" opacity="0.5" />
+      <ellipse cx="292" cy="200" rx="14" ry="8" fill="#FDA4AF" opacity="0.5" />
+
+      <ellipse cx="250" cy="200" rx="12" ry="7" fill="#1E293B" />
+      <path d="M300 145 Q310 175 L290 175 Z" fill="#3B82F6" stroke="#1E293B" stroke-width="4" stroke-linejoin="round" />
     
   </svg>

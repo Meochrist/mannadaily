@@ -1,15 +1,19 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ombre nette au sol -->
+    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
     
-      <!-- Jambes -->
-      <rect x="205" y="360" width="30" height="70" rx="15" fill="#FDE68A" />
-      <rect x="265" y="360" width="30" height="70" rx="15" fill="#FDE68A" />
-      <!-- Bras ballants tristes -->
-      <rect x="130" y="240" width="30" height="110" rx="15" fill="#FDE68A" transform="rotate(5 130 240)" />
-      <rect x="340" y="240" width="30" height="110" rx="15" fill="#FDE68A" transform="rotate(-5 340 240)" />
+      <!-- Jambes légèrement pliées de tristesse -->
+      <path d="M210 350 v60 h-10" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M290 350 v60 h10" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M185 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="#BE185D" />
+      <path d="M280 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="#BE185D" />
+      <!-- Bras refermés ou tombants d'abattement -->
+      <path d="M140 250 Q115 310, 125 350" fill="none" stroke="#FED7AA" stroke-width="18" stroke-linecap="round" />
+      <path d="M360 250 Q385 310, 375 350" fill="none" stroke="#FED7AA" stroke-width="18" stroke-linecap="round" />
     
     
-      <path d="M155 210 h190 L370 370 H130 Z" fill="#EC4899" />
-      <rect x="180" y="200" width="140" height="25" fill="#F472B6" rx="10" />
+      <path d="M150 215 h200 L370 360 H130 Z" fill="#EC4899" />
+      <rect x="175" y="210" width="150" height="22" fill="#BE185D" rx="8" />
     
     
   </svg>
