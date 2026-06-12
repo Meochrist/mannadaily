@@ -30,15 +30,21 @@ export default function PushOptIn({ vapidPublicKey }: PushOptInProps) {
       return;
     }
 
-    // Récupérer l'état initial de la permission et de la souscription
+    // Récupérer l'état initial de la permission
     setPermission(Notification.permission);
 
-    navigator.serviceWorker.ready
+    // Utiliser getRegistration pour éviter de bloquer indéfiniment sur .ready si aucun SW n'est enregistré
+    navigator.serviceWorker.getRegistration()
       .then((registration) => {
-        return registration.pushManager.getSubscription();
-      })
-      .then((subscription) => {
-        setIsSubscribed(!!subscription);
+        if (!registration) {
+          setIsSubscribed(false);
+          setLoading(false);
+          return;
+        }
+        return registration.pushManager.getSubscription()
+          .then((subscription) => {
+            setIsSubscribed(!!subscription);
+          });
       })
       .catch((err) => {
         console.error("Erreur de récupération de l'état push :", err);
