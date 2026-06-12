@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 
 // Import dynamique du rendu Rive sans SSR (car Rive utilise WASM/Canvas)
@@ -236,14 +236,25 @@ export default function CharacterRenderer({
             onFallback={() => setUseFallback(true)}
           />
         ) : (
-          <>
-            {/* 1. Couche du corps / de la pose (Full Body ou Personnage Unifié Complet) */}
-            <img
-              src={`${basePath}/pose_${finalPose}.svg`}
-              alt={`${characterId} (${finalPose})`}
-              onError={() => setLoadError(true)}
-              className="absolute inset-0 w-full h-full object-contain z-10 transition-all duration-300 ease-in-out"
-            />
+          <div className="absolute inset-0 w-full h-full">
+            {/* 1. Couche de la pose (Full Body ou Personnage Unifié Complet avec transition fluide) */}
+            <AnimatePresence mode="popLayout">
+              <motion.img
+                key={finalPose}
+                src={`${basePath}/pose_${finalPose}.svg`}
+                alt={`${characterId} (${finalPose})`}
+                onError={() => setLoadError(true)}
+                initial={{ opacity: 0, scale: 0.94, y: finalPose === "jumping" ? 15 : 0 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 1.04, y: finalPose === "jumping" ? -15 : 0 }}
+                transition={{ 
+                  opacity: { duration: 0.2 },
+                  scale: { type: "spring", stiffness: 350, damping: 22, mass: 0.7 },
+                  y: { type: "spring", stiffness: 280, damping: 20 }
+                }}
+                className="absolute inset-0 w-full h-full object-contain z-10"
+              />
+            </AnimatePresence>
 
             {/* 2. Couche du visage / de l'expression (uniquement si non unifié) */}
             {!UNIFIED_CHARACTERS.includes(charId) && (
@@ -262,7 +273,7 @@ export default function CharacterRenderer({
                 className="absolute inset-0 w-full h-full object-contain z-30 transition-all duration-300 ease-in-out"
               />
             )}
-          </>
+          </div>
         )}
       </motion.div>
     </div>
