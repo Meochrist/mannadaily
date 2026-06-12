@@ -510,64 +510,80 @@ function getExpressionSVG(char, expr) {
     hairFront = `<path d="M 195 125 L 210 90 L 235 110 L 250 85 L 265 110 L 290 90 L 305 125 Z" fill="${config.accent}" stroke="#1E293B" stroke-width="4" />`;
   }
 
-  // 3. Dessin des yeux géants et bouches selon l'expression
+  // 3. Dessin des yeux et bouches selon l'expression (Yeux mieux dimensionnés avec sourcils pour éviter l'effet lunettes)
   let faceHTML = '';
   if (expr === 'neutral') {
     faceHTML = `
-      <!-- Yeux géants mignons avec double reflet asymétrique (60% du visage) -->
-      <circle cx="${headX - 25}" cy="${headY}" r="26" fill="#1E293B" />
-      <circle cx="${headX - 33}" cy="${headY - 8}" r="8.5" fill="#FFFFFF" />
-      <circle cx="${headX - 17}" cy="${headY + 8}" r="4" fill="#FFFFFF" />
+      <!-- Sourcils expressifs pour structurer le visage -->
+      <path d="M${headX - 38} ${headY - 22} Q${headX - 24} ${headY - 32} L${headX - 10} ${headY - 24}" stroke="#1E293B" stroke-width="5" stroke-linecap="round" fill="none" />
+      <path d="M${headX + 10} ${headY - 24} Q${headX + 24} ${headY - 32} L${headX + 38} ${headY - 22}" stroke="#1E293B" stroke-width="5" stroke-linecap="round" fill="none" />
 
-      <circle cx="${headX + 25}" cy="${headY}" r="26" fill="#1E293B" />
-      <circle cx="${headX + 17}" cy="${headY - 8}" r="8.5" fill="#FFFFFF" />
-      <circle cx="${headX + 33}" cy="${headY + 8}" r="4" fill="#FFFFFF" />
+      <!-- Yeux cartoon bien proportionnés -->
+      <circle cx="${headX - 24}" cy="${headY}" r="14" fill="#1E293B" />
+      <circle cx="${headX - 28}" cy="${headY - 4}" r="5" fill="#FFFFFF" />
+      <circle cx="${headX - 20}" cy="${headY + 4}" r="2" fill="#FFFFFF" />
+
+      <circle cx="${headX + 24}" cy="${headY}" r="14" fill="#1E293B" />
+      <circle cx="${headX + 20}" cy="${headY - 4}" r="5" fill="#FFFFFF" />
+      <circle cx="${headX + 28}" cy="${headY + 4}" r="2" fill="#FFFFFF" />
 
       <!-- Blush rose kawaii -->
-      <ellipse cx="${headX - 45}" cy="${headY + 26}" rx="18" ry="10" fill="#FDA4AF" opacity="0.65" />
-      <ellipse cx="${headX + 45}" cy="${headY + 26}" rx="18" ry="10" fill="#FDA4AF" opacity="0.65" />
+      <ellipse cx="${headX - 42}" cy="${headY + 24}" rx="14" ry="7" fill="#FDA4AF" opacity="0.65" />
+      <ellipse cx="${headX + 42}" cy="${headY + 24}" rx="14" ry="7" fill="#FDA4AF" opacity="0.65" />
 
       <!-- Bouche en léger sourire curieux -->
-      <path d="M${headX - 12} ${headY + 32} Q${headX} ${headY + 44} L${headX + 12} ${headY + 32}" stroke="#1E293B" stroke-width="6.5" stroke-linecap="round" fill="none" />
+      <path d="M${headX - 12} ${headY + 30} Q${headX} ${headY + 42} L${headX + 12} ${headY + 30}" stroke="#1E293B" stroke-width="6.5" stroke-linecap="round" fill="none" />
     `;
   } else if (expr === 'happy') {
     faceHTML = `
-      <!-- Yeux joyeux arqués expressifs -->
-      <path d="M${headX - 42} ${headY + 4} Q${headX - 25} ${headY - 20} L${headX - 8} ${headY + 4}" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
-      <path d="M${headX + 8} ${headY + 4} Q${headX + 25} ${headY - 20} L${headX + 42} ${headY + 4}" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+      <!-- Sourcils levés de joie -->
+      <path d="M${headX - 38} ${headY - 25} Q${headX - 24} ${headY - 35} L${headX - 10} ${headY - 27}" stroke="#1E293B" stroke-width="5" stroke-linecap="round" fill="none" />
+      <path d="M${headX + 10} ${headY - 27} Q${headX + 24} ${headY - 35} L${headX + 38} ${headY - 25}" stroke="#1E293B" stroke-width="5" stroke-linecap="round" fill="none" />
 
-      <!-- Blush plus prononcé de joie -->
-      <ellipse cx="${headX - 45}" cy="${headY + 26}" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
-      <ellipse cx="${headX + 45}" cy="${headY + 26}" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
+      <!-- Yeux joyeux arqués -->
+      <path d="M${headX - 35} ${headY + 4} Q${headX - 22} ${headY - 14} L${headX - 9} ${headY + 4}" stroke="#1E293B" stroke-width="8" stroke-linecap="round" fill="none" />
+      <path d="M${headX + 9} ${headY + 4} Q${headX + 22} ${headY - 14} L${headX + 35} ${headY + 4}" stroke="#1E293B" stroke-width="8" stroke-linecap="round" fill="none" />
 
-      <!-- Bouche de joie ouverte avec langue rose style Duolingo -->
-      <path d="M${headX - 16} ${headY + 28} Q${headX} ${headY + 60} L${headX + 16} ${headY + 28} Z" fill="#EF4444" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
-      <path d="M${headX - 8} ${headY + 46} Q${headX} ${headY + 36} L${headX + 8} ${headY + 46} Q${headX} ${headY + 56} L${headX - 8} ${headY + 46}" fill="#F472B6" />
+      <!-- Blush rose -->
+      <ellipse cx="${headX - 42}" cy="${headY + 24}" rx="16" ry="9" fill="#FDA4AF" opacity="0.75" />
+      <ellipse cx="${headX + 42}" cy="${headY + 24}" rx="16" ry="9" fill="#FDA4AF" opacity="0.75" />
+
+      <!-- Bouche ouverte avec langue rose -->
+      <path d="M${headX - 14} ${headY + 26} Q${headX} ${headY + 54} L${headX + 14} ${headY + 26} Z" fill="#EF4444" stroke="#1E293B" stroke-width="5.5" stroke-linejoin="round" />
+      <path d="M${headX - 7} ${headY + 42} Q${headX} ${headY + 34} L${headX + 7} ${headY + 42} Q${headX} ${headY + 50} L${headX - 7} ${headY + 42}" fill="#F472B6" />
     `;
   } else if (expr === 'sweating') {
     faceHTML = `
-      <!-- Yeux concentrés/plissés (effort) -->
-      <path d="M${headX - 40} ${headY + 4} L${headX - 10} ${headY + 4}" stroke="#1E293B" stroke-width="8.5" stroke-linecap="round" />
-      <path d="M${headX + 10} ${headY + 4} L${headX + 40} ${headY + 4}" stroke="#1E293B" stroke-width="8.5" stroke-linecap="round" />
+      <!-- Sourcils froncés d'effort -->
+      <path d="M${headX - 35} ${headY - 18} L${headX - 12} ${headY - 24}" stroke="#1E293B" stroke-width="5.5" stroke-linecap="round" />
+      <path d="M${headX + 12} ${headY - 24} L${headX + 35} ${headY - 18}" stroke="#1E293B" stroke-width="5.5" stroke-linecap="round" />
 
-      <ellipse cx="${headX - 45}" cy="${headY + 26}" rx="14" ry="8" fill="#FDA4AF" opacity="0.5" />
-      <ellipse cx="${headX + 45}" cy="${headY + 26}" rx="14" ry="8" fill="#FDA4AF" opacity="0.5" />
+      <!-- Yeux plissés -->
+      <path d="M${headX - 34} ${headY + 4} L${headX - 12} ${headY + 4}" stroke="#1E293B" stroke-width="8" stroke-linecap="round" />
+      <path d="M${headX + 12} ${headY + 4} L${headX + 34} ${headY + 4}" stroke="#1E293B" stroke-width="8" stroke-linecap="round" />
 
-      <ellipse cx="${headX}" cy="${headY + 26}" rx="13" ry="7.5" fill="#1E293B" />
-      <!-- Goutte de sueur bleue en relief 3D Flat -->
-      <path d="M${headX + 52} ${headY - 25} C${headX + 65} ${headY + 5}, ${headX + 40} ${headY + 5}, ${headX + 42} ${headY - 10} Z" fill="#3B82F6" stroke="#1E293B" stroke-width="4.5" stroke-linejoin="round" />
+      <ellipse cx="${headX - 42}" cy="${headY + 24}" rx="12" ry="7" fill="#FDA4AF" opacity="0.5" />
+      <ellipse cx="${headX + 42}" cy="${headY + 24}" rx="12" ry="7" fill="#FDA4AF" opacity="0.5" />
+
+      <ellipse cx="${headX}" cy="${headY + 24}" rx="12" ry="7" fill="#1E293B" />
+      <!-- Goutte de sueur bleue -->
+      <path d="M${headX + 48} ${headY - 22} C${headX + 58} ${headY + 4}, ${headX + 36} ${headY + 4}, ${headX + 38} ${headY - 8} Z" fill="#3B82F6" stroke="#1E293B" stroke-width="4" stroke-linejoin="round" />
     `;
   } else { // crying
     faceHTML = `
-      <!-- Sourcils froncés et yeux tristes arqués vers le bas -->
-      <path d="M${headX - 38} ${headY + 10} Q${headX - 25} ${headY + 24} L${headX - 12} ${headY + 10}" stroke="#1E293B" stroke-width="8" stroke-linecap="round" fill="none" />
-      <path d="M${headX + 12} ${headY + 10} Q${headX + 25} ${headY + 24} L${headX + 38} ${headY + 10}" stroke="#1E293B" stroke-width="8" stroke-linecap="round" fill="none" />
+      <!-- Sourcils obliques de tristesse -->
+      <path d="M${headX - 36} ${headY - 24} L${headX - 12} ${headY - 16}" stroke="#1E293B" stroke-width="5.5" stroke-linecap="round" />
+      <path d="M${headX + 12} ${headY - 16} L${headX + 36} ${headY - 24}" stroke="#1E293B" stroke-width="5.5" stroke-linecap="round" />
 
-      <!-- Bouche tremblante triste -->
-      <path d="M${headX - 18} ${headY + 38} Q${headX} ${headY + 24} L${headX + 18} ${headY + 38}" stroke="#1E293B" stroke-width="7" stroke-linecap="round" fill="none" />
-      <!-- Larmes d'eau coulantes texturées -->
-      <path d="M${headX - 26} ${headY + 14} v38 c0 6, 8 6, 8 0 v-38z" fill="#60A5FA" />
-      <path d="M${headX + 18} ${headY + 14} v38 c0 6, 8 6, 8 0 v-38z" fill="#60A5FA" />
+      <!-- Yeux fermés tristes vers le bas -->
+      <path d="M${headX - 34} ${headY + 8} Q${headX - 22} ${headY + 20} L${headX - 10} ${headY + 8}" stroke="#1E293B" stroke-width="7.5" stroke-linecap="round" fill="none" />
+      <path d="M${headX + 10} ${headY + 8} Q${headX + 22} ${headY + 20} L${headX + 34} ${headY + 8}" stroke="#1E293B" stroke-width="7.5" stroke-linecap="round" fill="none" />
+
+      <!-- Bouche triste tremblante -->
+      <path d="M${headX - 15} ${headY + 36} Q${headX} ${headY + 24} L${headX + 15} ${headY + 36}" stroke="#1E293B" stroke-width="6.5" stroke-linecap="round" fill="none" />
+      <!-- Larmes d'eau coulantes -->
+      <path d="M${headX - 24} ${headY + 12} v35 c0 5, 8 5, 8 0 v-35z" fill="#60A5FA" />
+      <path d="M${headX + 16} ${headY + 12} v35 c0 5, 8 5, 8 0 v-35z" fill="#60A5FA" />
     `;
   }
 

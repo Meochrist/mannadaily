@@ -14,6 +14,15 @@ const RiveRenderer = dynamic(() => import("./RiveRenderer"), {
 // Pour basculer un personnage sur Rive, ajoutez son identifiant en minuscules ici (ex: "manny").
 const RIVE_ENABLED_CHARACTERS: string[] = [];
 
+// Liste des personnages utilisant des illustrations vectorielles unifiées complètes (style IA/VTracer)
+// Pour ces personnages, seul le fichier de pose (qui contient le personnage complet expressif) est rendu.
+const UNIFIED_CHARACTERS = [
+  "manny",
+  "samson",
+  "esther",
+  "noe",
+];
+
 // Types des états supportés par notre mascotte (style Duolingo)
 export type MascotState =
   | "SPORT"
@@ -216,23 +225,25 @@ export default function CharacterRenderer({
           />
         ) : (
           <>
-            {/* 1. Couche du corps / de la pose (Full Body) */}
+            {/* 1. Couche du corps / de la pose (Full Body ou Personnage Unifié Complet) */}
             <img
               src={`${basePath}/pose_${finalPose}.svg`}
-              alt={`${characterId} body (${finalPose})`}
+              alt={`${characterId} (${finalPose})`}
               onError={() => setLoadError(true)}
               className="absolute inset-0 w-full h-full object-contain z-10 transition-all duration-300 ease-in-out"
             />
 
-            {/* 2. Couche du visage / de l'expression */}
-            <img
-              src={`${basePath}/expression_${finalExpression}.svg`}
-              alt={`${characterId} face (${finalExpression})`}
-              className="absolute inset-0 w-full h-full object-contain z-20 transition-all duration-300 ease-in-out"
-            />
+            {/* 2. Couche du visage / de l'expression (uniquement si non unifié) */}
+            {!UNIFIED_CHARACTERS.includes(charId) && (
+              <img
+                src={`${basePath}/expression_${finalExpression}.svg`}
+                alt={`${characterId} face (${finalExpression})`}
+                className="absolute inset-0 w-full h-full object-contain z-20 transition-all duration-300 ease-in-out"
+              />
+            )}
 
-            {/* 3. Couche de la tenue / de l'outfit (si non default) */}
-            {finalOutfit !== "default" && (
+            {/* 3. Couche de la tenue / de l'outfit (si non default et si non unifié) */}
+            {finalOutfit !== "default" && !UNIFIED_CHARACTERS.includes(charId) && (
               <img
                 src={`${basePath}/outfit_${finalOutfit}.svg`}
                 alt={`${characterId} outfit (${finalOutfit})`}
