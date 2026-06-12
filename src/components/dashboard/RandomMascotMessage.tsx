@@ -2,39 +2,70 @@
 
 import React, { useState, useEffect } from "react";
 import MascotMessage from "../mascot/MascotMessage";
-import { MannyMood } from "@/types";
+import { useCharacterState } from "@/hooks/useCharacterState";
 import { getMannyMessage, MannySituation } from "@/lib/mannyMessages";
 
 interface RandomMascotMessageProps {
   userName: string;
   streakCount: number;
+  dayProgress: boolean;
+  inactivityDays: number;
 }
 
-type MascotType = "manny" | "samson" | "esther" | "gedeon" | "noe";
+type MascotType =
+  | "manny"
+  | "samson"
+  | "esther"
+  | "gedeon"
+  | "noe"
+  | "paul"
+  | "pierre"
+  | "moise"
+  | "abraham"
+  | "david";
 
-export default function RandomMascotMessage({ userName, streakCount }: RandomMascotMessageProps) {
+export default function RandomMascotMessage({
+  userName,
+  streakCount,
+  dayProgress,
+  inactivityDays,
+}: RandomMascotMessageProps) {
   const [mascot, setMascot] = useState<MascotType>("manny");
-  const [mood, setMood] = useState<MannyMood>("happy");
   const [message, setMessage] = useState<string>("");
   const [mounted, setMounted] = useState(false);
 
+  // Appeler le hook d'état global du personnage pour calculer les poses/expressions et la tenue météo
+  const { pose, expression, outfit } = useCharacterState({
+    currentStreak: streakCount,
+    sessionsTotal: 0,
+    inactivityDays,
+    dayProgress,
+  });
+
   useEffect(() => {
-    // 1. Choix aléatoire de la mascotte parmi les 5
-    const mascots: MascotType[] = ["manny", "samson", "esther", "gedeon", "noe"];
+    // 1. Choix aléatoire de la mascotte parmi nos 10 mascottes
+    const mascots: MascotType[] = [
+      "manny",
+      "samson",
+      "esther",
+      "gedeon",
+      "noe",
+      "paul",
+      "pierre",
+      "moise",
+      "abraham",
+      "david",
+    ];
     const randomMascot = mascots[Math.floor(Math.random() * mascots.length)];
 
-    // 2. Choix d'une humeur positive et engageante
-    const moods: MannyMood[] = ["happy", "encouraging", "excited"];
-    const randomMood = moods[Math.floor(Math.random() * moods.length)];
-
-    // 3. Choix aléatoire entre "welcome" et "first_visit"
+    // 2. Choix aléatoire entre "welcome" et "first_visit"
     const situations: MannySituation[] = ["welcome", "first_visit"];
     const randomSituation = situations[Math.floor(Math.random() * situations.length)];
 
-    // 4. Génération du message d'accueil
+    // 3. Génération du message d'accueil
     const rawMessage = getMannyMessage(randomSituation, userName, streakCount);
 
-    // 5. Signature spécifique pour identifier le personnage qui parle
+    // 4. Signature spécifique pour identifier le personnage qui parle
     let prefix = "";
     switch (randomMascot) {
       case "samson":
@@ -49,6 +80,21 @@ export default function RandomMascotMessage({ userName, streakCount }: RandomMas
       case "noe":
         prefix = "🕊️ Noé : ";
         break;
+      case "paul":
+        prefix = "✉️ Paul : ";
+        break;
+      case "pierre":
+        prefix = "🔑 Pierre : ";
+        break;
+      case "moise":
+        prefix = "📜 Moïse : ";
+        break;
+      case "abraham":
+        prefix = "✨ Abraham : ";
+        break;
+      case "david":
+        prefix = "🎵 David : ";
+        break;
       case "manny":
       default:
         prefix = "📖 Manny : ";
@@ -56,12 +102,11 @@ export default function RandomMascotMessage({ userName, streakCount }: RandomMas
     }
 
     setMascot(randomMascot);
-    setMood(randomMood);
     setMessage(`${prefix}${rawMessage}`);
     setMounted(true);
   }, [userName, streakCount]);
 
-  // Rendu vide pendant l'hydratation SSR pour éviter les décalages de layout et d'hydratation
+  // Rendu de secours pendant le SSR pour éviter les décalages d'hydratation
   if (!mounted) {
     return <div className="h-32 w-full max-w-xl bg-slate-50/20 rounded-2xl animate-pulse" />;
   }
@@ -69,9 +114,12 @@ export default function RandomMascotMessage({ userName, streakCount }: RandomMas
   return (
     <MascotMessage
       mascot={mascot}
-      mood={mood}
+      pose={pose}
+      expression={expression}
+      outfit={outfit}
       message={message}
       size={110}
     />
   );
 }
+

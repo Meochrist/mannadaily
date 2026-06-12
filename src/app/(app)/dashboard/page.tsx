@@ -33,6 +33,8 @@ export default async function DashboardPage() {
   let badges: Array<{ id: string; name: string; description: string; icon: string; earnedAt: string }> = [];
   let lingots = 0;
   let freezesAvailable = 0;
+  let dayProgress = false;
+  let inactivityDays = 0;
 
   if (userId) {
     try {
@@ -88,6 +90,23 @@ export default async function DashboardPage() {
 
       currentStreak = streak.currentStreak;
       longestStreak = streak.longestStreak;
+
+      // Calcul de inactivityDays
+      const diffTime = Math.abs(new Date().getTime() - new Date(streak.lastActivityAt).getTime());
+      inactivityDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      // Vérifier la progression de la journée (session de méditation créée aujourd'hui)
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const todaySession = await db.dailySession.findFirst({
+        where: {
+          userId,
+          createdAt: {
+            gte: todayStart,
+          },
+        },
+      });
+      dayProgress = !!todaySession;
 
       // 3. Récupération directe des badges
       const userBadges = await db.userBadge.findMany({
@@ -162,6 +181,8 @@ export default async function DashboardPage() {
         <RandomMascotMessage
           userName={userName}
           streakCount={currentStreak}
+          dayProgress={dayProgress}
+          inactivityDays={inactivityDays}
         />
       </section>
 

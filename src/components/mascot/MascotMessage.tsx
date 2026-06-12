@@ -1,42 +1,88 @@
 "use client";
 
 import React from "react";
-import Manny from "./Manny";
-import Samson from "./Samson";
-import Esther from "./Esther";
-import Gedeon from "./Gedeon";
-import Noe from "./Noe";
+import CharacterRenderer from "./CharacterRenderer";
+import { useCharacterState } from "@/hooks/useCharacterState";
 import { MannyMood } from "@/types";
 
 interface MascotMessageProps {
-  mascot: "manny" | "samson" | "esther" | "gedeon" | "noe";
-  mood: MannyMood;
+  mascot:
+    | "manny"
+    | "samson"
+    | "esther"
+    | "gedeon"
+    | "noe"
+    | "paul"
+    | "pierre"
+    | "moise"
+    | "abraham"
+    | "david";
+  mood?: MannyMood;
+  pose?: "idle" | "jumping" | "sad" | "running";
+  expression?: "neutral" | "happy" | "sweating" | "crying";
+  outfit?: "default" | "winter" | "beach" | "halloween";
   message: string;
   size?: number;
 }
 
-export default function MascotMessage({ mascot, mood, message, size = 100 }: MascotMessageProps) {
-  // Sélectionner le composant de mascotte correspondant
-  const renderMascot = () => {
-    switch (mascot) {
-      case "samson":
-        return <Samson mood={mood} size={size} />;
-      case "esther":
-        return <Esther mood={mood} size={size} />;
-      case "gedeon":
-        return <Gedeon mood={mood} size={size} />;
-      case "noe":
-        return <Noe mood={mood} size={size} />;
-      case "manny":
+export default function MascotMessage({
+  mascot,
+  mood,
+  pose: customPose,
+  expression: customExpression,
+  outfit: customOutfit,
+  message,
+  size = 100,
+}: MascotMessageProps) {
+  // Récupérer l'état d'environnement (pour l'outfit par défaut si non spécifié)
+  const { outfit: envOutfit } = useCharacterState({
+    currentStreak: 0,
+    sessionsTotal: 0,
+    inactivityDays: 0,
+    dayProgress: false,
+  });
+
+  // Associer le mood à la pose et à l'expression correspondantes par défaut
+  let pose: "idle" | "jumping" | "sad" | "running" = "idle";
+  let expression: "neutral" | "happy" | "sweating" | "crying" = "happy";
+
+  if (mood) {
+    switch (mood) {
+      case "excited":
+      case "celebrating":
+      case "encouraging":
+        pose = "jumping";
+        expression = "happy";
+        break;
+      case "sleeping":
+      case "praying":
+      case "thinking":
+        pose = "idle";
+        expression = "neutral";
+        break;
+      case "happy":
       default:
-        return <Manny mood={mood} size={size} />;
+        pose = "idle";
+        expression = "happy";
+        break;
     }
-  };
+  }
+
+  // La pose, l'expression et l'outfit passés explicitement ont priorité absolue
+  const finalPose = customPose || pose;
+  const finalExpression = customExpression || expression;
+  const finalOutfit = customOutfit || envOutfit;
 
   return (
     <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm max-w-xl">
       <div className="flex-shrink-0">
-        {renderMascot()}
+        <CharacterRenderer
+          characterId={mascot}
+          pose={finalPose}
+          expression={finalExpression}
+          outfit={finalOutfit}
+          size={size}
+        />
       </div>
       <div className="relative flex-1 bg-slate-50 border border-slate-200/60 p-4 rounded-xl text-slate-700 text-sm md:text-base font-medium">
         {/* Flèches orientables de la bulle de dialogue */}
@@ -47,3 +93,5 @@ export default function MascotMessage({ mascot, mood, message, size = 100 }: Mas
     </div>
   );
 }
+
+
