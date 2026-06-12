@@ -9,7 +9,8 @@ import {
   BookOpen, 
   Volume2, 
   Grid, 
-  Trophy 
+  Trophy,
+  Award
 } from "lucide-react";
 
 export default function BottomNav() {
@@ -32,14 +33,14 @@ export default function BottomNav() {
       icon: Volume2,
     },
     {
-      label: "Thèmes",
-      href: "/themes",
-      icon: Grid,
+      label: "Ligue",
+      href: "/leaderboard",
+      icon: Trophy,
     },
     {
       label: "Progression",
       href: "/progress",
-      icon: Trophy,
+      icon: Award,
     },
   ];
 

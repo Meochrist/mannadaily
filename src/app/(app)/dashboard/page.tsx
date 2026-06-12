@@ -9,6 +9,7 @@ import XPBar from "@/components/gamification/XPBar";
 import StreakCounter from "@/components/gamification/StreakCounter";
 import BadgeCard from "@/components/gamification/BadgeCard";
 import LingotsCounter from "@/components/gamification/LingotsCounter";
+import PushOptIn from "@/components/notifications/PushOptIn";
 import { BookOpen, Play, CheckCircle } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -153,6 +154,9 @@ export default async function DashboardPage() {
 
       {/* COMPTEUR DE LINGOTS ET STREAK FREEZE */}
       <LingotsCounter initialLingots={lingots} initialFreezes={freezesAvailable} />
+
+      {/* COMPOSANT D'OPT-IN PUSH */}
+      <PushOptIn vapidPublicKey={process.env.VAPID_PUBLIC_KEY || ""} />
 
       <section className="flex justify-center md:justify-start">
         <RandomMascotMessage

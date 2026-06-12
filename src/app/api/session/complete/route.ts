@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { awardXP, updateStreak, checkAndAwardBadges } from "@/lib/gamification";
+import { addXPToLeague } from "@/lib/leaderboard";
 import { XP_RULES } from "@/types";
 import { NextResponse } from "next/server";
 
@@ -38,6 +39,9 @@ export async function POST(req: Request) {
     });
 
     const xpResult = await awardXP(userId, xpReason);
+
+    // Ajouter l'XP gagnée au classement de la ligue hebdomadaire (Tâche #43)
+    await addXPToLeague(userId, xpEarned);
 
     const currentStreak = await updateStreak(userId);
 

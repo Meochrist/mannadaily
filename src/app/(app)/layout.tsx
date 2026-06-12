@@ -7,7 +7,8 @@ import {
   BookOpen, 
   Volume2, 
   Grid, 
-  Trophy 
+  Trophy,
+  Award 
 } from "lucide-react";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -61,10 +62,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </Link>
 
             <Link 
-              href="/progress" 
+              href="/leaderboard" 
               className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
             >
               <Trophy className="w-5 h-5 text-indigo-300" />
+              Ligue hebdomadaire
+            </Link>
+
+            <Link 
+              href="/progress" 
+              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
+            >
+              <Award className="w-5 h-5 text-indigo-300" />
               Mon Progrès
             </Link>
           </nav>

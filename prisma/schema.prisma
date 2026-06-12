@@ -23,6 +23,8 @@ model User {
   progress      UserProgress?
   proclamations UserProclamation[]
   streakFreeze  StreakFreeze?
+  leagueMemberships LeagueMember[]
+  pushSubscriptions PushSubscription[]
 }
 
 model Account {
@@ -167,3 +169,37 @@ model StreakFreeze {
   createdAt        DateTime @default(now())
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model League {
+  id        String   @id @default(cuid())
+  name      String
+  tier      String   // "bronze", "argent", "or", "diamant"
+  weekStart DateTime
+  weekEnd   DateTime
+  members   LeagueMember[]
+  createdAt DateTime @default(now())
+}
+
+model LeagueMember {
+  id        String   @id @default(cuid())
+  leagueId  String
+  userId    String
+  xpThisWeek Int     @default(0)
+  rank      Int      @default(0)
+  league    League   @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([leagueId, userId])
+}
+
+model PushSubscription {
+  id           String   @id @default(cuid())
+  userId       String
+  endpoint     String   @unique
+  p256dh       String
+  auth         String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+}
+
