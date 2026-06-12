@@ -35,7 +35,7 @@ export default function RandomMascotMessage({
   const [mounted, setMounted] = useState(false);
 
   // Appeler le hook d'état global du personnage pour calculer les poses/expressions et la tenue météo
-  const { pose, expression, outfit } = useCharacterState({
+  const { pose, expression, outfit, mascotState } = useCharacterState({
     currentStreak: streakCount,
     sessionsTotal: 0,
     inactivityDays,
@@ -117,6 +117,7 @@ export default function RandomMascotMessage({
       pose={pose}
       expression={expression}
       outfit={outfit}
+      state={mascotState}
       message={message}
       size={110}
     />

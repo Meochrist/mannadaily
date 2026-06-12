@@ -251,10 +251,38 @@ export function useCharacterState(userContext: UserContextInput) {
 
   const state = getCharacterState();
 
+  // Calculer l'état sémantique DiceBear (mascotState)
+  const getMascotState = (): "SPORT" | "WEATHER_HOT" | "WEATHER_COLD" | "NIGHT_MODE" | "CRITICAL_STREAK" | "DEFAULT" => {
+    // 1. Urgence Streak (Inactivité >= 2 jours ou soirée sans dévotion et streak actif)
+    if (userContext.inactivityDays >= 2 || (hours >= 19 && !userContext.dayProgress && userContext.currentStreak > 0)) {
+      return "CRITICAL_STREAK";
+    }
+    // 2. Mode nuit tardif (après 22h)
+    if (hours >= 22 || hours < 6) {
+      return "NIGHT_MODE";
+    }
+    // 3. Sport / Effort (Série active >= 7 jours et dévotion complétée)
+    if (userContext.currentStreak >= 7 && userContext.dayProgress) {
+      return "SPORT";
+    }
+    // 4. Météo chaude (> 28°C ou été)
+    if (weather.temp > 28 || season === "summer") {
+      return "WEATHER_HOT";
+    }
+    // 5. Météo froide (< 10°C ou hiver)
+    if (weather.temp < 10 || season === "winter" || weather.isSnowy) {
+      return "WEATHER_COLD";
+    }
+    return "DEFAULT";
+  };
+
+  const mascotState = getMascotState();
+
   return {
     ...state,
     weather,
     isNight,
     season,
+    mascotState,
   };
 }

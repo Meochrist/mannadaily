@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import CharacterRenderer from "./CharacterRenderer";
+import CharacterRenderer, { MascotState } from "./CharacterRenderer";
 import { useCharacterState } from "@/hooks/useCharacterState";
 import { MannyMood } from "@/types";
 
@@ -21,6 +21,7 @@ interface MascotMessageProps {
   pose?: "idle" | "jumping" | "sad" | "running";
   expression?: "neutral" | "happy" | "sweating" | "crying";
   outfit?: "default" | "winter" | "beach" | "halloween";
+  state?: MascotState;
   message: string;
   size?: number;
 }
@@ -31,6 +32,7 @@ export default function MascotMessage({
   pose: customPose,
   expression: customExpression,
   outfit: customOutfit,
+  state,
   message,
   size = 100,
 }: MascotMessageProps) {
@@ -81,6 +83,7 @@ export default function MascotMessage({
           pose={finalPose}
           expression={finalExpression}
           outfit={finalOutfit}
+          state={state}
           size={size}
         />
       </div>
