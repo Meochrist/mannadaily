@@ -11,7 +11,7 @@ interface EstherProps {
   className?: string;
 }
 
-export default function Esther({ mood, size = 140, className = "" }: EstherProps) {
+export default function Esther({ mood, size = 170, className = "" }: EstherProps) {
   const { outfit } = useCharacterState({
     currentStreak: 0,
     sessionsTotal: 0,

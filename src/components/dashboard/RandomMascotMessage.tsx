@@ -119,7 +119,7 @@ export default function RandomMascotMessage({
       outfit={outfit}
       state={mascotState}
       message={message}
-      size={110}
+      size={150}
     />
   );
 }

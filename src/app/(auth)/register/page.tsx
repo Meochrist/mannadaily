@@ -87,7 +87,7 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-slate-100 p-6">
       <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-xl border border-slate-100/60 flex flex-col items-center">
         <div className="mb-4">
-          <Manny mood="happy" size={100} />
+          <Manny mood="happy" size={155} />
         </div>
 
         <h2 className="text-2xl font-black text-slate-800 tracking-tight text-center mb-1">

@@ -34,7 +34,7 @@ export default function MascotMessage({
   outfit: customOutfit,
   state,
   message,
-  size = 100,
+  size = 140,
 }: MascotMessageProps) {
   // Récupérer l'état d'environnement (pour l'outfit par défaut si non spécifié)
   const { outfit: envOutfit } = useCharacterState({

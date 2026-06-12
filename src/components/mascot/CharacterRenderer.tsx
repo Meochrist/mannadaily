@@ -150,6 +150,7 @@ export default function CharacterRenderer({
     }
   };
 
+  // Rendu si erreur de chargement
   if (loadError) {
     return (
       <div
@@ -165,53 +166,83 @@ export default function CharacterRenderer({
     );
   }
 
-  // Rendu Rive si activé
-  if (isRiveEnabled) {
-    return (
-      <RiveRenderer
-        characterId={charId}
-        pose={finalPose}
-        expression={finalExpression}
-        outfit={finalOutfit}
-        state={finalState}
-        size={size}
-        className={className}
-        onFallback={() => setUseFallback(true)}
-      />
-    );
-  }
-
-  // Rendu SVG Multicouche classique (Fallback)
   return (
-    <motion.div
+    <div 
       className={`relative select-none pointer-events-none flex items-center justify-center ${className}`}
       style={{ width: size, height: size }}
-      {...getAnimationProps()}
     >
-      {/* 1. Couche du corps / de la pose (Full Body) */}
-      <img
-        src={`${basePath}/pose_${finalPose}.svg`}
-        alt={`${characterId} body (${finalPose})`}
-        onError={() => setLoadError(true)}
-        className="absolute inset-0 w-full h-full object-contain z-10 transition-all duration-300 ease-in-out"
+      {/* Ombre de contact au sol style Duolingo (Flat Design 2.0) */}
+      <motion.div 
+        className="absolute bottom-[2%] left-1/2 bg-slate-900/10 rounded-full blur-[0.5px] pointer-events-none z-0"
+        style={{ 
+          width: size * 0.65, 
+          height: size * 0.08,
+          x: "-50%"
+        }}
+        animate={finalPose === "jumping" ? {
+          scaleX: [1, 0.7, 1],
+          scaleY: [1, 0.6, 1],
+          opacity: [0.12, 0.05, 0.12]
+        } : finalPose === "running" ? {
+          scaleX: [1, 0.95, 1],
+          x: ["-50%", "-48%", "-50%"]
+        } : {}}
+        transition={finalPose === "jumping" ? {
+          duration: 0.8,
+          repeat: Infinity,
+          ease: "easeInOut"
+        } : finalPose === "running" ? {
+          duration: 0.4,
+          repeat: Infinity,
+          ease: "linear"
+        } : {}}
       />
 
-      {/* 2. Couche du visage / de l'expression */}
-      <img
-        src={`${basePath}/expression_${finalExpression}.svg`}
-        alt={`${characterId} face (${finalExpression})`}
-        className="absolute inset-0 w-full h-full object-contain z-20 transition-all duration-300 ease-in-out"
-      />
+      {/* Le personnage (Rive ou SVG) enveloppé dans ses mouvements physiques */}
+      <motion.div
+        className="absolute inset-0 w-full h-full flex items-center justify-center z-10"
+        {...getAnimationProps()}
+      >
+        {isRiveEnabled ? (
+          <RiveRenderer
+            characterId={charId}
+            pose={finalPose}
+            expression={finalExpression}
+            outfit={finalOutfit}
+            state={finalState}
+            size={size}
+            className="w-full h-full"
+            onFallback={() => setUseFallback(true)}
+          />
+        ) : (
+          <>
+            {/* 1. Couche du corps / de la pose (Full Body) */}
+            <img
+              src={`${basePath}/pose_${finalPose}.svg`}
+              alt={`${characterId} body (${finalPose})`}
+              onError={() => setLoadError(true)}
+              className="absolute inset-0 w-full h-full object-contain z-10 transition-all duration-300 ease-in-out"
+            />
 
-      {/* 3. Couche de la tenue / de l'outfit (si non default) */}
-      {finalOutfit !== "default" && (
-        <img
-          src={`${basePath}/outfit_${finalOutfit}.svg`}
-          alt={`${characterId} outfit (${finalOutfit})`}
-          className="absolute inset-0 w-full h-full object-contain z-30 transition-all duration-300 ease-in-out"
-        />
-      )}
-    </motion.div>
+            {/* 2. Couche du visage / de l'expression */}
+            <img
+              src={`${basePath}/expression_${finalExpression}.svg`}
+              alt={`${characterId} face (${finalExpression})`}
+              className="absolute inset-0 w-full h-full object-contain z-20 transition-all duration-300 ease-in-out"
+            />
+
+            {/* 3. Couche de la tenue / de l'outfit (si non default) */}
+            {finalOutfit !== "default" && (
+              <img
+                src={`${basePath}/outfit_${finalOutfit}.svg`}
+                alt={`${characterId} outfit (${finalOutfit})`}
+                className="absolute inset-0 w-full h-full object-contain z-30 transition-all duration-300 ease-in-out"
+              />
+            )}
+          </>
+        )}
+      </motion.div>
+    </div>
   );
 }
 

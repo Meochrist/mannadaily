@@ -426,7 +426,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
         exit={{ opacity: 0, y: 20 }}
         className="relative w-full max-w-xl mx-auto"
       >
-        <MascotMessage mascot={mascot} mood={mood} message={message} size={95} />
+        <MascotMessage mascot={mascot} mood={mood} message={message} size={150} />
         <button
           onClick={() => setShowSuggestion(false)}
           className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 transition-colors font-black text-base z-10"
@@ -477,7 +477,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
               exit={{ opacity: 0 }}
               className="flex flex-col items-center justify-center space-y-6 py-16"
             >
-              <Manny mood={currentStep === 7 ? "praying" : "thinking"} size={130} />
+              <Manny mood={currentStep === 7 ? "praying" : "thinking"} size={180} />
               <div className="text-center space-y-3">
                 <h3 className="text-xl font-black text-slate-800 tracking-tight">
                   {loadingMessage || "Chargement par l'IA..."}
@@ -520,7 +520,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   exit={{ opacity: 0, y: -15 }}
                   className="space-y-8 flex flex-col items-center"
                 >
-                  <Manny mood="happy" size={120} />
+                  <Manny mood="happy" size={170} />
                   
                   {welcomeMessage && (
                     <div className="text-center bg-indigo-50/50 border border-indigo-100/30 text-indigo-800 p-4 px-6 rounded-2xl text-xs md:text-sm font-extrabold max-w-md shadow-sm">
@@ -880,7 +880,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                           mascot="manny"
                           mood="praying"
                           message="Reçois cette prière écrite pour sceller ton temps d'étude."
-                          size={100}
+                          size={150}
                         />
                       </div>
 
@@ -917,7 +917,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                       animate={{ scale: 1, opacity: 1 }}
                       className="space-y-8 w-full flex flex-col items-center"
                     >
-                      <Manny mood="celebrating" size={130} />
+                      <Manny mood="celebrating" size={185} />
 
                       <div className="text-center space-y-2">
                         <h2 className="text-3xl font-black text-slate-800 tracking-tight">
@@ -1057,7 +1057,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-150 flex flex-col items-center text-center space-y-6"
             >
-              <Manny mood="encouraging" size={120} />
+              <Manny mood="encouraging" size={175} />
               
               <div className="space-y-2">
                 <h3 className="text-xl font-black text-slate-800">

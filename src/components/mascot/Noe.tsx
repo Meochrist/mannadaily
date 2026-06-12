@@ -11,7 +11,7 @@ interface NoeProps {
   className?: string;
 }
 
-export default function Noe({ mood, size = 140, className = "" }: NoeProps) {
+export default function Noe({ mood, size = 170, className = "" }: NoeProps) {
   const { outfit } = useCharacterState({
     currentStreak: 0,
     sessionsTotal: 0,

@@ -11,7 +11,7 @@ interface GedeonProps {
   className?: string;
 }
 
-export default function Gedeon({ mood, size = 140, className = "" }: GedeonProps) {
+export default function Gedeon({ mood, size = 170, className = "" }: GedeonProps) {
   const { outfit } = useCharacterState({
     currentStreak: 0,
     sessionsTotal: 0,

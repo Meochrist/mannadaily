@@ -248,7 +248,7 @@ export default function ProclaimPage() {
               transition={{ duration: 0.4 }}
               className="space-y-8 flex flex-col items-center"
             >
-              <Manny mood="praying" size={120} />
+              <Manny mood="praying" size={170} />
 
               {welcomeMessage && (
                 <div className="text-center bg-indigo-50/50 border border-indigo-100/50 text-indigo-800 p-4 px-6 rounded-2xl text-sm font-extrabold max-w-md shadow-sm">
@@ -335,7 +335,7 @@ export default function ProclaimPage() {
               </div>
 
               <div className="py-2">
-                <Manny mood={getMannyMood()} size={120} />
+                <Manny mood={getMannyMood()} size={170} />
               </div>
 
               {/* Conteneur principal de proclamation */}
@@ -429,7 +429,7 @@ export default function ProclaimPage() {
               transition={{ duration: 0.4 }}
               className="space-y-8 flex flex-col items-center"
             >
-              <Manny mood="celebrating" size={130} />
+              <Manny mood="celebrating" size={185} />
 
               <div className="text-center space-y-2">
                 <h2 className="text-3xl font-black text-slate-800 tracking-tight">
@@ -517,7 +517,7 @@ export default function ProclaimPage() {
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-150 flex flex-col items-center text-center space-y-6"
             >
-              <Manny mood="encouraging" size={120} />
+              <Manny mood="encouraging" size={175} />
               
               <div className="space-y-2 text-slate-800">
                 <h3 className="text-xl font-black text-slate-850">

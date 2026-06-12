@@ -119,7 +119,7 @@ export default async function LeaderboardPage() {
           mascot="manny"
           mood="excited"
           message={motivationMessage}
-          size={110}
+          size={150}
         />
       </section>
 

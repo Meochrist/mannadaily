@@ -11,7 +11,7 @@ interface MannyProps {
   className?: string;
 }
 
-export default function Manny({ mood, size = 140, className = "" }: MannyProps) {
+export default function Manny({ mood, size = 170, className = "" }: MannyProps) {
   // Récupérer l'état d'environnement (pour l'outfit)
   const { outfit } = useCharacterState({
     currentStreak: 0,

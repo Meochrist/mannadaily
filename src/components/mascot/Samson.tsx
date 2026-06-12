@@ -11,7 +11,7 @@ interface SamsonProps {
   className?: string;
 }
 
-export default function Samson({ mood, size = 140, className = "" }: SamsonProps) {
+export default function Samson({ mood, size = 170, className = "" }: SamsonProps) {
   const { outfit } = useCharacterState({
     currentStreak: 0,
     sessionsTotal: 0,
