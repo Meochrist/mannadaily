@@ -1,21 +1,21 @@
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
     
-      <path d="M 32 30 C 25 15 75 15 68 30 Z" fill="#F59E0B" />
-      <path d="M 44 16 L 46 11 L 50 14 L 54 11 L 56 16 Z" fill="#FBBF24" /> <!-- Couronne -->
+      <path d="M 160 150 C 125 75 375 75 340 150 Z" fill="#F59E0B" />
+      <path d="M 220 80 L 230 55 L 250 70 L 270 55 L 280 80 Z" fill="#FBBF24" />
     
-    <circle cx="50" cx="50" cy="28" r="15" fill="#FDBA74" />
+    <circle cx="250" cy="140" r="75" fill="#FDBA74" />
     
     
       <!-- Sourcils tristes -->
-      <path d="M43 25 Q45 26 L47 24" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
-      <path d="M53 24 Q55 26 L57 25" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <path d="M215 125 Q225 130 L235 120" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
+      <path d="M265 120 Q275 130 L285 125" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
       <!-- Yeux tristes -->
-      <path d="M43 29 Q45 32 L47 29" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
-      <path d="M53 29 Q55 32 L57 29" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
-      <!-- Bouche qui pleure -->
-      <path d="M47 35 Q50 33 L53 35" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
-      <!-- Larmes qui coulent -->
-      <path d="M45 31 v9" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" />
-      <path d="M55 31 v9" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" />
+      <path d="M215 145 Q225 160 L235 145" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
+      <path d="M265 145 Q275 160 L285 145" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
+      <!-- Bouche -->
+      <path d="M235 175 Q250 165 L265 175" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
+      <!-- Larmes -->
+      <path d="M225 155 v45" stroke="#3B82F6" stroke-width="10" stroke-linecap="round" />
+      <path d="M275 155 v45" stroke="#3B82F6" stroke-width="10" stroke-linecap="round" />
     
   </svg>

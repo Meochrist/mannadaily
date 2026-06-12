@@ -77,76 +77,75 @@ const DESIGN_CONFIGS = {
   }
 };
 
-// --- TEMPLATES DES POSES ---
+// --- TEMPLATES DES POSES (Multipliés par 5 pour ViewBox 500x500) ---
 function getPoseSVG(char, pose) {
   const config = DESIGN_CONFIGS[char];
   
   if (char === 'manny') {
     // Manny est une Bible animée (Livre ouvert)
     if (pose === 'idle') {
-      return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
         <!-- Couverture -->
-        <rect x="23" y="28" width="54" height="44" rx="6" fill="${config.primary}" />
+        <rect x="115" y="140" width="270" height="220" rx="30" fill="${config.primary}" />
         <!-- Pages blanches -->
-        <path d="M26 30 h22 v38 h-22 z M52 30 h22 v38 h-22 z" fill="${config.skin}" />
+        <path d="M130 150 h110 v190 h-110 z M260 150 h110 v190 h-110 z" fill="${config.skin}" />
         <!-- Tranche / Reliure -->
-        <rect x="48" y="29" width="4" height="42" rx="1" fill="#F1F5F9" />
+        <rect x="240" y="145" width="20" height="210" rx="5" fill="#F1F5F9" />
         <!-- Bras -->
-        <rect x="16" y="45" width="8" height="6" rx="3" fill="${config.hair}" />
-        <rect x="76" y="45" width="8" height="6" rx="3" fill="${config.hair}" />
+        <rect x="80" y="225" width="40" height="30" rx="15" fill="${config.hair}" />
+        <rect x="380" y="225" width="40" height="30" rx="15" fill="${config.hair}" />
         <!-- Jambes -->
-        <rect x="38" y="72" width="6" height="12" rx="3" fill="${config.hair}" />
-        <rect x="56" y="72" width="6" height="12" rx="3" fill="${config.hair}" />
+        <rect x="190" y="360" width="30" height="60" rx="15" fill="${config.hair}" />
+        <rect x="280" y="360" width="30" height="60" rx="15" fill="${config.hair}" />
       </svg>`;
     } else if (pose === 'jumping') {
-      return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
         <!-- Couverture penchée -->
-        <rect x="23" y="22" width="54" height="44" rx="6" fill="${config.primary}" transform="rotate(-5 50 44)" />
+        <rect x="115" y="110" width="270" height="220" rx="30" fill="${config.primary}" transform="rotate(-5 250 220)" />
         <!-- Pages blanches -->
-        <path d="M26 24 h22 v38 h-22 z M52 24 h22 v38 h-22 z" fill="${config.skin}" transform="rotate(-5 50 44)" />
+        <path d="M130 120 h110 v190 h-110 z M260 120 h110 v190 h-110 z" fill="${config.skin}" transform="rotate(-5 250 220)" />
         <!-- Tranche -->
-        <rect x="48" y="23" width="4" height="42" rx="1" fill="#F1F5F9" transform="rotate(-5 50 44)" />
+        <rect x="240" y="115" width="20" height="210" rx="5" fill="#F1F5F9" transform="rotate(-5 250 220)" />
         <!-- Bras levés -->
-        <path d="M12 30 Q16 40 22 42" stroke="${config.hair}" stroke-width="5" stroke-linecap="round" fill="none" />
-        <path d="M88 30 Q84 40 78 42" stroke="${config.hair}" stroke-width="5" stroke-linecap="round" fill="none" />
+        <path d="M60 150 Q80 200 110 210" stroke="${config.hair}" stroke-width="25" stroke-linecap="round" fill="none" />
+        <path d="M440 150 Q420 200 390 210" stroke="${config.hair}" stroke-width="25" stroke-linecap="round" fill="none" />
         <!-- Jambes en l'air -->
-        <rect x="36" y="66" width="6" height="14" rx="3" fill="${config.hair}" transform="rotate(-20 36 66)" />
-        <rect x="58" y="66" width="6" height="14" rx="3" fill="${config.hair}" transform="rotate(20 58 66)" />
+        <rect x="180" y="330" width="30" height="70" rx="15" fill="${config.hair}" transform="rotate(-20 180 330)" />
+        <rect x="290" y="330" width="30" height="70" rx="15" fill="${config.hair}" transform="rotate(20 290 330)" />
       </svg>`;
     } else if (pose === 'sad') {
-      return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
         <!-- Couverture à moitié refermée -->
-        <rect x="26" y="32" width="48" height="44" rx="6" fill="${config.primary}" />
+        <rect x="130" y="160" width="240" height="220" rx="30" fill="${config.primary}" />
         <!-- Pages blanches refermées -->
-        <path d="M29 34 h19 v38 h-19 z M52 34 h19 v38 h-19 z" fill="${config.skin}" />
-        <rect x="48" y="33" width="4" height="42" rx="1" fill="#E2E8F0" />
+        <path d="M145 170 h95 v190 h-95 z M260 170 h95 v190 h-95 z" fill="${config.skin}" />
+        <rect x="240" y="165" width="20" height="210" rx="5" fill="#E2E8F0" />
         <!-- Bras ballants tristes -->
-        <path d="M20 52 Q23 62 25 68" stroke="${config.hair}" stroke-width="5" stroke-linecap="round" fill="none" />
-        <path d="M80 52 Q77 62 75 68" stroke="${config.hair}" stroke-width="5" stroke-linecap="round" fill="none" />
+        <path d="M100 260 Q115 310 125 340" stroke="${config.hair}" stroke-width="25" stroke-linecap="round" fill="none" />
+        <path d="M400 260 Q385 310 375 340" stroke="${config.hair}" stroke-width="25" stroke-linecap="round" fill="none" />
         <!-- Jambes fléchies -->
-        <path d="M38 76 v6 h-3" stroke="${config.hair}" stroke-width="5" stroke-linecap="round" fill="none" />
-        <path d="M62 76 v6 h3" stroke="${config.hair}" stroke-width="5" stroke-linecap="round" fill="none" />
+        <path d="M190 380 v30 h-15" stroke="${config.hair}" stroke-width="25" stroke-linecap="round" fill="none" />
+        <path d="M310 380 v30 h15" stroke="${config.hair}" stroke-width="25" stroke-linecap="round" fill="none" />
       </svg>`;
     } else { // running
-      return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
         <!-- Couverture inclinée course -->
-        <rect x="23" y="26" width="54" height="44" rx="6" fill="${config.primary}" transform="skewX(-10) rotate(-2 50 48)" />
+        <rect x="115" y="130" width="270" height="220" rx="30" fill="${config.primary}" transform="skewX(-10) rotate(-2 250 240)" />
         <!-- Pages blanches -->
-        <path d="M26 28 h22 v38 h-22 z M52 28 h22 v38 h-22 z" fill="${config.skin}" transform="skewX(-10) rotate(-2 50 48)" />
+        <path d="M130 140 h110 v190 h-110 z M260 140 h110 v190 h-110 z" fill="${config.skin}" transform="skewX(-10) rotate(-2 250 240)" />
         <!-- Tranche -->
-        <rect x="48" y="27" width="4" height="42" rx="1" fill="#F1F5F9" transform="skewX(-10) rotate(-2 50 48)" />
+        <rect x="240" y="135" width="20" height="210" rx="5" fill="#F1F5F9" transform="skewX(-10) rotate(-2 250 240)" />
         <!-- Bras de course -->
-        <path d="M14 42 Q20 48 16 56" stroke="${config.hair}" stroke-width="5" stroke-linecap="round" fill="none" />
-        <path d="M86 42 Q80 48 84 56" stroke="${config.hair}" stroke-width="5" stroke-linecap="round" fill="none" />
+        <path d="M70 210 Q100 240 80 280" stroke="${config.hair}" stroke-width="25" stroke-linecap="round" fill="none" />
+        <path d="M430 210 Q400 240 420 280" stroke="${config.hair}" stroke-width="25" stroke-linecap="round" fill="none" />
         <!-- Jambes de course actives -->
-        <path d="M35 70 Q30 80 40 84" stroke="${config.hair}" stroke-width="5" stroke-linecap="round" fill="none" />
-        <path d="M55 70 Q65 75 60 84" stroke="${config.hair}" stroke-width="5" stroke-linecap="round" fill="none" />
+        <path d="M175 350 Q150 400 200 420" stroke="${config.hair}" stroke-width="25" stroke-linecap="round" fill="none" />
+        <path d="M275 350 Q325 375 300 420" stroke="${config.hair}" stroke-width="25" stroke-linecap="round" fill="none" />
       </svg>`;
     }
   }
 
-  // Autres personnages : Humains modulaires stylisés (Style flat design Duolingo)
-  // Base commune de pose humaine
+  // Autres personnages humains
   let bodyPath = '';
   let limbsPath = '';
   let detailsPath = '';
@@ -154,308 +153,265 @@ function getPoseSVG(char, pose) {
   if (pose === 'idle') {
     limbsPath = `
       <!-- Jambes droites -->
-      <rect x="40" y="70" width="7" height="15" rx="3.5" fill="${config.skin}" />
-      <rect x="53" y="70" width="7" height="15" rx="3.5" fill="${config.skin}" />
+      <rect x="200" y="350" width="35" height="75" rx="17.5" fill="${config.skin}" />
+      <rect x="265" y="350" width="35" height="75" rx="17.5" fill="${config.skin}" />
       <!-- Pieds/Chaussures -->
-      <rect x="37" y="82" width="10" height="4" rx="2" fill="${config.secondary}" />
-      <rect x="53" y="82" width="10" height="4" rx="2" fill="${config.secondary}" />
+      <rect x="185" y="410" width="50" height="20" rx="10" fill="${config.secondary}" />
+      <rect x="265" y="410" width="50" height="20" rx="10" fill="${config.secondary}" />
       <!-- Bras -->
-      <rect x="25" y="44" width="7" height="22" rx="3.5" fill="${config.skin}" />
-      <rect x="68" y="44" width="7" height="22" rx="3.5" fill="${config.skin}" />
+      <rect x="125" y="220" width="35" height="110" rx="17.5" fill="${config.skin}" />
+      <rect x="340" y="220" width="35" height="110" rx="17.5" fill="${config.skin}" />
     `;
     bodyPath = `
       <!-- Tunique / Torse -->
-      <rect x="31" y="42" width="38" height="30" rx="8" fill="${config.primary}" />
+      <rect x="155" y="210" width="190" height="150" rx="40" fill="${config.primary}" />
     `;
   } else if (pose === 'jumping') {
     limbsPath = `
       <!-- Jambes fléchies en l'air -->
-      <rect x="36" y="65" width="7" height="15" rx="3.5" fill="${config.skin}" transform="rotate(-30 36 65)" />
-      <rect x="57" y="65" width="7" height="15" rx="3.5" fill="${config.skin}" transform="rotate(30 57 65)" />
+      <rect x="180" y="325" width="35" height="75" rx="17.5" fill="${config.skin}" transform="rotate(-30 180 325)" />
+      <rect x="285" y="325" width="35" height="75" rx="17.5" fill="${config.skin}" transform="rotate(30 285 325)" />
       <!-- Pieds -->
-      <rect x="28" y="73" width="10" height="4" rx="2" fill="${config.secondary}" transform="rotate(-30 28 73)" />
-      <rect x="62" y="73" width="10" height="4" rx="2" fill="${config.secondary}" transform="rotate(30 62 73)" />
+      <rect x="140" y="365" width="50" height="20" rx="10" fill="${config.secondary}" transform="rotate(-30 140 365)" />
+      <rect x="310" y="365" width="50" height="20" rx="10" fill="${config.secondary}" transform="rotate(30 310 365)" />
       <!-- Bras levés de joie -->
-      <rect x="22" y="28" width="7" height="22" rx="3.5" fill="${config.skin}" transform="rotate(45 22 28)" />
-      <rect x="71" y="28" width="7" height="22" rx="3.5" fill="${config.skin}" transform="rotate(-45 71 28)" />
+      <rect x="110" y="140" width="35" height="110" rx="17.5" fill="${config.skin}" transform="rotate(45 110 140)" />
+      <rect x="355" y="140" width="35" height="110" rx="17.5" fill="${config.skin}" transform="rotate(-45 355 140)" />
     `;
     bodyPath = `
       <!-- Torse -->
-      <rect x="31" y="38" width="38" height="30" rx="8" fill="${config.primary}" />
+      <rect x="155" y="190" width="190" height="150" rx="40" fill="${config.primary}" />
     `;
   } else if (pose === 'sad') {
     limbsPath = `
       <!-- Jambes -->
-      <rect x="41" y="72" width="6" height="14" rx="3" fill="${config.skin}" />
-      <rect x="53" y="72" width="6" height="14" rx="3" fill="${config.skin}" />
+      <rect x="205" y="360" width="30" height="70" rx="15" fill="${config.skin}" />
+      <rect x="265" y="360" width="30" height="70" rx="15" fill="${config.skin}" />
       <!-- Bras ballants tristes -->
-      <rect x="26" y="48" width="6" height="22" rx="3" fill="${config.skin}" transform="rotate(5 26 48)" />
-      <rect x="68" y="48" width="6" height="22" rx="3" fill="${config.skin}" transform="rotate(-5 68 48)" />
+      <rect x="130" y="240" width="30" height="110" rx="15" fill="${config.skin}" transform="rotate(5 130 240)" />
+      <rect x="340" y="240" width="30" height="110" rx="15" fill="${config.skin}" transform="rotate(-5 340 240)" />
     `;
     bodyPath = `
       <!-- Torse affaissé -->
-      <rect x="32" y="44" width="36" height="30" rx="8" fill="${config.primary}" />
+      <rect x="160" y="220" width="180" height="150" rx="40" fill="${config.primary}" />
     `;
   } else { // running
     limbsPath = `
       <!-- Jambes en course -->
-      <rect x="34" y="68" width="7" height="16" rx="3.5" fill="${config.skin}" transform="rotate(-40 34 68)" />
-      <rect x="52" y="68" width="7" height="16" rx="3.5" fill="${config.skin}" transform="rotate(30 52 68)" />
+      <rect x="170" y="340" width="35" height="80" rx="17.5" fill="${config.skin}" transform="rotate(-40 170 340)" />
+      <rect x="260" y="340" width="35" height="80" rx="17.5" fill="${config.skin}" transform="rotate(30 260 340)" />
       <!-- Bras course -->
-      <rect x="22" y="46" width="7" height="20" rx="3.5" fill="${config.skin}" transform="rotate(45 22 46)" />
-      <rect x="68" y="42" width="7" height="20" rx="3.5" fill="${config.skin}" transform="rotate(-30 68 42)" />
+      <rect x="110" y="230" width="35" height="100" rx="17.5" fill="${config.skin}" transform="rotate(45 110 230)" />
+      <rect x="340" y="210" width="35" height="100" rx="17.5" fill="${config.skin}" transform="rotate(-30 340 210)" />
     `;
     bodyPath = `
       <!-- Torse incliné -->
-      <rect x="31" y="40" width="38" height="30" rx="8" fill="${config.primary}" transform="skewX(-8)" />
+      <rect x="155" y="200" width="190" height="150" rx="40" fill="${config.primary}" transform="skewX(-8)" />
     `;
   }
 
-  // Éléments de costume ou identités spécifiques
+  // Éléments spécifiques du perso
   if (char === 'samson') {
-    // Samson a des muscles et un bandeau de sport sur le torse ou les bras
-    detailsPath = `<circle cx="37" cy="50" r="3" fill="#B45309" />
-                   <circle cx="63" cy="50" r="3" fill="#B45309" />`;
+    detailsPath = `<circle cx="185" cy="250" r="15" fill="#B45309" />
+                   <circle cx="315" cy="250" r="15" fill="#B45309" />`;
   } else if (char === 'esther') {
-    // Esther a une longue robe qui remplace la tunique standard
     bodyPath = `
-      <path d="M31 42 h38 L74 74 H26 Z" fill="${config.primary}" />
-      <rect x="36" y="40" width="28" height="5" fill="${config.secondary}" rx="2" />
+      <path d="M155 210 h190 L370 370 H130 Z" fill="${config.primary}" />
+      <rect x="180" y="200" width="140" height="25" fill="${config.secondary}" rx="10" />
     `;
   } else if (char === 'gedeon') {
-    // Gédéon a un petit bouclier ou une cuirasse
-    detailsPath = `<circle cx="50" cy="55" r="8" fill="${config.secondary}" opacity="0.3" />`;
+    detailsPath = `<circle cx="250" cy="275" r="40" fill="${config.secondary}" opacity="0.3" />`;
   } else if (char === 'noe') {
-    // Noé a une barbe (qui sera dans l'expression) et un bâton ou des cordages
-    detailsPath = `<line x1="22" y1="38" x2="22" y2="84" stroke="#78350F" stroke-width="4" stroke-linecap="round" />`;
+    detailsPath = `<line x1="110" y1="190" x2="110" y2="420" stroke="#78350F" stroke-width="20" stroke-linecap="round" />`;
   } else if (char === 'paul') {
-    // Paul tient un parchemin blanc/crème
-    detailsPath = `<rect x="58" y="52" width="14" height="20" rx="2" fill="#FEF08A" stroke="#CA8A04" stroke-width="2" transform="rotate(15 58 52)" />`;
+    detailsPath = `<rect x="290" y="260" width="70" height="100" rx="10" fill="#FEF08A" stroke="#CA8A04" stroke-width="10" transform="rotate(15 290 260)" />`;
   } else if (char === 'pierre') {
-    // Pierre a un filet de pêche drapé
-    detailsPath = `<path d="M 32 42 Q 50 64 68 42" fill="none" stroke="${config.secondary}" stroke-width="2.5" stroke-dasharray="2 2" />`;
+    detailsPath = `<path d="M 160 210 Q 250 320 340 210" fill="none" stroke="${config.secondary}" stroke-width="12" stroke-dasharray="10 10" />`;
   } else if (char === 'moise') {
-    // Moïse tient les Tables de la Loi
     detailsPath = `
-      <rect x="42" y="52" width="16" height="20" rx="3" fill="#9CA3AF" />
-      <line x1="50" y1="52" x2="50" y2="72" stroke="#4B5563" stroke-width="2" />
+      <rect x="210" y="260" width="80" height="100" rx="15" fill="#9CA3AF" />
+      <line x1="250" y1="260" x2="250" y2="360" stroke="#4B5563" stroke-width="10" />
     `;
   } else if (char === 'abraham') {
-    // Abraham tient un bâton de marche simple
-    detailsPath = `<line x1="24" y1="36" x2="24" y2="84" stroke="#854D0E" stroke-width="3.5" stroke-linecap="round" />`;
+    detailsPath = `<line x1="120" y1="180" x2="120" y2="420" stroke="#854D0E" stroke-width="17.5" stroke-linecap="round" />`;
   } else if (char === 'david') {
-    // David a une fronde dans la main
-    detailsPath = `<path d="M 22 55 Q 16 66 22 75" fill="none" stroke="#78350F" stroke-width="2" />`;
+    detailsPath = `<path d="M 110 275 Q 80 330 110 375" fill="none" stroke="#78350F" stroke-width="10" />`;
   }
 
-  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
     ${limbsPath}
     ${bodyPath}
     ${detailsPath}
   </svg>`;
 }
 
-// --- TEMPLATES DES EXPRESSIONS ---
+// --- TEMPLATES DES EXPRESSIONS (Multipliés par 5) ---
 function getExpressionSVG(char, expr) {
   const config = DESIGN_CONFIGS[char];
   
-  // Coordonnées de base pour aligner la tête
-  let headX = 50;
-  let headY = 28;
+  let headX = 250;
+  let headY = 140;
   
-  // Ajuster légèrement le y de la tête selon le perso
-  if (char === 'esther') headY = 26;
-  if (char === 'gedeon') headY = 32; // plus petit
-  if (char === 'noe') headY = 27;
+  if (char === 'esther') headY = 130;
+  if (char === 'gedeon') headY = 160;
+  if (char === 'noe') headY = 135;
 
-  // Partie 1 : Tête et cheveux spécifiques du perso
   let headBase = '';
   let hairBase = '';
   let beardBase = '';
 
   if (char === 'manny') {
-    // Manny est une Bible, son visage est dessiné directement sur les pages ouvertes.
-    // Pas de forme de tête circulaire séparée, on se positionne sur le livre de la pose.
     let faceElements = '';
     if (expr === 'neutral') {
       faceElements = `
-        <circle cx="40" cy="48" r="2.5" fill="#1E293B" />
-        <circle cx="39.2" cy="47.2" r="0.8" fill="#FFFFFF" />
-        <circle cx="60" cy="48" r="2.5" fill="#1E293B" />
-        <circle cx="59.2" cy="47.2" r="0.8" fill="#FFFFFF" />
-        <ellipse cx="36" cy="51" rx="2.2" ry="1.2" fill="#FDA4AF" opacity="0.6" />
-        <ellipse cx="64" cy="51" rx="2.2" ry="1.2" fill="#FDA4AF" opacity="0.6" />
-        <path d="M47 55 Q50 58 53 55" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round" fill="none" />
+        <circle cx="200" cy="240" r="12.5" fill="#1E293B" />
+        <circle cx="196" cy="236" r="4" fill="#FFFFFF" />
+        <circle cx="300" cy="240" r="12.5" fill="#1E293B" />
+        <circle cx="296" cy="236" r="4" fill="#FFFFFF" />
+        <ellipse cx="180" cy="255" rx="11" ry="6" fill="#FDA4AF" opacity="0.6" />
+        <ellipse cx="320" cy="255" rx="11" ry="6" fill="#FDA4AF" opacity="0.6" />
+        <path d="M235 275 Q250 290 265 275" stroke="#1E293B" stroke-width="12.5" stroke-linecap="round" fill="none" />
       `;
     } else if (expr === 'happy') {
       faceElements = `
-        <path d="M37 49 Q40 45 43 49" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round" fill="none" />
-        <path d="M57 49 Q60 45 63 49" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round" fill="none" />
-        <ellipse cx="36" cy="52" rx="2.2" ry="1.2" fill="#FDA4AF" opacity="0.6" />
-        <ellipse cx="64" cy="52" rx="2.2" ry="1.2" fill="#FDA4AF" opacity="0.6" />
-        <path d="M45 53 Q50 62 55 53" fill="#EF4444" />
+        <path d="M185 245 Q200 225 215 245" stroke="#1E293B" stroke-width="12.5" stroke-linecap="round" fill="none" />
+        <path d="M285 245 Q300 225 315 245" stroke="#1E293B" stroke-width="12.5" stroke-linecap="round" fill="none" />
+        <ellipse cx="180" cy="260" rx="11" ry="6" fill="#FDA4AF" opacity="0.6" />
+        <ellipse cx="320" cy="260" rx="11" ry="6" fill="#FDA4AF" opacity="0.6" />
+        <path d="M225 265 Q250 310 275 265" fill="#EF4444" />
       `;
     } else if (expr === 'sweating') {
       faceElements = `
-        <circle cx="40" cy="49" r="2.5" fill="#1E293B" />
-        <circle cx="39.2" cy="48.2" r="0.8" fill="#FFFFFF" />
-        <circle cx="60" cy="49" r="2.5" fill="#1E293B" />
-        <circle cx="59.2" cy="48.2" r="0.8" fill="#FFFFFF" />
-        <ellipse cx="36" cy="52" rx="2" ry="1.1" fill="#FDA4AF" opacity="0.5" />
-        <ellipse cx="64" cy="52" rx="2" ry="1.1" fill="#FDA4AF" opacity="0.5" />
-        <path d="M46 56 h8" stroke="#1E293B" stroke-width="2" stroke-linecap="round" />
-        <path d="M68 40 Q69 48 65 48" fill="#3B82F6" opacity="0.8" /> <!-- Goutte -->
+        <circle cx="200" cy="245" r="12.5" fill="#1E293B" />
+        <circle cx="196" cy="241" r="4" fill="#FFFFFF" />
+        <circle cx="300" cy="245" r="12.5" fill="#1E293B" />
+        <circle cx="296" cy="241" r="4" fill="#FFFFFF" />
+        <ellipse cx="180" cy="260" rx="10" ry="5.5" fill="#FDA4AF" opacity="0.5" />
+        <ellipse cx="320" cy="260" rx="10" ry="5.5" fill="#FDA4AF" opacity="0.5" />
+        <path d="M230 280 h40" stroke="#1E293B" stroke-width="10" stroke-linecap="round" />
+        <path d="M340 200 Q345 240 325 240" fill="#3B82F6" opacity="0.8" />
       `;
     } else { // crying
       faceElements = `
-        <path d="M37 51 Q40 55 43 51" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
-        <path d="M57 51 Q60 55 63 51" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
-        <path d="M46 58 Q50 55 54 58" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
-        <path d="M39 52 v12" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round" /> <!-- Larme -->
-        <path d="M61 52 v12" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round" /> <!-- Larme -->
+        <path d="M185 255 Q200 275 215 255" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
+        <path d="M285 255 Q300 275 315 255" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
+        <path d="M230 290 Q250 275 270 290" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
+        <path d="M195 260 v60" stroke="#3B82F6" stroke-width="12.5" stroke-linecap="round" />
+        <path d="M305 260 v60" stroke="#3B82F6" stroke-width="12.5" stroke-linecap="round" />
       `;
     }
-    return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${faceElements}</svg>`;
+    return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">${faceElements}</svg>`;
   }
 
   // --- PERSONNAGES HUMAINS ---
-  // Tête et Coiffure
-  headBase = `<circle cx="${headX}" cx="${headX}" cy="${headY}" r="15" fill="${config.skin}" />`;
+  headBase = `<circle cx="${headX}" cy="${headY}" r="75" fill="${config.skin}" />`;
 
   if (char === 'samson') {
-    // Cheveux longs bruns
     hairBase = `
-      <path d="M 32 ${headY} C 30 5 70 5 68 ${headY} C 72 45 74 60 70 65 C 65 60 62 45 62 40 L 38 40 C 38 45 35 60 30 65 C 26 60 28 45 32 ${headY} Z" fill="${config.hair}" />
-      <rect x="34" y="${headY - 14}" width="32" height="4" fill="${config.secondary}" rx="1" /> <!-- Bandeau sport -->
+      <path d="M 160 ${headY} C 150 25 350 25 340 ${headY} C 360 225 370 300 350 325 C 325 300 310 225 310 200 L 190 200 C 190 225 175 300 150 325 C 130 300 140 225 160 ${headY} Z" fill="${config.hair}" />
+      <rect x="170" y="${headY - 70}" width="160" height="20" fill="${config.secondary}" rx="5" />
     `;
   } else if (char === 'esther') {
-    // Cheveux longs violets, couronne dorée
     hairBase = `
-      <path d="M 30 ${headY} C 25 10 75 10 70 ${headY} C 75 55 72 70 66 72 C 62 60 62 42 62 38 L 38 38 C 38 42 38 60 34 72 C 28 70 25 55 30 ${headY} Z" fill="${config.hair}" />
-      <path d="M 42 ${headY - 14} L 45 ${headY - 20} L 50 ${headY - 16} L 55 ${headY - 20} L 58 ${headY - 14} Z" fill="#FBBF24" /> <!-- Couronne -->
+      <path d="M 150 ${headY} C 125 50 375 50 350 ${headY} C 375 275 360 350 330 360 C 310 300 310 210 310 190 L 190 190 C 190 210 190 300 170 360 C 140 350 125 275 150 ${headY} Z" fill="${config.hair}" />
+      <path d="M 210 ${headY - 70} L 225 ${headY - 100} L 250 ${headY - 80} L 275 ${headY - 100} L 290 ${headY - 70} Z" fill="#FBBF24" />
     `;
   } else if (char === 'gedeon') {
-    // Cheveux courts noirs sous un grand casque en bronze
     hairBase = `
-      <path d="M 34 ${headY - 1} C 35 15 65 15 66 ${headY - 1} Z" fill="${config.hair}" />
-      <path d="M 30 ${headY - 3} C 30 ${headY - 22} 70 ${headY - 22} 70 ${headY - 3} L 72 ${headY - 2} C 62 ${headY - 5} 38 ${headY - 5} 28 ${headY - 2} Z" fill="${config.secondary}" /> <!-- Casque -->
-      <rect x="47" y="${headY - 22}" width="6" height="6" fill="#F59E0B" rx="1" /> <!-- Pompon du casque -->
+      <path d="M 170 ${headY - 5} C 175 75 325 75 330 ${headY - 5} Z" fill="${config.hair}" />
+      <path d="M 150 ${headY - 15} C 150 ${headY - 110} 350 ${headY - 110} 350 ${headY - 15} L 360 ${headY - 10} C 310 ${headY - 25} 190 ${headY - 25} 140 ${headY - 10} Z" fill="${config.secondary}" />
+      <rect x="235" y="${headY - 110}" width="30" height="30" fill="#F59E0B" rx="5" />
     `;
   } else if (char === 'noe') {
-    // Cheveux gris courts et longue barbe blanche
-    hairBase = `
-      <path d="M 33 ${headY + 3} C 32 10 68 10 67 ${headY + 3} Z" fill="#CBD5E1" />
-    `;
-    beardBase = `
-      <path d="M 35 ${headY + 5} C 35 55 65 55 65 ${headY + 5} Z" fill="${config.hair}" />
-    `;
+    hairBase = `<path d="M 165 ${headY + 15} C 160 50 340 50 335 ${headY + 15} Z" fill="#CBD5E1" />`;
+    beardBase = `<path d="M 175 ${headY + 25} C 175 275 325 275 325 ${headY + 25} Z" fill="${config.hair}" />`;
   } else if (char === 'paul') {
-    // Cheveux et barbe courte brune
-    hairBase = `
-      <path d="M 33 ${headY + 3} C 32 12 68 12 67 ${headY + 3} Z" fill="${config.hair}" />
-    `;
-    beardBase = `
-      <path d="M 36 ${headY + 6} C 38 45 62 45 64 ${headY + 6} Z" fill="${config.hair}" />
-    `;
+    hairBase = `<path d="M 165 ${headY + 15} C 160 60 340 60 335 ${headY + 15} Z" fill="${config.hair}" />`;
+    beardBase = `<path d="M 180 ${headY + 30} C 190 225 310 225 320 ${headY + 30} Z" fill="${config.hair}" />`;
   } else if (char === 'pierre') {
-    // Chapeau de marin et barbe courte grise
-    hairBase = `
-      <path d="M 32 ${headY - 5} Q 50 ${headY - 20} 68 ${headY - 5} Z" fill="#1D4ED8" /> <!-- Bonnet de marin -->
-    `;
-    beardBase = `
-      <path d="M 35 ${headY + 5} C 37 46 63 46 65 ${headY + 5} Z" fill="${config.hair}" />
-    `;
+    hairBase = `<path d="M 160 ${headY - 25} Q 250 ${headY - 100} 340 ${headY - 25} Z" fill="#1D4ED8" />`;
+    beardBase = `<path d="M 175 ${headY + 25} C 185 230 315 230 325 ${headY + 25} Z" fill="${config.hair}" />`;
   } else if (char === 'moise') {
-    // Cheveux volumineux blancs et longue barbe blanche
-    hairBase = `
-      <path d="M 31 ${headY + 4} C 20 12 80 12 69 ${headY + 4} Z" fill="${config.hair}" />
-    `;
-    beardBase = `
-      <path d="M 33 ${headY + 4} C 33 58 67 58 67 ${headY + 4} Z" fill="${config.hair}" />
-    `;
+    hairBase = `<path d="M 155 ${headY + 20} C 100 60 400 60 345 ${headY + 20} Z" fill="${config.hair}" />`;
+    beardBase = `<path d="M 165 ${headY + 20} C 165 290 335 290 335 ${headY + 20} Z" fill="${config.hair}" />`;
   } else if (char === 'abraham') {
-    // Drapé nomade sur la tête et barbe grise
     hairBase = `
-      <path d="M 31 ${headY - 2} C 31 ${headY - 18} 69 ${headY - 18} 69 ${headY - 2} C 72 30 72 45 68 54 L 32 54 C 28 45 28 30 31 ${headY - 2} Z" fill="#E2E8F0" /> <!-- Drapé -->
-      <rect x="36" y="${headY - 12}" width="28" height="3" fill="#475569" rx="1" /> <!-- Cordeau -->
+      <path d="M 155 ${headY - 10} C 155 ${headY - 90} 345 ${headY - 90} 345 ${headY - 10} C 360 150 360 225 340 270 L 160 270 C 140 225 140 150 155 ${headY - 10} Z" fill="#E2E8F0" />
+      <rect x="180" y="${headY - 60}" width="140" height="15" fill="#475569" rx="5" />
     `;
-    beardBase = `
-      <path d="M 34 ${headY + 5} C 34 54 66 54 66 ${headY + 5} Z" fill="${config.hair}" />
-    `;
+    beardBase = `<path d="M 170 ${headY + 25} C 170 270 330 270 330 ${headY + 25} Z" fill="${config.hair}" />`;
   } else if (char === 'david') {
-    // Cheveux blonds volumineux et petite couronne dorée
     hairBase = `
-      <path d="M 32 ${headY + 2} C 25 15 75 15 68 ${headY + 2} Z" fill="${config.hair}" />
-      <path d="M 44 ${headY - 12} L 46 ${headY - 17} L 50 ${headY - 14} L 54 ${headY - 17} L 56 ${headY - 12} Z" fill="#FBBF24" /> <!-- Couronne -->
+      <path d="M 160 ${headY + 10} C 125 75 375 75 340 ${headY + 10} Z" fill="${config.hair}" />
+      <path d="M 220 ${headY - 60} L 230 ${headY - 85} L 250 ${headY - 70} L 270 ${headY - 85} L 280 ${headY - 60} Z" fill="#FBBF24" />
     `;
   }
 
-  // Éléments du visage
   let faceElements = '';
   if (expr === 'neutral') {
     faceElements = `
       <!-- Sourcils -->
-      <path d="M${headX - 7} ${headY - 4} Q${headX - 5} ${headY - 5} L${headX - 3} ${headY - 4}" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
-      <path d="M${headX + 3} ${headY - 4} Q${headX + 5} ${headY - 5} L${headX + 7} ${headY - 4}" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <path d="M${headX - 35} ${headY - 20} Q${headX - 25} ${headY - 25} L${headX - 15} ${headY - 20}" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
+      <path d="M${headX + 15} ${headY - 20} Q${headX + 25} ${headY - 25} L${headX + 35} ${headY - 20}" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
       <!-- Yeux + Reflets -->
-      <circle cx="${headX - 5}" cy="${headY}" r="2" fill="#1E293B" />
-      <circle cx="${headX - 5.6}" cy="${headY - 0.6}" r="0.6" fill="#FFFFFF" />
-      <circle cx="${headX + 5}" cy="${headY}" r="2" fill="#1E293B" />
-      <circle cx="${headX + 4.4}" cy="${headY - 0.6}" r="0.6" fill="#FFFFFF" />
+      <circle cx="${headX - 25}" cy="${headY}" r="10" fill="#1E293B" />
+      <circle cx="${headX - 28}" cy="${headY - 3}" r="3" fill="#FFFFFF" />
+      <circle cx="${headX + 25}" cy="${headY}" r="10" fill="#1E293B" />
+      <circle cx="${headX + 22}" cy="${headY - 3}" r="3" fill="#FFFFFF" />
       <!-- Blush -->
-      <ellipse cx="${headX - 9}" cy="${headY + 3}" rx="2" ry="1.2" fill="#FDA4AF" opacity="0.6" />
-      <ellipse cx="${headX + 9}" cy="${headY + 3}" rx="2" ry="1.2" fill="#FDA4AF" opacity="0.6" />
+      <ellipse cx="${headX - 45}" cy="${headY + 15}" rx="10" ry="6" fill="#FDA4AF" opacity="0.6" />
+      <ellipse cx="${headX + 45}" cy="${headY + 15}" rx="10" ry="6" fill="#FDA4AF" opacity="0.6" />
       <!-- Bouche -->
-      <path d="M${headX - 2} ${headY + 5} Q${headX} ${headY + 7} L${headX + 2} ${headY + 5}" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
+      <path d="M${headX - 10} ${headY + 25} Q${headX} ${headY + 35} L${headX + 10} ${headY + 25}" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
     `;
   } else if (expr === 'happy') {
     faceElements = `
-      <!-- Sourcils levés de joie -->
-      <path d="M${headX - 7} ${headY - 6} Q${headX - 5} ${headY - 7} L${headX - 3} ${headY - 5}" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
-      <path d="M${headX + 3} ${headY - 5} Q${headX + 5} ${headY - 7} L${headX + 7} ${headY - 6}" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
-      <!-- Yeux plissés rieurs -->
-      <path d="M${headX - 7} ${headY} Q${headX - 5} ${headY - 3} L${headX - 3} ${headY}" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
-      <path d="M${headX + 3} ${headY} Q${headX + 5} ${headY - 3} L${headX + 7} ${headY}" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
+      <!-- Sourcils levés -->
+      <path d="M${headX - 35} ${headY - 30} Q${headX - 25} ${headY - 35} L${headX - 15} ${headY - 25}" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
+      <path d="M${headX + 15} ${headY - 25} Q${headX + 25} ${headY - 35} L${headX + 35} ${headY - 30}" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
+      <!-- Yeux plissés -->
+      <path d="M${headX - 35} ${headY} Q${headX - 25} ${headY - 15} L${headX - 15} ${headY}" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
+      <path d="M${headX + 15} ${headY} Q${headX + 25} ${headY - 15} L${headX + 35} ${headY}" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
       <!-- Blush -->
-      <ellipse cx="${headX - 9}" cy="${headY + 3}" rx="2.5" ry="1.5" fill="#FDA4AF" opacity="0.7" />
-      <ellipse cx="${headX + 9}" cy="${headY + 3}" rx="2.5" ry="1.5" fill="#FDA4AF" opacity="0.7" />
+      <ellipse cx="${headX - 45}" cy="${headY + 15}" rx="12.5" ry="7.5" fill="#FDA4AF" opacity="0.7" />
+      <ellipse cx="${headX + 45}" cy="${headY + 15}" rx="12.5" ry="7.5" fill="#FDA4AF" opacity="0.7" />
       <!-- Bouche riante -->
-      <path d="M${headX - 3} ${headY + 4} Q${headX} ${headY + 9} L${headX + 3} ${headY + 4}" fill="#EF4444" />
+      <path d="M${headX - 15} ${headY + 20} Q${headX} ${headY + 45} L${headX + 15} ${headY + 20}" fill="#EF4444" />
     `;
   } else if (expr === 'sweating') {
     faceElements = `
       <!-- Sourcils inquiets -->
-      <path d="M${headX - 7} ${headY - 4} Q${headX - 5} ${headY - 3} L${headX - 3} ${headY - 5}" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
-      <path d="M${headX + 3} ${headY - 5} Q${headX + 5} ${headY - 3} L${headX + 7} ${headY - 4}" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
-      <!-- Yeux écarquillés -->
-      <circle cx="${headX - 5}" cy="${headY}" r="2" fill="#1E293B" />
-      <circle cx="${headX - 5.6}" cy="${headY - 0.6}" r="0.6" fill="#FFFFFF" />
-      <circle cx="${headX + 5}" cy="${headY}" r="2" fill="#1E293B" />
-      <circle cx="${headX + 4.4}" cy="${headY - 0.6}" r="0.6" fill="#FFFFFF" />
-      <!-- Blush discret -->
-      <ellipse cx="${headX - 9}" cy="${headY + 3}" rx="1.8" ry="1" fill="#FDA4AF" opacity="0.5" />
-      <ellipse cx="${headX + 9}" cy="${headY + 3}" rx="1.8" ry="1" fill="#FDA4AF" opacity="0.5" />
-      <!-- Bouche inquiète et goutte de sueur -->
-      <path d="M${headX - 3} ${headY + 5} h6" stroke="#1E293B" stroke-width="1.8" stroke-linecap="round" />
-      <path d="M${headX + 11} ${headY - 7} Q${headX + 13} ${headY} L${headX + 9} ${headY}" fill="#3B82F6" opacity="0.8" />
+      <path d="M${headX - 35} ${headY - 20} Q${headX - 25} ${headY - 15} L${headX - 15} ${headY - 25}" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
+      <path d="M${headX + 15} ${headY - 25} Q${headX + 25} ${headY - 15} L${headX + 35} ${headY - 20}" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
+      <!-- Yeux -->
+      <circle cx="${headX - 25}" cy="${headY}" r="10" fill="#1E293B" />
+      <circle cx="${headX - 28}" cy="${headY - 3}" r="3" fill="#FFFFFF" />
+      <circle cx="${headX + 25}" cy="${headY}" r="10" fill="#1E293B" />
+      <circle cx="${headX + 22}" cy="${headY - 3}" r="3" fill="#FFFFFF" />
+      <!-- Blush -->
+      <ellipse cx="${headX - 45}" cy="${headY + 15}" rx="9" ry="5" fill="#FDA4AF" opacity="0.5" />
+      <ellipse cx="${headX + 45}" cy="${headY + 15}" rx="9" ry="5" fill="#FDA4AF" opacity="0.5" />
+      <!-- Bouche inquiète + Sueur -->
+      <path d="M${headX - 15} ${headY + 25} h30" stroke="#1E293B" stroke-width="9" stroke-linecap="round" />
+      <path d="M${headX + 55} ${headY - 35} Q${headX + 65} ${headY} L${headX + 45} ${headY}" fill="#3B82F6" opacity="0.8" />
     `;
   } else { // crying
     faceElements = `
       <!-- Sourcils tristes -->
-      <path d="M${headX - 7} ${headY - 3} Q${headX - 5} ${headY - 2} L${headX - 3} ${headY - 4}" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
-      <path d="M${headX + 3} ${headY - 4} Q${headX + 5} ${headY - 2} L${headX + 7} ${headY - 3}" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <path d="M${headX - 35} ${headY - 15} Q${headX - 25} ${headY - 10} L${headX - 15} ${headY - 20}" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
+      <path d="M${headX + 15} ${headY - 20} Q${headX + 25} ${headY - 10} L${headX + 35} ${headY - 15}" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
       <!-- Yeux tristes -->
-      <path d="M${headX - 7} ${headY + 1} Q${headX - 5} ${headY + 4} L${headX - 3} ${headY + 1}" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
-      <path d="M${headX + 3} ${headY + 1} Q${headX + 5} ${headY + 4} L${headX + 7} ${headY + 1}" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
-      <!-- Bouche qui pleure -->
-      <path d="M${headX - 3} ${headY + 7} Q${headX} ${headY + 5} L${headX + 3} ${headY + 7}" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
-      <!-- Larmes qui coulent -->
-      <path d="M${headX - 5} ${headY + 3} v9" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" />
-      <path d="M${headX + 5} ${headY + 3} v9" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" />
+      <path d="M${headX - 35} ${headY + 5} Q${headX - 25} ${headY + 20} L${headX - 15} ${headY + 5}" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
+      <path d="M${headX + 15} ${headY + 5} Q${headX + 25} ${headY + 20} L${headX + 35} ${headY + 5}" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
+      <!-- Bouche -->
+      <path d="M${headX - 15} ${headY + 35} Q${headX} ${headY + 25} L${headX + 15} ${headY + 35}" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
+      <!-- Larmes -->
+      <path d="M${headX - 25} ${headY + 15} v45" stroke="#3B82F6" stroke-width="10" stroke-linecap="round" />
+      <path d="M${headX + 25} ${headY + 15} v45" stroke="#3B82F6" stroke-width="10" stroke-linecap="round" />
     `;
   }
 
-  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
     ${hairBase}
     ${headBase}
     ${beardBase}
@@ -463,63 +419,58 @@ function getExpressionSVG(char, expr) {
   </svg>`;
 }
 
-// --- TEMPLATES DES COSTUMES ---
+// --- TEMPLATES DES COSTUMES (Multipliés par 5) ---
 function getOutfitSVG(char, outfit) {
-  // Coordonnées de base de l'habillement
-  let headX = 50;
-  let headY = 28;
+  let headX = 250;
+  let headY = 140;
   
-  if (char === 'esther') headY = 26;
-  if (char === 'gedeon') headY = 32;
-  if (char === 'noe') headY = 27;
+  if (char === 'esther') headY = 130;
+  if (char === 'gedeon') headY = 160;
+  if (char === 'noe') headY = 135;
 
   if (outfit === 'default') {
-    // Rien à afficher de plus, tout est sur le corps/pose de base
-    return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"></svg>`;
+    return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"></svg>`;
   }
 
   if (outfit === 'winter') {
-    // Bonnet rouge et écharpe rouge
-    return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <!-- Bonnet de laine -->
-      <path d="M 33 ${headY - 6} C 33 ${headY - 25} 67 ${headY - 25} 67 ${headY - 6} Z" fill="#EF4444" />
-      <rect x="31" y="${headY - 8}" width="38" height="5" fill="#FFFFFF" rx="2" />
-      <circle cx="50" cy="${headY - 23}" r="4" fill="#FFFFFF" />
-      <!-- Écharpe enroulée autour du cou -->
-      <rect x="32" y="${headY + 12}" width="36" height="6" fill="#EF4444" rx="2" />
-      <path d="M 60 ${headY + 15} v 14" stroke="#EF4444" stroke-width="6" stroke-linecap="round" />
+    // Bonnet et écharpe rouge
+    return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+      <!-- Bonnet -->
+      <path d="M 165 ${headY - 30} C 165 ${headY - 125} 335 ${headY - 125} 335 ${headY - 30} Z" fill="#EF4444" />
+      <rect x="155" y="${headY - 40}" width="190" height="25" fill="#FFFFFF" rx="10" />
+      <circle cx="250" cy="${headY - 115}" r="20" fill="#FFFFFF" />
+      <!-- Écharpe -->
+      <rect x="160" y="${headY + 60}" width="180" height="30" fill="#EF4444" rx="10" />
+      <path d="M 300 ${headY + 75} v 70" stroke="#EF4444" stroke-width="30" stroke-linecap="round" />
     </svg>`;
   }
 
   if (outfit === 'beach') {
-    // Lunettes de soleil d'été (jaunes) et un collier à fleurs (ou chapeau)
-    return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <!-- Lunettes de soleil cool -->
-      <rect x="${headX - 11}" y="${headY - 3}" width="10" height="7" rx="3" fill="#FBBF24" />
-      <rect x="${headX + 1}" y="${headY - 3}" width="10" height="7" rx="3" fill="#FBBF24" />
-      <line x1="${headX - 1}" y1="${headY}" x2="${headX + 1}" y2="${headY}" stroke="#FBBF24" stroke-width="2.5" />
-      <!-- Verres sombres -->
-      <rect x="${headX - 9}" y="${headY - 1}" width="6" height="4" rx="1.5" fill="#1E293B" />
-      <rect x="${headX + 3}" y="${headY - 1}" width="6" height="4" rx="1.5" fill="#1E293B" />
+    // Lunettes cool
+    return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+      <!-- Lunettes de soleil -->
+      <rect x="${headX - 55}" y="${headY - 15}" width="50" height="35" rx="15" fill="#FBBF24" />
+      <rect x="${headX + 5}" y="${headY - 15}" width="50" height="35" rx="15" fill="#FBBF24" />
+      <line x1="${headX - 5}" y1="${headY}" x2="${headX + 5}" y2="${headY}" stroke="#FBBF24" stroke-width="12.5" />
+      <rect x="${headX - 45}" y="${headY - 5}" width="30" height="20" rx="7.5" fill="#1E293B" />
+      <rect x="${headX + 15}" y="${headY - 5}" width="30" height="20" rx="7.5" fill="#1E293B" />
     </svg>`;
   }
 
   if (outfit === 'halloween') {
-    // Chapeau de sorcière pointu noir
-    return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <!-- Chapeau de sorcière -->
-      <ellipse cx="50" cy="${headY - 9}" rx="24" ry="4" fill="#1E293B" />
-      <path d="M 34 ${headY - 9} L 50 ${headY - 30} L 66 ${headY - 9} Z" fill="#1E293B" />
-      <rect x="42" y="${headY - 12}" width="16" height="3" fill="#7C3AED" /> <!-- Ruban violet -->
+    // Chapeau de sorcière
+    return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="250" cy="${headY - 45}" rx="120" ry="20" fill="#1E293B" />
+      <path d="M 170 ${headY - 45} L 250 ${headY - 150} L 330 ${headY - 45} Z" fill="#1E293B" />
+      <rect x="210" y="${headY - 60}" width="80" height="15" fill="#7C3AED" />
     </svg>`;
   }
 
-  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"></svg>`;
+  return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"></svg>`;
 }
 
-// --- GÉNÉRATION GLOBALE ---
-console.log("Début de la génération de tous les SVGs modulaires...");
-
+// --- GÉNÉRATION ---
+console.log("Génération de tous les SVGs modulaires sous ViewBox 500x500...");
 let filesCreated = 0;
 
 for (const char of CHARACTERS) {
@@ -528,21 +479,18 @@ for (const char of CHARACTERS) {
     fs.mkdirSync(charDir, { recursive: true });
   }
 
-  // 1. Génération des Poses
   for (const pose of POSES) {
     const filePath = path.join(charDir, `pose_${pose}.svg`);
     fs.writeFileSync(filePath, getPoseSVG(char, pose).trim(), 'utf8');
     filesCreated++;
   }
 
-  // 2. Génération des Expressions
   for (const expr of EXPRESSIONS) {
     const filePath = path.join(charDir, `expression_${expr}.svg`);
     fs.writeFileSync(filePath, getExpressionSVG(char, expr).trim(), 'utf8');
     filesCreated++;
   }
 
-  // 3. Génération des Outfits
   for (const outfit of OUTFITS) {
     const filePath = path.join(charDir, `outfit_${outfit}.svg`);
     fs.writeFileSync(filePath, getOutfitSVG(char, outfit).trim(), 'utf8');
@@ -550,4 +498,4 @@ for (const char of CHARACTERS) {
   }
 }
 
-console.log(`Génération terminée avec succès ! ${filesCreated} fichiers SVG créés dans public/assets/characters/`);
+console.log(`Terminé ! ${filesCreated} fichiers SVG de ViewBox 500x500 ont été générés avec succès.`);

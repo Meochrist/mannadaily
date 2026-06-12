@@ -1,9 +1,8 @@
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <!-- Lunettes de soleil cool -->
-      <rect x="39" y="24" width="10" height="7" rx="3" fill="#FBBF24" />
-      <rect x="51" y="24" width="10" height="7" rx="3" fill="#FBBF24" />
-      <line x1="49" y1="27" x2="51" y2="27" stroke="#FBBF24" stroke-width="2.5" />
-      <!-- Verres sombres -->
-      <rect x="41" y="26" width="6" height="4" rx="1.5" fill="#1E293B" />
-      <rect x="53" y="26" width="6" height="4" rx="1.5" fill="#1E293B" />
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+      <!-- Lunettes de soleil -->
+      <rect x="195" y="120" width="50" height="35" rx="15" fill="#FBBF24" />
+      <rect x="255" y="120" width="50" height="35" rx="15" fill="#FBBF24" />
+      <line x1="245" y1="135" x2="255" y2="135" stroke="#FBBF24" stroke-width="12.5" />
+      <rect x="205" y="130" width="30" height="20" rx="7.5" fill="#1E293B" />
+      <rect x="265" y="130" width="30" height="20" rx="7.5" fill="#1E293B" />
     </svg>

@@ -1,23 +1,23 @@
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
     
-      <path d="M 32 28 C 30 5 70 5 68 28 C 72 45 74 60 70 65 C 65 60 62 45 62 40 L 38 40 C 38 45 35 60 30 65 C 26 60 28 45 32 28 Z" fill="#78350F" />
-      <rect x="34" y="14" width="32" height="4" fill="#DC2626" rx="1" /> <!-- Bandeau sport -->
+      <path d="M 160 140 C 150 25 350 25 340 140 C 360 225 370 300 350 325 C 325 300 310 225 310 200 L 190 200 C 190 225 175 300 150 325 C 130 300 140 225 160 140 Z" fill="#78350F" />
+      <rect x="170" y="70" width="160" height="20" fill="#DC2626" rx="5" />
     
-    <circle cx="50" cx="50" cy="28" r="15" fill="#FDBA74" />
+    <circle cx="250" cy="140" r="75" fill="#FDBA74" />
     
     
       <!-- Sourcils -->
-      <path d="M43 24 Q45 23 L47 24" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
-      <path d="M53 24 Q55 23 L57 24" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <path d="M215 120 Q225 115 L235 120" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
+      <path d="M265 120 Q275 115 L285 120" stroke="#1E293B" stroke-width="6" stroke-linecap="round" fill="none" />
       <!-- Yeux + Reflets -->
-      <circle cx="45" cy="28" r="2" fill="#1E293B" />
-      <circle cx="44.4" cy="27.4" r="0.6" fill="#FFFFFF" />
-      <circle cx="55" cy="28" r="2" fill="#1E293B" />
-      <circle cx="54.4" cy="27.4" r="0.6" fill="#FFFFFF" />
+      <circle cx="225" cy="140" r="10" fill="#1E293B" />
+      <circle cx="222" cy="137" r="3" fill="#FFFFFF" />
+      <circle cx="275" cy="140" r="10" fill="#1E293B" />
+      <circle cx="272" cy="137" r="3" fill="#FFFFFF" />
       <!-- Blush -->
-      <ellipse cx="41" cy="31" rx="2" ry="1.2" fill="#FDA4AF" opacity="0.6" />
-      <ellipse cx="59" cy="31" rx="2" ry="1.2" fill="#FDA4AF" opacity="0.6" />
+      <ellipse cx="205" cy="155" rx="10" ry="6" fill="#FDA4AF" opacity="0.6" />
+      <ellipse cx="295" cy="155" rx="10" ry="6" fill="#FDA4AF" opacity="0.6" />
       <!-- Bouche -->
-      <path d="M48 33 Q50 35 L52 33" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
+      <path d="M240 165 Q250 175 L260 165" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
     
   </svg>

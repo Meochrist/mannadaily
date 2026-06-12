@@ -1,10 +1,10 @@
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="40" cy="49" r="2.5" fill="#1E293B" />
-        <circle cx="39.2" cy="48.2" r="0.8" fill="#FFFFFF" />
-        <circle cx="60" cy="49" r="2.5" fill="#1E293B" />
-        <circle cx="59.2" cy="48.2" r="0.8" fill="#FFFFFF" />
-        <ellipse cx="36" cy="52" rx="2" ry="1.1" fill="#FDA4AF" opacity="0.5" />
-        <ellipse cx="64" cy="52" rx="2" ry="1.1" fill="#FDA4AF" opacity="0.5" />
-        <path d="M46 56 h8" stroke="#1E293B" stroke-width="2" stroke-linecap="round" />
-        <path d="M68 40 Q69 48 65 48" fill="#3B82F6" opacity="0.8" /> <!-- Goutte -->
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="200" cy="245" r="12.5" fill="#1E293B" />
+        <circle cx="196" cy="241" r="4" fill="#FFFFFF" />
+        <circle cx="300" cy="245" r="12.5" fill="#1E293B" />
+        <circle cx="296" cy="241" r="4" fill="#FFFFFF" />
+        <ellipse cx="180" cy="260" rx="10" ry="5.5" fill="#FDA4AF" opacity="0.5" />
+        <ellipse cx="320" cy="260" rx="10" ry="5.5" fill="#FDA4AF" opacity="0.5" />
+        <path d="M230 280 h40" stroke="#1E293B" stroke-width="10" stroke-linecap="round" />
+        <path d="M340 200 Q345 240 325 240" fill="#3B82F6" opacity="0.8" />
       </svg>

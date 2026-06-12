@@ -1,16 +1,16 @@
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
     
       <!-- Jambes -->
-      <rect x="41" y="72" width="6" height="14" rx="3" fill="#FDBA74" />
-      <rect x="53" y="72" width="6" height="14" rx="3" fill="#FDBA74" />
+      <rect x="205" y="360" width="30" height="70" rx="15" fill="#FDBA74" />
+      <rect x="265" y="360" width="30" height="70" rx="15" fill="#FDBA74" />
       <!-- Bras ballants tristes -->
-      <rect x="26" y="48" width="6" height="22" rx="3" fill="#FDBA74" transform="rotate(5 26 48)" />
-      <rect x="68" y="48" width="6" height="22" rx="3" fill="#FDBA74" transform="rotate(-5 68 48)" />
+      <rect x="130" y="240" width="30" height="110" rx="15" fill="#FDBA74" transform="rotate(5 130 240)" />
+      <rect x="340" y="240" width="30" height="110" rx="15" fill="#FDBA74" transform="rotate(-5 340 240)" />
     
     
       <!-- Torse affaissé -->
-      <rect x="32" y="44" width="36" height="30" rx="8" fill="#EA580C" />
+      <rect x="160" y="220" width="180" height="150" rx="40" fill="#EA580C" />
     
-    <circle cx="37" cy="50" r="3" fill="#B45309" />
-                   <circle cx="63" cy="50" r="3" fill="#B45309" />
+    <circle cx="185" cy="250" r="15" fill="#B45309" />
+                   <circle cx="315" cy="250" r="15" fill="#B45309" />
   </svg>

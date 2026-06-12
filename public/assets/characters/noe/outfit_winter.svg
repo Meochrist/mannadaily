@@ -1,9 +1,9 @@
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <!-- Bonnet de laine -->
-      <path d="M 33 21 C 33 2 67 2 67 21 Z" fill="#EF4444" />
-      <rect x="31" y="19" width="38" height="5" fill="#FFFFFF" rx="2" />
-      <circle cx="50" cy="4" r="4" fill="#FFFFFF" />
-      <!-- Écharpe enroulée autour du cou -->
-      <rect x="32" y="39" width="36" height="6" fill="#EF4444" rx="2" />
-      <path d="M 60 42 v 14" stroke="#EF4444" stroke-width="6" stroke-linecap="round" />
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+      <!-- Bonnet -->
+      <path d="M 165 105 C 165 10 335 10 335 105 Z" fill="#EF4444" />
+      <rect x="155" y="95" width="190" height="25" fill="#FFFFFF" rx="10" />
+      <circle cx="250" cy="20" r="20" fill="#FFFFFF" />
+      <!-- Écharpe -->
+      <rect x="160" y="195" width="180" height="30" fill="#EF4444" rx="10" />
+      <path d="M 300 210 v 70" stroke="#EF4444" stroke-width="30" stroke-linecap="round" />
     </svg>

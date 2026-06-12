@@ -1,7 +1,7 @@
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M37 51 Q40 55 43 51" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
-        <path d="M57 51 Q60 55 63 51" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
-        <path d="M46 58 Q50 55 54 58" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
-        <path d="M39 52 v12" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round" /> <!-- Larme -->
-        <path d="M61 52 v12" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round" /> <!-- Larme -->
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+        <path d="M185 255 Q200 275 215 255" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
+        <path d="M285 255 Q300 275 315 255" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
+        <path d="M230 290 Q250 275 270 290" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
+        <path d="M195 260 v60" stroke="#3B82F6" stroke-width="12.5" stroke-linecap="round" />
+        <path d="M305 260 v60" stroke="#3B82F6" stroke-width="12.5" stroke-linecap="round" />
       </svg>

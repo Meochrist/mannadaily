@@ -1,15 +1,15 @@
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
     
       <!-- Jambes en course -->
-      <rect x="34" y="68" width="7" height="16" rx="3.5" fill="#FDBA74" transform="rotate(-40 34 68)" />
-      <rect x="52" y="68" width="7" height="16" rx="3.5" fill="#FDBA74" transform="rotate(30 52 68)" />
+      <rect x="170" y="340" width="35" height="80" rx="17.5" fill="#FDBA74" transform="rotate(-40 170 340)" />
+      <rect x="260" y="340" width="35" height="80" rx="17.5" fill="#FDBA74" transform="rotate(30 260 340)" />
       <!-- Bras course -->
-      <rect x="22" y="46" width="7" height="20" rx="3.5" fill="#FDBA74" transform="rotate(45 22 46)" />
-      <rect x="68" y="42" width="7" height="20" rx="3.5" fill="#FDBA74" transform="rotate(-30 68 42)" />
+      <rect x="110" y="230" width="35" height="100" rx="17.5" fill="#FDBA74" transform="rotate(45 110 230)" />
+      <rect x="340" y="210" width="35" height="100" rx="17.5" fill="#FDBA74" transform="rotate(-30 340 210)" />
     
     
       <!-- Torse incliné -->
-      <rect x="31" y="40" width="38" height="30" rx="8" fill="#F59E0B" transform="skewX(-8)" />
+      <rect x="155" y="200" width="190" height="150" rx="40" fill="#F59E0B" transform="skewX(-8)" />
     
-    <path d="M 22 55 Q 16 66 22 75" fill="none" stroke="#78350F" stroke-width="2" />
+    <path d="M 110 275 Q 80 330 110 375" fill="none" stroke="#78350F" stroke-width="10" />
   </svg>

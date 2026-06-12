@@ -1,14 +1,14 @@
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
         <!-- Couverture -->
-        <rect x="23" y="28" width="54" height="44" rx="6" fill="#4F46E5" />
+        <rect x="115" y="140" width="270" height="220" rx="30" fill="#4F46E5" />
         <!-- Pages blanches -->
-        <path d="M26 30 h22 v38 h-22 z M52 30 h22 v38 h-22 z" fill="#FFFFFF" />
+        <path d="M130 150 h110 v190 h-110 z M260 150 h110 v190 h-110 z" fill="#FFFFFF" />
         <!-- Tranche / Reliure -->
-        <rect x="48" y="29" width="4" height="42" rx="1" fill="#F1F5F9" />
+        <rect x="240" y="145" width="20" height="210" rx="5" fill="#F1F5F9" />
         <!-- Bras -->
-        <rect x="16" y="45" width="8" height="6" rx="3" fill="#64748B" />
-        <rect x="76" y="45" width="8" height="6" rx="3" fill="#64748B" />
+        <rect x="80" y="225" width="40" height="30" rx="15" fill="#64748B" />
+        <rect x="380" y="225" width="40" height="30" rx="15" fill="#64748B" />
         <!-- Jambes -->
-        <rect x="38" y="72" width="6" height="12" rx="3" fill="#64748B" />
-        <rect x="56" y="72" width="6" height="12" rx="3" fill="#64748B" />
+        <rect x="190" y="360" width="30" height="60" rx="15" fill="#64748B" />
+        <rect x="280" y="360" width="30" height="60" rx="15" fill="#64748B" />
       </svg>

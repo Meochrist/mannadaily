@@ -1,18 +1,18 @@
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
     
       <!-- Jambes droites -->
-      <rect x="40" y="70" width="7" height="15" rx="3.5" fill="#FDBA74" />
-      <rect x="53" y="70" width="7" height="15" rx="3.5" fill="#FDBA74" />
+      <rect x="200" y="350" width="35" height="75" rx="17.5" fill="#FDBA74" />
+      <rect x="265" y="350" width="35" height="75" rx="17.5" fill="#FDBA74" />
       <!-- Pieds/Chaussures -->
-      <rect x="37" y="82" width="10" height="4" rx="2" fill="#FBBF24" />
-      <rect x="53" y="82" width="10" height="4" rx="2" fill="#FBBF24" />
+      <rect x="185" y="410" width="50" height="20" rx="10" fill="#FBBF24" />
+      <rect x="265" y="410" width="50" height="20" rx="10" fill="#FBBF24" />
       <!-- Bras -->
-      <rect x="25" y="44" width="7" height="22" rx="3.5" fill="#FDBA74" />
-      <rect x="68" y="44" width="7" height="22" rx="3.5" fill="#FDBA74" />
+      <rect x="125" y="220" width="35" height="110" rx="17.5" fill="#FDBA74" />
+      <rect x="340" y="220" width="35" height="110" rx="17.5" fill="#FDBA74" />
     
     
       <!-- Tunique / Torse -->
-      <rect x="31" y="42" width="38" height="30" rx="8" fill="#F59E0B" />
+      <rect x="155" y="210" width="190" height="150" rx="40" fill="#F59E0B" />
     
-    <path d="M 22 55 Q 16 66 22 75" fill="none" stroke="#78350F" stroke-width="2" />
+    <path d="M 110 275 Q 80 330 110 375" fill="none" stroke="#78350F" stroke-width="10" />
   </svg>
