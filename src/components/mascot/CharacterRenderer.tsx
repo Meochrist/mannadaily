@@ -103,30 +103,36 @@ export default function CharacterRenderer({
     }
   }
 
-  // 2. Définir des animations physiques selon la pose (uniquement pour le rendu SVG)
+  // 2. Définir des animations physiques style Duolingo (Framer Motion)
   const getAnimationProps = () => {
     switch (finalPose) {
       case "jumping":
         return {
           animate: {
-            y: [0, -15, 0],
-            scaleY: [1, 0.95, 1.05, 1],
+            y: [0, 4, -28, -2, 0],
+            scaleY: [1, 0.88, 1.08, 0.92, 1],
+            scaleX: [1, 1.06, 0.94, 1.04, 1],
+            rotate: [0, -2, 3, -1, 0],
           },
+          style: { originY: 1 },
           transition: {
-            duration: 0.8,
+            duration: 0.95,
             repeat: Infinity,
             ease: "easeInOut" as const,
+            times: [0, 0.15, 0.5, 0.8, 1],
           },
         };
       case "running":
         return {
           animate: {
-            x: [-3, 3, -3],
-            y: [-2, 2, -2],
-            rotate: [-2, 2, -2],
+            y: [0, -7, 0, -7, 0],
+            rotate: [-3, 3, -3, 3, -3],
+            scaleY: [1, 1.03, 0.98, 1.03, 1],
+            scaleX: [1, 0.97, 1.02, 0.97, 1],
           },
+          style: { originY: 1 },
           transition: {
-            duration: 0.4,
+            duration: 0.5,
             repeat: Infinity,
             ease: "linear" as const,
           },
@@ -134,11 +140,14 @@ export default function CharacterRenderer({
       case "sad":
         return {
           animate: {
-            y: [0, 4, 0],
-            scale: [1, 0.98, 1],
+            y: [0, 3, 0],
+            scaleY: [1, 0.96, 1],
+            scaleX: [1, 1.01, 1],
+            rotate: [-1, 1, -1],
           },
+          style: { originY: 1 },
           transition: {
-            duration: 2.5,
+            duration: 2.8,
             repeat: Infinity,
             ease: "easeInOut" as const,
           },
@@ -147,11 +156,14 @@ export default function CharacterRenderer({
       default:
         return {
           animate: {
-            y: [0, -3, 0],
-            scaleY: [1, 1.02, 1],
+            y: [0, -4, 0],
+            scaleY: [1, 1.03, 1],
+            scaleX: [1, 0.98, 1],
+            rotate: [-0.6, 0.6, -0.6],
           },
+          style: { originY: 1 },
           transition: {
-            duration: 3,
+            duration: 3.2,
             repeat: Infinity,
             ease: "easeInOut" as const,
           },
