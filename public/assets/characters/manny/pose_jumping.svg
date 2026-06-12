@@ -1,0 +1,14 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- Couverture penchée -->
+        <rect x="23" y="22" width="54" height="44" rx="6" fill="#4F46E5" transform="rotate(-5 50 44)" />
+        <!-- Pages blanches -->
+        <path d="M26 24 h22 v38 h-22 z M52 24 h22 v38 h-22 z" fill="#FFFFFF" transform="rotate(-5 50 44)" />
+        <!-- Tranche -->
+        <rect x="48" y="23" width="4" height="42" rx="1" fill="#F1F5F9" transform="rotate(-5 50 44)" />
+        <!-- Bras levés -->
+        <path d="M12 30 Q16 40 22 42" stroke="#64748B" stroke-width="5" stroke-linecap="round" fill="none" />
+        <path d="M88 30 Q84 40 78 42" stroke="#64748B" stroke-width="5" stroke-linecap="round" fill="none" />
+        <!-- Jambes en l'air -->
+        <rect x="36" y="66" width="6" height="14" rx="3" fill="#64748B" transform="rotate(-20 36 66)" />
+        <rect x="58" y="66" width="6" height="14" rx="3" fill="#64748B" transform="rotate(20 58 66)" />
+      </svg>

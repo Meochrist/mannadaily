@@ -1,0 +1,24 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    
+      <path d="M 30 26 C 25 10 75 10 70 26 C 75 55 72 70 66 72 C 62 60 62 42 62 38 L 38 38 C 38 42 38 60 34 72 C 28 70 25 55 30 26 Z" fill="#7C3AED" />
+      <path d="M 42 12 L 45 6 L 50 10 L 55 6 L 58 12 Z" fill="#FBBF24" /> <!-- Couronne -->
+    
+    <circle cx="50" cx="50" cy="26" r="15" fill="#FDE68A" />
+    
+    
+      <!-- Sourcils inquiets -->
+      <path d="M43 22 Q45 23 L47 21" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <path d="M53 21 Q55 23 L57 22" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <!-- Yeux écarquillés -->
+      <circle cx="45" cy="26" r="2" fill="#1E293B" />
+      <circle cx="44.4" cy="25.4" r="0.6" fill="#FFFFFF" />
+      <circle cx="55" cy="26" r="2" fill="#1E293B" />
+      <circle cx="54.4" cy="25.4" r="0.6" fill="#FFFFFF" />
+      <!-- Blush discret -->
+      <ellipse cx="41" cy="29" rx="1.8" ry="1" fill="#FDA4AF" opacity="0.5" />
+      <ellipse cx="59" cy="29" rx="1.8" ry="1" fill="#FDA4AF" opacity="0.5" />
+      <!-- Bouche inquiète et goutte de sueur -->
+      <path d="M47 31 h6" stroke="#1E293B" stroke-width="1.8" stroke-linecap="round" />
+      <path d="M61 19 Q63 26 L59 26" fill="#3B82F6" opacity="0.8" />
+    
+  </svg>

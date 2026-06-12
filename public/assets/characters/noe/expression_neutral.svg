@@ -1,0 +1,24 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    
+      <path d="M 33 30 C 32 10 68 10 67 30 Z" fill="#CBD5E1" />
+    
+    <circle cx="50" cx="50" cy="27" r="15" fill="#FED7AA" />
+    
+      <path d="M 35 32 C 35 55 65 55 65 32 Z" fill="#E2E8F0" />
+    
+    
+      <!-- Sourcils -->
+      <path d="M43 23 Q45 22 L47 23" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <path d="M53 23 Q55 22 L57 23" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <!-- Yeux + Reflets -->
+      <circle cx="45" cy="27" r="2" fill="#1E293B" />
+      <circle cx="44.4" cy="26.4" r="0.6" fill="#FFFFFF" />
+      <circle cx="55" cy="27" r="2" fill="#1E293B" />
+      <circle cx="54.4" cy="26.4" r="0.6" fill="#FFFFFF" />
+      <!-- Blush -->
+      <ellipse cx="41" cy="30" rx="2" ry="1.2" fill="#FDA4AF" opacity="0.6" />
+      <ellipse cx="59" cy="30" rx="2" ry="1.2" fill="#FDA4AF" opacity="0.6" />
+      <!-- Bouche -->
+      <path d="M48 32 Q50 34 L52 32" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
+    
+  </svg>

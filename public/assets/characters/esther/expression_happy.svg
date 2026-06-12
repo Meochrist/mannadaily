@@ -1,0 +1,21 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    
+      <path d="M 30 26 C 25 10 75 10 70 26 C 75 55 72 70 66 72 C 62 60 62 42 62 38 L 38 38 C 38 42 38 60 34 72 C 28 70 25 55 30 26 Z" fill="#7C3AED" />
+      <path d="M 42 12 L 45 6 L 50 10 L 55 6 L 58 12 Z" fill="#FBBF24" /> <!-- Couronne -->
+    
+    <circle cx="50" cx="50" cy="26" r="15" fill="#FDE68A" />
+    
+    
+      <!-- Sourcils levés de joie -->
+      <path d="M43 20 Q45 19 L47 21" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <path d="M53 21 Q55 19 L57 20" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <!-- Yeux plissés rieurs -->
+      <path d="M43 26 Q45 23 L47 26" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
+      <path d="M53 26 Q55 23 L57 26" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
+      <!-- Blush -->
+      <ellipse cx="41" cy="29" rx="2.5" ry="1.5" fill="#FDA4AF" opacity="0.7" />
+      <ellipse cx="59" cy="29" rx="2.5" ry="1.5" fill="#FDA4AF" opacity="0.7" />
+      <!-- Bouche riante -->
+      <path d="M47 30 Q50 35 L53 30" fill="#EF4444" />
+    
+  </svg>

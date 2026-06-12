@@ -1,0 +1,22 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    
+      <path d="M 33 31 C 32 12 68 12 67 31 Z" fill="#78350F" />
+    
+    <circle cx="50" cx="50" cy="28" r="15" fill="#FED7AA" />
+    
+      <path d="M 36 34 C 38 45 62 45 64 34 Z" fill="#78350F" />
+    
+    
+      <!-- Sourcils tristes -->
+      <path d="M43 25 Q45 26 L47 24" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <path d="M53 24 Q55 26 L57 25" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <!-- Yeux tristes -->
+      <path d="M43 29 Q45 32 L47 29" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
+      <path d="M53 29 Q55 32 L57 29" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
+      <!-- Bouche qui pleure -->
+      <path d="M47 35 Q50 33 L53 35" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
+      <!-- Larmes qui coulent -->
+      <path d="M45 31 v9" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" />
+      <path d="M55 31 v9" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" />
+    
+  </svg>

@@ -1,0 +1,13 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- Couverture à moitié refermée -->
+        <rect x="26" y="32" width="48" height="44" rx="6" fill="#4F46E5" />
+        <!-- Pages blanches refermées -->
+        <path d="M29 34 h19 v38 h-19 z M52 34 h19 v38 h-19 z" fill="#FFFFFF" />
+        <rect x="48" y="33" width="4" height="42" rx="1" fill="#E2E8F0" />
+        <!-- Bras ballants tristes -->
+        <path d="M20 52 Q23 62 25 68" stroke="#64748B" stroke-width="5" stroke-linecap="round" fill="none" />
+        <path d="M80 52 Q77 62 75 68" stroke="#64748B" stroke-width="5" stroke-linecap="round" fill="none" />
+        <!-- Jambes fléchies -->
+        <path d="M38 76 v6 h-3" stroke="#64748B" stroke-width="5" stroke-linecap="round" fill="none" />
+        <path d="M62 76 v6 h3" stroke="#64748B" stroke-width="5" stroke-linecap="round" fill="none" />
+      </svg>

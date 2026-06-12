@@ -1,0 +1,15 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    
+      <!-- Jambes en course -->
+      <rect x="34" y="68" width="7" height="16" rx="3.5" fill="#FED7AA" transform="rotate(-40 34 68)" />
+      <rect x="52" y="68" width="7" height="16" rx="3.5" fill="#FED7AA" transform="rotate(30 52 68)" />
+      <!-- Bras course -->
+      <rect x="22" y="46" width="7" height="20" rx="3.5" fill="#FED7AA" transform="rotate(45 22 46)" />
+      <rect x="68" y="42" width="7" height="20" rx="3.5" fill="#FED7AA" transform="rotate(-30 68 42)" />
+    
+    
+      <!-- Torse incliné -->
+      <rect x="31" y="40" width="38" height="30" rx="8" fill="#CA8A04" transform="skewX(-8)" />
+    
+    <rect x="58" y="52" width="14" height="20" rx="2" fill="#FEF08A" stroke="#CA8A04" stroke-width="2" transform="rotate(15 58 52)" />
+  </svg>

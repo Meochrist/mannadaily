@@ -1,0 +1,22 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    
+      <path d="M 32 23 Q 50 8 68 23 Z" fill="#1D4ED8" /> <!-- Bonnet de marin -->
+    
+    <circle cx="50" cx="50" cy="28" r="15" fill="#F3F4F6" />
+    
+      <path d="M 35 33 C 37 46 63 46 65 33 Z" fill="#94A3B8" />
+    
+    
+      <!-- Sourcils levés de joie -->
+      <path d="M43 22 Q45 21 L47 23" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <path d="M53 23 Q55 21 L57 22" stroke="#1E293B" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <!-- Yeux plissés rieurs -->
+      <path d="M43 28 Q45 25 L47 28" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
+      <path d="M53 28 Q55 25 L57 28" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none" />
+      <!-- Blush -->
+      <ellipse cx="41" cy="31" rx="2.5" ry="1.5" fill="#FDA4AF" opacity="0.7" />
+      <ellipse cx="59" cy="31" rx="2.5" ry="1.5" fill="#FDA4AF" opacity="0.7" />
+      <!-- Bouche riante -->
+      <path d="M47 32 Q50 37 L53 32" fill="#EF4444" />
+    
+  </svg>

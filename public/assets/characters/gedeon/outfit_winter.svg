@@ -1,0 +1,9 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <!-- Bonnet de laine -->
+      <path d="M 33 26 C 33 7 67 7 67 26 Z" fill="#EF4444" />
+      <rect x="31" y="24" width="38" height="5" fill="#FFFFFF" rx="2" />
+      <circle cx="50" cy="9" r="4" fill="#FFFFFF" />
+      <!-- Écharpe enroulée autour du cou -->
+      <rect x="32" y="44" width="36" height="6" fill="#EF4444" rx="2" />
+      <path d="M 60 47 v 14" stroke="#EF4444" stroke-width="6" stroke-linecap="round" />
+    </svg>
