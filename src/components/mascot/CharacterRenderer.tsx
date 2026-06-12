@@ -2,6 +2,17 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
+
+// Import dynamique du rendu Rive sans SSR (car Rive utilise WASM/Canvas)
+const RiveRenderer = dynamic(() => import("./RiveRenderer"), {
+  ssr: false,
+});
+
+// Liste des personnages pour lesquels l'animation Rive (.riv) est activée.
+// Permet d'éviter le flash/chargement d'un fichier inexistant.
+// Pour basculer un personnage sur Rive, ajoutez son identifiant en minuscules ici (ex: "manny").
+const RIVE_ENABLED_CHARACTERS: string[] = [];
 
 // Types des états supportés par notre mascotte (style Duolingo)
 export type MascotState =
@@ -32,15 +43,20 @@ export default function CharacterRenderer({
   className = "",
 }: CharacterRendererProps) {
   const [loadError, setLoadError] = useState(false);
+  const [useFallback, setUseFallback] = useState(false);
 
   // Formater les identifiants pour correspondre à nos dossiers
   const charId = characterId.toLowerCase();
   const basePath = `/assets/characters/${charId}`;
 
+  // Détecter si Rive est activé pour ce personnage et qu'on ne souhaite pas de fallback immédiat
+  const isRiveEnabled = RIVE_ENABLED_CHARACTERS.includes(charId) && !useFallback;
+
   // 1. Si un état sémantique Duolingo est fourni, il surcharge les poses/expressions/tenues
   let finalPose = pose;
   let finalExpression = expression;
   let finalOutfit = outfit;
+  const finalState = state || "DEFAULT";
 
   if (state) {
     switch (state) {
@@ -78,7 +94,7 @@ export default function CharacterRenderer({
     }
   }
 
-  // 2. Définir des animations physiques selon la pose
+  // 2. Définir des animations physiques selon la pose (uniquement pour le rendu SVG)
   const getAnimationProps = () => {
     switch (finalPose) {
       case "jumping":
@@ -149,6 +165,23 @@ export default function CharacterRenderer({
     );
   }
 
+  // Rendu Rive si activé
+  if (isRiveEnabled) {
+    return (
+      <RiveRenderer
+        characterId={charId}
+        pose={finalPose}
+        expression={finalExpression}
+        outfit={finalOutfit}
+        state={finalState}
+        size={size}
+        className={className}
+        onFallback={() => setUseFallback(true)}
+      />
+    );
+  }
+
+  // Rendu SVG Multicouche classique (Fallback)
   return (
     <motion.div
       className={`relative select-none pointer-events-none flex items-center justify-center ${className}`}
@@ -181,3 +214,4 @@ export default function CharacterRenderer({
     </motion.div>
   );
 }
+
