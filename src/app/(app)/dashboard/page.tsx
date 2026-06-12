@@ -10,7 +10,8 @@ import StreakCounter from "@/components/gamification/StreakCounter";
 import BadgeCard from "@/components/gamification/BadgeCard";
 import LingotsCounter from "@/components/gamification/LingotsCounter";
 import PushOptIn from "@/components/notifications/PushOptIn";
-import { BookOpen, Play, CheckCircle } from "lucide-react";
+import GameMap from "@/components/dashboard/GameMap";
+import { BookOpen } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -159,122 +160,102 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto">
-      <section className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row items-center gap-6 justify-between">
-        <div className="space-y-2">
-          <h2 className="text-3xl font-black text-slate-800 tracking-tight">
-            Bonjour, <span className="text-indigo-600">{userName}</span> !
-          </h2>
-          <p className="text-slate-500 font-medium">
-            Prêt à nourrir ton âme aujourd'hui ? Chaque pas de foi compte.
-          </p>
-        </div>
-      </section>
-
-      {/* COMPTEUR DE LINGOTS ET STREAK FREEZE */}
-      <LingotsCounter initialLingots={lingots} initialFreezes={freezesAvailable} />
-
-      {/* COMPOSANT D'OPT-IN PUSH */}
-      <PushOptIn vapidPublicKey={process.env.VAPID_PUBLIC_KEY || ""} />
-
-      <section className="flex justify-center md:justify-start">
-        <RandomMascotMessage
-          userName={userName}
-          streakCount={currentStreak}
-          dayProgress={dayProgress}
-          inactivityDays={inactivityDays}
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto p-2 sm:p-4">
+      {/* COLONNE DE GAUCHE : LA CARTE DU PARCOURS DE JEU COMPLÈTE */}
+      <div className="lg:col-span-2 space-y-6">
+        <GameMap 
+          currentXP={totalXP} 
+          userName={userName} 
+          dailyVerse={dailyVerse} 
         />
-      </section>
+      </div>
 
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
-          <XPBar
-            currentXP={totalXP}
-            levelName={levelName}
-            progressPercent={progressPercent}
+      {/* COLONNE DE DROITE : LE PANNEAU DE STATISTIQUES & DE BOUTIQUE */}
+      <div className="space-y-6">
+        {/* COMPTEUR DE LINGOTS ET STREAK FREEZE */}
+        <LingotsCounter initialLingots={lingots} initialFreezes={freezesAvailable} />
+
+        {/* COMPTEUR DE STREAK (SÉRIE DE JOURS DYNAMIQUE) */}
+        <StreakCounter
+          currentStreak={currentStreak}
+          longestStreak={longestStreak}
+        />
+
+        {/* BARRE D'XP ET NIVEAU ACTUEL */}
+        <XPBar
+          currentXP={totalXP}
+          levelName={levelName}
+          progressPercent={progressPercent}
+        />
+
+        {/* COMPOSANT D'OPT-IN PUSH NOTIFICATIONS */}
+        <PushOptIn vapidPublicKey={process.env.VAPID_PUBLIC_KEY || ""} />
+
+        {/* MESSAGE D'ACCUEIL ALÉATOIRE D'UNE MASCOTTE */}
+        <div className="flex justify-center w-full">
+          <RandomMascotMessage
+            userName={userName}
+            streakCount={currentStreak}
+            dayProgress={dayProgress}
+            inactivityDays={inactivityDays}
           />
         </div>
-        <div>
-          <StreakCounter
-            currentStreak={currentStreak}
-            longestStreak={longestStreak}
-          />
-        </div>
-      </section>
 
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 bg-gradient-to-br from-indigo-900 to-indigo-950 text-white p-8 rounded-3xl shadow-xl flex flex-col justify-between relative overflow-hidden">
-          <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-12 translate-y-12">
-            <BookOpen className="w-64 h-64" />
+        {/* LE VERSET DU JOUR (FORMAT EMBARQUÉ PREMIUM) */}
+        <div className="bg-gradient-to-br from-indigo-900 to-indigo-950 text-white p-6 rounded-2xl shadow-xl flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-8 translate-y-8">
+            <BookOpen className="w-48 h-48" />
           </div>
 
-          <div className="space-y-4 relative z-10">
-            <div className="inline-block px-3.5 py-1 bg-indigo-800/80 rounded-full border border-indigo-700/60 text-xs font-bold uppercase tracking-wider text-indigo-200">
+          <div className="space-y-3 relative z-10">
+            <div className="inline-block px-3 py-0.5 bg-indigo-800/80 rounded-full border border-indigo-700/60 text-[10px] font-bold uppercase tracking-wider text-indigo-200">
               Verset du jour (Thème : {dailyVerse.theme})
             </div>
-            <blockquote className="text-2xl font-black leading-snug tracking-tight italic">
+            <blockquote className="text-lg font-black leading-snug tracking-tight italic">
               « {dailyVerse.text} »
             </blockquote>
-            <cite className="block text-sm font-bold text-indigo-300 not-italic uppercase tracking-widest">
+            <cite className="block text-xs font-bold text-indigo-300 not-italic uppercase tracking-widest">
               — {dailyVerse.reference}
             </cite>
           </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 mt-8 relative z-10">
-            <Link
-              href="/meditate"
-              className="flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 font-extrabold rounded-xl shadow-lg hover:from-amber-300 hover:to-amber-400 hover:shadow-xl transition-all hover:-translate-y-0.5 active:translate-y-0"
-            >
-              <Play className="w-5 h-5 fill-slate-900" />
-              Méditer maintenant
-            </Link>
-            <Link
-              href="/proclaim"
-              className="flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-800 text-white font-extrabold rounded-xl border border-indigo-700 hover:bg-indigo-750 transition-all hover:-translate-y-0.5 active:translate-y-0"
-            >
-              <CheckCircle className="w-5 h-5 text-indigo-300" />
-              Faire mes proclamations
-            </Link>
-          </div>
         </div>
 
+        {/* STATISTIQUES GLOBALES SPIRITUELLES */}
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
-          <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Statistiques</h3>
-          <div className="space-y-4 flex-1 flex flex-col justify-center">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <span className="text-slate-500 font-medium text-sm">Sessions totales</span>
-              <span className="text-slate-800 font-black text-lg">{sessionsTotal}</span>
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Statistiques</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <span className="text-slate-500 font-medium text-xs">Sessions de méditation</span>
+              <span className="text-slate-800 font-black text-sm">{sessionsTotal}</span>
             </div>
-            <div className="flex items-center justify-between pt-1">
-              <span className="text-slate-500 font-medium text-sm">Versets mémorisés</span>
-              <span className="text-slate-800 font-black text-lg">{versesLearned}</span>
+            <div className="flex items-center justify-between pb-1">
+              <span className="text-slate-500 font-medium text-xs">Versets mémorisés</span>
+              <span className="text-slate-800 font-black text-sm">{versesLearned}</span>
             </div>
-          </div>
-          <div className="text-[11px] font-bold text-indigo-600 bg-indigo-50/50 p-2.5 rounded-lg border border-indigo-100/30 text-center mt-4">
-            Reste persévérant dans l'étude ! 🌟
           </div>
         </div>
-      </section>
 
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xl font-black text-slate-800 tracking-tight">Mes badges spirituels</h3>
-          <span className="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
-            {badges.length} / {defaultBadges.length} obtenus
-          </span>
+        {/* BADGES SPIRITUELS */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-extrabold text-slate-800 tracking-tight">Mes badges spirituels</h3>
+            <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+              {badges.length} / {defaultBadges.length}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 gap-3">
+            {badgesToDisplay.map((badge, index) => (
+              <BadgeCard
+                key={index}
+                name={badge.name}
+                description={badge.description}
+                icon={badge.icon}
+                earnedAt={badge.earnedAt}
+              />
+            ))}
+          </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {badgesToDisplay.map((badge, index) => (
-            <BadgeCard
-              key={index}
-              name={badge.name}
-              description={badge.description}
-              icon={badge.icon}
-              earnedAt={badge.earnedAt}
-            />
-          ))}
-        </div>
-      </section>
+      </div>
     </div>
   );
 }
