@@ -35,6 +35,10 @@ export default function Samson({ mood, size = 170, className = "" }: SamsonProps
       pose = "idle";
       expression = "neutral";
       break;
+    case "sad":
+      pose = "sad";
+      expression = "crying";
+      break;
     case "happy":
     default:
       pose = "idle";

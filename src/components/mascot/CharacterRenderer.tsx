@@ -103,36 +103,38 @@ export default function CharacterRenderer({
     }
   }
 
-  // 2. Définir des animations physiques style Duolingo (Framer Motion)
+  // 2. Définir des animations physiques style Duolingo (Framer Motion avec déformation élastique/Warping)
   const getAnimationProps = () => {
     switch (finalPose) {
       case "jumping":
         return {
           animate: {
-            y: [0, 4, -28, -2, 0],
-            scaleY: [1, 0.88, 1.08, 0.92, 1],
-            scaleX: [1, 1.06, 0.94, 1.04, 1],
-            rotate: [0, -2, 3, -1, 0],
+            y: [0, 5, -30, -3, 0],
+            scaleY: [1, 0.82, 1.12, 0.90, 1],
+            scaleX: [1, 1.14, 0.90, 1.08, 1],
+            skewX: [0, -3, 3, -1, 0],
+            rotate: [0, -4, 4, -1, 0],
           },
           style: { originY: 1 },
           transition: {
-            duration: 0.95,
+            duration: 1.0,
             repeat: Infinity,
             ease: "easeInOut" as const,
-            times: [0, 0.15, 0.5, 0.8, 1],
+            times: [0, 0.15, 0.48, 0.78, 1],
           },
         };
       case "running":
         return {
           animate: {
-            y: [0, -7, 0, -7, 0],
-            rotate: [-3, 3, -3, 3, -3],
-            scaleY: [1, 1.03, 0.98, 1.03, 1],
-            scaleX: [1, 0.97, 1.02, 0.97, 1],
+            y: [0, -8, 0, -8, 0],
+            scaleY: [1, 1.04, 0.95, 1.04, 1],
+            scaleX: [1, 0.95, 1.04, 0.95, 1],
+            skewX: [-4, 4, -4, 4, -4],
+            rotate: [-5, 5, -5, 5, -5],
           },
           style: { originY: 1 },
           transition: {
-            duration: 0.5,
+            duration: 0.55,
             repeat: Infinity,
             ease: "linear" as const,
           },
@@ -140,14 +142,15 @@ export default function CharacterRenderer({
       case "sad":
         return {
           animate: {
-            y: [0, 3, 0],
-            scaleY: [1, 0.96, 1],
-            scaleX: [1, 1.01, 1],
-            rotate: [-1, 1, -1],
+            y: [0, 4, 0],
+            scaleY: [1, 0.95, 1.01, 1],
+            scaleX: [1, 1.02, 0.99, 1],
+            skewX: [0.8, -0.8, 0.8],
+            rotate: [-1.5, 0.5, -1.5],
           },
           style: { originY: 1 },
           transition: {
-            duration: 2.8,
+            duration: 3.0,
             repeat: Infinity,
             ease: "easeInOut" as const,
           },
@@ -156,14 +159,15 @@ export default function CharacterRenderer({
       default:
         return {
           animate: {
-            y: [0, -4, 0],
-            scaleY: [1, 1.03, 1],
-            scaleX: [1, 0.98, 1],
-            rotate: [-0.6, 0.6, -0.6],
+            y: [0, -5, 0],
+            scaleY: [1, 1.04, 0.98, 1],
+            scaleX: [1, 0.97, 1.02, 1],
+            skewX: [-1.2, 1.2, -1.2],
+            rotate: [-0.8, 0.8, -0.8],
           },
           style: { originY: 1 },
           transition: {
-            duration: 3.2,
+            duration: 3.5,
             repeat: Infinity,
             ease: "easeInOut" as const,
           },

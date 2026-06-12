@@ -35,6 +35,10 @@ export default function Esther({ mood, size = 170, className = "" }: EstherProps
       pose = "idle";
       expression = "neutral";
       break;
+    case "sad":
+      pose = "sad";
+      expression = "crying";
+      break;
     case "happy":
     default:
       pose = "idle";

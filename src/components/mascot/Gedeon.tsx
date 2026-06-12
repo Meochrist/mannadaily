@@ -35,6 +35,10 @@ export default function Gedeon({ mood, size = 170, className = "" }: GedeonProps
       pose = "idle";
       expression = "neutral";
       break;
+    case "sad":
+      pose = "sad";
+      expression = "crying";
+      break;
     case "happy":
     default:
       pose = "idle";

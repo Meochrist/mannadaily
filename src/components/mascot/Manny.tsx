@@ -37,6 +37,10 @@ export default function Manny({ mood, size = 170, className = "" }: MannyProps) 
       pose = "idle";
       expression = "neutral";
       break;
+    case "sad":
+      pose = "sad";
+      expression = "crying";
+      break;
     case "happy":
     default:
       pose = "idle";

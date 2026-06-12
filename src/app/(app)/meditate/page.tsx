@@ -1057,7 +1057,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-150 flex flex-col items-center text-center space-y-6"
             >
-              <Manny mood="encouraging" size={175} />
+              <Manny mood="sad" size={175} />
               
               <div className="space-y-2">
                 <h3 className="text-xl font-black text-slate-800">

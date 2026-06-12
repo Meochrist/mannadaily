@@ -62,6 +62,10 @@ export default function MascotMessage({
         pose = "idle";
         expression = "neutral";
         break;
+      case "sad":
+        pose = "sad";
+        expression = "crying";
+        break;
       case "happy":
       default:
         pose = "idle";
