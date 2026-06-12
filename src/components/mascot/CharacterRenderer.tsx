@@ -22,64 +22,6 @@ interface CharacterRendererProps {
   className?: string;
 }
 
-/**
- * Fonction générique pour générer l'URL SVG DiceBear (style adventurer)
- * en fonction d'un personnage (seed) et d'un état enrichi (sport, météo, nuit, urgence).
- */
-export function getMascotUrl(characterSeed: string, state: string): string {
-  const seed = encodeURIComponent(characterSeed.toLowerCase());
-  const baseUrl = `https://api.dicebear.com/9.x/adventurer/svg?seed=${seed}`;
-
-  let params = "";
-
-  switch (state.toUpperCase()) {
-    case "SPORT":
-      // eyes: 'determinated' (variant18) ou 'squint' (variant14)
-      // mouth: 'smile' (variant01)
-      // headband/glasses: glasses=variant02, glassesProbability=100 (lunettes sportives)
-      params = "&eyes=variant18&mouth=variant01&glasses=variant02&glassesProbability=100&features=blush";
-      break;
-
-    case "WEATHER_HOT":
-      // features: 'sunglasses' (glasses=variant05, glassesProbability=100)
-      // mouth: 'openSmile' (variant02)
-      // backgroundColor: orange sable estival (fdba74)
-      params = "&eyes=variant08&mouth=variant02&glasses=variant05&glassesProbability=100&backgroundColor=fdba74&features=blush";
-      break;
-
-    case "WEATHER_COLD":
-      // features: 'shades' (glasses=variant03, glassesProbability=100)
-      // eyes: 'glance' (variant16)
-      // backgroundColor: bleu neige hivernal (93c5fd)
-      params = "&eyes=variant16&mouth=variant11&glasses=variant03&glassesProbability=100&backgroundColor=93c5fd&features=blush";
-      break;
-
-    case "NIGHT_MODE":
-      // eyes: 'sleepy' (variant11) ou 'wink' (variant23)
-      // mouth: 'subtleSmile' (variant08)
-      // backgroundColor: bleu nuit indigo-950 (1e1b4b)
-      params = "&eyes=variant11&mouth=variant08&backgroundColor=1e1b4b&features=blush";
-      break;
-
-    case "CRITICAL_STREAK":
-      // eyes: 'cry' (variant12) ou 'shattered' (variant24)
-      // mouth: 'sad' (variant04) ou 'vampire' (variant28)
-      // backgroundColor: rouge détresse/panique (fecaca)
-      params = "&eyes=variant12&mouth=variant04&backgroundColor=fecaca&features=blush";
-      break;
-
-    case "DEFAULT":
-    default:
-      // eyes: normal (variant08)
-      // mouth: smile (variant05)
-      // backgroundColor: bleu doux (b6e3f4)
-      params = "&eyes=variant08&mouth=variant05&backgroundColor=b6e3f4&features=blush";
-      break;
-  }
-
-  return `${baseUrl}${params}`;
-}
-
 export default function CharacterRenderer({
   characterId,
   pose = "idle",
@@ -91,24 +33,54 @@ export default function CharacterRenderer({
 }: CharacterRendererProps) {
   const [loadError, setLoadError] = useState(false);
 
-  // 1. Déduire l'état sémantique par défaut à partir des anciens paramètres (rétrocompatibilité)
-  let computedState: MascotState = "DEFAULT";
-  if (pose === "running") {
-    computedState = "SPORT";
-  } else if (expression === "crying" || pose === "sad") {
-    computedState = "CRITICAL_STREAK";
-  } else if (expression === "sweating" || outfit === "beach") {
-    computedState = "WEATHER_HOT";
-  } else if (outfit === "winter") {
-    computedState = "WEATHER_COLD";
-  }
+  // Formater les identifiants pour correspondre à nos dossiers
+  const charId = characterId.toLowerCase();
+  const basePath = `/assets/characters/${charId}`;
 
-  const finalState = state || computedState;
-  const avatarUrl = getMascotUrl(characterId, finalState);
+  // 1. Si un état sémantique Duolingo est fourni, il surcharge les poses/expressions/tenues
+  let finalPose = pose;
+  let finalExpression = expression;
+  let finalOutfit = outfit;
+
+  if (state) {
+    switch (state) {
+      case "SPORT":
+        finalPose = "running";
+        finalExpression = "happy";
+        finalOutfit = "default";
+        break;
+      case "WEATHER_HOT":
+        finalPose = "idle";
+        finalExpression = "sweating";
+        finalOutfit = "beach";
+        break;
+      case "WEATHER_COLD":
+        finalPose = "idle";
+        finalExpression = "neutral";
+        finalOutfit = "winter";
+        break;
+      case "NIGHT_MODE":
+        finalPose = "idle";
+        finalExpression = "neutral";
+        finalOutfit = "winter"; // Pyjama/tenue chaude pour la nuit
+        break;
+      case "CRITICAL_STREAK":
+        finalPose = "sad";
+        finalExpression = "crying";
+        finalOutfit = "default";
+        break;
+      case "DEFAULT":
+      default:
+        finalPose = "idle";
+        finalExpression = "neutral";
+        finalOutfit = "default";
+        break;
+    }
+  }
 
   // 2. Définir des animations physiques selon la pose
   const getAnimationProps = () => {
-    switch (pose) {
+    switch (finalPose) {
       case "jumping":
         return {
           animate: {
@@ -168,10 +140,10 @@ export default function CharacterRenderer({
         className={`flex flex-col items-center justify-center rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-700 font-extrabold text-xs text-center p-3 ${className}`}
         style={{ width: size, height: size }}
       >
-        <span className="text-2xl mb-1">🎭</span>
+        <span className="text-2xl mb-1">📖</span>
         <span className="capitalize">{characterId}</span>
         <span className="text-[10px] text-indigo-400 font-medium uppercase mt-1">
-          {finalState}
+          {finalPose} - {finalExpression}
         </span>
       </div>
     );
@@ -183,12 +155,29 @@ export default function CharacterRenderer({
       style={{ width: size, height: size }}
       {...getAnimationProps()}
     >
+      {/* 1. Couche du corps / de la pose (Full Body) */}
       <img
-        src={avatarUrl}
-        alt={`${characterId} mascot (${finalState})`}
+        src={`${basePath}/pose_${finalPose}.svg`}
+        alt={`${characterId} body (${finalPose})`}
         onError={() => setLoadError(true)}
-        className="w-full h-full object-contain rounded-2xl transition-all duration-300 ease-in-out"
+        className="absolute inset-0 w-full h-full object-contain z-10 transition-all duration-300 ease-in-out"
       />
+
+      {/* 2. Couche du visage / de l'expression */}
+      <img
+        src={`${basePath}/expression_${finalExpression}.svg`}
+        alt={`${characterId} face (${finalExpression})`}
+        className="absolute inset-0 w-full h-full object-contain z-20 transition-all duration-300 ease-in-out"
+      />
+
+      {/* 3. Couche de la tenue / de l'outfit (si non default) */}
+      {finalOutfit !== "default" && (
+        <img
+          src={`${basePath}/outfit_${finalOutfit}.svg`}
+          alt={`${characterId} outfit (${finalOutfit})`}
+          className="absolute inset-0 w-full h-full object-contain z-30 transition-all duration-300 ease-in-out"
+        />
+      )}
     </motion.div>
   );
 }

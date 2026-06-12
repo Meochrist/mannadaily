@@ -1,7 +1,14 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-        <path d="M185 255 Q200 275 215 255" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
-        <path d="M285 255 Q300 275 315 255" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
-        <path d="M230 290 Q250 275 270 290" stroke="#1E293B" stroke-width="10" stroke-linecap="round" fill="none" />
-        <path d="M195 260 v60" stroke="#3B82F6" stroke-width="12.5" stroke-linecap="round" />
-        <path d="M305 260 v60" stroke="#3B82F6" stroke-width="12.5" stroke-linecap="round" />
-      </svg>
+  <g id="eyes">
+    <!-- Yeux tristes serrés -->
+    <path d="M185 225 Q205 240 225 225" stroke="#1E293B" stroke-width="8" stroke-linecap="round" fill="none" />
+    <path d="M275 225 Q295 240 315 225" stroke="#1E293B" stroke-width="8" stroke-linecap="round" fill="none" />
+  </g>
+
+  <!-- Bouche tremblante triste -->
+  <path d="M232 265 Q250 252 268 265" stroke="#1E293B" stroke-width="8" stroke-linecap="round" fill="none" />
+
+  <!-- Larmes qui coulent (grandes gouttes bleues plates) -->
+  <path d="M195 235 v45 c0 8, 12 8, 12 0 v-45z" fill="#60A5FA" />
+  <path d="M293 235 v45 c0 8, 12 8, 12 0 v-45z" fill="#60A5FA" />
+</svg>

@@ -1,14 +1,25 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-        <!-- Couverture inclinée course -->
-        <rect x="115" y="130" width="270" height="220" rx="30" fill="#4F46E5" transform="skewX(-10) rotate(-2 250 240)" />
-        <!-- Pages blanches -->
-        <path d="M130 140 h110 v190 h-110 z M260 140 h110 v190 h-110 z" fill="#FFFFFF" transform="skewX(-10) rotate(-2 250 240)" />
-        <!-- Tranche -->
-        <rect x="240" y="135" width="20" height="210" rx="5" fill="#F1F5F9" transform="skewX(-10) rotate(-2 250 240)" />
-        <!-- Bras de course -->
-        <path d="M70 210 Q100 240 80 280" stroke="#64748B" stroke-width="25" stroke-linecap="round" fill="none" />
-        <path d="M430 210 Q400 240 420 280" stroke="#64748B" stroke-width="25" stroke-linecap="round" fill="none" />
-        <!-- Jambes de course actives -->
-        <path d="M175 350 Q150 400 200 420" stroke="#64748B" stroke-width="25" stroke-linecap="round" fill="none" />
-        <path d="M275 350 Q325 375 300 420" stroke="#64748B" stroke-width="25" stroke-linecap="round" fill="none" />
-      </svg>
+  <!-- Ombre inclinée étirée -->
+  <ellipse cx="230" cy="450" rx="80" ry="10" fill="#E2E8F0" transform="skewX(-15 230 450)" />
+  <g id="legs">
+    <!-- Jambe course arrière -->
+    <path d="M190 350 Q150 400, 180 420" fill="none" stroke="#64748B" stroke-width="16" stroke-linecap="round" />
+    <path d="M160 415 h35 c8 0, 8 16, 0 16 h-35 c-8 0, -8 -16, 0 -16z" fill="#FBBF24" transform="rotate(-10 160 415)" />
+    <!-- Jambe course avant -->
+    <path d="M290 350 Q330 380, 310 425" fill="none" stroke="#64748B" stroke-width="16" stroke-linecap="round" />
+    <path d="M295 420 h35 c8 0, 8 16, 0 16 h-35 c-8 0, -8 -16, 0 -16z" fill="#FBBF24" transform="rotate(15 295 420)" />
+  </g>
+  <g id="arms">
+    <path d="M130 240 Q95 270, 115 300" fill="none" stroke="#64748B" stroke-width="16" stroke-linecap="round" />
+    <path d="M360 230 Q395 210, 370 175" fill="none" stroke="#64748B" stroke-width="16" stroke-linecap="round" />
+  </g>
+  <!-- Livre incliné course -->
+  <g id="book-body" transform="translate(-10, 5) skewX(-8) rotate(-2 250 230)">
+    <rect x="135" y="115" width="230" height="250" rx="35" fill="#3730A3" />
+    <rect x="140" y="110" width="220" height="240" rx="32" fill="#4F46E5" />
+    <path d="M140 110 v240 c0 17.67 14.33 32 32 32 h18 v-304 h-18 c-17.67 0 -32 14.33 -32 32z" fill="#3730A3" />
+    <path d="M360 135 h12 v190 h-12z" fill="#FFFFFF" />
+    <path d="M372 145 h4 v170 h-4z" fill="#E2E8F0" />
+    <path d="M185 350 c40 8, 120 8, 175 0 v10 c-55 8, -135 8, -175 0z" fill="#FFFFFF" />
+  </g>
+</svg>

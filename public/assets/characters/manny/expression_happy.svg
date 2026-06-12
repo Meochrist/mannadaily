@@ -1,7 +1,20 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-        <path d="M185 245 Q200 225 215 245" stroke="#1E293B" stroke-width="12.5" stroke-linecap="round" fill="none" />
-        <path d="M285 245 Q300 225 315 245" stroke="#1E293B" stroke-width="12.5" stroke-linecap="round" fill="none" />
-        <ellipse cx="180" cy="260" rx="11" ry="6" fill="#FDA4AF" opacity="0.6" />
-        <ellipse cx="320" cy="260" rx="11" ry="6" fill="#FDA4AF" opacity="0.6" />
-        <path d="M225 265 Q250 310 275 265" fill="#EF4444" />
-      </svg>
+  <g id="eyes">
+    <!-- Yeux pliés de bonheur intense (arcs épais orientés vers le haut) -->
+    <path d="M185 220 Q205 195 225 220" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+    <path d="M275 220 Q295 195 315 220" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+  </g>
+
+  <g id="blush">
+    <ellipse cx="170" cy="250" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
+    <ellipse cx="330" cy="250" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
+  </g>
+
+  <!-- Bouche ouverte riante avec langue rose (Flat Design 2.0) -->
+  <g id="mouth">
+    <!-- Fond de la bouche -->
+    <path d="M230 245 Q250 285 270 245 Z" fill="#EF4444" stroke="#1E293B" stroke-width="7" stroke-linejoin="round" />
+    <!-- Langue rose imbriquée de façon nette -->
+    <path d="M240 265 Q250 252 260 265 Q250 278 240 265" fill="#F472B6" />
+  </g>
+</svg>
