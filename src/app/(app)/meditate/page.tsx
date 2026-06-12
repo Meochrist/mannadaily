@@ -114,7 +114,24 @@ export default function MeditatePage() {
 
   // Charger le profil utilisateur, initialiser le verset et son contexte
   useEffect(() => {
-    const verse = getDailyVerse();
+    // Lire d'abord les query parameters de l'URL pour voir si un verset spécifique a été passé
+    const urlParams = new URLSearchParams(window.location.search);
+    const textParam = urlParams.get("text");
+    const refParam = urlParams.get("reference");
+    const themeParam = urlParams.get("theme");
+
+    let verse: DailyVerseType;
+
+    if (textParam && refParam && themeParam) {
+      verse = {
+        text: decodeURIComponent(textParam),
+        reference: decodeURIComponent(refParam),
+        theme: decodeURIComponent(themeParam)
+      };
+    } else {
+      verse = getDailyVerse();
+    }
+
     setDailyVerse(verse);
     setBibleContext(getVerseContext(verse.reference));
 
@@ -332,6 +349,26 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
 
       setSessionResult(data);
       sounds.playSuccess();
+
+      // Sauvegarder la progression locale par chemin
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pathIdParam = urlParams.get("pathId");
+        const levelParam = urlParams.get("level");
+        if (pathIdParam && levelParam) {
+          const currentPathId = pathIdParam;
+          const currentLevel = parseInt(levelParam, 10);
+          const saved = localStorage.getItem("mannadaily_path_progress");
+          const progress = saved ? JSON.parse(saved) : {};
+          const currentMax = progress[currentPathId] || 1;
+          if (currentLevel === currentMax && currentMax < 30) {
+            progress[currentPathId] = currentMax + 1;
+            localStorage.setItem("mannadaily_path_progress", JSON.stringify(progress));
+          }
+        }
+      } catch (err) {
+        console.error("Failed to update local path progress:", err);
+      }
       
       if (data.leveledUp) {
         sounds.playLevelUp();

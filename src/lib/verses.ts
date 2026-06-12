@@ -564,3 +564,118 @@ export function getVerseContext(verseRef: string) {
   
   return { before, after };
 }
+
+export interface PathConfig {
+  id: string;
+  name: string;
+  description: string;
+  type: "thematic" | "book";
+  emoji: string;
+  color: string;
+  colorDark: string;
+}
+
+export const PATHS: PathConfig[] = [
+  { id: "foi", name: "Foi et Confiance", description: "Développe une foi inébranlable et une confiance totale en Dieu.", type: "thematic", emoji: "🌱", color: "#10B981", colorDark: "#047857" },
+  { id: "paix", name: "Paix et Réconfort", description: "Trouve le repos spirituel et calme tes inquiétudes.", type: "thematic", emoji: "🕊️", color: "#06B6D4", colorDark: "#0891B2" },
+  { id: "joie", name: "Joie et Allégresse", description: "Remplis ton cœur de reconnaissance et célèbre Sa bonté.", type: "thematic", emoji: "☀️", color: "#F59E0B", colorDark: "#B45309" },
+  { id: "amour", name: "Amour et Communion", description: "Explore la profondeur de l'amour de Dieu et des relations fraternelles.", type: "thematic", emoji: "❤️", color: "#EC4899", colorDark: "#BE185D" },
+  { id: "sagesse", name: "Sagesse et Discernement", description: "Acquiers de l'intelligence pour faire des choix qui honorent Dieu.", type: "thematic", emoji: "🦉", color: "#8B5CF6", colorDark: "#6D28D9" },
+  { id: "esperance", name: "Espérance et Avenir", description: "Ancre ton âme dans la promesse d'un avenir radieux en Christ.", type: "thematic", emoji: "⚓", color: "#3B82F6", colorDark: "#1D4ED8" },
+  { id: "force", name: "Force et Courage", description: "Fortifie-toi dans les épreuves et combats le bon combat.", type: "thematic", emoji: "💪", color: "#EF4444", colorDark: "#B91C1C" },
+  { id: "grace", name: "Grâce et Rédemption", description: "Accueille le pardon divin et vis libéré du passé.", type: "thematic", emoji: "🎁", color: "#14B8A6", colorDark: "#0F766E" },
+  { id: "priere", name: "Prière et Exaucement", description: "Établis une communication vivante et intime avec ton Créateur.", type: "thematic", emoji: "🙏", color: "#6366F1", colorDark: "#4338CA" },
+  { id: "guidance", name: "Guidance et Protection", description: "Laisse le Saint-Esprit diriger tes pas sous Sa garde.", type: "thematic", emoji: "🧭", color: "#64748B", colorDark: "#475569" },
+  
+  // Livres de la Bible
+  { id: "psaumes", name: "Les Psaumes", description: "Médite les plus belles prières et chants de louange de la Bible.", type: "book", emoji: "🎵", color: "#A855F7", colorDark: "#7E22CE" },
+  { id: "proverbes", name: "Les Proverbes", description: "Des conseils de sagesse pratique pour chaque jour.", type: "book", emoji: "🧠", color: "#F97316", colorDark: "#C2410C" },
+  { id: "evangiles", name: "Les Évangiles", description: "Marche avec Jésus à travers les récits de Matthieu, Marc, Luc et Jean.", type: "book", emoji: "✝️", color: "#22C55E", colorDark: "#15803D" },
+  { id: "epitres", name: "Les Épîtres", description: "Des lettres inspirées pour faire grandir ton caractère chrétien.", type: "book", emoji: "✉️", color: "#3B82F6", colorDark: "#1D4ED8" }
+];
+
+export function getVersesForPath(pathId: string): Verse[] {
+  let filtered: Verse[] = [];
+  
+  switch (pathId) {
+    case "foi":
+      filtered = verses.filter(v => v.theme === "Foi");
+      break;
+    case "paix":
+      filtered = verses.filter(v => v.theme === "Paix");
+      break;
+    case "joie":
+      filtered = verses.filter(v => v.theme === "Joie");
+      break;
+    case "amour":
+      filtered = verses.filter(v => v.theme === "Amour");
+      break;
+    case "sagesse":
+      filtered = verses.filter(v => v.theme === "Sagesse");
+      break;
+    case "esperance":
+      filtered = verses.filter(v => v.theme === "Espérance");
+      break;
+    case "force":
+      filtered = verses.filter(v => v.theme === "Force");
+      break;
+    case "grace":
+      filtered = verses.filter(v => v.theme === "Grâce");
+      break;
+    case "priere":
+      filtered = verses.filter(v => v.theme === "Prière");
+      break;
+    case "guidance":
+      filtered = verses.filter(v => v.theme === "Guidance");
+      break;
+    case "psaumes":
+      filtered = verses.filter(v => v.reference.startsWith("Psaumes"));
+      break;
+    case "proverbes":
+      filtered = verses.filter(v => v.reference.startsWith("Proverbes"));
+      break;
+    case "evangiles":
+      filtered = verses.filter(v => 
+        v.reference.startsWith("Matthieu") || 
+        v.reference.startsWith("Marc") || 
+        v.reference.startsWith("Luc") || 
+        v.reference.startsWith("Jean")
+      );
+      break;
+    case "epitres":
+      filtered = verses.filter(v => 
+        v.reference.startsWith("Romains") || 
+        v.reference.startsWith("1 Corinthiens") || 
+        v.reference.startsWith("2 Corinthiens") || 
+        v.reference.startsWith("Galates") || 
+        v.reference.startsWith("Éphésiens") || 
+        v.reference.startsWith("Philippiens") || 
+        v.reference.startsWith("Colossiens") || 
+        v.reference.startsWith("1 Thessaloniciens") || 
+        v.reference.startsWith("2 Thessaloniciens") || 
+        v.reference.startsWith("1 Timothée") || 
+        v.reference.startsWith("2 Timothée") || 
+        v.reference.startsWith("Tite") || 
+        v.reference.startsWith("Philémon") || 
+        v.reference.startsWith("Hébreux") || 
+        v.reference.startsWith("Jacques") ||
+        v.reference.startsWith("1 Pierre") ||
+        v.reference.startsWith("2 Pierre") ||
+        v.reference.startsWith("1 Jean") ||
+        v.reference.startsWith("2 Jean") ||
+        v.reference.startsWith("3 Jean") ||
+        v.reference.startsWith("Jude")
+      );
+      break;
+    default:
+      filtered = verses;
+  }
+  
+  // Si le nombre est insuffisant, compléter par les versets globaux
+  if (filtered.length < 30) {
+    const extra = verses.filter(v => !filtered.some(fv => fv.reference === v.reference));
+    filtered = [...filtered, ...extra];
+  }
+  
+  return filtered.slice(0, 30);
+}

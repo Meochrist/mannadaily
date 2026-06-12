@@ -20,7 +20,7 @@ import {
 import { getMannyMessage } from "@/lib/mannyMessages";
 import * as sounds from "@/lib/sounds";
 
-const proclamationVerses = [
+const DEFAULT_PROCLAMATION_VERSES = [
   {
     text: "Par ses meurtrissures, nous sommes guéris.",
     reference: "Ésaïe 53:5",
@@ -59,6 +59,7 @@ interface SessionResult {
 
 export default function ProclaimPage() {
   const [phase, setPhase] = useState<1 | 2 | 3>(1);
+  const [verses, setVerses] = useState(DEFAULT_PROCLAMATION_VERSES);
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
   const [isRunning, setIsRunning] = useState(true);
@@ -80,6 +81,19 @@ export default function ProclaimPage() {
   const [welcomeMessage, setWelcomeMessage] = useState("");
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const textParam = urlParams.get("text");
+    const refParam = urlParams.get("reference");
+
+    if (textParam && refParam) {
+      setVerses([
+        {
+          text: decodeURIComponent(textParam),
+          reference: decodeURIComponent(refParam),
+        },
+      ]);
+    }
+
     // Récupérer le nom et le streak de l'utilisateur
     fetch("/api/user/progress")
       .then((res) => res.json())
@@ -125,7 +139,7 @@ export default function ProclaimPage() {
 
   const handleNextVerse = () => {
     sounds.playSuccess();
-    if (currentVerseIndex < proclamationVerses.length - 1) {
+    if (currentVerseIndex < verses.length - 1) {
       setCurrentVerseIndex((prev) => prev + 1);
       setTimeLeft(30);
       setIsRunning(true);
@@ -154,6 +168,26 @@ export default function ProclaimPage() {
       setSessionResult(data);
       setPhase(3);
 
+      // Sauvegarder la progression locale par chemin
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pathIdParam = urlParams.get("pathId");
+        const levelParam = urlParams.get("level");
+        if (pathIdParam && levelParam) {
+          const currentPathId = pathIdParam;
+          const currentLevel = parseInt(levelParam, 10);
+          const saved = localStorage.getItem("mannadaily_path_progress");
+          const progress = saved ? JSON.parse(saved) : {};
+          const currentMax = progress[currentPathId] || 1;
+          if (currentLevel === currentMax && currentMax < 30) {
+            progress[currentPathId] = currentMax + 1;
+            localStorage.setItem("mannadaily_path_progress", JSON.stringify(progress));
+          }
+        }
+      } catch (err) {
+        console.error("Failed to update local path progress:", err);
+      }
+
       if (data.leveledUp) {
         sounds.playLevelUp();
       } else {
@@ -173,7 +207,7 @@ export default function ProclaimPage() {
     setIsListening((prev) => !prev);
   };
 
-  const currentVerse = proclamationVerses[currentVerseIndex];
+  const currentVerse = verses[currentVerseIndex];
   const progressPercent = (timeLeft / 30) * 100;
   const canGoNext = timeLeft <= 20; // 10 secondes écoulées (30 - 20)
 
@@ -221,7 +255,7 @@ export default function ProclaimPage() {
       <div className="w-full">
         <div className="flex justify-between items-center mb-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
           <span>Proclamations Quotidiennes</span>
-          {phase === 2 && <span>Verset {currentVerseIndex + 1} sur {proclamationVerses.length}</span>}
+          {phase === 2 && <span>Verset {currentVerseIndex + 1} sur {verses.length}</span>}
           {phase !== 2 && <span>Étape {phase === 1 ? "1" : "3"} sur 3</span>}
         </div>
         <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden flex">
@@ -267,10 +301,10 @@ export default function ProclaimPage() {
 
               <div className="w-full bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-lg space-y-4">
                 <h3 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider border-b pb-2 mb-3">
-                  Tes 5 déclarations de foi :
+                  Tes {verses.length} {verses.length <= 1 ? "déclaration" : "déclarations"} de foi :
                 </h3>
                 <div className="space-y-3">
-                  {proclamationVerses.map((verse, idx) => (
+                  {verses.map((verse, idx) => (
                     <div key={idx} className="flex gap-3 items-start p-3 hover:bg-slate-50 rounded-xl transition">
                       <span className="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-650 flex items-center justify-center font-extrabold text-xs flex-shrink-0">
                         {idx + 1}
@@ -320,7 +354,7 @@ export default function ProclaimPage() {
                 </div>
 
                 <div className="text-xs font-extrabold uppercase text-purple-300 tracking-widest bg-purple-950/80 px-4 py-1.5 rounded-full border border-purple-900">
-                  Verset {currentVerseIndex + 1} / {proclamationVerses.length}
+                  Verset {currentVerseIndex + 1} / {verses.length}
                 </div>
               </div>
 
@@ -404,7 +438,7 @@ export default function ProclaimPage() {
                       : "bg-indigo-900/50 text-indigo-400 cursor-not-allowed border border-indigo-800/20"
                   )}
                 >
-                  {currentVerseIndex < proclamationVerses.length - 1 ? (
+                  {currentVerseIndex < verses.length - 1 ? (
                     <>
                       Verset suivant ({timeLeft > 20 ? `${timeLeft - 20}s` : "Prêt"})
                       <ArrowRight className="w-4 h-4" />
