@@ -1,15 +1,15 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
         <g id="eyes">
-          <circle cx="205" cy="215" r="24" fill="#64748B" />
-          <circle cx="197" cy="207" r="7" fill="#FFFFFF" />
-          <circle cx="212" cy="222" r="3" fill="#FFFFFF" />
-          <circle cx="295" cy="215" r="24" fill="#64748B" />
-          <circle cx="287" cy="207" r="7" fill="#FFFFFF" />
-          <circle cx="302" cy="222" r="3" fill="#FFFFFF" />
+          <circle cx="202" cy="215" r="28" fill="#64748B" />
+          <circle cx="193" cy="206" r="9.5" fill="#FFFFFF" />
+          <circle cx="210" cy="223" r="4.5" fill="#FFFFFF" />
+          <circle cx="298" cy="215" r="28" fill="#64748B" />
+          <circle cx="289" cy="206" r="9.5" fill="#FFFFFF" />
+          <circle cx="306" cy="223" r="4.5" fill="#FFFFFF" />
         </g>
         <g id="blush">
-          <ellipse cx="170" cy="250" rx="18" ry="10" fill="#FDA4AF" opacity="0.65" />
-          <ellipse cx="330" cy="250" rx="18" ry="10" fill="#FDA4AF" opacity="0.65" />
+          <ellipse cx="165" cy="252" rx="20" ry="11" fill="#FDA4AF" opacity="0.7" />
+          <ellipse cx="335" cy="252" rx="20" ry="11" fill="#FDA4AF" opacity="0.7" />
         </g>
-        <path d="M235 255 Q250 270 265 255" stroke="#64748B" stroke-width="8" stroke-linecap="round" fill="none" />
+        <path d="M232 258 Q250 272 268 258" stroke="#64748B" stroke-width="8" stroke-linecap="round" fill="none" />
       </svg>

@@ -1,27 +1,33 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-    <!-- Ombre nette au sol -->
-    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
+    <!-- Ombre de contact propre style Duolingo (le composant CharacterRenderer applique aussi son ombre de sol) -->
+    <ellipse cx="250" cy="425" rx="85" ry="11" fill="#E2E8F0" />
     
-      <!-- Jambe arrière en course -->
-      <path d="M200 340 L160 400" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
-      <path d="M140 395 h40 c5 0, 5 15, 0 15 h-40 z" fill="#1D4ED8" transform="rotate(-15 140 395)" />
-      <!-- Jambe avant en foulée -->
-      <path d="M280 340 Q320 375, 300 420" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
-      <path d="M285 415 h40 c5 0, 5 15, 0 15 h-40 z" fill="#1D4ED8" transform="rotate(10 285 415)" />
-      <!-- Bras de course fléchis -->
-      <path d="M140 230 Q90 260, 115 300" fill="none" stroke="#FED7AA" stroke-width="18" stroke-linecap="round" />
-      <path d="M360 220 Q400 190, 385 155" fill="none" stroke="#FED7AA" stroke-width="18" stroke-linecap="round" />
-    
-    
-      <!-- Torse projeté vers l'avant -->
-      <rect x="145" y="210" width="210" height="150" rx="40" fill="#2563EB" transform="skewX(-8 250 285)" />
+      <!-- Jambes en plein mouvement asymétrique de course -->
+      <path d="M 210 330 Q 165 375, 185 410" fill="none" stroke="#FED7AA" stroke-width="24" stroke-linecap="round" />
+      <path d="M 155 405 C 155 418, 195 420, 195 405 C 195 392, 170 392, 155 405 Z" fill="#1D4ED8" transform="rotate(-15 155 405)" />
+      
+      <path d="M 285 330 Q 325 360, 290 415" fill="none" stroke="#FED7AA" stroke-width="24" stroke-linecap="round" />
+      <path d="M 270 410 C 270 423, 310 425, 310 410 C 310 398, 285 398, 270 410 Z" fill="#1D4ED8" transform="rotate(15 270 410)" />
+      
+      <!-- Bras fléchis de façon dynamique -->
+      <path d="M 145 210 Q 100 240, 130 285" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
+      <path d="M 355 210 Q 380 180, 360 145" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
     
     
-      <g id="key" transform="translate(325, 260) rotate(-15)">
-        <circle cx="20" cy="20" r="20" fill="none" stroke="#FBBF24" stroke-width="8" />
-        <rect x="16" y="40" width="8" height="60" fill="#FBBF24" rx="2" />
-        <rect x="24" y="80" width="16" height="8" fill="#FBBF24" rx="2" />
-        <rect x="24" y="92" width="16" height="8" fill="#FBBF24" rx="2" />
+      <!-- Tunique penchée vers l'avant (dynamisme de la course) -->
+      <g transform="skewX(-8 250 280)">
+        <path d="M 175 210 C 150 245, 125 315, 150 350 C 175 365, 325 365, 350 350 C 375 315, 350 245, 325 210 Z" fill="#2563EB" />
+        <path d="M 150 350 C 175 365, 325 365, 350 350 C 340 310, 160 310, 150 350 Z" fill="#1D4ED8" opacity="0.25" />
+      </g>
+    
+    
+      <g id="key" transform="translate(325, 255) rotate(-10)">
+        <circle cx="20" cy="20" r="18" fill="none" stroke="#FBBF24" stroke-width="7" />
+        <circle cx="20" cy="20" r="6" fill="none" stroke="#FBBF24" stroke-width="4.5" />
+        <rect x="16" y="38" width="8" height="52" fill="#FBBF24" rx="2.5" stroke="#1E293B" stroke-width="1.5" />
+        <!-- Dents de la clé dorée -->
+        <path d="M 24 70 h 12 v 10 h -12 Z" fill="#FBBF24" />
+        <path d="M 24 82 h 12 v 10 h -12 Z" fill="#FBBF24" />
       </g>
     
   </svg>

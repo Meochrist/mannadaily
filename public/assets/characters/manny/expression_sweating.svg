@@ -1,12 +1,12 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
         <g id="eyes">
-          <path d="M190 220 h30" stroke="#64748B" stroke-width="9" stroke-linecap="round" />
-          <path d="M280 220 h30" stroke="#64748B" stroke-width="9" stroke-linecap="round" />
+          <path d="M185 220 h35" stroke="#64748B" stroke-width="9.5" stroke-linecap="round" />
+          <path d="M280 220 h35" stroke="#64748B" stroke-width="9.5" stroke-linecap="round" />
         </g>
         <g id="blush">
-          <ellipse cx="170" cy="250" rx="16" ry="9" fill="#FDA4AF" opacity="0.5" />
-          <ellipse cx="330" cy="250" rx="16" ry="9" fill="#FDA4AF" opacity="0.5" />
+          <ellipse cx="165" cy="252" rx="18" ry="10" fill="#FDA4AF" opacity="0.5" />
+          <ellipse cx="335" cy="252" rx="18" ry="10" fill="#FDA4AF" opacity="0.5" />
         </g>
-        <ellipse cx="250" cy="255" rx="14" ry="8" fill="#64748B" />
-        <path d="M330 170 Q340 200 325 210 Q310 210 320 190 Z" fill="#3B82F6" stroke="#64748B" stroke-width="4" stroke-linejoin="round" />
+        <ellipse cx="250" cy="256" rx="15" ry="8.5" fill="#64748B" />
+        <path d="M335 170 C348 200, 320 210, 325 190 Z" fill="#3B82F6" stroke="#64748B" stroke-width="4.5" stroke-linejoin="round" />
       </svg>

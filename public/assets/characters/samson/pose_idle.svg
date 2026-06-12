@@ -1,31 +1,33 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-    <!-- Ombre nette au sol -->
-    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
+    <!-- Ombre de contact propre style Duolingo (le composant CharacterRenderer applique aussi son ombre de sol) -->
+    <ellipse cx="250" cy="425" rx="85" ry="11" fill="#E2E8F0" />
     
-      <!-- Jambes droites -->
-      <rect x="205" y="340" width="30" height="90" rx="15" fill="#FDBA74" />
-      <rect x="265" y="340" width="30" height="90" rx="15" fill="#FDBA74" />
-      <!-- Sandales / Chaussures nettes -->
-      <path d="M190 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="#B45309" />
-      <path d="M260 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="#B45309" />
-      <!-- Bras ballants stables -->
-      <path d="M135 240 v100" fill="none" stroke="#FDBA74" stroke-width="20" stroke-linecap="round" />
-      <path d="M365 240 v100" fill="none" stroke="#FDBA74" stroke-width="20" stroke-linecap="round" />
-    
-    
-      <!-- Tunique drapée -->
-      <rect x="145" y="215" width="210" height="150" rx="40" fill="#EA580C" />
-      <!-- Ombre nette sur la tunique pour donner de la profondeur (Duolingo 2.0) -->
-      <path d="M145 270 C145 330, 355 330, 355 270 V325 C355 350, 145 350, 145 325 Z" fill="#B45309" opacity="0.3" />
+      <!-- Jambes en fuseau organiques -->
+      <path d="M 215 340 L 205 420" fill="none" stroke="#FDBA74" stroke-width="24" stroke-linecap="round" />
+      <path d="M 285 340 L 295 420" fill="none" stroke="#FDBA74" stroke-width="24" stroke-linecap="round" />
+      <!-- Pieds en haricot style cartoon orientés vers l'extérieur -->
+      <path d="M 170 412 C 170 425, 215 428, 215 410 C 215 398, 185 398, 170 412 Z" fill="#B45309" />
+      <path d="M 330 412 C 330 425, 285 428, 285 410 C 285 398, 315 398, 330 412 Z" fill="#B45309" />
+      <!-- Bras ballants avec courbes douces (écartés du corps) -->
+      <path d="M 150 220 Q 115 275, 130 325" fill="none" stroke="#FDBA74" stroke-width="22" stroke-linecap="round" />
+      <path d="M 350 220 Q 385 275, 370 325" fill="none" stroke="#FDBA74" stroke-width="22" stroke-linecap="round" />
     
     
-      <!-- Pectoraux / Reliefs musculaires -->
-      <path d="M185 240 Q250 255 315 240" stroke="#B45309" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.4" />
-      <path d="M250 245 v60" stroke="#B45309" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.4" />
-      <circle cx="215" cy="275" r="5" fill="#B45309" opacity="0.3" />
-      <circle cx="285" cy="275" r="5" fill="#B45309" opacity="0.3" />
-      <!-- Bracelets de force dorés sur les bras -->
-      <rect x="120" y="280" width="30" height="20" rx="4" fill="#F59E0B" transform="rotate(-5 120 280)" />
-      <rect x="350" y="280" width="30" height="20" rx="4" fill="#F59E0B" transform="rotate(5 350 280)" />
+      <!-- Tunique en forme de poire/cloche organique (Duolingo Style) -->
+      <path d="M 175 210 C 150 245, 125 315, 150 350 C 175 365, 325 365, 350 350 C 375 315, 350 245, 325 210 Z" fill="#EA580C" />
+      <!-- Ombre de volume nette sous le cou et drapés en bas -->
+      <path d="M 150 350 C 175 365, 325 365, 350 350 C 340 310, 160 310, 150 350 Z" fill="#B45309" opacity="0.25" />
+      <path d="M 200 210 Q 250 230, 300 210 C 290 225, 210 225, 200 210 Z" fill="#B45309" opacity="0.3" />
+    
+    
+      <!-- Reliefs musculaires pectoraux / abdominaux organiques -->
+      <path d="M 190 235 C 215 242, 285 242, 310 235" stroke="#B45309" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.45" />
+      <path d="M 250 238 L 250 295" stroke="#B45309" stroke-width="4.5" stroke-linecap="round" fill="none" opacity="0.45" />
+      <!-- Abdos en courbes douces -->
+      <path d="M 225 265 Q 250 270 275 265" stroke="#B45309" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.35" />
+      <path d="M 225 285 Q 250 290 275 285" stroke="#B45309" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.35" />
+      <!-- Bracelets de force dorés courbés sur les bras -->
+      <rect x="110" y="270" width="30" height="22" rx="6" fill="#F59E0B" stroke="#1E293B" stroke-width="4.5" transform="rotate(-10 110 270)" />
+      <rect x="360" y="270" width="30" height="22" rx="6" fill="#F59E0B" stroke="#1E293B" stroke-width="4.5" transform="rotate(10 360 270)" />
     
   </svg>

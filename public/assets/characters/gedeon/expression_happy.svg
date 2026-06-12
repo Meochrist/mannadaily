@@ -3,18 +3,21 @@
     <circle cx="250" cy="175" r="70" fill="#FDBA74" />
     
     
-      <path d="M 180 130 C 180 75 320 75 320 130 Z" fill="#D97706" />
-      <rect x="235" y="70" width="30" height="25" fill="#EF4444" rx="5" /> <!-- Plumet rouge -->
+      <path d="M 175 160 C 175 90, 325 90, 325 160 Z" fill="#D97706" stroke="#1E293B" stroke-width="5" />
+      <path d="M 235 105 Q 250 50, 265 105 Z" fill="#EF4444" stroke="#1E293B" stroke-width="4" /> <!-- Plumet -->
+      <path d="M 220 105 h 60 v 10 h -60 Z" fill="#047857" />
     
     
-      <!-- Yeux joyeux arqués -->
-      <path d="M212 180 Q228 157 L244 180" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
-      <path d="M256 180 Q272 157 L288 180" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+      <!-- Yeux joyeux arqués expressifs -->
+      <path d="M208 179 Q225 155 L242 179" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+      <path d="M258 179 Q275 155 L292 179" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
 
-      <ellipse cx="208" cy="200" rx="18" ry="11" fill="#FDA4AF" opacity="0.75" />
-      <ellipse cx="292" cy="200" rx="18" ry="11" fill="#FDA4AF" opacity="0.75" />
+      <!-- Blush plus prononcé de joie -->
+      <ellipse cx="205" cy="201" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
+      <ellipse cx="295" cy="201" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
 
-      <path d="M236 200 Q250 230 L264 200 Z" fill="#EF4444" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
-      <path d="M243 217 Q250 207 L257 217 Q250 227 L243 217" fill="#F472B6" />
+      <!-- Bouche de joie ouverte avec langue rose style Duolingo -->
+      <path d="M234 203 Q250 235 L266 203 Z" fill="#EF4444" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
+      <path d="M242 221 Q250 211 L258 221 Q250 231 L242 221" fill="#F472B6" />
     
   </svg>

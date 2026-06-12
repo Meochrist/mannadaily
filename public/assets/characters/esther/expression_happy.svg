@@ -1,17 +1,19 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-    <path d="M 160 175 C 120 50 380 50 340 175 C 380 280 350 350 320 360 C 300 280 305 200 305 180 L 195 180 C 195 200 200 280 180 360 C 150 350 120 280 160 175 Z" fill="#1E293B" />
+    <path d="M 155 170 C 120 100, 150 40, 250 40 C 350 40, 380 100, 345 170 C 385 240, 360 320, 330 330 C 305 240, 305 180, 305 165 L 195 165 C 195 180, 195 240, 170 330 C 140 320, 115 240, 155 170 Z" fill="#1E293B" />
     <circle cx="250" cy="175" r="70" fill="#FED7AA" />
     
-    <path d="M 210 115 L 225 90 L 250 105 L 275 90 L 290 115 Z" fill="#FBBF24" />
+    <path d="M 195 120 L 210 80 L 235 100 L 250 75 L 265 100 L 290 80 L 305 120 Z" fill="#FBBF24" stroke="#1E293B" stroke-width="4.5" />
     
-      <!-- Yeux joyeux arqués -->
-      <path d="M212 180 Q228 157 L244 180" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
-      <path d="M256 180 Q272 157 L288 180" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+      <!-- Yeux joyeux arqués expressifs -->
+      <path d="M208 179 Q225 155 L242 179" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+      <path d="M258 179 Q275 155 L292 179" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
 
-      <ellipse cx="208" cy="200" rx="18" ry="11" fill="#FDA4AF" opacity="0.75" />
-      <ellipse cx="292" cy="200" rx="18" ry="11" fill="#FDA4AF" opacity="0.75" />
+      <!-- Blush plus prononcé de joie -->
+      <ellipse cx="205" cy="201" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
+      <ellipse cx="295" cy="201" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
 
-      <path d="M236 200 Q250 230 L264 200 Z" fill="#EF4444" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
-      <path d="M243 217 Q250 207 L257 217 Q250 227 L243 217" fill="#F472B6" />
+      <!-- Bouche de joie ouverte avec langue rose style Duolingo -->
+      <path d="M234 203 Q250 235 L266 203 Z" fill="#EF4444" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
+      <path d="M242 221 Q250 211 L258 221 Q250 231 L242 221" fill="#F472B6" />
     
   </svg>

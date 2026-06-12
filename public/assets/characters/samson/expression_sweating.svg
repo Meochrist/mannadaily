@@ -1,16 +1,18 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-    <path d="M 170 175 C 120 50 380 50 330 175 C 360 220 370 310 330 330 C 310 250 310 210 310 190 L 190 190 C 190 210 190 250 170 330 C 130 310 140 220 170 175 Z" fill="#78350F" />
+    <path d="M 160 170 C 130 110, 140 50, 250 50 C 360 50, 370 110, 340 170 C 375 220, 380 300, 335 320 C 310 240, 310 190, 310 170 L 190 170 C 190 190, 190 240, 165 320 C 120 300, 125 220, 160 170 Z" fill="#78350F" />
     <circle cx="250" cy="175" r="70" fill="#FDBA74" />
     
-    <rect x="170" y="110" width="160" height="15" fill="#F59E0B" rx="5" />
+    <path d="M 175 125 C 205 105, 295 105, 325 125 L 330 142 C 290 135, 210 135, 170 142 Z" fill="#F59E0B" stroke="#1E293B" stroke-width="5" />
     
-      <path d="M215 180 h25" stroke="#1E293B" stroke-width="8" stroke-linecap="round" />
-      <path d="M260 180 h25" stroke="#1E293B" stroke-width="8" stroke-linecap="round" />
+      <!-- Yeux concentrés/plissés (effort) -->
+      <path d="M210 179 L240 179" stroke="#1E293B" stroke-width="8.5" stroke-linecap="round" />
+      <path d="M260 179 L290 179" stroke="#1E293B" stroke-width="8.5" stroke-linecap="round" />
 
-      <ellipse cx="208" cy="200" rx="14" ry="8" fill="#FDA4AF" opacity="0.5" />
-      <ellipse cx="292" cy="200" rx="14" ry="8" fill="#FDA4AF" opacity="0.5" />
+      <ellipse cx="205" cy="201" rx="14" ry="8" fill="#FDA4AF" opacity="0.5" />
+      <ellipse cx="295" cy="201" rx="14" ry="8" fill="#FDA4AF" opacity="0.5" />
 
-      <ellipse cx="250" cy="200" rx="12" ry="7" fill="#1E293B" />
-      <path d="M300 145 Q310 175 L290 175 Z" fill="#3B82F6" stroke="#1E293B" stroke-width="4" stroke-linejoin="round" />
+      <ellipse cx="250" cy="201" rx="13" ry="7.5" fill="#1E293B" />
+      <!-- Goutte de sueur bleue en relief 3D Flat -->
+      <path d="M302 150 C315 180, 290 180, 292 165 Z" fill="#3B82F6" stroke="#1E293B" stroke-width="4.5" stroke-linejoin="round" />
     
   </svg>

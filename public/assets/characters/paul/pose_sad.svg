@@ -1,22 +1,30 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-    <!-- Ombre nette au sol -->
-    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
+    <!-- Ombre de contact propre style Duolingo (le composant CharacterRenderer applique aussi son ombre de sol) -->
+    <ellipse cx="250" cy="425" rx="85" ry="11" fill="#E2E8F0" />
     
-      <!-- Jambes légèrement pliées de tristesse -->
-      <path d="M210 350 v60 h-10" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
-      <path d="M290 350 v60 h10" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
-      <path d="M185 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="#6D28D9" />
-      <path d="M280 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="#6D28D9" />
-      <!-- Bras refermés ou tombants d'abattement -->
-      <path d="M140 250 Q115 310, 125 350" fill="none" stroke="#FED7AA" stroke-width="18" stroke-linecap="round" />
-      <path d="M360 250 Q385 310, 375 350" fill="none" stroke="#FED7AA" stroke-width="18" stroke-linecap="round" />
-    
-    
-      <!-- Torse affaissé (plus petit) -->
-      <rect x="150" y="225" width="200" height="140" rx="35" fill="#8B5CF6" />
+      <!-- Jambes rentrées vers l'intérieur (tristesse) -->
+      <path d="M 215 340 L 230 410" fill="none" stroke="#FED7AA" stroke-width="24" stroke-linecap="round" />
+      <path d="M 285 340 L 270 410" fill="none" stroke="#FED7AA" stroke-width="24" stroke-linecap="round" />
+      <path d="M 200 405 C 200 418, 240 418, 240 400 C 240 390, 215 390, 200 405 Z" fill="#6D28D9" />
+      <path d="M 300 405 C 300 418, 260 418, 260 400 C 260 390, 285 390, 300 405 Z" fill="#6D28D9" />
+      <!-- Bras repliés vers le corps (abattement) -->
+      <path d="M 145 220 Q 120 280, 140 330" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
+      <path d="M 355 220 Q 380 280, 360 330" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
     
     
-      <rect x="295" y="280" width="50" height="80" rx="8" fill="#FEF08A" stroke="#1E293B" stroke-width="6" transform="rotate(20 295 280)" />
-      <line x1="315" y1="280" x2="315" y2="360" stroke="#CA8A04" stroke-width="4" transform="rotate(20 295 280)" />
+      <!-- Tunique affaissée -->
+      <path d="M 175 220 C 155 250, 135 320, 155 345 C 180 358, 320 358, 345 345 C 365 320, 345 250, 325 220 Z" fill="#8B5CF6" />
+      <path d="M 155 345 C 180 358, 320 358, 345 345 C 335 315, 165 315, 155 345 Z" fill="#6D28D9" opacity="0.25" />
+    
+    
+      <g id="parchment" transform="translate(295, 280) rotate(22)">
+        <rect x="0" y="0" width="48" height="75" rx="8" fill="#FEF08A" stroke="#1E293B" stroke-width="5.5" />
+        <path d="M 6 0 H 42" stroke="#D97706" stroke-width="4.5" />
+        <path d="M 6 75 H 42" stroke="#D97706" stroke-width="4.5" />
+        <!-- Lignes d'écriture fines sur le rouleau -->
+        <line x1="12" y1="20" x2="36" y2="20" stroke="#78350F" stroke-width="3" stroke-linecap="round" />
+        <line x1="12" y1="35" x2="36" y2="35" stroke="#78350F" stroke-width="3" stroke-linecap="round" />
+        <line x1="12" y1="50" x2="28" y2="50" stroke="#78350F" stroke-width="3" stroke-linecap="round" />
+      </g>
     
   </svg>

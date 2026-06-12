@@ -1,26 +1,29 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-    <!-- Ombre nette au sol -->
-    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
+    <!-- Ombre de contact propre style Duolingo (le composant CharacterRenderer applique aussi son ombre de sol) -->
+    <ellipse cx="250" cy="425" rx="85" ry="11" fill="#E2E8F0" />
     
-      <!-- Jambes légèrement pliées de tristesse -->
-      <path d="M210 350 v60 h-10" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
-      <path d="M290 350 v60 h10" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
-      <path d="M185 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="#1D4ED8" />
-      <path d="M280 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="#1D4ED8" />
-      <!-- Bras refermés ou tombants d'abattement -->
-      <path d="M140 250 Q115 310, 125 350" fill="none" stroke="#FED7AA" stroke-width="18" stroke-linecap="round" />
-      <path d="M360 250 Q385 310, 375 350" fill="none" stroke="#FED7AA" stroke-width="18" stroke-linecap="round" />
-    
-    
-      <!-- Torse affaissé (plus petit) -->
-      <rect x="150" y="225" width="200" height="140" rx="35" fill="#2563EB" />
+      <!-- Jambes rentrées vers l'intérieur (tristesse) -->
+      <path d="M 215 340 L 230 410" fill="none" stroke="#FED7AA" stroke-width="24" stroke-linecap="round" />
+      <path d="M 285 340 L 270 410" fill="none" stroke="#FED7AA" stroke-width="24" stroke-linecap="round" />
+      <path d="M 200 405 C 200 418, 240 418, 240 400 C 240 390, 215 390, 200 405 Z" fill="#1D4ED8" />
+      <path d="M 300 405 C 300 418, 260 418, 260 400 C 260 390, 285 390, 300 405 Z" fill="#1D4ED8" />
+      <!-- Bras repliés vers le corps (abattement) -->
+      <path d="M 145 220 Q 120 280, 140 330" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
+      <path d="M 355 220 Q 380 280, 360 330" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
     
     
-      <g id="key" transform="translate(325, 260) rotate(-15)">
-        <circle cx="20" cy="20" r="20" fill="none" stroke="#FBBF24" stroke-width="8" />
-        <rect x="16" y="40" width="8" height="60" fill="#FBBF24" rx="2" />
-        <rect x="24" y="80" width="16" height="8" fill="#FBBF24" rx="2" />
-        <rect x="24" y="92" width="16" height="8" fill="#FBBF24" rx="2" />
+      <!-- Tunique affaissée -->
+      <path d="M 175 220 C 155 250, 135 320, 155 345 C 180 358, 320 358, 345 345 C 365 320, 345 250, 325 220 Z" fill="#2563EB" />
+      <path d="M 155 345 C 180 358, 320 358, 345 345 C 335 315, 165 315, 155 345 Z" fill="#1D4ED8" opacity="0.25" />
+    
+    
+      <g id="key" transform="translate(325, 255) rotate(-10)">
+        <circle cx="20" cy="20" r="18" fill="none" stroke="#FBBF24" stroke-width="7" />
+        <circle cx="20" cy="20" r="6" fill="none" stroke="#FBBF24" stroke-width="4.5" />
+        <rect x="16" y="38" width="8" height="52" fill="#FBBF24" rx="2.5" stroke="#1E293B" stroke-width="1.5" />
+        <!-- Dents de la clé dorée -->
+        <path d="M 24 70 h 12 v 10 h -12 Z" fill="#FBBF24" />
+        <path d="M 24 82 h 12 v 10 h -12 Z" fill="#FBBF24" />
       </g>
     
   </svg>

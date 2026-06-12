@@ -1,19 +1,24 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-    <!-- Ombre nette au sol -->
-    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
+    <!-- Ombre de contact propre style Duolingo (le composant CharacterRenderer applique aussi son ombre de sol) -->
+    <ellipse cx="250" cy="425" rx="85" ry="11" fill="#E2E8F0" />
     
-      <!-- Jambes pliées vers l'extérieur -->
-      <path d="M210 340 L180 395" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
-      <path d="M160 390 h40 c5 0, 5 15, 0 15 h-40 z" fill="#BE185D" transform="rotate(-15 160 390)" />
-      <path d="M290 340 L320 395" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
-      <path d="M300 390 h40 c5 0, 5 15, 0 15 h-40 z" fill="#BE185D" transform="rotate(15 300 390)" />
-      <!-- Bras levés en signe de victoire -->
-      <path d="M140 220 Q90 145, 80 120" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
-      <path d="M360 220 Q410 145, 420 120" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
+      <!-- Jambes repliées vers l'extérieur pour un saut dynamique -->
+      <path d="M 210 330 Q 175 365, 185 395" fill="none" stroke="#FED7AA" stroke-width="24" stroke-linecap="round" />
+      <path d="M 150 385 C 150 398, 195 400, 195 385 C 195 372, 165 372, 150 385 Z" fill="#BE185D" transform="rotate(-15 150 385)" />
+      
+      <path d="M 290 330 Q 325 365, 315 395" fill="none" stroke="#FED7AA" stroke-width="24" stroke-linecap="round" />
+      <path d="M 350 385 C 350 398, 305 400, 305 385 C 305 372, 335 372, 350 385 Z" fill="#BE185D" transform="rotate(15 350 385)" />
+      
+      <!-- Bras levés de joie et de victoire -->
+      <path d="M 150 210 Q 110 160, 100 125" fill="none" stroke="#FED7AA" stroke-width="22" stroke-linecap="round" />
+      <path d="M 350 210 Q 390 160, 400 125" fill="none" stroke="#FED7AA" stroke-width="22" stroke-linecap="round" />
     
     
-      <path d="M150 215 h200 L370 360 H130 Z" fill="#EC4899" />
-      <rect x="175" y="210" width="150" height="22" fill="#BE185D" rx="8" />
+      <path d="M 175 210 H 325 L 365 350 C 365 365, 135 365, 135 350 Z" fill="#EC4899" />
+      <!-- Ceinture dorée et drapés de la robe -->
+      <path d="M 168 250 C 210 262, 290 262, 332 250 L 338 270 C 290 282, 210 282, 162 270 Z" fill="#FBBF24" stroke="#1E293B" stroke-width="4.5" />
+      <path d="M 195 275 Q 250 330, 210 355" fill="none" stroke="#BE185D" stroke-width="5" stroke-linecap="round" opacity="0.4" />
+      <path d="M 295 275 Q 250 330, 280 355" fill="none" stroke="#BE185D" stroke-width="5" stroke-linecap="round" opacity="0.4" />
     
     
   </svg>

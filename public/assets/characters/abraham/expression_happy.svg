@@ -1,21 +1,23 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
     
-      <!-- Turban nomade -->
-      <path d="M 170 165 C 170 95 330 95 330 165 Z" fill="#FFFFFF" stroke="#1E293B" stroke-width="4" />
-      <rect x="190" y="120" width="120" height="10" fill="#D97706" rx="3" />
+      <!-- Turban blanc enroulé -->
+      <path d="M 165 150 C 165 60, 335 60, 335 150 Z" fill="#FFFFFF" stroke="#1E293B" stroke-width="5.5" />
+      <path d="M 180 125 C 210 100, 290 100, 320 125 L 325 142 C 295 130, 205 130, 175 142 Z" fill="#D97706" stroke="#1E293B" stroke-width="4.5" />
     
     <circle cx="250" cy="175" r="70" fill="#FED7AA" />
-    <path d="M 180 195 C 180 270 320 270 320 195 Z" fill="#E2E8F0" />
+    <path d="M 178 185 C 178 285, 322 285, 322 185 C 290 280, 210 280, 178 185 Z" fill="#E2E8F0" stroke="#E2E8F0" stroke-width="2" />
     
     
-      <!-- Yeux joyeux arqués -->
-      <path d="M212 180 Q228 157 L244 180" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
-      <path d="M256 180 Q272 157 L288 180" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+      <!-- Yeux joyeux arqués expressifs -->
+      <path d="M208 179 Q225 155 L242 179" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+      <path d="M258 179 Q275 155 L292 179" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
 
-      <ellipse cx="208" cy="200" rx="18" ry="11" fill="#FDA4AF" opacity="0.75" />
-      <ellipse cx="292" cy="200" rx="18" ry="11" fill="#FDA4AF" opacity="0.75" />
+      <!-- Blush plus prononcé de joie -->
+      <ellipse cx="205" cy="201" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
+      <ellipse cx="295" cy="201" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
 
-      <path d="M236 200 Q250 230 L264 200 Z" fill="#EF4444" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
-      <path d="M243 217 Q250 207 L257 217 Q250 227 L243 217" fill="#F472B6" />
+      <!-- Bouche de joie ouverte avec langue rose style Duolingo -->
+      <path d="M234 203 Q250 235 L266 203 Z" fill="#EF4444" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
+      <path d="M242 221 Q250 211 L258 221 Q250 231 L242 221" fill="#F472B6" />
     
   </svg>

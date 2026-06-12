@@ -1,17 +1,19 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-    <path d="M 175 175 C 170 85 330 85 325 175 Z" fill="#78350F" />
+    <path d="M 175 170 C 170 70, 330 70, 325 170 Z" fill="#78350F" />
     <circle cx="250" cy="175" r="70" fill="#FED7AA" />
-    <path d="M 185 195 C 190 220 310 220 315 195 Z" fill="#78350F" />
+    <path d="M 180 185 C 180 270, 320 270, 320 185 C 300 260, 200 260, 180 185 Z" fill="#78350F" stroke="#451A03" stroke-width="2" />
     
     
-      <!-- Yeux joyeux arqués -->
-      <path d="M212 180 Q228 157 L244 180" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
-      <path d="M256 180 Q272 157 L288 180" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+      <!-- Yeux joyeux arqués expressifs -->
+      <path d="M208 179 Q225 155 L242 179" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+      <path d="M258 179 Q275 155 L292 179" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
 
-      <ellipse cx="208" cy="200" rx="18" ry="11" fill="#FDA4AF" opacity="0.75" />
-      <ellipse cx="292" cy="200" rx="18" ry="11" fill="#FDA4AF" opacity="0.75" />
+      <!-- Blush plus prononcé de joie -->
+      <ellipse cx="205" cy="201" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
+      <ellipse cx="295" cy="201" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
 
-      <path d="M236 200 Q250 230 L264 200 Z" fill="#EF4444" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
-      <path d="M243 217 Q250 207 L257 217 Q250 227 L243 217" fill="#F472B6" />
+      <!-- Bouche de joie ouverte avec langue rose style Duolingo -->
+      <path d="M234 203 Q250 235 L266 203 Z" fill="#EF4444" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
+      <path d="M242 221 Q250 211 L258 221 Q250 231 L242 221" fill="#F472B6" />
     
   </svg>

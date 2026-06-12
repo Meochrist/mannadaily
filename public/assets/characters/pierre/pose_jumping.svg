@@ -1,25 +1,31 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-    <!-- Ombre nette au sol -->
-    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
+    <!-- Ombre de contact propre style Duolingo (le composant CharacterRenderer applique aussi son ombre de sol) -->
+    <ellipse cx="250" cy="425" rx="85" ry="11" fill="#E2E8F0" />
     
-      <!-- Jambes pliées vers l'extérieur -->
-      <path d="M210 340 L180 395" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
-      <path d="M160 390 h40 c5 0, 5 15, 0 15 h-40 z" fill="#1D4ED8" transform="rotate(-15 160 390)" />
-      <path d="M290 340 L320 395" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
-      <path d="M300 390 h40 c5 0, 5 15, 0 15 h-40 z" fill="#1D4ED8" transform="rotate(15 300 390)" />
-      <!-- Bras levés en signe de victoire -->
-      <path d="M140 220 Q90 145, 80 120" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
-      <path d="M360 220 Q410 145, 420 120" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
+      <!-- Jambes repliées vers l'extérieur pour un saut dynamique -->
+      <path d="M 210 330 Q 175 365, 185 395" fill="none" stroke="#FED7AA" stroke-width="24" stroke-linecap="round" />
+      <path d="M 150 385 C 150 398, 195 400, 195 385 C 195 372, 165 372, 150 385 Z" fill="#1D4ED8" transform="rotate(-15 150 385)" />
+      
+      <path d="M 290 330 Q 325 365, 315 395" fill="none" stroke="#FED7AA" stroke-width="24" stroke-linecap="round" />
+      <path d="M 350 385 C 350 398, 305 400, 305 385 C 305 372, 335 372, 350 385 Z" fill="#1D4ED8" transform="rotate(15 350 385)" />
+      
+      <!-- Bras levés de joie et de victoire -->
+      <path d="M 150 210 Q 110 160, 100 125" fill="none" stroke="#FED7AA" stroke-width="22" stroke-linecap="round" />
+      <path d="M 350 210 Q 390 160, 400 125" fill="none" stroke="#FED7AA" stroke-width="22" stroke-linecap="round" />
     
     
-      <rect x="145" y="200" width="210" height="150" rx="40" fill="#2563EB" />
+      <!-- Tunique étirée vers le haut -->
+      <path d="M 175 195 C 155 230, 130 300, 155 335 C 180 350, 320 350, 345 335 C 370 300, 345 230, 325 195 Z" fill="#2563EB" />
+      <path d="M 155 335 C 180 350, 320 350, 345 335 C 335 305, 165 305, 155 335 Z" fill="#1D4ED8" opacity="0.25" />
     
     
-      <g id="key" transform="translate(325, 260) rotate(-15)">
-        <circle cx="20" cy="20" r="20" fill="none" stroke="#FBBF24" stroke-width="8" />
-        <rect x="16" y="40" width="8" height="60" fill="#FBBF24" rx="2" />
-        <rect x="24" y="80" width="16" height="8" fill="#FBBF24" rx="2" />
-        <rect x="24" y="92" width="16" height="8" fill="#FBBF24" rx="2" />
+      <g id="key" transform="translate(325, 255) rotate(-10)">
+        <circle cx="20" cy="20" r="18" fill="none" stroke="#FBBF24" stroke-width="7" />
+        <circle cx="20" cy="20" r="6" fill="none" stroke="#FBBF24" stroke-width="4.5" />
+        <rect x="16" y="38" width="8" height="52" fill="#FBBF24" rx="2.5" stroke="#1E293B" stroke-width="1.5" />
+        <!-- Dents de la clé dorée -->
+        <path d="M 24 70 h 12 v 10 h -12 Z" fill="#FBBF24" />
+        <path d="M 24 82 h 12 v 10 h -12 Z" fill="#FBBF24" />
       </g>
     
   </svg>

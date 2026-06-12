@@ -196,151 +196,194 @@ function getPoseSVG(char, pose) {
   // 1. Dessin des membres selon la pose (ViewBox 0 0 500 500)
   if (pose === 'idle') {
     limbsHTML = `
-      <!-- Jambes droites -->
-      <rect x="205" y="340" width="30" height="90" rx="15" fill="${config.skin}" />
-      <rect x="265" y="340" width="30" height="90" rx="15" fill="${config.skin}" />
-      <!-- Sandales / Chaussures nettes -->
-      <path d="M190 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="${config.secondary}" />
-      <path d="M260 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="${config.secondary}" />
-      <!-- Bras ballants stables -->
-      <path d="M135 240 v100" fill="none" stroke="${config.skin}" stroke-width="20" stroke-linecap="round" />
-      <path d="M365 240 v100" fill="none" stroke="${config.skin}" stroke-width="20" stroke-linecap="round" />
+      <!-- Jambes en fuseau organiques -->
+      <path d="M 215 340 L 205 420" fill="none" stroke="${config.skin}" stroke-width="24" stroke-linecap="round" />
+      <path d="M 285 340 L 295 420" fill="none" stroke="${config.skin}" stroke-width="24" stroke-linecap="round" />
+      <!-- Pieds en haricot style cartoon orientés vers l'extérieur -->
+      <path d="M 170 412 C 170 425, 215 428, 215 410 C 215 398, 185 398, 170 412 Z" fill="${config.secondary}" />
+      <path d="M 330 412 C 330 425, 285 428, 285 410 C 285 398, 315 398, 330 412 Z" fill="${config.secondary}" />
+      <!-- Bras ballants avec courbes douces (écartés du corps) -->
+      <path d="M 150 220 Q 115 275, 130 325" fill="none" stroke="${config.skin}" stroke-width="22" stroke-linecap="round" />
+      <path d="M 350 220 Q 385 275, 370 325" fill="none" stroke="${config.skin}" stroke-width="22" stroke-linecap="round" />
     `;
     bodyHTML = `
-      <!-- Tunique drapée -->
-      <rect x="145" y="215" width="210" height="150" rx="40" fill="${config.primary}" />
-      <!-- Ombre nette sur la tunique pour donner de la profondeur (Duolingo 2.0) -->
-      <path d="M145 270 C145 330, 355 330, 355 270 V325 C355 350, 145 350, 145 325 Z" fill="${config.secondary}" opacity="0.3" />
+      <!-- Tunique en forme de poire/cloche organique (Duolingo Style) -->
+      <path d="M 175 210 C 150 245, 125 315, 150 350 C 175 365, 325 365, 350 350 C 375 315, 350 245, 325 210 Z" fill="${config.primary}" />
+      <!-- Ombre de volume nette sous le cou et drapés en bas -->
+      <path d="M 150 350 C 175 365, 325 365, 350 350 C 340 310, 160 310, 150 350 Z" fill="${config.secondary}" opacity="0.25" />
+      <path d="M 200 210 Q 250 230, 300 210 C 290 225, 210 225, 200 210 Z" fill="${config.secondary}" opacity="0.3" />
     `;
   } else if (pose === 'jumping') {
     limbsHTML = `
-      <!-- Jambes pliées vers l'extérieur -->
-      <path d="M210 340 L180 395" fill="none" stroke="${config.skin}" stroke-width="20" stroke-linecap="round" />
-      <path d="M160 390 h40 c5 0, 5 15, 0 15 h-40 z" fill="${config.secondary}" transform="rotate(-15 160 390)" />
-      <path d="M290 340 L320 395" fill="none" stroke="${config.skin}" stroke-width="20" stroke-linecap="round" />
-      <path d="M300 390 h40 c5 0, 5 15, 0 15 h-40 z" fill="${config.secondary}" transform="rotate(15 300 390)" />
-      <!-- Bras levés en signe de victoire -->
-      <path d="M140 220 Q90 145, 80 120" fill="none" stroke="${config.skin}" stroke-width="20" stroke-linecap="round" />
-      <path d="M360 220 Q410 145, 420 120" fill="none" stroke="${config.skin}" stroke-width="20" stroke-linecap="round" />
+      <!-- Jambes repliées vers l'extérieur pour un saut dynamique -->
+      <path d="M 210 330 Q 175 365, 185 395" fill="none" stroke="${config.skin}" stroke-width="24" stroke-linecap="round" />
+      <path d="M 150 385 C 150 398, 195 400, 195 385 C 195 372, 165 372, 150 385 Z" fill="${config.secondary}" transform="rotate(-15 150 385)" />
+      
+      <path d="M 290 330 Q 325 365, 315 395" fill="none" stroke="${config.skin}" stroke-width="24" stroke-linecap="round" />
+      <path d="M 350 385 C 350 398, 305 400, 305 385 C 305 372, 335 372, 350 385 Z" fill="${config.secondary}" transform="rotate(15 350 385)" />
+      
+      <!-- Bras levés de joie et de victoire -->
+      <path d="M 150 210 Q 110 160, 100 125" fill="none" stroke="${config.skin}" stroke-width="22" stroke-linecap="round" />
+      <path d="M 350 210 Q 390 160, 400 125" fill="none" stroke="${config.skin}" stroke-width="22" stroke-linecap="round" />
     `;
     bodyHTML = `
-      <rect x="145" y="200" width="210" height="150" rx="40" fill="${config.primary}" />
+      <!-- Tunique étirée vers le haut -->
+      <path d="M 175 195 C 155 230, 130 300, 155 335 C 180 350, 320 350, 345 335 C 370 300, 345 230, 325 195 Z" fill="${config.primary}" />
+      <path d="M 155 335 C 180 350, 320 350, 345 335 C 335 305, 165 305, 155 335 Z" fill="${config.secondary}" opacity="0.25" />
     `;
   } else if (pose === 'sad') {
     limbsHTML = `
-      <!-- Jambes légèrement pliées de tristesse -->
-      <path d="M210 350 v60 h-10" fill="none" stroke="${config.skin}" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
-      <path d="M290 350 v60 h10" fill="none" stroke="${config.skin}" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
-      <path d="M185 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="${config.secondary}" />
-      <path d="M280 400 h35 c5 0, 5 15, 0 15 h-35 z" fill="${config.secondary}" />
-      <!-- Bras refermés ou tombants d'abattement -->
-      <path d="M140 250 Q115 310, 125 350" fill="none" stroke="${config.skin}" stroke-width="18" stroke-linecap="round" />
-      <path d="M360 250 Q385 310, 375 350" fill="none" stroke="${config.skin}" stroke-width="18" stroke-linecap="round" />
+      <!-- Jambes rentrées vers l'intérieur (tristesse) -->
+      <path d="M 215 340 L 230 410" fill="none" stroke="${config.skin}" stroke-width="24" stroke-linecap="round" />
+      <path d="M 285 340 L 270 410" fill="none" stroke="${config.skin}" stroke-width="24" stroke-linecap="round" />
+      <path d="M 200 405 C 200 418, 240 418, 240 400 C 240 390, 215 390, 200 405 Z" fill="${config.secondary}" />
+      <path d="M 300 405 C 300 418, 260 418, 260 400 C 260 390, 285 390, 300 405 Z" fill="${config.secondary}" />
+      <!-- Bras repliés vers le corps (abattement) -->
+      <path d="M 145 220 Q 120 280, 140 330" fill="none" stroke="${config.skin}" stroke-width="20" stroke-linecap="round" />
+      <path d="M 355 220 Q 380 280, 360 330" fill="none" stroke="${config.skin}" stroke-width="20" stroke-linecap="round" />
     `;
     bodyHTML = `
-      <!-- Torse affaissé (plus petit) -->
-      <rect x="150" y="225" width="200" height="140" rx="35" fill="${config.primary}" />
+      <!-- Tunique affaissée -->
+      <path d="M 175 220 C 155 250, 135 320, 155 345 C 180 358, 320 358, 345 345 C 365 320, 345 250, 325 220 Z" fill="${config.primary}" />
+      <path d="M 155 345 C 180 358, 320 358, 345 345 C 335 315, 165 315, 155 345 Z" fill="${config.secondary}" opacity="0.25" />
     `;
   } else { // running
     limbsHTML = `
-      <!-- Jambe arrière en course -->
-      <path d="M200 340 L160 400" fill="none" stroke="${config.skin}" stroke-width="20" stroke-linecap="round" />
-      <path d="M140 395 h40 c5 0, 5 15, 0 15 h-40 z" fill="${config.secondary}" transform="rotate(-15 140 395)" />
-      <!-- Jambe avant en foulée -->
-      <path d="M280 340 Q320 375, 300 420" fill="none" stroke="${config.skin}" stroke-width="20" stroke-linecap="round" />
-      <path d="M285 415 h40 c5 0, 5 15, 0 15 h-40 z" fill="${config.secondary}" transform="rotate(10 285 415)" />
-      <!-- Bras de course fléchis -->
-      <path d="M140 230 Q90 260, 115 300" fill="none" stroke="${config.skin}" stroke-width="18" stroke-linecap="round" />
-      <path d="M360 220 Q400 190, 385 155" fill="none" stroke="${config.skin}" stroke-width="18" stroke-linecap="round" />
+      <!-- Jambes en plein mouvement asymétrique de course -->
+      <path d="M 210 330 Q 165 375, 185 410" fill="none" stroke="${config.skin}" stroke-width="24" stroke-linecap="round" />
+      <path d="M 155 405 C 155 418, 195 420, 195 405 C 195 392, 170 392, 155 405 Z" fill="${config.secondary}" transform="rotate(-15 155 405)" />
+      
+      <path d="M 285 330 Q 325 360, 290 415" fill="none" stroke="${config.skin}" stroke-width="24" stroke-linecap="round" />
+      <path d="M 270 410 C 270 423, 310 425, 310 410 C 310 398, 285 398, 270 410 Z" fill="${config.secondary}" transform="rotate(15 270 410)" />
+      
+      <!-- Bras fléchis de façon dynamique -->
+      <path d="M 145 210 Q 100 240, 130 285" fill="none" stroke="${config.skin}" stroke-width="20" stroke-linecap="round" />
+      <path d="M 355 210 Q 380 180, 360 145" fill="none" stroke="${config.skin}" stroke-width="20" stroke-linecap="round" />
     `;
     bodyHTML = `
-      <!-- Torse projeté vers l'avant -->
-      <rect x="145" y="210" width="210" height="150" rx="40" fill="${config.primary}" transform="skewX(-8 250 285)" />
+      <!-- Tunique penchée vers l'avant (dynamisme de la course) -->
+      <g transform="skewX(-8 250 280)">
+        <path d="M 175 210 C 150 245, 125 315, 150 350 C 175 365, 325 365, 350 350 C 375 315, 350 245, 325 210 Z" fill="${config.primary}" />
+        <path d="M 150 350 C 175 365, 325 365, 350 350 C 340 310, 160 310, 150 350 Z" fill="${config.secondary}" opacity="0.25" />
+      </g>
     `;
   }
 
-  // 2. Décors et accessoires spécifiques par personnage (DA riche)
+  // 2. Décors et accessoires spécifiques par personnage (DA riche et soignée)
   if (char === 'samson') {
-    // Buste musclé de Samson (Pectoraux, abdominaux et bracelets de force)
+    // Buste musclé de Samson redessiné avec soin
     detailsHTML = `
-      <!-- Pectoraux / Reliefs musculaires -->
-      <path d="M185 240 Q250 255 315 240" stroke="${config.secondary}" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.4" />
-      <path d="M250 245 v60" stroke="${config.secondary}" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.4" />
-      <circle cx="215" cy="275" r="5" fill="${config.secondary}" opacity="0.3" />
-      <circle cx="285" cy="275" r="5" fill="${config.secondary}" opacity="0.3" />
-      <!-- Bracelets de force dorés sur les bras -->
-      <rect x="120" y="280" width="30" height="20" rx="4" fill="${config.accent}" transform="rotate(-5 120 280)" />
-      <rect x="350" y="280" width="30" height="20" rx="4" fill="${config.accent}" transform="rotate(5 350 280)" />
+      <!-- Reliefs musculaires pectoraux / abdominaux organiques -->
+      <path d="M 190 235 C 215 242, 285 242, 310 235" stroke="${config.secondary}" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.45" />
+      <path d="M 250 238 L 250 295" stroke="${config.secondary}" stroke-width="4.5" stroke-linecap="round" fill="none" opacity="0.45" />
+      <!-- Abdos en courbes douces -->
+      <path d="M 225 265 Q 250 270 275 265" stroke="${config.secondary}" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.35" />
+      <path d="M 225 285 Q 250 290 275 285" stroke="${config.secondary}" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.35" />
+      <!-- Bracelets de force dorés courbés sur les bras -->
+      <rect x="110" y="270" width="30" height="22" rx="6" fill="${config.accent}" stroke="#1E293B" stroke-width="4.5" transform="rotate(-10 110 270)" />
+      <rect x="360" y="270" width="30" height="22" rx="6" fill="${config.accent}" stroke="#1E293B" stroke-width="4.5" transform="rotate(10 360 270)" />
     `;
   } else if (char === 'esther') {
-    // Robe royale élégante évasée
+    // Robe royale asymétrique drapée fluide
     bodyHTML = `
-      <path d="M150 215 h200 L370 360 H130 Z" fill="${config.primary}" />
-      <rect x="175" y="210" width="150" height="22" fill="${config.secondary}" rx="8" />
+      <path d="M 175 210 H 325 L 365 350 C 365 365, 135 365, 135 350 Z" fill="${config.primary}" />
+      <!-- Ceinture dorée et drapés de la robe -->
+      <path d="M 168 250 C 210 262, 290 262, 332 250 L 338 270 C 290 282, 210 282, 162 270 Z" fill="${config.accent}" stroke="#1E293B" stroke-width="4.5" />
+      <path d="M 195 275 Q 250 330, 210 355" fill="none" stroke="${config.secondary}" stroke-width="5" stroke-linecap="round" opacity="0.4" />
+      <path d="M 295 275 Q 250 330, 280 355" fill="none" stroke="${config.secondary}" stroke-width="5" stroke-linecap="round" opacity="0.4" />
     `;
   } else if (char === 'gedeon') {
-    // Bouclier rond de bronze accroché au dos/bras
+    // Bouclier rond et détails d'armure de Gédéon
     detailsHTML = `
-      <circle cx="365" cy="270" r="38" fill="${config.accent}" stroke="#1E293B" stroke-width="6" />
-      <circle cx="365" cy="270" r="16" fill="${config.secondary}" stroke="#1E293B" stroke-width="4" />
+      <!-- Bouclier de bronze fixé au bras -->
+      <g id="shield" transform="translate(365, 275)">
+        <circle cx="0" cy="0" r="42" fill="${config.accent}" stroke="#1E293B" stroke-width="6.5" />
+        <circle cx="0" cy="0" r="28" fill="${config.secondary}" stroke="#1E293B" stroke-width="4.5" />
+        <circle cx="0" cy="0" r="10" fill="${config.accent}" stroke="#1E293B" stroke-width="3" />
+        <!-- Clous dorés autour du bouclier -->
+        <circle cx="-30" cy="0" r="3" fill="#FFFFFF" />
+        <circle cx="30" cy="0" r="3" fill="#FFFFFF" />
+        <circle cx="0" cy="-30" r="3" fill="#FFFFFF" />
+        <circle cx="0" cy="30" r="3" fill="#FFFFFF" />
+      </g>
     `;
   } else if (char === 'noe') {
-    // Colombe blanche de Noé sur son bras
+    // Colombe mignonne aux ailes déployées posée sur son bras
     detailsHTML = `
-      <!-- Petite colombe plate mignonne -->
-      <path d="M110 200 c5 -15, 25 -15, 30 0 v15 h-30z" fill="${config.accent}" stroke="#1E293B" stroke-width="4" />
-      <path d="M140 205 L155 195 L145 210 Z" fill="#FBBF24" /> <!-- Bec -->
-      <circle cx="125" cy="205" r="2" fill="#1E293B" /> <!-- Oeil colombe -->
+      <g id="dove" transform="translate(100, 195)">
+        <!-- Corps de la colombe -->
+        <path d="M 10 15 C 10 0, 35 0, 40 10 C 45 5, 55 10, 50 20 C 45 25, 15 25, 10 15 Z" fill="${config.accent}" stroke="#1E293B" stroke-width="4" />
+        <!-- Bec orange -->
+        <path d="M 38 7 L 48 5 L 42 12 Z" fill="#FBBF24" />
+        <circle cx="30" cy="8" r="2.5" fill="#1E293B" />
+        <!-- Aile de la colombe -->
+        <path d="M 20 12 C 15 2, 5 8, 12 18 Z" fill="#E2E8F0" stroke="#1E293B" stroke-width="3" />
+      </g>
     `;
   } else if (char === 'paul') {
-    // Paul tient un rouleau de parchemin
+    // Paul tient un rouleau de parchemin en cuir
     detailsHTML = `
-      <rect x="295" y="280" width="50" height="80" rx="8" fill="${config.accent}" stroke="#1E293B" stroke-width="6" transform="rotate(20 295 280)" />
-      <line x1="315" y1="280" x2="315" y2="360" stroke="#CA8A04" stroke-width="4" transform="rotate(20 295 280)" />
+      <g id="parchment" transform="translate(295, 280) rotate(22)">
+        <rect x="0" y="0" width="48" height="75" rx="8" fill="${config.accent}" stroke="#1E293B" stroke-width="5.5" />
+        <path d="M 6 0 H 42" stroke="#D97706" stroke-width="4.5" />
+        <path d="M 6 75 H 42" stroke="#D97706" stroke-width="4.5" />
+        <!-- Lignes d'écriture fines sur le rouleau -->
+        <line x1="12" y1="20" x2="36" y2="20" stroke="#78350F" stroke-width="3" stroke-linecap="round" />
+        <line x1="12" y1="35" x2="36" y2="35" stroke="#78350F" stroke-width="3" stroke-linecap="round" />
+        <line x1="12" y1="50" x2="28" y2="50" stroke="#78350F" stroke-width="3" stroke-linecap="round" />
+      </g>
     `;
   } else if (char === 'pierre') {
     // Pierre tient sa grande clé dorée
     detailsHTML = `
-      <g id="key" transform="translate(325, 260) rotate(-15)">
-        <circle cx="20" cy="20" r="20" fill="none" stroke="${config.accent}" stroke-width="8" />
-        <rect x="16" y="40" width="8" height="60" fill="${config.accent}" rx="2" />
-        <rect x="24" y="80" width="16" height="8" fill="${config.accent}" rx="2" />
-        <rect x="24" y="92" width="16" height="8" fill="${config.accent}" rx="2" />
+      <g id="key" transform="translate(325, 255) rotate(-10)">
+        <circle cx="20" cy="20" r="18" fill="none" stroke="${config.accent}" stroke-width="7" />
+        <circle cx="20" cy="20" r="6" fill="none" stroke="${config.accent}" stroke-width="4.5" />
+        <rect x="16" y="38" width="8" height="52" fill="${config.accent}" rx="2.5" stroke="#1E293B" stroke-width="1.5" />
+        <!-- Dents de la clé dorée -->
+        <path d="M 24 70 h 12 v 10 h -12 Z" fill="${config.accent}" />
+        <path d="M 24 82 h 12 v 10 h -12 Z" fill="${config.accent}" />
       </g>
     `;
   } else if (char === 'moise') {
     // Les deux Tablettes de la Loi en pierre grise sous le bras
     detailsHTML = `
-      <g id="tablets" transform="translate(110, 240) rotate(-5)">
-        <rect x="0" y="0" width="70" height="90" rx="15" fill="${config.accent}" stroke="#1E293B" stroke-width="6" />
-        <line x1="35" y1="5" x2="35" y2="85" stroke="#4B5563" stroke-width="4" />
-        <!-- Inscriptions hébraïques factices (points/traits fins net) -->
-        <line x1="10" y1="25" x2="25" y2="25" stroke="#374151" stroke-width="3" stroke-linecap="round" />
-        <line x1="10" y1="45" x2="28" y2="45" stroke="#374151" stroke-width="3" stroke-linecap="round" />
-        <line x1="45" y1="25" x2="60" y2="25" stroke="#374151" stroke-width="3" stroke-linecap="round" />
-        <line x1="45" y1="45" x2="58" y2="45" stroke="#374151" stroke-width="3" stroke-linecap="round" />
+      <g id="tablets" transform="translate(100, 235) rotate(-6)">
+        <rect x="0" y="0" width="75" height="95" rx="18" fill="${config.accent}" stroke="#1E293B" stroke-width="6" />
+        <line x1="37.5" y1="5" x2="37.5" y2="90" stroke="#4B5563" stroke-width="4.5" />
+        <!-- Commandements hébraïques schématisés -->
+        <path d="M 10 25 h 18" stroke="#374151" stroke-width="4.5" stroke-linecap="round" />
+        <path d="M 10 45 h 15" stroke="#374151" stroke-width="4.5" stroke-linecap="round" />
+        <path d="M 10 65 h 20" stroke="#374151" stroke-width="4.5" stroke-linecap="round" />
+        <path d="M 47 25 h 18" stroke="#374151" stroke-width="4.5" stroke-linecap="round" />
+        <path d="M 47 45 h 20" stroke="#374151" stroke-width="4.5" stroke-linecap="round" />
+        <path d="M 47 65 h 15" stroke="#374151" stroke-width="4.5" stroke-linecap="round" />
       </g>
     `;
   } else if (char === 'abraham') {
-    // Abraham tient son bâton de nomade en bois
+    // Abraham tient son bâton de berger courbé en bois
     detailsHTML = `
-      <line x1="110" y1="180" x2="110" y2="450" stroke="${config.accent}" stroke-width="16" stroke-linecap="round" />
+      <!-- Bâton noueux et texturé en bois -->
+      <path d="M 115 180 Q 110 240, 115 310 T 110 440" fill="none" stroke="${config.accent}" stroke-width="12" stroke-linecap="round" />
+      <circle cx="112" cy="180" r="10" fill="${config.accent}" />
     `;
   } else if (char === 'david') {
-    // David porte sa petite harpe en bandoulière
+    // David porte sa petite harpe dorée
     detailsHTML = `
-      <g id="harp" transform="translate(120, 260) rotate(10)">
-        <path d="M 0 0 L 50 10 L 40 70 C 10 70, 0 40, 0 0 Z" fill="none" stroke="${config.accent}" stroke-width="8" />
-        <line x1="10" y1="5" x2="10" y2="65" stroke="#D97706" stroke-width="2" />
-        <line x1="20" y1="7" x2="20" y2="65" stroke="#D97706" stroke-width="2" />
-        <line x1="30" y1="9" x2="30" y2="65" stroke="#D97706" stroke-width="2" />
+      <g id="harp" transform="translate(115, 255) rotate(12)">
+        <path d="M 0 0 C 15 -10, 45 -5, 52 12 C 55 25, 42 68, 42 68 C 42 68, 15 65, 0 45 Z" fill="none" stroke="${config.accent}" stroke-width="7.5" />
+        <!-- Barre centrale et cordes -->
+        <line x1="0" y1="0" x2="42" y2="68" stroke="${config.accent}" stroke-width="7.5" />
+        <line x1="12" y1="5" x2="12" y2="50" stroke="#D97706" stroke-width="2.5" />
+        <line x1="22" y1="7" x2="22" y2="55" stroke="#D97706" stroke-width="2.5" />
+        <line x1="32" y1="9" x2="32" y2="60" stroke="#D97706" stroke-width="2.5" />
       </g>
     `;
   }
 
   return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-    <!-- Ombre nette au sol -->
-    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
+    <!-- Ombre de contact propre style Duolingo (le composant CharacterRenderer applique aussi son ombre de sol) -->
+    <ellipse cx="250" cy="425" rx="85" ry="11" fill="#E2E8F0" />
     ${limbsHTML}
     ${bodyHTML}
     ${detailsHTML}
@@ -358,56 +401,56 @@ function getExpressionSVG(char, expr) {
     if (expr === 'neutral') {
       return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
         <g id="eyes">
-          <circle cx="205" cy="215" r="24" fill="${config.hair}" />
-          <circle cx="197" cy="207" r="7" fill="#FFFFFF" />
-          <circle cx="212" cy="222" r="3" fill="#FFFFFF" />
-          <circle cx="295" cy="215" r="24" fill="${config.hair}" />
-          <circle cx="287" cy="207" r="7" fill="#FFFFFF" />
-          <circle cx="302" cy="222" r="3" fill="#FFFFFF" />
+          <circle cx="202" cy="215" r="28" fill="${config.hair}" />
+          <circle cx="193" cy="206" r="9.5" fill="#FFFFFF" />
+          <circle cx="210" cy="223" r="4.5" fill="#FFFFFF" />
+          <circle cx="298" cy="215" r="28" fill="${config.hair}" />
+          <circle cx="289" cy="206" r="9.5" fill="#FFFFFF" />
+          <circle cx="306" cy="223" r="4.5" fill="#FFFFFF" />
         </g>
         <g id="blush">
-          <ellipse cx="170" cy="250" rx="18" ry="10" fill="#FDA4AF" opacity="0.65" />
-          <ellipse cx="330" cy="250" rx="18" ry="10" fill="#FDA4AF" opacity="0.65" />
+          <ellipse cx="165" cy="252" rx="20" ry="11" fill="#FDA4AF" opacity="0.7" />
+          <ellipse cx="335" cy="252" rx="20" ry="11" fill="#FDA4AF" opacity="0.7" />
         </g>
-        <path d="M235 255 Q250 270 265 255" stroke="${config.hair}" stroke-width="8" stroke-linecap="round" fill="none" />
+        <path d="M232 258 Q250 272 268 258" stroke="${config.hair}" stroke-width="8" stroke-linecap="round" fill="none" />
       </svg>`;
     } else if (expr === 'happy') {
       return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
         <g id="eyes">
-          <path d="M185 220 Q205 195 225 220" stroke="${config.hair}" stroke-width="9" stroke-linecap="round" fill="none" />
-          <path d="M275 220 Q295 195 315 220" stroke="${config.hair}" stroke-width="9" stroke-linecap="round" fill="none" />
+          <path d="M180 220 Q202 192 224 220" stroke="${config.hair}" stroke-width="9.5" stroke-linecap="round" fill="none" />
+          <path d="M276 220 Q298 192 320 220" stroke="${config.hair}" stroke-width="9.5" stroke-linecap="round" fill="none" />
         </g>
         <g id="blush">
-          <ellipse cx="170" cy="250" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
-          <ellipse cx="330" cy="250" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
+          <ellipse cx="165" cy="252" rx="22" ry="13" fill="#FDA4AF" opacity="0.75" />
+          <ellipse cx="335" cy="252" rx="22" ry="13" fill="#FDA4AF" opacity="0.75" />
         </g>
         <g id="mouth">
-          <path d="M230 245 Q250 285 270 245 Z" fill="#EF4444" stroke="${config.hair}" stroke-width="7" stroke-linejoin="round" />
-          <path d="M240 265 Q250 252 260 265 Q250 278 240 265" fill="#F472B6" />
+          <path d="M230 248 Q250 288 270 248 Z" fill="#EF4444" stroke="${config.hair}" stroke-width="7" stroke-linejoin="round" />
+          <path d="M240 268 Q250 255 260 268 Q250 281 240 268" fill="#F472B6" />
         </g>
       </svg>`;
     } else if (expr === 'sweating') {
       return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
         <g id="eyes">
-          <path d="M190 220 h30" stroke="${config.hair}" stroke-width="9" stroke-linecap="round" />
-          <path d="M280 220 h30" stroke="${config.hair}" stroke-width="9" stroke-linecap="round" />
+          <path d="M185 220 h35" stroke="${config.hair}" stroke-width="9.5" stroke-linecap="round" />
+          <path d="M280 220 h35" stroke="${config.hair}" stroke-width="9.5" stroke-linecap="round" />
         </g>
         <g id="blush">
-          <ellipse cx="170" cy="250" rx="16" ry="9" fill="#FDA4AF" opacity="0.5" />
-          <ellipse cx="330" cy="250" rx="16" ry="9" fill="#FDA4AF" opacity="0.5" />
+          <ellipse cx="165" cy="252" rx="18" ry="10" fill="#FDA4AF" opacity="0.5" />
+          <ellipse cx="335" cy="252" rx="18" ry="10" fill="#FDA4AF" opacity="0.5" />
         </g>
-        <ellipse cx="250" cy="255" rx="14" ry="8" fill="${config.hair}" />
-        <path d="M330 170 Q340 200 325 210 Q310 210 320 190 Z" fill="#3B82F6" stroke="${config.hair}" stroke-width="4" stroke-linejoin="round" />
+        <ellipse cx="250" cy="256" rx="15" ry="8.5" fill="${config.hair}" />
+        <path d="M335 170 C348 200, 320 210, 325 190 Z" fill="#3B82F6" stroke="${config.hair}" stroke-width="4.5" stroke-linejoin="round" />
       </svg>`;
     } else { // crying
       return `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
         <g id="eyes">
-          <path d="M185 225 Q205 240 225 225" stroke="${config.hair}" stroke-width="8" stroke-linecap="round" fill="none" />
-          <path d="M275 225 Q295 240 315 225" stroke="${config.hair}" stroke-width="8" stroke-linecap="round" fill="none" />
+          <path d="M180 225 Q202 242 224 225" stroke="${config.hair}" stroke-width="8.5" stroke-linecap="round" fill="none" />
+          <path d="M276 225 Q298 242 320 225" stroke="${config.hair}" stroke-width="8.5" stroke-linecap="round" fill="none" />
         </g>
-        <path d="M232 265 Q250 252 268 265" stroke="${config.hair}" stroke-width="8" stroke-linecap="round" fill="none" />
-        <path d="M195 235 v45 c0 8, 12 8, 12 0 v-45z" fill="#60A5FA" />
-        <path d="M293 235 v45 c0 8, 12 8, 12 0 v-45z" fill="#60A5FA" />
+        <path d="M232 268 Q250 252 268 268" stroke="${config.hair}" stroke-width="8" stroke-linecap="round" fill="none" />
+        <path d="M190 235 v48 c0 7, 10 7, 10 0 v-48z" fill="#60A5FA" />
+        <path d="M298 235 v48 c0 7, 10 7, 10 0 v-48z" fill="#60A5FA" />
       </svg>`;
     }
   }
@@ -421,93 +464,110 @@ function getExpressionSVG(char, expr) {
   let hairFront = '';
   let beardHTML = '';
 
-  // Coiffures et barbes selon le personnage
+  // Coiffures et barbes selon le personnage (Formes fluides, drapées et volumineuses)
   if (char === 'samson') {
-    hairBack = `<path d="M 170 ${headY} C 120 50 380 50 330 ${headY} C 360 220 370 310 330 330 C 310 250 310 210 310 190 L 190 190 C 190 210 190 250 170 330 C 130 310 140 220 170 ${headY} Z" fill="${config.hair}" />`;
-    hairFront = `<rect x="170" y="${headY - 65}" width="160" height="15" fill="${config.accent}" rx="5" />`;
+    // Cheveux longs et volumineux ondulés de Samson
+    hairBack = `<path d="M 160 170 C 130 110, 140 50, 250 50 C 360 50, 370 110, 340 170 C 375 220, 380 300, 335 320 C 310 240, 310 190, 310 170 L 190 170 C 190 190, 190 240, 165 320 C 120 300, 125 220, 160 170 Z" fill="${config.hair}" />`;
+    hairFront = `<path d="M 175 125 C 205 105, 295 105, 325 125 L 330 142 C 290 135, 210 135, 170 142 Z" fill="${config.accent}" stroke="#1E293B" stroke-width="5" />`; // Bandeau
   } else if (char === 'esther') {
-    hairBack = `<path d="M 160 ${headY} C 120 50 380 50 340 ${headY} C 380 280 350 350 320 360 C 300 280 305 200 305 180 L 195 180 C 195 200 200 280 180 360 C 150 350 120 280 160 ${headY} Z" fill="${config.hair}" />`;
-    hairFront = `<path d="M 210 ${headY - 60} L 225 ${headY - 85} L 250 ${headY - 70} L 275 ${headY - 85} L 290 ${headY - 60} Z" fill="${config.accent}" />`;
+    // Cheveux de reine très ondulés et couronne dorée ciselée
+    hairBack = `<path d="M 155 170 C 120 100, 150 40, 250 40 C 350 40, 380 100, 345 170 C 385 240, 360 320, 330 330 C 305 240, 305 180, 305 165 L 195 165 C 195 180, 195 240, 170 330 C 140 320, 115 240, 155 170 Z" fill="${config.hair}" />`;
+    hairFront = `<path d="M 195 120 L 210 80 L 235 100 L 250 75 L 265 100 L 290 80 L 305 120 Z" fill="${config.accent}" stroke="#1E293B" stroke-width="4.5" />`; // Couronne
   } else if (char === 'gedeon') {
+    // Casque de Gédéon avec plumet ondulé
     hairFront = `
-      <path d="M 180 ${headY - 45} C 180 ${headY - 100} 320 ${headY - 100} 320 ${headY - 45} Z" fill="${config.accent}" />
-      <rect x="235" y="${headY - 105}" width="30" height="25" fill="#EF4444" rx="5" /> <!-- Plumet rouge -->
+      <path d="M 175 160 C 175 90, 325 90, 325 160 Z" fill="${config.accent}" stroke="#1E293B" stroke-width="5" />
+      <path d="M 235 105 Q 250 50, 265 105 Z" fill="#EF4444" stroke="#1E293B" stroke-width="4" /> <!-- Plumet -->
+      <path d="M 220 105 h 60 v 10 h -60 Z" fill="${config.secondary}" />
     `;
   } else if (char === 'noe') {
-    hairBack = `<path d="M 170 ${headY} C 160 80 340 80 330 ${headY} Z" fill="${config.hair}" opacity="0.8" />`;
-    beardHTML = `<path d="M 180 ${headY + 25} C 180 270 320 270 320 ${headY + 25} Z" fill="${config.hair}" />`;
+    // Barbe de patriarche en nuage et cheveux gris
+    hairBack = `<path d="M 170 170 C 160 80, 340 80, 330 170 Z" fill="${config.hair}" />`;
+    beardHTML = `<path d="M 175 185 C 175 290, 325 290, 325 185 C 300 290, 200 290, 175 185 Z" fill="${config.hair}" stroke="#E2E8F0" stroke-width="2" />`;
   } else if (char === 'paul') {
-    hairBack = `<path d="M 175 ${headY} C 170 85 330 85 325 ${headY} Z" fill="${config.hair}" />`;
-    beardHTML = `<path d="M 185 ${headY + 20} C 190 220 310 220 315 ${headY + 20} Z" fill="${config.hair}" />`;
+    // Cheveux et barbe taillés propres
+    hairBack = `<path d="M 175 170 C 170 70, 330 70, 325 170 Z" fill="${config.hair}" />`;
+    beardHTML = `<path d="M 180 185 C 180 270, 320 270, 320 185 C 300 260, 200 260, 180 185 Z" fill="${config.hair}" stroke="#451A03" stroke-width="2" />`;
   } else if (char === 'pierre') {
-    hairBack = `<path d="M 170 ${headY - 10} Q 250 ${headY - 80} 330 ${headY - 10} Z" fill="${config.hair}" />`;
-    beardHTML = `<path d="M 180 ${headY + 20} C 180 230 320 230 320 ${headY + 20} Z" fill="${config.hair}" />`;
+    // Cheveux et barbe frisés bouclés gris
+    hairBack = `<path d="M 172 165 C 150 120, 350 120, 328 165 Z" fill="${config.hair}" />`;
+    beardHTML = `<path d="M 175 190 C 175 285, 325 285, 325 190 C 295 280, 205 280, 175 190 Z" fill="${config.hair}" stroke="#CBD5E1" stroke-width="2.5" />`;
   } else if (char === 'moise') {
-    hairBack = `<path d="M 170 ${headY} C 110 80 390 80 330 ${headY} Z" fill="${config.hair}" />`;
-    beardHTML = `<path d="M 175 ${headY + 15} C 175 285 325 285 325 ${headY + 15} Z" fill="${config.hair}" />`;
+    // Longue barbe de prophète majestueuse et cheveux ondulés drapés
+    hairBack = `<path d="M 172 170 C 140 80, 360 80, 328 170 Z" fill="${config.hair}" />`;
+    beardHTML = `<path d="M 170 190 C 170 310, 330 310, 330 190 C 300 315, 200 315, 170 190 Z" fill="${config.hair}" stroke="#E2E8F0" stroke-width="2" />`;
   } else if (char === 'abraham') {
+    // Turban nomade drapé et barbe blanche
     hairBack = `
-      <!-- Turban nomade -->
-      <path d="M 170 ${headY - 10} C 170 ${headY - 80} 330 ${headY - 80} 330 ${headY - 10} Z" fill="#FFFFFF" stroke="#1E293B" stroke-width="4" />
-      <rect x="190" y="${headY - 55}" width="120" height="10" fill="${config.secondary}" rx="3" />
+      <!-- Turban blanc enroulé -->
+      <path d="M 165 150 C 165 60, 335 60, 335 150 Z" fill="#FFFFFF" stroke="#1E293B" stroke-width="5.5" />
+      <path d="M 180 125 C 210 100, 290 100, 320 125 L 325 142 C 295 130, 205 130, 175 142 Z" fill="${config.secondary}" stroke="#1E293B" stroke-width="4.5" />
     `;
-    beardHTML = `<path d="M 180 ${headY + 20} C 180 270 320 270 320 ${headY + 20} Z" fill="${config.hair}" />`;
+    beardHTML = `<path d="M 178 185 C 178 285, 322 285, 322 185 C 290 280, 210 280, 178 185 Z" fill="${config.hair}" stroke="#E2E8F0" stroke-width="2" />`;
   } else if (char === 'david') {
-    hairBack = `
-      <path d="M 175 ${headY} C 140 80 360 80 325 ${headY} Z" fill="${config.hair}" />
-      <path d="M 225 ${headY - 45} L 235 ${headY - 65} L 250 ${headY - 55} L 265 ${headY - 65} L 275 ${headY - 45} Z" fill="${config.accent}" />
-    `;
+    // Cheveux roux bouclés courts de David avec couronne royale
+    hairBack = `<path d="M 172 170 C 140 80, 360 80, 328 170 Z" fill="${config.hair}" />`;
+    hairFront = `<path d="M 195 125 L 210 90 L 235 110 L 250 85 L 265 110 L 290 90 L 305 125 Z" fill="${config.accent}" stroke="#1E293B" stroke-width="4" />`;
   }
 
   // 3. Dessin des yeux géants et bouches selon l'expression
   let faceHTML = '';
   if (expr === 'neutral') {
     faceHTML = `
-      <!-- Yeux géants mignons -->
-      <circle cx="${headX - 22}" cy="${headY}" r="22" fill="#1E293B" />
-      <circle cx="${headX - 28}" cy="${headY - 6}" r="7" fill="#FFFFFF" />
-      <circle cx="${headX - 16}" cy="${headY + 6}" r="3" fill="#FFFFFF" />
+      <!-- Yeux géants mignons avec double reflet asymétrique (60% du visage) -->
+      <circle cx="${headX - 25}" cy="${headY}" r="26" fill="#1E293B" />
+      <circle cx="${headX - 33}" cy="${headY - 8}" r="8.5" fill="#FFFFFF" />
+      <circle cx="${headX - 17}" cy="${headY + 8}" r="4" fill="#FFFFFF" />
 
-      <circle cx="${headX + 22}" cy="${headY}" r="22" fill="#1E293B" />
-      <circle cx="${headX + 16}" cy="${headY - 6}" r="7" fill="#FFFFFF" />
-      <circle cx="${headX + 28}" cy="${headY + 6}" r="3" fill="#FFFFFF" />
+      <circle cx="${headX + 25}" cy="${headY}" r="26" fill="#1E293B" />
+      <circle cx="${headX + 17}" cy="${headY - 8}" r="8.5" fill="#FFFFFF" />
+      <circle cx="${headX + 33}" cy="${headY + 8}" r="4" fill="#FFFFFF" />
 
-      <ellipse cx="${headX - 42}" cy="${headY + 25}" rx="16" ry="9" fill="#FDA4AF" opacity="0.65" />
-      <ellipse cx="${headX + 42}" cy="${headY + 25}" rx="16" ry="9" fill="#FDA4AF" opacity="0.65" />
+      <!-- Blush rose kawaii -->
+      <ellipse cx="${headX - 45}" cy="${headY + 26}" rx="18" ry="10" fill="#FDA4AF" opacity="0.65" />
+      <ellipse cx="${headX + 45}" cy="${headY + 26}" rx="18" ry="10" fill="#FDA4AF" opacity="0.65" />
 
-      <path d="M${headX - 12} ${headY + 30} Q${headX} ${headY + 42} L${headX + 12} ${headY + 30}" stroke="#1E293B" stroke-width="7" stroke-linecap="round" fill="none" />
+      <!-- Bouche en léger sourire curieux -->
+      <path d="M${headX - 12} ${headY + 32} Q${headX} ${headY + 44} L${headX + 12} ${headY + 32}" stroke="#1E293B" stroke-width="6.5" stroke-linecap="round" fill="none" />
     `;
   } else if (expr === 'happy') {
     faceHTML = `
-      <!-- Yeux joyeux arqués -->
-      <path d="M${headX - 38} ${headY + 5} Q${headX - 22} ${headY - 18} L${headX - 6} ${headY + 5}" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
-      <path d="M${headX + 6} ${headY + 5} Q${headX + 22} ${headY - 18} L${headX + 38} ${headY + 5}" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+      <!-- Yeux joyeux arqués expressifs -->
+      <path d="M${headX - 42} ${headY + 4} Q${headX - 25} ${headY - 20} L${headX - 8} ${headY + 4}" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
+      <path d="M${headX + 8} ${headY + 4} Q${headX + 25} ${headY - 20} L${headX + 42} ${headY + 4}" stroke="#1E293B" stroke-width="9" stroke-linecap="round" fill="none" />
 
-      <ellipse cx="${headX - 42}" cy="${headY + 25}" rx="18" ry="11" fill="#FDA4AF" opacity="0.75" />
-      <ellipse cx="${headX + 42}" cy="${headY + 25}" rx="18" ry="11" fill="#FDA4AF" opacity="0.75" />
+      <!-- Blush plus prononcé de joie -->
+      <ellipse cx="${headX - 45}" cy="${headY + 26}" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
+      <ellipse cx="${headX + 45}" cy="${headY + 26}" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
 
-      <path d="M${headX - 14} ${headY + 25} Q${headX} ${headY + 55} L${headX + 14} ${headY + 25} Z" fill="#EF4444" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
-      <path d="M${headX - 7} ${headY + 42} Q${headX} ${headY + 32} L${headX + 7} ${headY + 42} Q${headX} ${headY + 52} L${headX - 7} ${headY + 42}" fill="#F472B6" />
+      <!-- Bouche de joie ouverte avec langue rose style Duolingo -->
+      <path d="M${headX - 16} ${headY + 28} Q${headX} ${headY + 60} L${headX + 16} ${headY + 28} Z" fill="#EF4444" stroke="#1E293B" stroke-width="6" stroke-linejoin="round" />
+      <path d="M${headX - 8} ${headY + 46} Q${headX} ${headY + 36} L${headX + 8} ${headY + 46} Q${headX} ${headY + 56} L${headX - 8} ${headY + 46}" fill="#F472B6" />
     `;
   } else if (expr === 'sweating') {
     faceHTML = `
-      <path d="M${headX - 35} ${headY + 5} h25" stroke="#1E293B" stroke-width="8" stroke-linecap="round" />
-      <path d="M${headX + 10} ${headY + 5} h25" stroke="#1E293B" stroke-width="8" stroke-linecap="round" />
+      <!-- Yeux concentrés/plissés (effort) -->
+      <path d="M${headX - 40} ${headY + 4} L${headX - 10} ${headY + 4}" stroke="#1E293B" stroke-width="8.5" stroke-linecap="round" />
+      <path d="M${headX + 10} ${headY + 4} L${headX + 40} ${headY + 4}" stroke="#1E293B" stroke-width="8.5" stroke-linecap="round" />
 
-      <ellipse cx="${headX - 42}" cy="${headY + 25}" rx="14" ry="8" fill="#FDA4AF" opacity="0.5" />
-      <ellipse cx="${headX + 42}" cy="${headY + 25}" rx="14" ry="8" fill="#FDA4AF" opacity="0.5" />
+      <ellipse cx="${headX - 45}" cy="${headY + 26}" rx="14" ry="8" fill="#FDA4AF" opacity="0.5" />
+      <ellipse cx="${headX + 45}" cy="${headY + 26}" rx="14" ry="8" fill="#FDA4AF" opacity="0.5" />
 
-      <ellipse cx="${headX}" cy="${headY + 25}" rx="12" ry="7" fill="#1E293B" />
-      <path d="M${headX + 50} ${headY - 30} Q${headX + 60} ${headY} L${headX + 40} ${headY} Z" fill="#3B82F6" stroke="#1E293B" stroke-width="4" stroke-linejoin="round" />
+      <ellipse cx="${headX}" cy="${headY + 26}" rx="13" ry="7.5" fill="#1E293B" />
+      <!-- Goutte de sueur bleue en relief 3D Flat -->
+      <path d="M${headX + 52} ${headY - 25} C${headX + 65} ${headY + 5}, ${headX + 40} ${headY + 5}, ${headX + 42} ${headY - 10} Z" fill="#3B82F6" stroke="#1E293B" stroke-width="4.5" stroke-linejoin="round" />
     `;
   } else { // crying
     faceHTML = `
-      <path d="M${headX - 36} ${headY + 8} Q${headX - 22} ${headY + 22} L${headX - 8} ${headY + 8}" stroke="#1E293B" stroke-width="8" stroke-linecap="round" fill="none" />
-      <path d="M${headX + 8} ${headY + 8} Q${headX + 22} ${headY + 22} L${headX + 36} ${headY + 8}" stroke="#1E293B" stroke-width="8" stroke-linecap="round" fill="none" />
+      <!-- Sourcils froncés et yeux tristes arqués vers le bas -->
+      <path d="M${headX - 38} ${headY + 10} Q${headX - 25} ${headY + 24} L${headX - 12} ${headY + 10}" stroke="#1E293B" stroke-width="8" stroke-linecap="round" fill="none" />
+      <path d="M${headX + 12} ${headY + 10} Q${headX + 25} ${headY + 24} L${headX + 38} ${headY + 10}" stroke="#1E293B" stroke-width="8" stroke-linecap="round" fill="none" />
 
-      <path d="M${headX - 16} ${headY + 35} Q${headX} ${headY + 22} L${headX + 16} ${headY + 35}" stroke="#1E293B" stroke-width="7" stroke-linecap="round" fill="none" />
-      <path d="M${headX - 22} ${headY + 12} v40 c0 6, 10 6, 10 0 v-40z" fill="#60A5FA" />
-      <path d="M${headX + 12} ${headY + 12} v40 c0 6, 10 6, 10 0 v-40z" fill="#60A5FA" />
+      <!-- Bouche tremblante triste -->
+      <path d="M${headX - 18} ${headY + 38} Q${headX} ${headY + 24} L${headX + 18} ${headY + 38}" stroke="#1E293B" stroke-width="7" stroke-linecap="round" fill="none" />
+      <!-- Larmes d'eau coulantes texturées -->
+      <path d="M${headX - 26} ${headY + 14} v38 c0 6, 8 6, 8 0 v-38z" fill="#60A5FA" />
+      <path d="M${headX + 18} ${headY + 14} v38 c0 6, 8 6, 8 0 v-38z" fill="#60A5FA" />
     `;
   }
 

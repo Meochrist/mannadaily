@@ -1,20 +1,23 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-    <!-- Ombre nette au sol -->
-    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
+    <!-- Ombre de contact propre style Duolingo (le composant CharacterRenderer applique aussi son ombre de sol) -->
+    <ellipse cx="250" cy="425" rx="85" ry="11" fill="#E2E8F0" />
     
-      <!-- Jambes droites -->
-      <rect x="205" y="340" width="30" height="90" rx="15" fill="#FED7AA" />
-      <rect x="265" y="340" width="30" height="90" rx="15" fill="#FED7AA" />
-      <!-- Sandales / Chaussures nettes -->
-      <path d="M190 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="#BE185D" />
-      <path d="M260 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="#BE185D" />
-      <!-- Bras ballants stables -->
-      <path d="M135 240 v100" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
-      <path d="M365 240 v100" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
+      <!-- Jambes en fuseau organiques -->
+      <path d="M 215 340 L 205 420" fill="none" stroke="#FED7AA" stroke-width="24" stroke-linecap="round" />
+      <path d="M 285 340 L 295 420" fill="none" stroke="#FED7AA" stroke-width="24" stroke-linecap="round" />
+      <!-- Pieds en haricot style cartoon orientés vers l'extérieur -->
+      <path d="M 170 412 C 170 425, 215 428, 215 410 C 215 398, 185 398, 170 412 Z" fill="#BE185D" />
+      <path d="M 330 412 C 330 425, 285 428, 285 410 C 285 398, 315 398, 330 412 Z" fill="#BE185D" />
+      <!-- Bras ballants avec courbes douces (écartés du corps) -->
+      <path d="M 150 220 Q 115 275, 130 325" fill="none" stroke="#FED7AA" stroke-width="22" stroke-linecap="round" />
+      <path d="M 350 220 Q 385 275, 370 325" fill="none" stroke="#FED7AA" stroke-width="22" stroke-linecap="round" />
     
     
-      <path d="M150 215 h200 L370 360 H130 Z" fill="#EC4899" />
-      <rect x="175" y="210" width="150" height="22" fill="#BE185D" rx="8" />
+      <path d="M 175 210 H 325 L 365 350 C 365 365, 135 365, 135 350 Z" fill="#EC4899" />
+      <!-- Ceinture dorée et drapés de la robe -->
+      <path d="M 168 250 C 210 262, 290 262, 332 250 L 338 270 C 290 282, 210 282, 162 270 Z" fill="#FBBF24" stroke="#1E293B" stroke-width="4.5" />
+      <path d="M 195 275 Q 250 330, 210 355" fill="none" stroke="#BE185D" stroke-width="5" stroke-linecap="round" opacity="0.4" />
+      <path d="M 295 275 Q 250 330, 280 355" fill="none" stroke="#BE185D" stroke-width="5" stroke-linecap="round" opacity="0.4" />
     
     
   </svg>

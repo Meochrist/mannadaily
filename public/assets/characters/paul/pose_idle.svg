@@ -1,25 +1,33 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-    <!-- Ombre nette au sol -->
-    <ellipse cx="250" cy="450" rx="90" ry="12" fill="#E2E8F0" />
+    <!-- Ombre de contact propre style Duolingo (le composant CharacterRenderer applique aussi son ombre de sol) -->
+    <ellipse cx="250" cy="425" rx="85" ry="11" fill="#E2E8F0" />
     
-      <!-- Jambes droites -->
-      <rect x="205" y="340" width="30" height="90" rx="15" fill="#FED7AA" />
-      <rect x="265" y="340" width="30" height="90" rx="15" fill="#FED7AA" />
-      <!-- Sandales / Chaussures nettes -->
-      <path d="M190 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="#6D28D9" />
-      <path d="M260 420 h50 c6 0, 6 15, 0 15 h-50 z" fill="#6D28D9" />
-      <!-- Bras ballants stables -->
-      <path d="M135 240 v100" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
-      <path d="M365 240 v100" fill="none" stroke="#FED7AA" stroke-width="20" stroke-linecap="round" />
-    
-    
-      <!-- Tunique drapée -->
-      <rect x="145" y="215" width="210" height="150" rx="40" fill="#8B5CF6" />
-      <!-- Ombre nette sur la tunique pour donner de la profondeur (Duolingo 2.0) -->
-      <path d="M145 270 C145 330, 355 330, 355 270 V325 C355 350, 145 350, 145 325 Z" fill="#6D28D9" opacity="0.3" />
+      <!-- Jambes en fuseau organiques -->
+      <path d="M 215 340 L 205 420" fill="none" stroke="#FED7AA" stroke-width="24" stroke-linecap="round" />
+      <path d="M 285 340 L 295 420" fill="none" stroke="#FED7AA" stroke-width="24" stroke-linecap="round" />
+      <!-- Pieds en haricot style cartoon orientés vers l'extérieur -->
+      <path d="M 170 412 C 170 425, 215 428, 215 410 C 215 398, 185 398, 170 412 Z" fill="#6D28D9" />
+      <path d="M 330 412 C 330 425, 285 428, 285 410 C 285 398, 315 398, 330 412 Z" fill="#6D28D9" />
+      <!-- Bras ballants avec courbes douces (écartés du corps) -->
+      <path d="M 150 220 Q 115 275, 130 325" fill="none" stroke="#FED7AA" stroke-width="22" stroke-linecap="round" />
+      <path d="M 350 220 Q 385 275, 370 325" fill="none" stroke="#FED7AA" stroke-width="22" stroke-linecap="round" />
     
     
-      <rect x="295" y="280" width="50" height="80" rx="8" fill="#FEF08A" stroke="#1E293B" stroke-width="6" transform="rotate(20 295 280)" />
-      <line x1="315" y1="280" x2="315" y2="360" stroke="#CA8A04" stroke-width="4" transform="rotate(20 295 280)" />
+      <!-- Tunique en forme de poire/cloche organique (Duolingo Style) -->
+      <path d="M 175 210 C 150 245, 125 315, 150 350 C 175 365, 325 365, 350 350 C 375 315, 350 245, 325 210 Z" fill="#8B5CF6" />
+      <!-- Ombre de volume nette sous le cou et drapés en bas -->
+      <path d="M 150 350 C 175 365, 325 365, 350 350 C 340 310, 160 310, 150 350 Z" fill="#6D28D9" opacity="0.25" />
+      <path d="M 200 210 Q 250 230, 300 210 C 290 225, 210 225, 200 210 Z" fill="#6D28D9" opacity="0.3" />
+    
+    
+      <g id="parchment" transform="translate(295, 280) rotate(22)">
+        <rect x="0" y="0" width="48" height="75" rx="8" fill="#FEF08A" stroke="#1E293B" stroke-width="5.5" />
+        <path d="M 6 0 H 42" stroke="#D97706" stroke-width="4.5" />
+        <path d="M 6 75 H 42" stroke="#D97706" stroke-width="4.5" />
+        <!-- Lignes d'écriture fines sur le rouleau -->
+        <line x1="12" y1="20" x2="36" y2="20" stroke="#78350F" stroke-width="3" stroke-linecap="round" />
+        <line x1="12" y1="35" x2="36" y2="35" stroke="#78350F" stroke-width="3" stroke-linecap="round" />
+        <line x1="12" y1="50" x2="28" y2="50" stroke="#78350F" stroke-width="3" stroke-linecap="round" />
+      </g>
     
   </svg>

@@ -1,14 +1,14 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
         <g id="eyes">
-          <path d="M185 220 Q205 195 225 220" stroke="#64748B" stroke-width="9" stroke-linecap="round" fill="none" />
-          <path d="M275 220 Q295 195 315 220" stroke="#64748B" stroke-width="9" stroke-linecap="round" fill="none" />
+          <path d="M180 220 Q202 192 224 220" stroke="#64748B" stroke-width="9.5" stroke-linecap="round" fill="none" />
+          <path d="M276 220 Q298 192 320 220" stroke="#64748B" stroke-width="9.5" stroke-linecap="round" fill="none" />
         </g>
         <g id="blush">
-          <ellipse cx="170" cy="250" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
-          <ellipse cx="330" cy="250" rx="20" ry="12" fill="#FDA4AF" opacity="0.75" />
+          <ellipse cx="165" cy="252" rx="22" ry="13" fill="#FDA4AF" opacity="0.75" />
+          <ellipse cx="335" cy="252" rx="22" ry="13" fill="#FDA4AF" opacity="0.75" />
         </g>
         <g id="mouth">
-          <path d="M230 245 Q250 285 270 245 Z" fill="#EF4444" stroke="#64748B" stroke-width="7" stroke-linejoin="round" />
-          <path d="M240 265 Q250 252 260 265 Q250 278 240 265" fill="#F472B6" />
+          <path d="M230 248 Q250 288 270 248 Z" fill="#EF4444" stroke="#64748B" stroke-width="7" stroke-linejoin="round" />
+          <path d="M240 268 Q250 255 260 268 Q250 281 240 268" fill="#F472B6" />
         </g>
       </svg>
