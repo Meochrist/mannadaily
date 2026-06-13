@@ -1,9 +1,14 @@
 import { FedaPay, Transaction } from 'fedapay'
 
-// Initialisation de FedaPay
-const apiKey = process.env.FEDAPAY_SECRET_KEY || "sk_sandbox_placeholder"
-FedaPay.setApiKey(apiKey)
-FedaPay.setEnvironment('sandbox') // mode sandbox par défaut pour la sécurité et les tests
+// Fonction d'initialisation dynamique de FedaPay (évite les problèmes de cache de variables d'env)
+function initFedaPay() {
+  if (process.env.NODE_ENV === 'development') {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+  }
+  const apiKey = process.env.FEDAPAY_SECRET_KEY || "sk_sandbox_placeholder";
+  FedaPay.setApiKey(apiKey);
+  FedaPay.setEnvironment('sandbox'); // mode sandbox par défaut pour la sécurité et les tests
+}
 
 export interface CreateTransactionResult {
   transactionId: number
@@ -33,6 +38,7 @@ export async function createTransaction(
   callbackUrl: string
 ): Promise<CreateTransactionResult> {
   try {
+    initFedaPay()
     const names = customerName.trim().split(/\s+/)
     const firstname = names[0] || "Ami"
     const lastname = names.slice(1).join(" ") || "MannaDaily"
@@ -40,20 +46,25 @@ export async function createTransaction(
     // Nettoyage sommaire du numéro de téléphone
     const cleanedPhone = customerPhone.replace(/[\s\-\+\(\)]/g, "")
 
+    const customerParams: any = {
+      firstname,
+      lastname,
+      email: customerEmail.toLowerCase().trim()
+    }
+
+    if (cleanedPhone) {
+      customerParams.phone_number = {
+        number: cleanedPhone,
+        country: 'BJ' // Bénin par défaut pour l'Afrique de l'Ouest
+      }
+    }
+
     const transaction = await Transaction.create({
       description,
       amount,
       currency: { iso: 'XOF' },
       callback_url: callbackUrl,
-      customer: {
-        firstname,
-        lastname,
-        email: customerEmail.toLowerCase().trim(),
-        phone_number: {
-          number: cleanedPhone,
-          country: 'BJ' // Bénin par défaut pour l'Afrique de l'Ouest
-        }
-      }
+      customer: customerParams
     })
 
     const token = await transaction.generateToken()
@@ -75,6 +86,7 @@ export async function createTransaction(
  */
 export async function verifyTransaction(transactionId: string | number): Promise<VerifyTransactionResult> {
   try {
+    initFedaPay()
     const id = typeof transactionId === "string" ? parseInt(transactionId, 10) : transactionId
     if (isNaN(id)) {
       throw new Error("ID de transaction invalide")
