@@ -19,8 +19,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="space-y-8">
           {/* Titre / Logo */}
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white font-black text-lg border border-white/10">
-              M
+            <div className="w-10 h-10 flex items-center justify-center relative bg-white/10 rounded-xl p-1 border border-white/10 overflow-hidden">
+              <img 
+                src="/assets/characters/manny/pose_idle.svg" 
+                alt="Manny Logo" 
+                className="w-full h-full object-contain" 
+              />
             </div>
             <span className="text-xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-200">
               MannaDaily
