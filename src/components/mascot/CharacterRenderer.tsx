@@ -25,6 +25,8 @@ const UNIFIED_CHARACTERS = [
   "gedeon",
   "paul",
   "pierre",
+  "moise",
+  "abraham",
 ];
 
 // Types des états supportés par notre mascotte (style Duolingo)

@@ -1,6 +1,10 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { generateMeditation } from "@/lib/ai";
+import { 
+  generateMeditation, 
+  generatePersonalizedSummary, 
+  generatePersonalizedPrayer 
+} from "@/lib/ai";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -27,7 +31,25 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { verse, reference, theme, type = "meditation" } = body;
+    const { verse, reference, theme, type = "meditation", answers } = body;
+
+    // Prise en charge du résumé personnalisé
+    if (type === "summary") {
+      if (!answers) {
+        return NextResponse.json({ error: "Missing required answers field for summary" }, { status: 400 });
+      }
+      const summaryText = await generatePersonalizedSummary(answers);
+      return NextResponse.json({ summary: summaryText });
+    }
+
+    // Prise en charge de la prière personnalisée
+    if (type === "prayer_personal") {
+      if (!verse || !answers) {
+        return NextResponse.json({ error: "Missing required verse or answers fields for personalized prayer" }, { status: 400 });
+      }
+      const prayerText = await generatePersonalizedPrayer(answers, verse);
+      return NextResponse.json({ meditation: prayerText });
+    }
 
     if (!verse || !reference || !theme) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });

@@ -23,6 +23,7 @@ import {
 import { getMannyMessage } from "@/lib/mannyMessages";
 import * as sounds from "@/lib/sounds";
 import { getDailyVerse, getVerseContext, Verse as DailyVerseType } from "@/lib/verses";
+import SpeechMicButton from "@/components/meditation/SpeechMicButton";
 
 interface SessionResult {
   xpEarned: number;
@@ -73,9 +74,15 @@ export default function MeditatePage() {
   // Contexte biblique (lecture seule en local)
   const [bibleContext, setBibleContext] = useState<{ before: DailyVerseType[]; after: DailyVerseType[] }>({ before: [], after: [] });
 
-  // Contenus générés par l'IA (historique et prière)
+  // Contenus générés par l'IA (historique, prière et résumé)
   const [historicalContext, setHistoricalContext] = useState("");
   const [prayerContent, setPrayerContent] = useState("");
+  const [summaryContent, setSummaryContent] = useState<string | null>(null);
+
+  // États de pre-fetch et cache (Tâche #49)
+  const [prefetchedHistorical, setPrefetchedHistorical] = useState<string | null>(null);
+  const [prefetchedMeditation, setPrefetchedMeditation] = useState<string | null>(null);
+  const [isPrefetching, setIsPrefetching] = useState(false);
 
   // Réponses utilisateur pour le journal
   const [answers, setAnswers] = useState<Answers>({
@@ -155,6 +162,84 @@ export default function MeditatePage() {
     setShowSuggestion(true);
   }, [currentStep]);
 
+  // Pre-fetch et Cache local session (Tâche #49)
+  useEffect(() => {
+    if (currentStep === 1 && dailyVerse && !isPrefetching) {
+      const histKey = `manna_historical_${dailyVerse.reference}`;
+      const medKey = `manna_meditation_${dailyVerse.reference}`;
+
+      // 1. Vérification du cache de session
+      const cachedHistorical = sessionStorage.getItem(histKey);
+      const cachedMeditation = sessionStorage.getItem(medKey);
+
+      if (cachedHistorical) {
+        setHistoricalContext(cachedHistorical);
+        setPrefetchedHistorical(cachedHistorical);
+      }
+      if (cachedMeditation) {
+        setPrefetchedMeditation(cachedMeditation);
+      }
+
+      // Si les deux sont déjà en cache, aucun appel API nécessaire
+      if (cachedHistorical && cachedMeditation) {
+        return;
+      }
+
+      // Lancement du pre-fetch des éléments manquants
+      setIsPrefetching(true);
+      const fetchTasks = [];
+
+      if (!cachedHistorical) {
+        fetchTasks.push(
+          fetch("/api/meditation/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              verse: dailyVerse.text,
+              reference: dailyVerse.reference,
+              theme: dailyVerse.theme,
+              type: "contexte_historique"
+            }),
+          })
+          .then(async (res) => {
+            if (!res.ok) throw new Error("Failed to fetch historical context");
+            const data = await res.json();
+            sessionStorage.setItem(histKey, data.meditation);
+            setHistoricalContext(data.meditation);
+            setPrefetchedHistorical(data.meditation);
+            return data.meditation;
+          })
+        );
+      }
+
+      if (!cachedMeditation) {
+        fetchTasks.push(
+          fetch("/api/meditation/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              verse: dailyVerse.text,
+              reference: dailyVerse.reference,
+              theme: dailyVerse.theme,
+              type: "meditation"
+            }),
+          })
+          .then(async (res) => {
+            if (!res.ok) throw new Error("Failed to fetch main meditation");
+            const data = await res.json();
+            sessionStorage.setItem(medKey, data.meditation);
+            setPrefetchedMeditation(data.meditation);
+            return data.meditation;
+          })
+        );
+      }
+
+      Promise.allSettled(fetchTasks).finally(() => {
+        setIsPrefetching(false);
+      });
+    }
+  }, [currentStep, dailyVerse, isPrefetching]);
+
   // CORRECTION 2 : Validation des étapes (min. 10 caractères dans au moins 1 textarea)
   const isStepValid = () => {
     switch (currentStep) {
@@ -195,6 +280,14 @@ export default function MeditatePage() {
 
   // Appel IA pour l'étape 3 (Contexte historique)
   const fetchHistoricalContext = async (verseObj: DailyVerseType) => {
+    const histKey = `manna_historical_${verseObj.reference}`;
+    const cached = sessionStorage.getItem(histKey) || prefetchedHistorical || historicalContext;
+    
+    if (cached) {
+      setHistoricalContext(cached);
+      return;
+    }
+
     setLoading(true);
     setError("");
     setLoadingMessage(getMannyMessage("loading", userName, streakCount));
@@ -214,6 +307,7 @@ export default function MeditatePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Échec de la génération du contexte historique.");
       setHistoricalContext(data.meditation);
+      sessionStorage.setItem(histKey, data.meditation);
       sounds.playSuccess();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erreur inconnue");
@@ -222,27 +316,59 @@ export default function MeditatePage() {
     }
   };
 
-  // Appel IA pour l'étape 7 (Prière)
-  const fetchPrayer = async (verseObj: DailyVerseType) => {
+  // Appel IA pour l'étape 7 (Prière personnalisée & Résumé personnalisé)
+  const fetchPersonalizedContent = async (verseObj: DailyVerseType) => {
     setLoading(true);
     setError("");
     setLoadingMessage(getMannyMessage("loading", userName, streakCount));
 
     try {
-      const res = await fetch("/api/meditation/generate", {
+      // 1. Lancer la requête pour la prière personnalisée
+      const prayerPromise = fetch("/api/meditation/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           verse: verseObj.text,
           reference: verseObj.reference,
           theme: verseObj.theme,
-          type: "priere"
+          type: "prayer_personal",
+          answers: answers
         }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Échec de la génération de la prière.");
-      setPrayerContent(data.meditation);
+      // 2. Lancer la requête pour le résumé personnalisé
+      const summaryPromise = fetch("/api/meditation/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          verse: verseObj.text,
+          reference: verseObj.reference,
+          theme: verseObj.theme,
+          type: "summary",
+          answers: answers
+        }),
+      });
+
+      // Attendre les deux réponses
+      const [prayerRes, summaryRes] = await Promise.all([prayerPromise, summaryPromise]);
+
+      const prayerData = await prayerRes.json();
+      if (!prayerRes.ok) throw new Error(prayerData.error || "Échec de la génération de la prière.");
+      setPrayerContent(prayerData.meditation);
+
+      // Le résumé est facultatif/silencieux s'il échoue ou s'il retourne null
+      try {
+        if (summaryRes.ok) {
+          const summaryData = await summaryRes.json();
+          setSummaryContent(summaryData.summary);
+        } else {
+          setSummaryContent(null);
+        }
+      } catch (sumErr) {
+        console.warn("Silent failure for summary generation:", sumErr);
+        setSummaryContent(null);
+      }
+
       sounds.playSuccess();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erreur inconnue");
@@ -260,13 +386,43 @@ export default function MeditatePage() {
     // Jouer le son engageant de passage d'étape
     sounds.playStepComplete();
 
-    // CORRECTION 1 : L'étape 2 (Contexte biblique) est locale et ne fait plus de fetch IA
-    if (nextStep === 3 && !historicalContext) {
+    // Gestion de la navigation avec Pre-fetch & Loader minimal (Tâche #49)
+    if (nextStep === 3) {
       setCurrentStep(nextStep);
-      await fetchHistoricalContext(dailyVerse);
+      const histKey = `manna_historical_${dailyVerse.reference}`;
+      const cached = sessionStorage.getItem(histKey) || prefetchedHistorical || historicalContext;
+      
+      if (!cached) {
+        // Pas en cache : on lance le chargement
+        await fetchHistoricalContext(dailyVerse);
+      } else {
+        // Déjà en cache/prefetch : affichage immédiat
+        setHistoricalContext(cached);
+      }
+    } else if (nextStep === 4) {
+      setCurrentStep(nextStep);
+      const medKey = `manna_meditation_${dailyVerse.reference}`;
+      const cached = sessionStorage.getItem(medKey) || prefetchedMeditation;
+      
+      if (!cached && isPrefetching) {
+        // En cours de prefetching : loader minimal (1-2s max)
+        setLoading(true);
+        const checkInterval = setInterval(() => {
+          const val = sessionStorage.getItem(medKey) || prefetchedMeditation;
+          if (val) {
+            clearInterval(checkInterval);
+            setLoading(false);
+          }
+        }, 200);
+        
+        setTimeout(() => {
+          clearInterval(checkInterval);
+          setLoading(false);
+        }, 1500); // 1.5s max
+      }
     } else if (nextStep === 7 && !prayerContent) {
       setCurrentStep(nextStep);
-      await fetchPrayer(dailyVerse);
+      await fetchPersonalizedContent(dailyVerse);
     } else {
       setCurrentStep(nextStep);
     }
@@ -512,21 +668,22 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center space-y-6 py-16"
+              className="flex flex-col items-center justify-center space-y-4 py-16 w-full max-w-sm mx-auto"
             >
-              <Manny mood={currentStep === 7 ? "praying" : "thinking"} size={180} />
-              <div className="text-center space-y-3">
-                <h3 className="text-xl font-black text-slate-800 tracking-tight">
-                  {loadingMessage || "Chargement par l'IA..."}
-                </h3>
-                <p className="text-slate-400 font-semibold text-sm animate-pulse max-w-xs mx-auto">
-                  {currentStep === 7 
-                    ? "Je rédige une prière inspirée pour sceller ton temps de méditation..." 
-                    : "J'analyse l'arrière-plan historique de l'Écriture..."
-                  }
-                </p>
+              {/* Barre de progression animée fine en haut (3s) */}
+              <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden mb-2">
+                <motion.div 
+                  className="h-full bg-indigo-600"
+                  initial={{ width: "0%" }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 3, ease: "easeInOut" }}
+                />
               </div>
-              <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+
+              <Manny mood={currentStep === 7 ? "praying" : "thinking"} size={80} />
+              <span className="text-sm font-black text-slate-500 animate-pulse tracking-wide">
+                Chargement...
+              </span>
             </motion.div>
           ) : error ? (
             <motion.div
@@ -539,7 +696,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
               <button
                 onClick={() => {
                   if (currentStep === 3 && dailyVerse) fetchHistoricalContext(dailyVerse);
-                  if (currentStep === 7 && dailyVerse) fetchPrayer(dailyVerse);
+                  if (currentStep === 7 && dailyVerse) fetchPersonalizedContent(dailyVerse);
                 }}
                 className="px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-extrabold rounded-xl text-sm shadow-md transition-all"
               >
@@ -642,35 +799,53 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                     
                     <div className="space-y-3">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Qui parle dans ce passage ?</label>
-                      <textarea
-                        rows={2}
-                        value={answers.step2_who}
-                        onChange={(e) => setAnswers({ ...answers, step2_who: e.target.value })}
-                        placeholder="Ex: L'apôtre Paul, Jésus, un psalmiste..."
-                        className="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                      />
+                      <div className="relative">
+                        <textarea
+                          rows={2}
+                          value={answers.step2_who}
+                          onChange={(e) => setAnswers({ ...answers, step2_who: e.target.value })}
+                          placeholder="Ex: L'apôtre Paul, Jésus, un psalmiste..."
+                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                        />
+                        <SpeechMicButton
+                          value={answers.step2_who}
+                          onChange={(val) => setAnswers({ ...answers, step2_who: val })}
+                        />
+                      </div>
                     </div>
 
                     <div className="space-y-3">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">À qui s'adresse ce message ?</label>
-                      <textarea
-                        rows={2}
-                        value={answers.step2_whom}
-                        onChange={(e) => setAnswers({ ...answers, step2_whom: e.target.value })}
-                        placeholder="Ex: Aux chrétiens de Philippe, aux disciples, à Dieu..."
-                        className="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                      />
+                      <div className="relative">
+                        <textarea
+                          rows={2}
+                          value={answers.step2_whom}
+                          onChange={(e) => setAnswers({ ...answers, step2_whom: e.target.value })}
+                          placeholder="Ex: Aux chrétiens de Philippe, aux disciples, à Dieu..."
+                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                        />
+                        <SpeechMicButton
+                          value={answers.step2_whom}
+                          onChange={(val) => setAnswers({ ...answers, step2_whom: val })}
+                        />
+                      </div>
                     </div>
 
                     <div className="space-y-3">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Que se passait-il juste avant ce verset ?</label>
-                      <textarea
-                        rows={2}
-                        value={answers.step2_before}
-                        onChange={(e) => setAnswers({ ...answers, step2_before: e.target.value })}
-                        placeholder="Quels événements précèdent directement cette parole ?"
-                        className="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                      />
+                      <div className="relative">
+                        <textarea
+                          rows={2}
+                          value={answers.step2_before}
+                          onChange={(e) => setAnswers({ ...answers, step2_before: e.target.value })}
+                          placeholder="Quels événements précèdent directement cette parole ?"
+                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                        />
+                        <SpeechMicButton
+                          value={answers.step2_before}
+                          onChange={(val) => setAnswers({ ...answers, step2_before: val })}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -702,35 +877,53 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                     
                     <div className="space-y-3">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Dans quelle époque ce livre a-t-il été écrit ?</label>
-                      <textarea
-                        rows={2}
-                        value={answers.step3_epoch}
-                        onChange={(e) => setAnswers({ ...answers, step3_epoch: e.target.value })}
-                        placeholder="Ex: Sous l'exil à Babylone, sous l'occupation romaine..."
-                        className="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                      />
+                      <div className="relative">
+                        <textarea
+                          rows={2}
+                          value={answers.step3_epoch}
+                          onChange={(e) => setAnswers({ ...answers, step3_epoch: e.target.value })}
+                          placeholder="Ex: Sous l'exil à Babylone, sous l'occupation romaine..."
+                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                        />
+                        <SpeechMicButton
+                          value={answers.step3_epoch}
+                          onChange={(val) => setAnswers({ ...answers, step3_epoch: val })}
+                        />
+                      </div>
                     </div>
 
                     <div className="space-y-3">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">À quel peuple ou personne ce message était-il destiné ?</label>
-                      <textarea
-                        rows={2}
-                        value={answers.step3_dest}
-                        onChange={(e) => setAnswers({ ...answers, step3_dest: e.target.value })}
-                        placeholder="Ex: Aux exilés, à l'Église primitive persécutée..."
-                        className="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                      />
+                      <div className="relative">
+                        <textarea
+                          rows={2}
+                          value={answers.step3_dest}
+                          onChange={(e) => setAnswers({ ...answers, step3_dest: e.target.value })}
+                          placeholder="Ex: Aux exilés, à l'Église primitive persécutée..."
+                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                        />
+                        <SpeechMicButton
+                          value={answers.step3_dest}
+                          onChange={(val) => setAnswers({ ...answers, step3_dest: val })}
+                        />
+                      </div>
                     </div>
 
                     <div className="space-y-3">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quel problem ou situation ce texte adressait-il ?</label>
-                      <textarea
-                        rows={2}
-                        value={answers.step3_problem}
-                        onChange={(e) => setAnswers({ ...answers, step3_problem: e.target.value })}
-                        placeholder="Quel défi pastoral, théologique ou communautaire était traité ?"
-                        className="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                      />
+                      <div className="relative">
+                        <textarea
+                          rows={2}
+                          value={answers.step3_problem}
+                          onChange={(e) => setAnswers({ ...answers, step3_problem: e.target.value })}
+                          placeholder="Quel défi pastoral, théologique ou communautaire était traité ?"
+                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                        />
+                        <SpeechMicButton
+                          value={answers.step3_problem}
+                          onChange={(val) => setAnswers({ ...answers, step3_problem: val })}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -756,35 +949,53 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   <div className="space-y-4">
                     <div className="space-y-3">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quels sont les personnages ou acteurs mentionnés ?</label>
-                      <textarea
-                        rows={2}
-                        value={answers.step4_actors}
-                        onChange={(e) => setAnswers({ ...answers, step4_actors: e.target.value })}
-                        placeholder="Note toutes les personnes, groupes ou entités (y compris Dieu)."
-                        className="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                      />
+                      <div className="relative">
+                        <textarea
+                          rows={2}
+                          value={answers.step4_actors}
+                          onChange={(e) => setAnswers({ ...answers, step4_actors: e.target.value })}
+                          placeholder="Note toutes les personnes, groupes ou entités (y compris Dieu)."
+                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                        />
+                        <SpeechMicButton
+                          value={answers.step4_actors}
+                          onChange={(val) => setAnswers({ ...answers, step4_actors: val })}
+                        />
+                      </div>
                     </div>
 
                     <div className="space-y-3">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quels mots ou expressions se répètent dans ce verset ?</label>
-                      <textarea
-                        rows={2}
-                        value={answers.step4_repeats}
-                        onChange={(e) => setAnswers({ ...answers, step4_repeats: e.target.value })}
-                        placeholder="Y a-t-il des termes insistants (ex: force, loi, cœur, aimer) ?"
-                        className="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                      />
+                      <div className="relative">
+                        <textarea
+                          rows={2}
+                          value={answers.step4_repeats}
+                          onChange={(e) => setAnswers({ ...answers, step4_repeats: e.target.value })}
+                          placeholder="Y a-t-il des termes insistants (ex: force, loi, cœur, aimer) ?"
+                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                        />
+                        <SpeechMicButton
+                          value={answers.step4_repeats}
+                          onChange={(val) => setAnswers({ ...answers, step4_repeats: val })}
+                        />
+                      </div>
                     </div>
 
                     <div className="space-y-3">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quel est le fait ou l'action principale décrite ?</label>
-                      <textarea
-                        rows={2}
-                        value={answers.step4_action}
-                        onChange={(e) => setAnswers({ ...answers, step4_action: e.target.value })}
-                        placeholder="Quel est le verbe d'action clé ou l'affirmation centrale ?"
-                        className="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                      />
+                      <div className="relative">
+                        <textarea
+                          rows={2}
+                          value={answers.step4_action}
+                          onChange={(e) => setAnswers({ ...answers, step4_action: e.target.value })}
+                          placeholder="Quel est le verbe d'action clé ou l'affirmation centrale ?"
+                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                        />
+                        <SpeechMicButton
+                          value={answers.step4_action}
+                          onChange={(val) => setAnswers({ ...answers, step4_action: val })}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -810,35 +1021,53 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   <div className="space-y-4">
                     <div className="space-y-3">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Que voulait communiquer l'auteur à ses lecteurs de l'époque ?</label>
-                      <textarea
-                        rows={2}
-                        value={answers.step5_author}
-                        onChange={(e) => setAnswers({ ...answers, step5_author: e.target.value })}
-                        placeholder="Quel était l'enseignement moral ou la vérité théologique visée ?"
-                        className="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                      />
+                      <div className="relative">
+                        <textarea
+                          rows={2}
+                          value={answers.step5_author}
+                          onChange={(e) => setAnswers({ ...answers, step5_author: e.target.value })}
+                          placeholder="Quel était l'enseignement moral ou la vérité théologique visée ?"
+                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                        />
+                        <SpeechMicButton
+                          value={answers.step5_author}
+                          onChange={(val) => setAnswers({ ...answers, step5_author: val })}
+                        />
+                      </div>
                     </div>
 
                     <div className="space-y-3">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Qu'est-ce que ce verset signifie à la lumière de Jésus-Christ ?</label>
-                      <textarea
-                        rows={2}
-                        value={answers.step5_jesus}
-                        onChange={(e) => setAnswers({ ...answers, step5_jesus: e.target.value })}
-                        placeholder="Comment cette Parole pointe-t-elle vers la grâce, la croix ou l'Évangile ?"
-                        className="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                      />
+                      <div className="relative">
+                        <textarea
+                          rows={2}
+                          value={answers.step5_jesus}
+                          onChange={(e) => setAnswers({ ...answers, step5_jesus: e.target.value })}
+                          placeholder="Comment cette Parole pointe-t-elle vers la grâce, la croix ou l'Évangile ?"
+                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                        />
+                        <SpeechMicButton
+                          value={answers.step5_jesus}
+                          onChange={(val) => setAnswers({ ...answers, step5_jesus: val })}
+                        />
+                      </div>
                     </div>
 
                     <div className="space-y-3">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Résume ce verset en une seule phrase simple.</label>
-                      <textarea
-                        rows={2}
-                        value={answers.step5_summary}
-                        onChange={(e) => setAnswers({ ...answers, step5_summary: e.target.value })}
-                        placeholder="Réécris la vérité essentielle du verset avec tes propres mots."
-                        className="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                      />
+                      <div className="relative">
+                        <textarea
+                          rows={2}
+                          value={answers.step5_summary}
+                          onChange={(e) => setAnswers({ ...answers, step5_summary: e.target.value })}
+                          placeholder="Réécris la vérité essentielle du verset avec tes propres mots."
+                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                        />
+                        <SpeechMicButton
+                          value={answers.step5_summary}
+                          onChange={(val) => setAnswers({ ...answers, step5_summary: val })}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -864,35 +1093,53 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   <div className="space-y-4">
                     <div className="space-y-3">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Comment ce verset parle-t-il directement à ta situation aujourd'hui ?</label>
-                      <textarea
-                        rows={2}
-                        value={answers.step6_situation}
-                        onChange={(e) => setAnswers({ ...answers, step6_situation: e.target.value })}
-                        placeholder="Fais un lien avec ton travail, ta famille, tes soucis actuels..."
-                        className="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                      />
+                      <div className="relative">
+                        <textarea
+                          rows={2}
+                          value={answers.step6_situation}
+                          onChange={(e) => setAnswers({ ...answers, step6_situation: e.target.value })}
+                          placeholder="Fais un lien avec ton travail, ta famille, tes soucis actuels..."
+                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                        />
+                        <SpeechMicButton
+                          value={answers.step6_situation}
+                          onChange={(val) => setAnswers({ ...answers, step6_situation: val })}
+                        />
+                      </div>
                     </div>
 
                     <div className="space-y-3">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Qu'est-ce que Dieu veut transformer dans ta vie à travers ce texte ?</label>
-                      <textarea
-                        rows={2}
-                        value={answers.step6_transform}
-                        onChange={(e) => setAnswers({ ...answers, step6_transform: e.target.value })}
-                        placeholder="Une attitude, une habitude, une crainte à abandonner ?"
-                        className="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                      />
+                      <div className="relative">
+                        <textarea
+                          rows={2}
+                          value={answers.step6_transform}
+                          onChange={(e) => setAnswers({ ...answers, step6_transform: e.target.value })}
+                          placeholder="Une attitude, une habitude, une crainte à abandonner ?"
+                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                        />
+                        <SpeechMicButton
+                          value={answers.step6_transform}
+                          onChange={(val) => setAnswers({ ...answers, step6_transform: val })}
+                        />
+                      </div>
                     </div>
 
                     <div className="space-y-3">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quelle décision concrète tu prends suite à cette méditation ?</label>
-                      <textarea
-                        rows={2}
-                        value={answers.step6_decision}
-                        onChange={(e) => setAnswers({ ...answers, step6_decision: e.target.value })}
-                        placeholder="Quelle action précise ou engagement vas-tu mettre en œuvre aujourd'hui ?"
-                        className="w-full p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                      />
+                      <div className="relative">
+                        <textarea
+                          rows={2}
+                          value={answers.step6_decision}
+                          onChange={(e) => setAnswers({ ...answers, step6_decision: e.target.value })}
+                          placeholder="Quelle action précise ou engagement vas-tu mettre en œuvre aujourd'hui ?"
+                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                        />
+                        <SpeechMicButton
+                          value={answers.step6_decision}
+                          onChange={(val) => setAnswers({ ...answers, step6_decision: val })}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -920,6 +1167,18 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                           size={150}
                         />
                       </div>
+
+                      {summaryContent && (
+                        <div className="w-full bg-indigo-950 text-indigo-50 p-8 rounded-3xl border border-indigo-900 shadow-lg relative overflow-hidden flex flex-col space-y-4">
+                          <div className="flex items-center gap-2 border-b border-indigo-900/60 pb-3 text-amber-400">
+                            <Sparkles className="w-4.5 h-4.5 text-amber-400 fill-amber-400/10" />
+                            <span className="font-black text-xs uppercase tracking-wider text-amber-400">Ce que Dieu t'a dit aujourd'hui</span>
+                          </div>
+                          <p className="text-indigo-100 font-bold leading-relaxed text-base text-justify whitespace-pre-line">
+                            {summaryContent}
+                          </p>
+                        </div>
+                      )}
 
                       <div className="w-full bg-white p-8 rounded-3xl border border-indigo-100 shadow-lg relative overflow-hidden flex flex-col space-y-4">
                         <div className="flex items-center gap-2 border-b pb-3 text-indigo-700">

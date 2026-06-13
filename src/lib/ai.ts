@@ -147,3 +147,137 @@ Style : très chaleureux, court, bienveillant, et fraternel. Pas de titres ni de
     }
   }
 }
+
+/**
+ * Détermine si les réponses fournies par l'utilisateur sont sérieuses.
+ */
+function isAnswersSerious(answers: Record<string, string>): boolean {
+  if (!answers) return false;
+  
+  // Concaténer toutes les réponses pour vérifier la longueur globale
+  const allText = Object.values(answers).join("").trim();
+  // Enlever les espaces et les ponctuations
+  const cleanedText = allText.replace(/[\s\p{P}]/gu, "");
+  if (cleanedText.length < 20) return false;
+
+  // Expressions de remplissage typiques à rejeter
+  const fillerWords = [
+    "rien", "ok", "okay", "jesaispas", "jenesaispas", "ras", "aucun", 
+    "none", "test", "pasde", "sans", "neant", "néant", "sansobjet"
+  ];
+
+  // Nettoyer une chaîne (accents, espaces, minuscules)
+  const normalize = (str: string) => {
+    return str
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // Supprimer les accents
+      .replace(/[^a-z0-9]/g, "");     // Garder uniquement l'alphanumérique
+  };
+
+  // Vérifier si au moins une réponse significative n'est pas du remplissage
+  let hasSeriousAnswer = false;
+  for (const key of Object.keys(answers)) {
+    const val = answers[key]?.trim();
+    if (!val) continue;
+    
+    const normVal = normalize(val);
+    if (normVal.length > 0 && !fillerWords.includes(normVal)) {
+      hasSeriousAnswer = true;
+      break;
+    }
+  }
+
+  return hasSeriousAnswer;
+}
+
+/**
+ * Génère un résumé personnalisé réel en 3-4 phrases de ce que Dieu a dit à l'utilisateur,
+ * basé uniquement sur ses réponses.
+ */
+export async function generatePersonalizedSummary(
+  answers: Record<string, string>
+): Promise<string | null> {
+  if (isBuildTime()) {
+    return "Dans cette méditation, Dieu t'a parlé de marcher avec assurance et foi face aux défis (résumé factice de build).";
+  }
+
+  if (!isAnswersSerious(answers)) {
+    return null;
+  }
+
+  // Formater les réponses pour le prompt
+  const formattedAnswers = Object.entries(answers)
+    .filter(([_, val]) => val && val.trim().length > 0)
+    .map(([key, val]) => `${key}: ${val.trim()}`)
+    .join("\n");
+
+  const prompt = `Voici ce qu'un croyant a écrit pendant sa méditation biblique :
+${formattedAnswers}
+
+Génère un résumé PERSONNEL en 3-4 phrases de ce que DIEU lui a dit à travers ce verset, basé UNIQUEMENT sur ce qu'il a écrit. Ne génère pas de résumé générique. Parle-lui directement à la deuxième personne. Commence par 'Dans cette méditation, Dieu t'a parlé de...'`;
+
+  try {
+    return await callGemini(prompt, "gemini-2.5-flash");
+  } catch (err: unknown) {
+    console.warn("Gemini failed for summary. Trying Groq...", err);
+    try {
+      return await callGroq(prompt, "llama-3.3-70b-versatile");
+    } catch (groqErr: unknown) {
+      console.warn("Groq failed for summary. Trying GitHub...", groqErr);
+      try {
+        return await callGitHub(prompt, "gpt-4o");
+      } catch (gitErr: unknown) {
+        console.error("All AI providers failed for summary.", gitErr);
+        throw new Error("Unable to generate personalized summary. All AI providers failed.");
+      }
+    }
+  }
+}
+
+/**
+ * Génère une prière personnelle basée sur les réponses de méditation de l'utilisateur.
+ */
+export async function generatePersonalizedPrayer(
+  answers: Record<string, string>,
+  verse: string
+): Promise<string> {
+  const genericPrayer = "Seigneur, merci pour ta Parole aujourd'hui. Aide-moi à la garder précieusement dans mon cœur, à marcher selon tes voies et à te faire confiance à chaque étape de ma vie. Donne-moi la force d'appliquer cette vérité dans mes actions quotidiennes. Amen.";
+
+  if (isBuildTime()) {
+    return "Seigneur, tu m'as parlé aujourd'hui de marcher par la foi et de te faire confiance au quotidien. Merci pour ta grâce et ta Parole qui éclaire ma route. Amen. (prière factice)";
+  }
+
+  if (!isAnswersSerious(answers)) {
+    return genericPrayer;
+  }
+
+  // Formater les réponses
+  const formattedAnswers = Object.entries(answers)
+    .filter(([_, val]) => val && val.trim().length > 0)
+    .map(([key, val]) => `${key}: ${val.trim()}`)
+    .join("\n");
+
+  const prompt = `Voici ce qu'un croyant a vécu pendant sa méditation sur le verset "${verse}" :
+${formattedAnswers}
+
+Génère une prière PERSONNELLE de 4-6 phrases basée UNIQUEMENT sur ce qu'il a écrit et vécu. La prière doit mentionner les situations concrètes qu'il a partagées. Commence par 'Seigneur, tu m'as parlé aujourd'hui de...'`;
+
+  try {
+    return await callGemini(prompt, "gemini-2.5-flash");
+  } catch (err: unknown) {
+    console.warn("Gemini failed for personalized prayer. Trying Groq...", err);
+    try {
+      return await callGroq(prompt, "llama-3.3-70b-versatile");
+    } catch (groqErr: unknown) {
+      console.warn("Groq failed for personalized prayer. Trying GitHub...", groqErr);
+      try {
+        return await callGitHub(prompt, "gpt-4o");
+      } catch (gitErr: unknown) {
+        console.error("All AI providers failed for personalized prayer.", gitErr);
+        return genericPrayer;
+      }
+    }
+  }
+}
+
