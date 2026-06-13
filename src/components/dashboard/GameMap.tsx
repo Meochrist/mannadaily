@@ -168,7 +168,7 @@ export default function GameMap({ currentXP, userName, dailyVerse }: GameMapProp
   };
 
   return (
-    <div className="relative w-full flex flex-col bg-slate-50/20 rounded-3xl border border-slate-200/60 overflow-hidden shadow-sm">
+    <div className="relative w-full flex flex-col bg-slate-50/20 rounded-3xl border border-slate-200/60 overflow-hidden shadow-sm lg:h-full">
       
       {/* ─── EN-TÊTE FIXE DU CHEMIN AVEC SÉLECTEUR MULTI-CHEMINS ─── */}
       <div className="bg-white/95 backdrop-blur-md border-b border-slate-150 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 z-20 shadow-sm relative">
@@ -311,8 +311,7 @@ export default function GameMap({ currentXP, userName, dailyVerse }: GameMapProp
       <div
         id="game-map-scroll-container"
         ref={scrollContainerRef}
-        className="relative w-full max-h-[680px] overflow-y-auto scrollbar-thin select-none"
-        style={{ height: "680px" }}
+        className="relative w-full flex-1 overflow-y-auto scrollbar-thin select-none min-h-[350px]"
       >
         <div
           className="relative w-full bg-gradient-to-b from-[#A5F3FC]/50 via-[#E0F2FE]/80 to-[#D1FAE5]/60 flex flex-col items-center"

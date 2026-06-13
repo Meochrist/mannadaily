@@ -9,7 +9,7 @@ export default function TopBar() {
     <header className="w-full bg-white border-b border-slate-100 px-6 py-4 flex justify-between items-center z-40 sticky top-0 shadow-sm">
       {/* Logo à gauche */}
       <div className="flex items-center gap-2">
-        <div className="w-9 h-9 flex items-center justify-center relative bg-indigo-50 rounded-lg p-0.5 border border-indigo-100 overflow-hidden shadow-sm">
+        <div className="w-11 h-11 flex items-center justify-center relative overflow-hidden select-none pointer-events-none">
           <img 
             src="/assets/characters/manny/pose_idle.svg" 
             alt="Manny Logo" 

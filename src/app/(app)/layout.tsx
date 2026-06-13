@@ -18,8 +18,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <aside className="hidden md:flex md:w-64 bg-indigo-900 text-white p-6 flex-col justify-between flex-shrink-0">
         <div className="space-y-8">
           {/* Titre / Logo */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 flex items-center justify-center relative bg-white/10 rounded-xl p-1 border border-white/10 overflow-hidden">
+          <div className="flex items-center gap-2">
+            <div className="w-12 h-12 flex items-center justify-center relative overflow-hidden select-none pointer-events-none">
               <img 
                 src="/assets/characters/manny/pose_idle.svg" 
                 alt="Manny Logo" 

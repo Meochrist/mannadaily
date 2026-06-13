@@ -160,9 +160,9 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto p-2 sm:p-4">
+    <div className="flex flex-col lg:flex-row gap-8 max-w-6xl mx-auto p-2 sm:p-4 lg:h-[calc(100vh-7rem)] lg:overflow-hidden min-h-0">
       {/* COLONNE DE GAUCHE : LA CARTE DU PARCOURS DE JEU COMPLÈTE */}
-      <div className="lg:col-span-2 space-y-6">
+      <div className="flex-1 lg:max-w-[65%] h-full flex flex-col min-h-0 space-y-6">
         <GameMap 
           currentXP={totalXP} 
           userName={userName} 
@@ -171,7 +171,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* COLONNE DE DROITE : LE PANNEAU DE STATISTIQUES & DE BOUTIQUE */}
-      <div className="space-y-6">
+      <div className="w-full lg:w-[35%] flex-shrink-0 space-y-6 lg:overflow-y-auto lg:h-full lg:pr-2 pb-10 lg:pb-6 scrollbar-thin scrollbar-thumb-slate-200">
         {/* COMPTEUR DE LINGOTS ET STREAK FREEZE */}
         <LingotsCounter initialLingots={lingots} initialFreezes={freezesAvailable} />
 
