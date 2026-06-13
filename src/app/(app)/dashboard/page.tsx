@@ -160,7 +160,7 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto p-2 sm:p-4 lg:h-[calc(100vh-5.5rem)] lg:overflow-hidden min-h-0">
+    <div className="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto p-2 sm:p-4 lg:h-[920px] lg:overflow-hidden min-h-0">
       {/* COLONNE DE GAUCHE : LA CARTE DU PARCOURS DE JEU COMPLÈTE */}
       <div className="flex-1 lg:max-w-[65%] h-full flex flex-col min-h-0 space-y-6">
         {/* MESSAGE D'ACCUEIL ALÉATOIRE D'UNE MASCOTTE */}

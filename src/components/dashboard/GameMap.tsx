@@ -168,7 +168,7 @@ export default function GameMap({ currentXP, userName, dailyVerse }: GameMapProp
   };
 
   return (
-    <div className="relative w-full flex flex-col bg-slate-50/20 rounded-3xl border border-slate-200/60 overflow-hidden shadow-sm lg:h-full">
+    <div className="relative w-full flex flex-col bg-white rounded-3xl border border-slate-200/60 overflow-hidden shadow-sm lg:h-full">
       
       {/* ─── EN-TÊTE FIXE DU CHEMIN AVEC SÉLECTEUR MULTI-CHEMINS ─── */}
       <div className="bg-white/95 backdrop-blur-md border-b border-slate-150 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 z-20 shadow-sm relative">
