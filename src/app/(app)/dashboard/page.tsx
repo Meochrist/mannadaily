@@ -4,7 +4,6 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getLevelFromXP, getXPProgress } from "@/lib/gamification";
 import { getDailyVerse } from "@/lib/verses";
-import RandomMascotMessage from "@/components/dashboard/RandomMascotMessage";
 import XPBar from "@/components/gamification/XPBar";
 import StreakCounter from "@/components/gamification/StreakCounter";
 import BadgeCard from "@/components/gamification/BadgeCard";
@@ -163,45 +162,20 @@ export default async function DashboardPage() {
     <div className="flex flex-col lg:flex-row gap-8 max-w-6xl mx-auto p-2 sm:p-4 lg:h-[calc(100vh-7rem)] lg:overflow-hidden min-h-0">
       {/* COLONNE DE GAUCHE : LA CARTE DU PARCOURS DE JEU COMPLÈTE */}
       <div className="flex-1 lg:max-w-[65%] h-full flex flex-col min-h-0 space-y-6">
+        {/* LA CARTE DU PARCOURS */}
         <GameMap 
           currentXP={totalXP} 
           userName={userName} 
           dailyVerse={dailyVerse} 
+          currentStreak={currentStreak}
+          dayProgress={dayProgress}
+          inactivityDays={inactivityDays}
         />
       </div>
 
       {/* COLONNE DE DROITE : LE PANNEAU DE STATISTIQUES & DE BOUTIQUE */}
       <div className="w-full lg:w-[35%] flex-shrink-0 space-y-6 lg:overflow-y-auto lg:h-full lg:pr-2 pb-10 lg:pb-6 scrollbar-thin scrollbar-thumb-slate-200">
-        {/* COMPTEUR DE LINGOTS ET STREAK FREEZE */}
-        <LingotsCounter initialLingots={lingots} initialFreezes={freezesAvailable} />
-
-        {/* COMPTEUR DE STREAK (SÉRIE DE JOURS DYNAMIQUE) */}
-        <StreakCounter
-          currentStreak={currentStreak}
-          longestStreak={longestStreak}
-        />
-
-        {/* BARRE D'XP ET NIVEAU ACTUEL */}
-        <XPBar
-          currentXP={totalXP}
-          levelName={levelName}
-          progressPercent={progressPercent}
-        />
-
-        {/* COMPOSANT D'OPT-IN PUSH NOTIFICATIONS */}
-        <PushOptIn vapidPublicKey={process.env.VAPID_PUBLIC_KEY || ""} />
-
-        {/* MESSAGE D'ACCUEIL ALÉATOIRE D'UNE MASCOTTE */}
-        <div className="flex justify-center w-full">
-          <RandomMascotMessage
-            userName={userName}
-            streakCount={currentStreak}
-            dayProgress={dayProgress}
-            inactivityDays={inactivityDays}
-          />
-        </div>
-
-        {/* LE VERSET DU JOUR (FORMAT EMBARQUÉ PREMIUM) */}
+        {/* 1. LE VERSET DU JOUR (FORMAT EMBARQUÉ PREMIUM) */}
         <div className="bg-gradient-to-br from-indigo-900 to-indigo-950 text-white p-6 rounded-2xl shadow-xl flex flex-col justify-between relative overflow-hidden">
           <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-8 translate-y-8">
             <BookOpen className="w-48 h-48" />
@@ -220,22 +194,23 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* STATISTIQUES GLOBALES SPIRITUELLES */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Statistiques</h3>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-              <span className="text-slate-500 font-medium text-xs">Sessions de méditation</span>
-              <span className="text-slate-800 font-black text-sm">{sessionsTotal}</span>
-            </div>
-            <div className="flex items-center justify-between pb-1">
-              <span className="text-slate-500 font-medium text-xs">Versets mémorisés</span>
-              <span className="text-slate-800 font-black text-sm">{versesLearned}</span>
-            </div>
-          </div>
-        </div>
+        {/* 2. COMPTEUR DE STREAK (SÉRIE DE JOURS DYNAMIQUE) */}
+        <StreakCounter
+          currentStreak={currentStreak}
+          longestStreak={longestStreak}
+        />
 
-        {/* BADGES SPIRITUELS */}
+        {/* 3. BARRE D'XP ET NIVEAU ACTUEL */}
+        <XPBar
+          currentXP={totalXP}
+          levelName={levelName}
+          progressPercent={progressPercent}
+        />
+
+        {/* 4. COMPTEUR DE LINGOTS ET STREAK FREEZE (BOUTIQUE CÉLESTE) */}
+        <LingotsCounter initialLingots={lingots} initialFreezes={freezesAvailable} />
+
+        {/* 5. BADGES SPIRITUELS */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-extrabold text-slate-800 tracking-tight">Mes badges spirituels</h3>
@@ -255,6 +230,24 @@ export default async function DashboardPage() {
             ))}
           </div>
         </div>
+
+        {/* 6. STATISTIQUES GLOBALES SPIRITUELLES */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Statistiques</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <span className="text-slate-500 font-medium text-xs">Sessions de méditation</span>
+              <span className="text-slate-800 font-black text-sm">{sessionsTotal}</span>
+            </div>
+            <div className="flex items-center justify-between pb-1">
+              <span className="text-slate-500 font-medium text-xs">Versets mémorisés</span>
+              <span className="text-slate-800 font-black text-sm">{versesLearned}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 7. COMPOSANT D'OPT-IN PUSH NOTIFICATIONS */}
+        <PushOptIn vapidPublicKey={process.env.VAPID_PUBLIC_KEY || ""} />
       </div>
     </div>
   );

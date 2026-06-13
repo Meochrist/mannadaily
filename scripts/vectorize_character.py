@@ -52,11 +52,11 @@ def vectorize_image(input_path, output_path):
         with open(temp_svg, "r", encoding="utf-8") as f:
             svg_content = f.read()
             
-        # Supprimer le fond blanc (généralement le premier rect blanc de VTracer)
-        # On remplace fill="#ffffff" ou fill="#FFFFFF" par fill="none" dans le premier rect
+        # Supprimer le fond blanc (généralement le premier rect ou path blanc de VTracer)
+        # On remplace fill par "none" pour le premier élément blanc (couvrant #ffffff, #FEFEFE, #fefefe, #FFFFFF, #fdfdfd)
         cleaned_content = re.sub(
-            r'<rect([^>]+)fill="#[fF]{6}"([^>]*)(/>|></rect>)', 
-            r'<rect\1fill="none"\2\3', 
+            r'<(rect|path)([^>]+)fill="#([fF]{6}|[fF][eE][fF][eE][fF][eE]|[fF][dD][fF][dD][fF][dD])"([^>]*)(/>|></\1>)', 
+            r'<\1\2fill="none"\4\5', 
             svg_content, 
             count=1
         )

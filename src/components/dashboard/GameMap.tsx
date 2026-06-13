@@ -7,11 +7,15 @@ import { Lock, Check, Star, Trophy, BookOpen, Play, HelpCircle, Sparkles, Chevro
 import Manny from "../mascot/Manny";
 import { PATHS, getVersesForPath, PathConfig, Verse } from "@/lib/verses";
 import * as sounds from "@/lib/sounds";
+import RandomMascotMessage from "./RandomMascotMessage";
 
 interface GameMapProps {
   currentXP: number;
   userName: string;
   dailyVerse: { text: string; reference: string; theme: string };
+  currentStreak: number;
+  dayProgress: boolean;
+  inactivityDays: number;
 }
 
 // --- COMPOSANTS DE DÉCORS VECTORIELS FLAT ---
@@ -72,7 +76,14 @@ const DECORS = [
   { type: "tree", x: 140, y: 120 }
 ];
 
-export default function GameMap({ currentXP, userName, dailyVerse }: GameMapProps) {
+export default function GameMap({
+  currentXP,
+  userName,
+  dailyVerse,
+  currentStreak,
+  dayProgress,
+  inactivityDays,
+}: GameMapProps) {
   const [mounted, setMounted] = useState(false);
   const [activePathId, setActivePathId] = useState("foi");
   const [pathProgress, setPathProgress] = useState<Record<string, number>>({});
@@ -168,7 +179,7 @@ export default function GameMap({ currentXP, userName, dailyVerse }: GameMapProp
   };
 
   return (
-    <div className="relative w-full flex flex-col bg-slate-50/20 rounded-3xl border border-slate-200/60 overflow-hidden shadow-sm lg:h-full">
+    <div className="relative w-full flex flex-col bg-white rounded-3xl border border-slate-200/60 overflow-hidden shadow-sm lg:h-full">
       
       {/* ─── EN-TÊTE FIXE DU CHEMIN AVEC SÉLECTEUR MULTI-CHEMINS ─── */}
       <div className="bg-white/95 backdrop-blur-md border-b border-slate-150 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 z-20 shadow-sm relative">
@@ -305,6 +316,17 @@ export default function GameMap({ currentXP, userName, dailyVerse }: GameMapProp
             </>
           )}
         </AnimatePresence>
+      </div>
+
+      {/* ─── MESSAGE DE LA MASCOTTE D'ACCUEIL INTRODUCTIVE ─── */}
+      <div className="p-4 sm:p-5 border-b border-slate-100 bg-white flex-shrink-0 z-10 flex justify-center">
+        <RandomMascotMessage
+          userName={userName}
+          streakCount={currentStreak}
+          dayProgress={dayProgress}
+          inactivityDays={inactivityDays}
+          className="max-w-none w-full border-none shadow-none p-0 bg-transparent"
+        />
       </div>
 
       {/* ─── CONTENEUR SCROLLABLE DE LA CARTE DE NIVEAUX ─── */}

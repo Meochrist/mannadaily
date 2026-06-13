@@ -10,6 +10,7 @@ interface RandomMascotMessageProps {
   streakCount: number;
   dayProgress: boolean;
   inactivityDays: number;
+  className?: string;
 }
 
 type MascotType =
@@ -29,6 +30,7 @@ export default function RandomMascotMessage({
   streakCount,
   dayProgress,
   inactivityDays,
+  className,
 }: RandomMascotMessageProps) {
   const [mascot, setMascot] = useState<MascotType>("manny");
   const [message, setMessage] = useState<string>("");
@@ -108,7 +110,7 @@ export default function RandomMascotMessage({
 
   // Rendu de secours pendant le SSR pour éviter les décalages d'hydratation
   if (!mounted) {
-    return <div className="h-32 w-full max-w-xl bg-slate-50/20 rounded-2xl animate-pulse" />;
+    return <div className={`h-32 w-full max-w-xl bg-slate-50/20 rounded-2xl animate-pulse ${className}`} />;
   }
 
   return (
@@ -120,7 +122,7 @@ export default function RandomMascotMessage({
       state={mascotState}
       message={message}
       size={150}
+      className={className}
     />
   );
 }
-

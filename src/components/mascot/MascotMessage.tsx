@@ -4,6 +4,7 @@ import React from "react";
 import CharacterRenderer, { MascotState } from "./CharacterRenderer";
 import { useCharacterState } from "@/hooks/useCharacterState";
 import { MannyMood } from "@/types";
+import { cn } from "@/lib/utils";
 
 interface MascotMessageProps {
   mascot:
@@ -24,6 +25,7 @@ interface MascotMessageProps {
   state?: MascotState;
   message: string;
   size?: number;
+  className?: string;
 }
 
 export default function MascotMessage({
@@ -35,6 +37,7 @@ export default function MascotMessage({
   state,
   message,
   size = 140,
+  className = "",
 }: MascotMessageProps) {
   // Récupérer l'état d'environnement (pour l'outfit par défaut si non spécifié)
   const { outfit: envOutfit } = useCharacterState({
@@ -80,7 +83,7 @@ export default function MascotMessage({
   const finalOutfit = customOutfit || envOutfit;
 
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm max-w-xl">
+    <div className={cn("flex flex-col sm:flex-row items-center gap-4 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm max-w-xl", className)}>
       <div className="flex-shrink-0">
         <CharacterRenderer
           characterId={mascot}
