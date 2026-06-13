@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getLevelFromXP, getXPProgress } from "@/lib/gamification";
 import { getDailyVerse } from "@/lib/verses";
+import RandomMascotMessage from "@/components/dashboard/RandomMascotMessage";
 import XPBar from "@/components/gamification/XPBar";
 import StreakCounter from "@/components/gamification/StreakCounter";
 import BadgeCard from "@/components/gamification/BadgeCard";
@@ -162,14 +163,22 @@ export default async function DashboardPage() {
     <div className="flex flex-col lg:flex-row gap-8 max-w-6xl mx-auto p-2 sm:p-4 lg:h-[calc(100vh-7rem)] lg:overflow-hidden min-h-0">
       {/* COLONNE DE GAUCHE : LA CARTE DU PARCOURS DE JEU COMPLÈTE */}
       <div className="flex-1 lg:max-w-[65%] h-full flex flex-col min-h-0 space-y-6">
+        {/* MESSAGE D'ACCUEIL ALÉATOIRE D'UNE MASCOTTE */}
+        <div className="w-full flex-shrink-0">
+          <RandomMascotMessage
+            userName={userName}
+            streakCount={currentStreak}
+            dayProgress={dayProgress}
+            inactivityDays={inactivityDays}
+            className="max-w-none w-full"
+          />
+        </div>
+        
         {/* LA CARTE DU PARCOURS */}
         <GameMap 
           currentXP={totalXP} 
           userName={userName} 
           dailyVerse={dailyVerse} 
-          currentStreak={currentStreak}
-          dayProgress={dayProgress}
-          inactivityDays={inactivityDays}
         />
       </div>
 
