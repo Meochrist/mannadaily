@@ -281,3 +281,38 @@ Génère une prière PERSONNELLE de 4-6 phrases basée UNIQUEMENT sur ce qu'il a
   }
 }
 
+/**
+ * Génère une réponse d'assistance IA / Chat biblique autour d'un verset.
+ */
+export async function generateBibleChat(
+  question: string,
+  verseContext: string
+): Promise<string> {
+  if (isBuildTime()) {
+    return "Je suis ton assistant biblique. À la lumière de ce verset, marchons par la foi et grandissons dans sa parole (réponse factice de build).";
+  }
+
+  const prompt = `Tu es un guide biblique bienveillant.
+L'utilisateur lit le passage suivant : "${verseContext}"
+Il pose cette question : "${question}"
+Réponds en 3-4 phrases en français, de façon simple, profonde et pratique. Ne mets pas de titres ni de numéros.`;
+
+  try {
+    return await callGemini(prompt, "gemini-2.5-flash");
+  } catch (err: unknown) {
+    console.warn("Gemini failed for Bible chat. Trying Groq...", err);
+    try {
+      return await callGroq(prompt, "llama-3.3-70b-versatile");
+    } catch (groqErr: unknown) {
+      console.warn("Groq failed for Bible chat. Trying GitHub...", groqErr);
+      try {
+        return await callGitHub(prompt, "gpt-4o");
+      } catch (gitErr: unknown) {
+        console.error("All AI providers failed for Bible chat.", gitErr);
+        throw new Error("Unable to answer. All AI providers failed.");
+      }
+    }
+  }
+}
+
+

@@ -25,6 +25,8 @@ model User {
   streakFreeze  StreakFreeze?
   leagueMemberships LeagueMember[]
   pushSubscriptions PushSubscription[]
+  highlights    VerseHighlight[]
+  verseNotes    VerseNote[]
 }
 
 model Account {
@@ -201,5 +203,46 @@ model PushSubscription {
   auth         String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
+}
+
+model BibleVerse {
+  id          String   @id @default(cuid())
+  book        String
+  bookNumber  Int
+  chapter     Int
+  verse       Int
+  text        String   @db.Text
+  translation String   @default("LSG")
+  highlights  VerseHighlight[]
+  notes       VerseNote[]
+
+  @@unique([book, chapter, verse, translation])
+  @@index([book, chapter, translation])
+}
+
+model VerseHighlight {
+  id        String   @id @default(cuid())
+  userId    String
+  verseId   String
+  color     String   // "yellow", "green", "blue", "pink"
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verse     BibleVerse @relation(fields: [verseId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, verseId])
+}
+
+model VerseNote {
+  id        String   @id @default(cuid())
+  userId    String
+  verseId   String
+  content   String   @db.Text
+  isVoice   Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verse     BibleVerse @relation(fields: [verseId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, verseId])
 }
 

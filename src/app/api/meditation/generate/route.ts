@@ -3,7 +3,8 @@ import { db } from "@/lib/db";
 import { 
   generateMeditation, 
   generatePersonalizedSummary, 
-  generatePersonalizedPrayer 
+  generatePersonalizedPrayer,
+  generateBibleChat
 } from "@/lib/ai";
 import { NextResponse } from "next/server";
 
@@ -31,7 +32,16 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { verse, reference, theme, type = "meditation", answers } = body;
+    const { verse, reference, theme, type = "meditation", answers, question, verseContext } = body;
+
+    // Prise en charge du chat biblique
+    if (type === "bible_chat") {
+      if (!question || !verseContext) {
+        return NextResponse.json({ error: "Missing required question or verseContext fields for bible_chat" }, { status: 400 });
+      }
+      const answerText = await generateBibleChat(question, verseContext);
+      return NextResponse.json({ answer: answerText });
+    }
 
     // Prise en charge du résumé personnalisé
     if (type === "summary") {

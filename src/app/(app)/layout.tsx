@@ -8,7 +8,8 @@ import {
   Volume2, 
   Grid, 
   Trophy,
-  Award 
+  Award,
+  Sparkles
 } from "lucide-react";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -45,8 +46,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               href="/meditate" 
               className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
             >
-              <BookOpen className="w-5 h-5 text-indigo-300" />
+              <Sparkles className="w-5 h-5 text-indigo-300" />
               Méditation du jour
+            </Link>
+
+            <Link 
+              href="/bible" 
+              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
+            >
+              <BookOpen className="w-5 h-5 text-indigo-300" />
+              La Sainte Bible
             </Link>
 
             <Link 
