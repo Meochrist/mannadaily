@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   BookOpen, 
@@ -8,7 +8,6 @@ import {
   Send, 
   Trash2, 
   Edit3, 
-  MessageSquare, 
   ChevronRight, 
   ChevronLeft, 
   Mic, 
@@ -18,7 +17,8 @@ import {
   List, 
   Loader2, 
   Info,
-  Volume2
+  Search,
+  Hash
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import * as sounds from "@/lib/sounds";
@@ -64,6 +64,25 @@ interface ChatMessage {
   content: string;
 }
 
+interface StrongEntry {
+  number: string;
+  language: string;
+  lemma: string | null;
+  transliteration: string | null;
+  pronunciation: string | null;
+  definition: string | null;
+  kjvUsage: string | null;
+}
+
+interface WordPopover {
+  word: string;
+  strongNumber: string;
+  entry: StrongEntry | null;
+  loading: boolean;
+  x: number;
+  y: number;
+}
+
 export default function BiblePage() {
   // Navigation State
   const [books, setBooks] = useState<BibleBook[]>([]);
@@ -78,7 +97,7 @@ export default function BiblePage() {
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
   
   // Right sidebar state
-  const [activeTab, setActiveTab] = useState<"notes" | "ai">("notes");
+  const [activeTab, setActiveTab] = useState<"notes" | "ai" | "strong">("notes");
   const [userNotes, setUserNotes] = useState<SavedNote[]>([]);
   
   // Current editing note state
@@ -89,6 +108,13 @@ export default function BiblePage() {
   const [aiQuestion, setAiQuestion] = useState<string>("");
   const [aiLoading, setAiLoading] = useState<boolean>(false);
   const [chatHistories, setChatHistories] = useState<Record<string, ChatMessage[]>>({}); // Keyed by verseId
+
+  // Strong concordance state
+  const [wordPopover, setWordPopover] = useState<WordPopover | null>(null);
+  const [strongSearch, setStrongSearch] = useState<string>("");
+  const [strongResult, setStrongResult] = useState<StrongEntry | null>(null);
+  const [strongLoading, setStrongLoading] = useState<boolean>(false);
+  const [strongError, setStrongError] = useState<string>("");
 
   // UI layout reference
   const containerRef = useRef<HTMLDivElement>(null);
@@ -399,6 +425,75 @@ export default function BiblePage() {
 
   const activeVerseChat = selectedVerse ? chatHistories[selectedVerse.id] || [] : [];
 
+  // Détermine le numéro Strong MVP : Hébreu pour AT (livres 1-39), Grec pour NT (40-66)
+  const getStrongNumber = (bookNumber: number, wordIndex: number): string => {
+    if (bookNumber <= 39) {
+      return `H${wordIndex + 1}`;
+    } else {
+      return `G${wordIndex + 1}`;
+    }
+  };
+
+  // Clic sur un mot du verset → affiche popover Strong
+  const handleWordClick = async (
+    e: React.MouseEvent<HTMLSpanElement>,
+    word: string,
+    wordIndex: number,
+    verse: Verse
+  ) => {
+    e.stopPropagation();
+    const strongNumber = getStrongNumber(verse.bookNumber, wordIndex);
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    const containerRect = containerRef.current?.getBoundingClientRect() || { left: 0, top: 0 };
+
+    setWordPopover({
+      word,
+      strongNumber,
+      entry: null,
+      loading: true,
+      x: rect.left - containerRect.left,
+      y: rect.bottom - containerRect.top + 6,
+    });
+
+    try {
+      const res = await fetch(`/api/bible/strong/${strongNumber}`);
+      if (res.ok) {
+        const data: StrongEntry = await res.json();
+        setWordPopover(prev => prev ? { ...prev, entry: data, loading: false } : null);
+      } else {
+        setWordPopover(prev => prev ? { ...prev, loading: false } : null);
+      }
+    } catch {
+      setWordPopover(prev => prev ? { ...prev, loading: false } : null);
+    }
+  };
+
+  // Recherche Strong manuelle
+  const fetchStrongManual = useCallback(async (query: string) => {
+    const normalized = query.trim().toUpperCase();
+    if (!normalized.match(/^[HG]\d+$/)) {
+      setStrongError("Format invalide. Exemples : H430, G3056");
+      setStrongResult(null);
+      return;
+    }
+    setStrongLoading(true);
+    setStrongError("");
+    setStrongResult(null);
+    try {
+      const res = await fetch(`/api/bible/strong/${normalized}`);
+      if (res.ok) {
+        const data: StrongEntry = await res.json();
+        setStrongResult(data);
+      } else {
+        setStrongError(`Entrée "${normalized}" introuvable dans la concordance.`);
+      }
+    } catch {
+      setStrongError("Erreur lors de la recherche.");
+    } finally {
+      setStrongLoading(false);
+    }
+  }, []);
+
   return (
     <div className="flex flex-col h-full space-y-4 max-w-7xl mx-auto" ref={containerRef}>
       {/* Top Banner with statistics / information */}
@@ -581,7 +676,19 @@ export default function BiblePage() {
                       {v.verse}
                     </span>
                     <span className="text-slate-800 text-sm leading-relaxed font-medium">
-                      {v.text}
+                      {v.text.split(/\s+/).map((word, wi) => (
+                        <span
+                          key={wi}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleWordClick(e, word, wi, v);
+                          }}
+                          className="cursor-pointer hover:text-indigo-600 hover:bg-indigo-50 rounded px-0.5 transition-colors duration-150"
+                          title={`Cliquer pour voir Strong ${v.bookNumber <= 39 ? 'H' : 'G'}${wi + 1}`}
+                        >
+                          {word}{' '}
+                        </span>
+                      ))}
                     </span>
 
                     {/* Small note icon if note exists */}
@@ -593,12 +700,96 @@ export default function BiblePage() {
 
                     {/* Quick indicator when hovering */}
                     <span className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity bg-indigo-50 text-indigo-600 text-[10px] font-black px-1.5 py-0.5 rounded-lg">
-                      Surligner / Annoter
+                      Surligner / Mot → Strong
                     </span>
                   </div>
                 ))}
               </div>
             )}
+
+            {/* Strong Word Popover */}
+            <AnimatePresence>
+              {wordPopover && (
+                <>
+                  <div
+                    className="fixed inset-0 z-30"
+                    onClick={() => setWordPopover(null)}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9, y: -4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: -4 }}
+                    style={{
+                      position: "absolute",
+                      left: Math.max(0, wordPopover.x),
+                      top: wordPopover.y,
+                    }}
+                    className="z-40 bg-white border border-indigo-100 shadow-2xl rounded-2xl p-4 w-72 max-w-xs"
+                  >
+                    {/* Header */}
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest block">
+                          Concordance Strong
+                        </span>
+                        <span className="font-black text-slate-800 text-sm">« {wordPopover.word} »</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] bg-indigo-100 text-indigo-700 font-black px-2 py-0.5 rounded-full">
+                          {wordPopover.strongNumber}
+                        </span>
+                        <button
+                          onClick={() => setWordPopover(null)}
+                          className="p-0.5 rounded-full hover:bg-slate-100 text-slate-400"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {wordPopover.loading ? (
+                      <div className="flex items-center gap-2 text-slate-400">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-xs">Chargement...</span>
+                      </div>
+                    ) : wordPopover.entry ? (
+                      <div className="space-y-2">
+                        {wordPopover.entry.lemma && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-2xl font-bold text-slate-700">{wordPopover.entry.lemma}</span>
+                            {wordPopover.entry.pronunciation && (
+                              <span className="text-xs text-slate-500 italic">/{wordPopover.entry.pronunciation}/</span>
+                            )}
+                          </div>
+                        )}
+                        {wordPopover.entry.transliteration && (
+                          <div className="text-xs font-bold text-indigo-600">{wordPopover.entry.transliteration}</div>
+                        )}
+                        {wordPopover.entry.definition && (
+                          <p className="text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-2">
+                            {wordPopover.entry.definition.substring(0, 200)}
+                            {wordPopover.entry.definition.length > 200 ? '...' : ''}
+                          </p>
+                        )}
+                        <button
+                          onClick={() => {
+                            setStrongSearch(wordPopover.strongNumber);
+                            setActiveTab("strong");
+                            setWordPopover(null);
+                            fetchStrongManual(wordPopover.strongNumber);
+                          }}
+                          className="text-[10px] text-indigo-500 hover:text-indigo-700 font-bold underline"
+                        >
+                          Voir la définition complète →
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-slate-400">Entrée Strong non trouvée pour {wordPopover.strongNumber}</p>
+                    )}
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
 
             {/* Context Menu / Tooltip Flottant */}
             <AnimatePresence>
@@ -739,6 +930,21 @@ export default function BiblePage() {
             >
               <Sparkles className="w-4 h-4" />
               Parler à l'Écriture
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab("strong");
+                sounds.playXPGain();
+              }}
+              className={cn(
+                "flex-1 py-3 text-xs font-black rounded-2xl transition flex items-center justify-center gap-1.5",
+                activeTab === "strong"
+                  ? "bg-white text-indigo-750 shadow-sm border border-slate-100"
+                  : "text-slate-400 hover:text-slate-650"
+              )}
+            >
+              <Hash className="w-4 h-4" />
+              Strong
             </button>
           </div>
 
@@ -998,6 +1204,113 @@ export default function BiblePage() {
                       <p className="text-xs text-slate-500 mt-1.5 max-w-[210px] leading-relaxed">
                         Sélectionnez un verset dans le lecteur puis cliquez sur <strong>"IA Chat"</strong> pour lui poser des questions et obtenir des explications.
                       </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* STRONG TAB */}
+            {activeTab === "strong" && (
+              <div className="flex-1 flex flex-col space-y-4 overflow-y-auto">
+                {/* Search field */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">
+                    Recherche Concordance Strong
+                  </label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="H430, G3056..."
+                        value={strongSearch}
+                        onChange={(e) => setStrongSearch(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && fetchStrongManual(strongSearch)}
+                        className="w-full pl-9 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300 font-mono font-bold"
+                      />
+                    </div>
+                    <button
+                      onClick={() => fetchStrongManual(strongSearch)}
+                      disabled={strongLoading || !strongSearch}
+                      className="px-3 py-2 bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-black rounded-xl transition disabled:opacity-40"
+                    >
+                      {strongLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "OK"}
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-slate-400">
+                    Hébreu (H1–H8674) · Grec (G1–G5523) · Appuyez sur Entrée
+                  </p>
+                </div>
+
+                {strongError && (
+                  <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-xs text-red-600 font-medium">
+                    {strongError}
+                  </div>
+                )}
+
+                {strongResult && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100 rounded-2xl p-4 space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-black text-indigo-700">{strongResult.number}</span>
+                      <span className={cn(
+                        "text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide",
+                        strongResult.language === "hebrew" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"
+                      )}>
+                        {strongResult.language === "hebrew" ? "🔤 Hébreu" : "🔤 Grec"}
+                      </span>
+                    </div>
+                    {strongResult.lemma && (
+                      <div className="flex items-baseline gap-3">
+                        <span className="text-3xl font-bold text-slate-800">{strongResult.lemma}</span>
+                        {strongResult.pronunciation && (
+                          <span className="text-xs text-slate-500 italic">/{strongResult.pronunciation}/</span>
+                        )}
+                      </div>
+                    )}
+                    {strongResult.transliteration && (
+                      <div className="text-sm font-bold text-indigo-600">{strongResult.transliteration}</div>
+                    )}
+                    {strongResult.definition && (
+                      <div className="border-t border-indigo-100 pt-3 space-y-1">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Définition</span>
+                        <p className="text-xs text-slate-700 leading-relaxed">{strongResult.definition}</p>
+                      </div>
+                    )}
+                    {strongResult.kjvUsage && (
+                      <div className="border-t border-indigo-100 pt-3 space-y-1">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Traductions KJV</span>
+                        <p className="text-xs text-slate-600 italic">{strongResult.kjvUsage}</p>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+
+                {!strongResult && !strongError && !strongLoading && (
+                  <div className="flex flex-col items-center justify-center text-center py-6 space-y-3">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
+                      <Hash className="w-6 h-6 text-indigo-400" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-600">Concordance Strong</p>
+                      <p className="text-[10px] text-slate-400 mt-1 max-w-[200px] leading-relaxed">
+                        Entrez un numéro Strong (ex: H430 = Elohim, G3056 = Logos) ou cliquez sur un mot dans un verset.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 justify-center">
+                      {["H430", "H3068", "G3056", "G26", "G5547"].map(num => (
+                        <button
+                          key={num}
+                          onClick={() => { setStrongSearch(num); fetchStrongManual(num); }}
+                          className="text-[10px] font-black bg-white border border-indigo-100 text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition"
+                        >
+                          {num}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}

@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
-    "seed:bible": "npx ts-node --project tsconfig.json prisma/seedBible.ts"
+    "seed:bible": "npx ts-node --project tsconfig.json prisma/seedBible.ts",
+    "seed:strong": "npx ts-node --project tsconfig.json prisma/seedStrong.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",

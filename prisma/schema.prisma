@@ -246,3 +246,17 @@ model VerseNote {
   @@unique([userId, verseId])
 }
 
+model StrongEntry {
+  id                String   @id @default(cuid())
+  number            String   @unique  // "H1", "G1", etc.
+  language          String            // "hebrew" ou "greek"
+  lemma             String?
+  transliteration   String?
+  pronunciation     String?
+  definition        String?  @db.Text
+  kjvUsage          String?  @db.Text
+  createdAt         DateTime @default(now())
+
+  @@index([language])
+}
+
