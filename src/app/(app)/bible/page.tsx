@@ -18,7 +18,8 @@ import {
   Loader2, 
   Info,
   Search,
-  Hash
+  Hash,
+  Link as LinkIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import * as sounds from "@/lib/sounds";
@@ -97,7 +98,7 @@ export default function BiblePage() {
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
   
   // Right sidebar state
-  const [activeTab, setActiveTab] = useState<"notes" | "ai" | "strong">("notes");
+  const [activeTab, setActiveTab] = useState<"notes" | "ai" | "strong" | "references">("notes");
   const [compareMode, setCompareMode] = useState<boolean>(false);
   const [compareVerses, setCompareVerses] = useState<Verse[]>([]);
   const [availableTranslations, setAvailableTranslations] = useState<string[]>(["LSG", "Darby", "Martin"]);
@@ -118,6 +119,11 @@ export default function BiblePage() {
   const [strongResult, setStrongResult] = useState<StrongEntry | null>(null);
   const [strongLoading, setStrongLoading] = useState<boolean>(false);
   const [strongError, setStrongError] = useState<string>("");
+
+  // Cross references state
+  const [crossRefs, setCrossRefs] = useState<any[]>([]);
+  const [loadingCrossRefs, setLoadingCrossRefs] = useState<boolean>(false);
+  const [pendingVerseSelection, setPendingVerseSelection] = useState<number | null>(null);
 
   // UI layout reference
   const containerRef = useRef<HTMLDivElement>(null);
@@ -197,6 +203,54 @@ export default function BiblePage() {
       setCurrentNoteText("");
     }
   }, [selectedVerse]);
+
+  // Fetch cross references when selected verse changes
+  useEffect(() => {
+    async function fetchCrossRefs() {
+      if (!selectedVerse) {
+        setCrossRefs([]);
+        return;
+      }
+      setLoadingCrossRefs(true);
+      try {
+        let bookNum = selectedVerse.bookNumber;
+        if (!bookNum || bookNum === 0) {
+          const bookIdx = books.findIndex(b => b.name === selectedVerse.book);
+          if (bookIdx !== -1) {
+            bookNum = bookIdx + 1;
+          }
+        }
+        if (!bookNum || bookNum === 0) {
+          setCrossRefs([]);
+          return;
+        }
+        const res = await fetch(`/api/bible/crossrefs?book=${bookNum}&chapter=${selectedVerse.chapter}&verse=${selectedVerse.verse}`);
+        if (res.ok) {
+          const data = await res.json();
+          setCrossRefs(data.crossRefs || []);
+        } else {
+          setCrossRefs([]);
+        }
+      } catch (err) {
+        console.error("Error fetching cross references:", err);
+        setCrossRefs([]);
+      } finally {
+        setLoadingCrossRefs(false);
+      }
+    }
+    fetchCrossRefs();
+  }, [selectedVerse, books]);
+
+  // Handle pending verse selection when verses finish loading
+  useEffect(() => {
+    if (pendingVerseSelection && verses.length > 0 && !loadingVerses) {
+      const targetVerse = verses.find(v => v.verse === pendingVerseSelection);
+      if (targetVerse) {
+        setSelectedVerse(targetVerse);
+      }
+      setPendingVerseSelection(null);
+    }
+  }, [verses, pendingVerseSelection, loadingVerses]);
 
   // Fetch all user notes
   const fetchUserNotes = async () => {
@@ -929,26 +983,38 @@ export default function BiblePage() {
                     </div>
 
                     {/* Action buttons */}
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="flex flex-col gap-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          onClick={() => {
+                            setActiveTab("notes");
+                            setContextMenuPosition(null);
+                          }}
+                          className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-slate-200 text-[11px] font-black text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 transition cursor-pointer"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          Annoter
+                        </button>
+                        <button
+                          onClick={() => {
+                            setActiveTab("ai");
+                            setContextMenuPosition(null);
+                          }}
+                          className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-indigo-600 text-[11px] font-black text-white hover:bg-indigo-700 hover:scale-102 transition shadow-sm cursor-pointer"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-indigo-200" />
+                          IA Chat
+                        </button>
+                      </div>
                       <button
                         onClick={() => {
-                          setActiveTab("notes");
+                          setActiveTab("references");
                           setContextMenuPosition(null);
                         }}
-                        className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-slate-200 text-[11px] font-black text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 transition"
+                        className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-indigo-200 bg-indigo-50/50 text-[11px] font-black text-indigo-700 hover:bg-indigo-100 hover:text-indigo-850 transition cursor-pointer"
                       >
-                        <Edit3 className="w-3.5 h-3.5" />
-                        Annoter
-                      </button>
-                      <button
-                        onClick={() => {
-                          setActiveTab("ai");
-                          setContextMenuPosition(null);
-                        }}
-                        className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-indigo-600 text-[11px] font-black text-white hover:bg-indigo-700 hover:scale-102 transition shadow-sm"
-                      >
-                        <Sparkles className="w-3.5 h-3.5 text-indigo-200" />
-                        IA Chat
+                        <LinkIcon className="w-3.5 h-3.5 animate-pulse text-indigo-500" />
+                        Références croisées
                       </button>
                     </div>
                   </motion.div>
@@ -961,20 +1027,20 @@ export default function BiblePage() {
         {/* COLUMN 3: NOTES & AI (25% -> 3 cols) */}
         <div className="lg:col-span-3 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col overflow-hidden h-full">
           {/* Double Tabs */}
-          <div className="flex border-b border-slate-100 bg-slate-50/50 p-1">
+          <div className="flex border-b border-slate-100 bg-slate-50/50 p-1 flex-wrap md:flex-nowrap">
             <button
               onClick={() => {
                 setActiveTab("notes");
                 sounds.playXPGain();
               }}
               className={cn(
-                "flex-1 py-3 text-xs font-black rounded-2xl transition flex items-center justify-center gap-1.5",
+                "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
                 activeTab === "notes"
                   ? "bg-white text-indigo-750 shadow-sm border border-slate-100"
                   : "text-slate-400 hover:text-slate-650"
               )}
             >
-              <Edit3 className="w-4 h-4" />
+              <Edit3 className="w-3.5 h-3.5" />
               Notes
             </button>
             <button
@@ -983,14 +1049,14 @@ export default function BiblePage() {
                 sounds.playXPGain();
               }}
               className={cn(
-                "flex-1 py-3 text-xs font-black rounded-2xl transition flex items-center justify-center gap-1.5",
+                "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
                 activeTab === "ai"
                   ? "bg-white text-indigo-750 shadow-sm border border-slate-100"
                   : "text-slate-400 hover:text-slate-650"
               )}
             >
-              <Sparkles className="w-4 h-4" />
-              Parler à l'Écriture
+              <Sparkles className="w-3.5 h-3.5" />
+              IA Chat
             </button>
             <button
               onClick={() => {
@@ -998,14 +1064,29 @@ export default function BiblePage() {
                 sounds.playXPGain();
               }}
               className={cn(
-                "flex-1 py-3 text-xs font-black rounded-2xl transition flex items-center justify-center gap-1.5",
+                "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
                 activeTab === "strong"
                   ? "bg-white text-indigo-750 shadow-sm border border-slate-100"
                   : "text-slate-400 hover:text-slate-650"
               )}
             >
-              <Hash className="w-4 h-4" />
+              <Hash className="w-3.5 h-3.5" />
               Strong
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab("references");
+                sounds.playXPGain();
+              }}
+              className={cn(
+                "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
+                activeTab === "references"
+                  ? "bg-white text-indigo-750 shadow-sm border border-slate-100"
+                  : "text-slate-400 hover:text-slate-650"
+              )}
+            >
+              <LinkIcon className="w-3.5 h-3.5" />
+              Réf.
             </button>
           </div>
 
@@ -1373,6 +1454,101 @@ export default function BiblePage() {
                         </button>
                       ))}
                     </div>
+                  </div>
+                )}
+              </div>
+            )}
+ 
+            {/* REFERENCES TAB */}
+            {activeTab === "references" && (
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <div className="text-xs font-bold text-slate-500 mb-3.5 flex items-center justify-between">
+                  <span>Versets liés</span>
+                  {selectedVerse && (
+                    <span className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-black">
+                      {selectedVerse.book} {selectedVerse.chapter}:{selectedVerse.verse}
+                    </span>
+                  )}
+                </div>
+
+                {!selectedVerse ? (
+                  <div className="flex-1 flex flex-col justify-center items-center text-center p-4 space-y-4">
+                    <Manny mood="happy" size={120} />
+                    <div>
+                      <h4 className="font-extrabold text-slate-800 text-sm">Références Croisées</h4>
+                      <p className="text-xs text-slate-500 mt-1.5 max-w-[210px] leading-relaxed">
+                        Sélectionnez un verset dans le lecteur puis cliquez sur <strong>"Références croisées"</strong> dans le menu contextuel.
+                      </p>
+                    </div>
+                  </div>
+                ) : loadingCrossRefs ? (
+                  <div className="flex-1 flex flex-col justify-center items-center gap-2">
+                    <Loader2 className="w-8 h-8 text-indigo-650 animate-spin" />
+                    <span className="text-xs font-bold text-slate-500">Recherche des versets liés...</span>
+                  </div>
+                ) : crossRefs.length === 0 ? (
+                  <div className="flex-1 flex flex-col justify-center items-center text-center p-4 space-y-4">
+                    <Manny mood="thinking" size={110} />
+                    <div>
+                      <h4 className="font-bold text-slate-700 text-xs">Aucun verset lié</h4>
+                      <p className="text-[10px] text-slate-500 mt-1 max-w-[180px] leading-relaxed">
+                        Aucune référence croisée n'a été répertoriée pour ce verset dans notre base.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                    {crossRefs.map((ref) => {
+                      const BIBLE_BOOKS_MAP: Record<number, string> = {
+                        1: "Genèse", 2: "Exode", 3: "Lévitique", 4: "Nombres", 5: "Deutéronome",
+                        6: "Josué", 7: "Juges", 8: "Ruth", 9: "1 Samuel", 10: "2 Samuel",
+                        11: "1 Rois", 12: "2 Rois", 13: "1 Chroniques", 14: "2 Chroniques",
+                        15: "Esdras", 16: "Néhémie", 17: "Esther", 18: "Job", 19: "Psaumes",
+                        20: "Proverbes", 21: "Ecclésiaste", 22: "Cantique des Cantiques",
+                        23: "Ésaïe", 24: "Jérémie", 25: "Lamentations", 26: "Ézéchiel",
+                        27: "Daniel", 28: "Osée", 29: "Joël", 30: "Amos", 31: "Abdias",
+                        32: "Jonas", 33: "Michée", 34: "Nahum", 35: "Habacuc", 36: "Sophonie",
+                        37: "Aggée", 38: "Zacharie", 39: "Malachie", 40: "Matthieu",
+                        41: "Marc", 42: "Luc", 43: "Jean", 44: "Actes", 45: "Romains",
+                        46: "1 Corinthiens", 47: "2 Corinthiens", 48: "Galates", 49: "Éphésiens",
+                        50: "Philippiens", 51: "Colossiens", 52: "1 Thessaloniciens",
+                        53: "2 Thessaloniciens", 54: "1 Timothée", 55: "2 Timothée",
+                        56: "Tite", 57: "Philémon", 58: "Hébreux", 59: "Jacques",
+                        60: "1 Pierre", 61: "2 Pierre", 62: "1 Jean", 63: "2 Jean",
+                        64: "3 Jean", 65: "Jude", 66: "Apocalypse"
+                      };
+
+                      return (
+                        <div
+                          key={ref.id}
+                          onClick={() => {
+                            const bookName = BIBLE_BOOKS_MAP[ref.toBook];
+                            if (bookName) {
+                              sounds.playXPGain();
+                              setSelectedBook(bookName);
+                              setSelectedChapter(ref.toChapter);
+                              setPendingVerseSelection(ref.toVerse);
+                            }
+                          }}
+                          className="bg-slate-50 border border-slate-105 hover:border-indigo-150 hover:bg-indigo-50/10 rounded-2xl p-3.5 cursor-pointer transition-all duration-300 space-y-2 group"
+                        >
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-black text-indigo-750">
+                              {ref.refLabel}
+                            </span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[9px] bg-slate-200 text-slate-600 font-extrabold px-1.5 py-0.5 rounded">
+                                {ref.votes} votes
+                              </span>
+                              <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                            </div>
+                          </div>
+                          <p className="text-[11px] text-slate-700 leading-relaxed line-clamp-2 font-medium">
+                            {ref.text.length > 100 ? `${ref.text.substring(0, 100)}...` : ref.text}
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

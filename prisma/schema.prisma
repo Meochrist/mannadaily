@@ -260,3 +260,19 @@ model StrongEntry {
   @@index([language])
 }
 
+model CrossReference {
+  id          String   @id @default(cuid())
+  fromBook    Int
+  fromChapter Int
+  fromVerse   Int
+  toBook      Int
+  toChapter   Int
+  toVerse     Int
+  toVerseEnd  Int?
+  votes       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([fromBook, fromChapter, fromVerse])
+}
+
+
