@@ -275,4 +275,43 @@ model CrossReference {
   @@index([fromBook, fromChapter, fromVerse])
 }
 
+model HebrewWord {
+  id              String  @id @default(cuid())
+  book            Int
+  chapter         Int
+  verse           Int
+  wordPosition    Int
+  originalText    String  // mot hébreu original
+  transliteration String?
+  strongNumber    String? // ex: H430
+  root            String? // racine du mot
+  morphology      String? // code morphologique ex: Ncmsa
+  morphologyDesc  String? // description lisible ex: "Noun, common, masculine, singular, absolute"
+  gloss           String? // traduction courte en anglais
+  createdAt       DateTime @default(now())
+
+  @@index([book, chapter, verse])
+  @@index([strongNumber])
+}
+
+model GreekWord {
+  id              String  @id @default(cuid())
+  book            Int
+  chapter         Int
+  verse           Int
+  wordPosition    Int
+  originalText    String
+  transliteration String?
+  strongNumber    String?
+  root            String?
+  morphology      String?
+  morphologyDesc  String?
+  gloss           String?
+  createdAt       DateTime @default(now())
+
+  @@index([book, chapter, verse])
+  @@index([strongNumber])
+}
+
+
 

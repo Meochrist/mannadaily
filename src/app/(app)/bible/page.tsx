@@ -98,7 +98,7 @@ export default function BiblePage() {
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
   
   // Right sidebar state
-  const [activeTab, setActiveTab] = useState<"notes" | "ai" | "strong" | "references">("notes");
+  const [activeTab, setActiveTab] = useState<"notes" | "ai" | "strong" | "references" | "morphology">("notes");
   const [compareMode, setCompareMode] = useState<boolean>(false);
   const [compareVerses, setCompareVerses] = useState<Verse[]>([]);
   const [availableTranslations, setAvailableTranslations] = useState<string[]>(["LSG", "Darby", "Martin"]);
@@ -124,6 +124,10 @@ export default function BiblePage() {
   const [crossRefs, setCrossRefs] = useState<any[]>([]);
   const [loadingCrossRefs, setLoadingCrossRefs] = useState<boolean>(false);
   const [pendingVerseSelection, setPendingVerseSelection] = useState<number | null>(null);
+
+  // Morphology state
+  const [morphologyWords, setMorphologyWords] = useState<any[]>([]);
+  const [loadingMorphology, setLoadingMorphology] = useState<boolean>(false);
 
   // UI layout reference
   const containerRef = useRef<HTMLDivElement>(null);
@@ -240,6 +244,44 @@ export default function BiblePage() {
     }
     fetchCrossRefs();
   }, [selectedVerse, books]);
+
+  // Fetch morphology when selectedVerse or activeTab changes
+  useEffect(() => {
+    async function fetchMorphology() {
+      if (!selectedVerse || activeTab !== "morphology") {
+        setMorphologyWords([]);
+        return;
+      }
+      setLoadingMorphology(true);
+      try {
+        let bookNum = selectedVerse.bookNumber;
+        if (!bookNum || bookNum === 0) {
+          const bookIdx = books.findIndex(b => b.name === selectedVerse.book);
+          if (bookIdx !== -1) {
+            bookNum = bookIdx + 1;
+          }
+        }
+        if (!bookNum || bookNum === 0) {
+          setMorphologyWords([]);
+          return;
+        }
+        const language = bookNum <= 39 ? "hebrew" : "greek";
+        const res = await fetch(`/api/bible/morphology?book=${bookNum}&chapter=${selectedVerse.chapter}&verse=${selectedVerse.verse}&language=${language}`);
+        if (res.ok) {
+          const data = await res.json();
+          setMorphologyWords(data.words || []);
+        } else {
+          setMorphologyWords([]);
+        }
+      } catch (err) {
+        console.error("Error fetching morphology:", err);
+        setMorphologyWords([]);
+      } finally {
+        setLoadingMorphology(false);
+      }
+    }
+    fetchMorphology();
+  }, [selectedVerse, activeTab, books]);
 
   // Handle pending verse selection when verses finish loading
   useEffect(() => {
@@ -1016,6 +1058,26 @@ export default function BiblePage() {
                         <LinkIcon className="w-3.5 h-3.5 animate-pulse text-indigo-500" />
                         Références croisées
                       </button>
+                      {(() => {
+                        let bookNum = selectedVerse.bookNumber;
+                        if (!bookNum || bookNum === 0) {
+                          const bookIdx = books.findIndex(b => b.name === selectedVerse.book);
+                          if (bookIdx !== -1) bookNum = bookIdx + 1;
+                        }
+                        const isHebrew = bookNum <= 39;
+                        return (
+                          <button
+                            onClick={() => {
+                              setActiveTab("morphology");
+                              setContextMenuPosition(null);
+                            }}
+                            className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-emerald-250 bg-emerald-50/50 text-[11px] font-black text-emerald-700 hover:bg-emerald-100 hover:text-emerald-850 transition cursor-pointer"
+                          >
+                            <BookOpen className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
+                            {isHebrew ? "Morphologie hébraïque" : "Morphologie grecque"}
+                          </button>
+                        );
+                      })()}
                     </div>
                   </motion.div>
                 </>
@@ -1082,11 +1144,26 @@ export default function BiblePage() {
                 "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
                 activeTab === "references"
                   ? "bg-white text-indigo-750 shadow-sm border border-slate-100"
-                  : "text-slate-400 hover:text-slate-650"
+                  : "text-slate-400 hover:text-slate-655"
               )}
             >
               <LinkIcon className="w-3.5 h-3.5" />
               Réf.
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab("morphology");
+                sounds.playXPGain();
+              }}
+              className={cn(
+                "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
+                activeTab === "morphology"
+                  ? "bg-white text-indigo-750 shadow-sm border border-slate-100"
+                  : "text-slate-400 hover:text-slate-655"
+              )}
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              Morpho.
             </button>
           </div>
 
@@ -1546,6 +1623,122 @@ export default function BiblePage() {
                           <p className="text-[11px] text-slate-700 leading-relaxed line-clamp-2 font-medium">
                             {ref.text.length > 100 ? `${ref.text.substring(0, 100)}...` : ref.text}
                           </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* MORPHOLOGY TAB */}
+            {activeTab === "morphology" && (
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <div className="text-xs font-bold text-slate-500 mb-3.5 flex items-center justify-between">
+                  <span>Analyse morphologique</span>
+                  {selectedVerse && (
+                    <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-black">
+                      {selectedVerse.book} {selectedVerse.chapter}:{selectedVerse.verse}
+                    </span>
+                  )}
+                </div>
+
+                {!selectedVerse ? (
+                  <div className="flex-1 flex flex-col justify-center items-center text-center p-4 space-y-4">
+                    <Manny mood="happy" size={120} />
+                    <div>
+                      <h4 className="font-extrabold text-slate-800 text-sm">Morphologie des mots</h4>
+                      <p className="text-xs text-slate-500 mt-1.5 max-w-[210px] leading-relaxed">
+                        Sélectionnez un verset dans le lecteur puis cliquez sur <strong>"Morphologie"</strong> pour analyser le texte original (hébreu/grec).
+                      </p>
+                    </div>
+                  </div>
+                ) : loadingMorphology ? (
+                  <div className="flex-1 flex flex-col justify-center items-center gap-2">
+                    <Loader2 className="w-8 h-8 text-emerald-650 animate-spin" />
+                    <span className="text-xs font-bold text-slate-500">Chargement de l'analyse...</span>
+                  </div>
+                ) : morphologyWords.length === 0 ? (
+                  <div className="flex-1 flex flex-col justify-center items-center text-center p-4 space-y-4">
+                    <Manny mood="thinking" size={110} />
+                    <div>
+                      <h4 className="font-bold text-slate-700 text-xs">Aucune donnée disponible</h4>
+                      <p className="text-[10px] text-slate-500 mt-1 max-w-[180px] leading-relaxed">
+                        La morphologie n'est pas encore importée pour ce livre. (Disponible pour Genèse et Jean).
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex-1 overflow-y-auto space-y-3.5 pr-1">
+                    {morphologyWords.map((word) => {
+                      const isHebrew = word.strongNumber?.startsWith("H");
+                      return (
+                        <div
+                          key={word.id}
+                          className="bg-slate-50 border border-slate-105 rounded-2xl p-4 space-y-3"
+                        >
+                          {/* En-tête : Mot original, translittération, Strong */}
+                          <div className="flex justify-between items-start gap-4">
+                            <div className="space-y-1">
+                              <span
+                                className={cn(
+                                  "text-2xl font-bold block text-slate-800",
+                                  isHebrew && "text-right font-serif"
+                                )}
+                                dir={isHebrew ? "rtl" : "ltr"}
+                              >
+                                {word.originalText}
+                              </span>
+                              {word.transliteration && (
+                                <span className="text-xs text-indigo-650 font-bold block">
+                                  {word.transliteration}
+                                </span>
+                              )}
+                            </div>
+                            {word.strongNumber && (
+                              <button
+                                onClick={() => {
+                                  setStrongSearch(word.strongNumber);
+                                  setActiveTab("strong");
+                                  fetchStrongManual(word.strongNumber);
+                                }}
+                                className="text-[10px] bg-indigo-50 border border-indigo-100 text-indigo-700 font-black px-2.5 py-1 rounded-lg hover:bg-indigo-100 transition cursor-pointer"
+                                title="Voir la définition Strong"
+                              >
+                                {word.strongNumber}
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Lemme/Racine & Gloss */}
+                          <div className="grid grid-cols-2 gap-2 text-xs border-t border-slate-200/60 pt-2.5">
+                            <div>
+                              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                                Lemme / Racine
+                              </span>
+                              <span className="font-bold text-slate-700">{word.root || "—"}</span>
+                            </div>
+                            <div>
+                              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                                Traduction (Gloss)
+                              </span>
+                              <span className="font-bold text-slate-700">{word.gloss || "—"}</span>
+                            </div>
+                          </div>
+
+                          {/* Morphologie */}
+                          {word.morphology && (
+                            <div className="border-t border-slate-200/60 pt-2.5 space-y-1">
+                              <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                                  Morphologie ({word.morphology})
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-650 font-semibold leading-relaxed">
+                                {word.morphologyDesc || "Aucune description disponible."}
+                              </p>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
