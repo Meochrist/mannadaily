@@ -100,6 +100,7 @@ export default function BiblePage() {
   const [activeTab, setActiveTab] = useState<"notes" | "ai" | "strong">("notes");
   const [compareMode, setCompareMode] = useState<boolean>(false);
   const [compareVerses, setCompareVerses] = useState<Verse[]>([]);
+  const [availableTranslations, setAvailableTranslations] = useState<string[]>(["LSG", "Darby", "Martin"]);
   const [userNotes, setUserNotes] = useState<SavedNote[]>([]);
   
   // Current editing note state
@@ -122,7 +123,7 @@ export default function BiblePage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const speechRecognitionActive = useRef<boolean>(false);
 
-  // Fetch books on mount
+  // Fetch books and translations on mount
   useEffect(() => {
     async function fetchBooks() {
       try {
@@ -135,7 +136,21 @@ export default function BiblePage() {
         console.error("Error fetching books:", err);
       }
     }
+    async function fetchTranslations() {
+      try {
+        const res = await fetch("/api/bible/translations");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.translations && data.translations.length > 0) {
+            setAvailableTranslations(data.translations);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching translations:", err);
+      }
+    }
     fetchBooks();
+    fetchTranslations();
     fetchUserNotes();
   }, []);
 
@@ -547,9 +562,11 @@ export default function BiblePage() {
             onChange={(e) => setTranslation(e.target.value)}
             className="bg-indigo-950/60 backdrop-blur-md text-white border border-indigo-500/30 rounded-2xl px-3 py-2 text-sm font-extrabold focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer transition disabled:opacity-40"
           >
-            <option value="LSG">LSG (Louis Segond)</option>
-            <option value="Darby">Darby</option>
-            <option value="Martin">Martin</option>
+            {availableTranslations.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
           </select>
         </div>
       </div>
