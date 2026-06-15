@@ -98,6 +98,8 @@ export default function BiblePage() {
   
   // Right sidebar state
   const [activeTab, setActiveTab] = useState<"notes" | "ai" | "strong">("notes");
+  const [compareMode, setCompareMode] = useState<boolean>(false);
+  const [compareVerses, setCompareVerses] = useState<Verse[]>([]);
   const [userNotes, setUserNotes] = useState<SavedNote[]>([]);
   
   // Current editing note state
@@ -138,6 +140,7 @@ export default function BiblePage() {
   }, []);
 
   // Fetch verses when book, chapter or translation changes
+  // Fetch verses when book, chapter, translation or compareMode changes
   useEffect(() => {
     async function fetchVerses() {
       if (!selectedBook) return;
@@ -145,12 +148,22 @@ export default function BiblePage() {
       setSelectedVerse(null);
       setContextMenuPosition(null);
       try {
-        const res = await fetch(
-          `/api/bible/${encodeURIComponent(selectedBook)}/${selectedChapter}?translation=${translation}`
-        );
-        if (res.ok) {
-          const data = await res.json();
-          setVerses(data.verses || []);
+        if (compareMode) {
+          const [resLsg, resDarby] = await Promise.all([
+            fetch(`/api/bible/${encodeURIComponent(selectedBook)}/${selectedChapter}?translation=LSG`).then(r => r.json()),
+            fetch(`/api/bible/${encodeURIComponent(selectedBook)}/${selectedChapter}?translation=Darby`).then(r => r.json())
+          ]);
+          setVerses(resLsg.verses || []);
+          setCompareVerses(resDarby.verses || []);
+        } else {
+          const res = await fetch(
+            `/api/bible/${encodeURIComponent(selectedBook)}/${selectedChapter}?translation=${translation}`
+          );
+          if (res.ok) {
+            const data = await res.json();
+            setVerses(data.verses || []);
+            setCompareVerses([]);
+          }
         }
       } catch (err) {
         console.error("Error fetching verses:", err);
@@ -159,7 +172,7 @@ export default function BiblePage() {
       }
     }
     fetchVerses();
-  }, [selectedBook, selectedChapter, translation]);
+  }, [selectedBook, selectedChapter, translation, compareMode]);
 
   // Load verse text if active verse changes to edit notes
   useEffect(() => {
@@ -507,17 +520,36 @@ export default function BiblePage() {
             Explorez les Écritures, surlignez des passages inspirants, rédigez vos annotations et conversez avec l'intelligence artificielle pour approfondir votre foi.
           </p>
         </div>
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-4 items-center flex-wrap justify-center md:justify-end">
           <div className="bg-indigo-950/40 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-indigo-500/20 text-center">
             <span className="block text-xs font-bold text-indigo-300 uppercase tracking-wider">Notes Sauvegardées</span>
             <span className="text-xl font-black">{userNotes.length}</span>
           </div>
+
+          <button
+            onClick={() => {
+              setCompareMode(!compareMode);
+              sounds.playXPGain();
+            }}
+            className={cn(
+              "px-4 py-2 rounded-2xl text-xs font-extrabold transition-all border cursor-pointer",
+              compareMode
+                ? "bg-amber-500 border-amber-600 text-white shadow-md hover:bg-amber-600"
+                : "bg-indigo-950/60 backdrop-blur-md border-indigo-500/30 text-indigo-200 hover:bg-indigo-900/60"
+            )}
+          >
+            {compareMode ? "✨ Comparaison active" : "📖 Comparer les versions"}
+          </button>
+
           <select 
             value={translation}
+            disabled={compareMode}
             onChange={(e) => setTranslation(e.target.value)}
-            className="bg-indigo-950/60 backdrop-blur-md text-white border border-indigo-500/30 rounded-2xl px-3 py-2 text-sm font-extrabold focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer"
+            className="bg-indigo-950/60 backdrop-blur-md text-white border border-indigo-500/30 rounded-2xl px-3 py-2 text-sm font-extrabold focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer transition disabled:opacity-40"
           >
             <option value="LSG">LSG (Louis Segond)</option>
+            <option value="Darby">Darby</option>
+            <option value="Martin">Martin</option>
           </select>
         </div>
       </div>
@@ -696,6 +728,18 @@ export default function BiblePage() {
                       <span className="inline-flex ml-2 align-middle" title="Ce verset contient une note">
                         <Edit3 className="w-3.5 h-3.5 text-indigo-500" />
                       </span>
+                    )}
+
+                    {compareMode && (
+                      (() => {
+                        const darbyVerse = compareVerses.find(dv => dv.verse === v.verse);
+                        return darbyVerse ? (
+                          <div className="text-xs text-slate-500/80 italic mt-1.5 pl-4 border-l-2 border-slate-200 leading-relaxed font-medium">
+                            <span className="text-[10px] font-black text-amber-600/70 mr-1.5 select-none uppercase tracking-wider">Darby</span>
+                            {darbyVerse.text}
+                          </div>
+                        ) : null;
+                      })()
                     )}
 
                     {/* Quick indicator when hovering */}
