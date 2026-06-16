@@ -169,6 +169,21 @@ export default function BiblePage() {
     fetchUserNotes();
   }, []);
 
+  // Synchroniser avec les query parameters de l'URL s'ils existent
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const bookParam = params.get("book");
+      const chapterParam = params.get("chapter");
+      if (bookParam) {
+        setSelectedBook(bookParam);
+      }
+      if (chapterParam) {
+        setSelectedChapter(parseInt(chapterParam, 10) || 1);
+      }
+    }
+  }, []);
+
   // Fetch verses when book, chapter or translation changes
   // Fetch verses when book, chapter, translation or compareMode changes
   useEffect(() => {

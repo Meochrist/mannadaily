@@ -11,7 +11,8 @@ import {
   Grid, 
   Trophy,
   Award,
-  Sparkles
+  Sparkles,
+  Calendar
 } from "lucide-react";
 
 export default function BottomNav() {
@@ -32,6 +33,11 @@ export default function BottomNav() {
       label: "La Bible",
       href: "/bible",
       icon: BookOpen,
+    },
+    {
+      label: "Plans",
+      href: "/reading-plans",
+      icon: Calendar,
     },
     {
       label: "Proclamer",

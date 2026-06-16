@@ -29,6 +29,7 @@ export const XP_RULES = {
   MEMORIZATION: 25,
   PROCLAMATION_SESSION: 20,
   STREAK_BONUS_BASE: 5,
+  READING_PLAN_DAY: 10,
 };
 
 export interface ThemeConfig {

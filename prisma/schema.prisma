@@ -27,6 +27,8 @@ model User {
   pushSubscriptions PushSubscription[]
   highlights    VerseHighlight[]
   verseNotes    VerseNote[]
+  readingPlans  ReadingPlanEnrollment[]
+  readingProgress ReadingPlanProgress[]
 }
 
 model Account {
@@ -326,6 +328,64 @@ model BibleCommentary {
 
   @@index([book, chapter, verse])
   @@index([author])
+}
+
+model ReadingPlan {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  duration    Int      // nombre de jours (365, 180, 90, 30)
+  category    String   // "full_bible", "nt_only", "psalms", "thematic"
+  days        ReadingPlanDay[]
+  enrollments ReadingPlanEnrollment[]
+  createdAt   DateTime @default(now())
+}
+
+model ReadingPlanDay {
+  id         String      @id @default(cuid())
+  planId     String
+  dayNumber  Int
+  title      String?
+  readings   ReadingPlanReading[]
+  plan       ReadingPlan @relation(fields: [planId], references: [id])
+
+  @@unique([planId, dayNumber])
+}
+
+model ReadingPlanReading {
+  id         String         @id @default(cuid())
+  dayId      String
+  book       String
+  bookNumber Int
+  chapter    Int
+  day        ReadingPlanDay @relation(fields: [dayId], references: [id])
+}
+
+model ReadingPlanEnrollment {
+  id            String      @id @default(cuid())
+  userId        String
+  planId        String
+  startDate     DateTime    @default(now())
+  currentDay    Int         @default(1)
+  completed     Boolean     @default(false)
+  completedAt   DateTime?
+  user          User        @relation(fields: [userId], references: [id])
+  plan          ReadingPlan @relation(fields: [planId], references: [id])
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([userId, planId])
+}
+
+model ReadingPlanProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  planId      String
+  dayNumber   Int
+  completedAt DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, planId, dayNumber])
 }
 
 

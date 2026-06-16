@@ -9,7 +9,8 @@ import {
   Grid, 
   Trophy,
   Award,
-  Sparkles
+  Sparkles,
+  Calendar
 } from "lucide-react";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -56,6 +57,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             >
               <BookOpen className="w-5 h-5 text-indigo-300" />
               La Sainte Bible
+            </Link>
+
+            <Link 
+              href="/reading-plans" 
+              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
+            >
+              <Calendar className="w-5 h-5 text-indigo-300" />
+              Plans de lecture
             </Link>
 
             <Link 
