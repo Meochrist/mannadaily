@@ -1898,24 +1898,53 @@ export default function BiblePage() {
                   </div>
                 ) : (
                   <div className="flex-1 overflow-y-auto space-y-4 pr-1">
-                    {commentaries.map((com) => (
+                    {/* Commentaire de chapitre (verse === 0) */}
+                    {commentaries.filter((c) => c.verse === 0).map((com) => (
                       <div
                         key={com.id}
-                        className="bg-slate-50 border border-slate-105 rounded-2xl p-4 space-y-3"
+                        className="bg-blue-50/40 border border-blue-100/60 rounded-2xl p-4 space-y-3 shadow-sm"
                       >
                         <div className="flex justify-between items-center">
-                          <span className="text-xs font-black bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                            {com.author}
+                          <span className="text-xs font-black bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+                            📖 Chapitre · {com.author}
                           </span>
                           <span className="text-[10px] text-slate-400">
                             {new Date(com.createdAt).toLocaleDateString("fr-FR")}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                        <p className="text-xs text-slate-700 leading-relaxed font-semibold">
                           {com.content}
                         </p>
                       </div>
                     ))}
+
+                    {/* Commentaires de versets (verse !== 0) */}
+                    {commentaries.filter((c) => c.verse !== 0).length > 0 && (
+                      <div className="space-y-3 pt-2">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
+                          Commentaires du verset
+                        </span>
+                        {commentaries.filter((c) => c.verse !== 0).map((com) => (
+                          <div
+                            key={com.id}
+                            className="bg-slate-50 border border-slate-105 rounded-2xl p-4 space-y-3"
+                          >
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs font-black bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                {com.author}
+                              </span>
+                              <span className="text-[10px] text-slate-400">
+                                {new Date(com.createdAt).toLocaleDateString("fr-FR")}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                              {com.content}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
                     <div className="pt-2 flex justify-center">
                       <button
                         onClick={handleGenerateCommentary}

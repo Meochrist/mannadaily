@@ -26,11 +26,15 @@ export async function GET(req: Request) {
       where: {
         book,
         chapter,
-        verse
+        OR: [
+          { verse },
+          { verse: 0 }
+        ]
       },
-      orderBy: {
-        author: "asc"
-      }
+      orderBy: [
+        { verse: "asc" },
+        { author: "asc" }
+      ]
     });
 
     return NextResponse.json({ commentaries });
