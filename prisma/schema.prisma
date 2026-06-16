@@ -313,5 +313,20 @@ model GreekWord {
   @@index([strongNumber])
 }
 
+model BibleCommentary {
+  id          String   @id @default(cuid())
+  book        Int
+  chapter     Int
+  verse       Int
+  verseEnd    Int?
+  author      String   // "Matthew Henry", "John Wesley", etc.
+  content     String   @db.Text
+  language    String   @default("fr")
+  createdAt   DateTime @default(now())
+
+  @@index([book, chapter, verse])
+  @@index([author])
+}
+
 
 

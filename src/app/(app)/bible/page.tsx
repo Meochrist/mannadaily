@@ -98,7 +98,7 @@ export default function BiblePage() {
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
   
   // Right sidebar state
-  const [activeTab, setActiveTab] = useState<"notes" | "ai" | "strong" | "references" | "morphology">("notes");
+  const [activeTab, setActiveTab] = useState<"notes" | "ai" | "strong" | "references" | "morphology" | "commentary">("notes");
   const [compareMode, setCompareMode] = useState<boolean>(false);
   const [compareVerses, setCompareVerses] = useState<Verse[]>([]);
   const [availableTranslations, setAvailableTranslations] = useState<string[]>(["LSG", "Darby", "Martin"]);
@@ -128,6 +128,11 @@ export default function BiblePage() {
   // Morphology state
   const [morphologyWords, setMorphologyWords] = useState<any[]>([]);
   const [loadingMorphology, setLoadingMorphology] = useState<boolean>(false);
+
+  // Commentary state
+  const [commentaries, setCommentaries] = useState<any[]>([]);
+  const [loadingCommentaries, setLoadingCommentaries] = useState<boolean>(false);
+  const [generatingCommentary, setGeneratingCommentary] = useState<boolean>(false);
 
   // UI layout reference
   const containerRef = useRef<HTMLDivElement>(null);
@@ -281,6 +286,43 @@ export default function BiblePage() {
       }
     }
     fetchMorphology();
+  }, [selectedVerse, activeTab, books]);
+
+  // Fetch commentaries when selectedVerse or activeTab changes
+  useEffect(() => {
+    async function fetchCommentaries() {
+      if (!selectedVerse || activeTab !== "commentary") {
+        setCommentaries([]);
+        return;
+      }
+      setLoadingCommentaries(true);
+      try {
+        let bookNum = selectedVerse.bookNumber;
+        if (!bookNum || bookNum === 0) {
+          const bookIdx = books.findIndex(b => b.name === selectedVerse.book);
+          if (bookIdx !== -1) {
+            bookNum = bookIdx + 1;
+          }
+        }
+        if (!bookNum || bookNum === 0) {
+          setCommentaries([]);
+          return;
+        }
+        const res = await fetch(`/api/bible/commentary?book=${bookNum}&chapter=${selectedVerse.chapter}&verse=${selectedVerse.verse}`);
+        if (res.ok) {
+          const data = await res.json();
+          setCommentaries(data.commentaries || []);
+        } else {
+          setCommentaries([]);
+        }
+      } catch (err) {
+        console.error("Error fetching commentaries:", err);
+        setCommentaries([]);
+      } finally {
+        setLoadingCommentaries(false);
+      }
+    }
+    fetchCommentaries();
   }, [selectedVerse, activeTab, books]);
 
   // Handle pending verse selection when verses finish loading
@@ -617,6 +659,34 @@ export default function BiblePage() {
       setStrongLoading(false);
     }
   }, []);
+
+  // Générer un commentaire via l'IA
+  const handleGenerateCommentary = async () => {
+    if (!selectedVerse) return;
+    setGeneratingCommentary(true);
+    try {
+      const res = await fetch("/api/meditation/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "commentary",
+          verse: selectedVerse.text,
+          reference: `${selectedVerse.book} ${selectedVerse.chapter}:${selectedVerse.verse}`
+        })
+      });
+      if (res.ok) {
+        sounds.playSuccess();
+        const data = await res.json();
+        if (data.commentary) {
+          setCommentaries(prev => [...prev, data.commentary]);
+        }
+      }
+    } catch (err) {
+      console.error("Error generating commentary:", err);
+    } finally {
+      setGeneratingCommentary(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full space-y-4 max-w-7xl mx-auto" ref={containerRef}>
@@ -1078,6 +1148,16 @@ export default function BiblePage() {
                           </button>
                         );
                       })()}
+                      <button
+                        onClick={() => {
+                          setActiveTab("commentary");
+                          setContextMenuPosition(null);
+                        }}
+                        className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-blue-200 bg-blue-50/50 text-[11px] font-black text-blue-700 hover:bg-blue-100 hover:text-blue-850 transition cursor-pointer"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-blue-500 animate-pulse" />
+                        Commentaires
+                      </button>
                     </div>
                   </motion.div>
                 </>
@@ -1164,6 +1244,21 @@ export default function BiblePage() {
             >
               <BookOpen className="w-3.5 h-3.5" />
               Morpho.
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab("commentary");
+                sounds.playXPGain();
+              }}
+              className={cn(
+                "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
+                activeTab === "commentary"
+                  ? "bg-white text-indigo-750 shadow-sm border border-slate-100"
+                  : "text-slate-400 hover:text-slate-655"
+              )}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Comment.
             </button>
           </div>
 
@@ -1742,6 +1837,104 @@ export default function BiblePage() {
                         </div>
                       );
                     })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* COMMENTARY TAB */}
+            {activeTab === "commentary" && (
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <div className="text-xs font-bold text-slate-500 mb-3.5 flex items-center justify-between">
+                  <span>Commentaires bibliques</span>
+                  {selectedVerse && (
+                    <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-black">
+                      {selectedVerse.book} {selectedVerse.chapter}:{selectedVerse.verse}
+                    </span>
+                  )}
+                </div>
+
+                {!selectedVerse ? (
+                  <div className="flex-1 flex flex-col justify-center items-center text-center p-4 space-y-4">
+                    <Manny mood="happy" size={120} />
+                    <div>
+                      <h4 className="font-extrabold text-slate-800 text-sm">Commentaires de versets</h4>
+                      <p className="text-xs text-slate-500 mt-1.5 max-w-[210px] leading-relaxed">
+                        Sélectionnez un verset dans le lecteur puis cliquez sur <strong>"Commentaires"</strong> pour voir l'exégèse.
+                      </p>
+                    </div>
+                  </div>
+                ) : loadingCommentaries ? (
+                  <div className="flex-1 flex flex-col justify-center items-center gap-2">
+                    <Loader2 className="w-8 h-8 text-blue-650 animate-spin" />
+                    <span className="text-xs font-bold text-slate-500">Recherche des commentaires...</span>
+                  </div>
+                ) : commentaries.length === 0 ? (
+                  <div className="flex-1 flex flex-col justify-center items-center text-center p-4 space-y-4">
+                    <Manny mood="thinking" size={110} />
+                    <div>
+                      <h4 className="font-bold text-slate-700 text-xs">Aucun commentaire</h4>
+                      <p className="text-[10px] text-slate-500 mt-1.5 max-w-[200px] leading-relaxed mb-4">
+                        Aucun commentaire n'est enregistré pour ce verset dans notre base de données.
+                      </p>
+                      <button
+                        onClick={handleGenerateCommentary}
+                        disabled={generatingCommentary}
+                        className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl transition shadow-sm flex items-center gap-1.5 disabled:bg-slate-300 cursor-pointer"
+                      >
+                        {generatingCommentary ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            Génération IA...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-3.5 h-3.5 text-blue-200" />
+                            Générer un commentaire IA
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+                    {commentaries.map((com) => (
+                      <div
+                        key={com.id}
+                        className="bg-slate-50 border border-slate-105 rounded-2xl p-4 space-y-3"
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs font-black bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            {com.author}
+                          </span>
+                          <span className="text-[10px] text-slate-400">
+                            {new Date(com.createdAt).toLocaleDateString("fr-FR")}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                          {com.content}
+                        </p>
+                      </div>
+                    ))}
+                    <div className="pt-2 flex justify-center">
+                      <button
+                        onClick={handleGenerateCommentary}
+                        disabled={generatingCommentary}
+                        className="px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-black rounded-xl transition shadow-sm flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                      >
+                        {generatingCommentary ? (
+                          <>
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            Génération IA...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-3 h-3 text-blue-500" />
+                            Générer un autre commentaire IA
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

@@ -315,4 +315,38 @@ Réponds en 3-4 phrases en français, de façon simple, profonde et pratique. Ne
   }
 }
 
+/**
+ * Génère un commentaire biblique au style de Matthew Henry en français (100-150 mots).
+ */
+export async function generateCommentary(
+  book: string,
+  chapter: number,
+  verse: number,
+  verseText: string
+): Promise<string> {
+  if (isBuildTime()) {
+    return `Commentaire factice généré lors du build pour ${book} ${chapter}:${verse} : un commentaire spirituel profond sur le texte biblique.`;
+  }
+
+  const prompt = `Génère un court commentaire biblique (100 à 150 mots maximum) en français pour ce verset : ${book} ${chapter}:${verse} - "${verseText}"
+Style : Matthew Henry, bienveillant, profond, spirituel et pastoral. Pas de titres ni de numéros.`;
+
+  try {
+    return await callGemini(prompt, "gemini-2.5-flash");
+  } catch (err: unknown) {
+    console.warn("Gemini failed for commentary. Trying Groq...", err);
+    try {
+      return await callGroq(prompt, "llama-3.3-70b-versatile");
+    } catch (groqErr: unknown) {
+      console.warn("Groq failed for commentary. Trying GitHub...", groqErr);
+      try {
+        return await callGitHub(prompt, "gpt-4o");
+      } catch (gitErr: unknown) {
+        console.error("All AI providers failed for commentary.", gitErr);
+        throw new Error("Unable to generate commentary. All AI providers failed.");
+      }
+    }
+  }
+}
+
 

@@ -4,7 +4,8 @@ import {
   generateMeditation, 
   generatePersonalizedSummary, 
   generatePersonalizedPrayer,
-  generateBibleChat
+  generateBibleChat,
+  generateCommentary
 } from "@/lib/ai";
 import { NextResponse } from "next/server";
 
@@ -33,6 +34,38 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const { verse, reference, theme, type = "meditation", answers, question, verseContext } = body;
+
+    // Prise en charge du commentaire IA
+    if (type === "commentary") {
+      if (!verse || !reference) {
+        return NextResponse.json({ error: "Missing required verse or reference fields for commentary" }, { status: 400 });
+      }
+      const { book, chapter, verse: verseNumber } = parseReference(reference);
+      
+      const bibleVerse = await db.bibleVerse.findFirst({
+        where: {
+          book,
+          chapter,
+          verse: verseNumber
+        }
+      });
+      const bookNumber = bibleVerse?.bookNumber || 1;
+
+      const commentaryText = await generateCommentary(book, chapter, verseNumber, verse);
+
+      const createdCommentary = await db.bibleCommentary.create({
+        data: {
+          book: bookNumber,
+          chapter,
+          verse: verseNumber,
+          author: "MannaDaily AI",
+          content: commentaryText,
+          language: "fr"
+        }
+      });
+
+      return NextResponse.json({ commentary: createdCommentary });
+    }
 
     // Prise en charge du chat biblique
     if (type === "bible_chat") {

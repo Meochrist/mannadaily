@@ -14,7 +14,8 @@
     "seed:martin": "npx ts-node --project tsconfig.json prisma/seedMartin.ts",
     "seed:all-versions": "npx ts-node --project tsconfig.json prisma/seedAllVersions.ts",
     "seed:crossrefs": "npx ts-node --project tsconfig.json prisma/seedCrossRefs.ts",
-    "seed:macula": "npx ts-node --project tsconfig.json prisma/seedMacula.ts"
+    "seed:macula": "npx ts-node --project tsconfig.json prisma/seedMacula.ts",
+    "seed:commentary": "npx ts-node --project tsconfig.json prisma/seedCommentary.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
