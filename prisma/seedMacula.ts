@@ -45,6 +45,79 @@ const pool = new pg.Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
+// --- LISTE DES LIVRES ---
+const otBooks = [
+  { file: "Gen.xml", num: 1 },
+  { file: "Exod.xml", num: 2 },
+  { file: "Lev.xml", num: 3 },
+  { file: "Num.xml", num: 4 },
+  { file: "Deut.xml", num: 5 },
+  { file: "Josh.xml", num: 6 },
+  { file: "Judg.xml", num: 7 },
+  { file: "Ruth.xml", num: 8 },
+  { file: "1Sam.xml", num: 9 },
+  { file: "2Sam.xml", num: 10 },
+  { file: "1Kgs.xml", num: 11 },
+  { file: "2Kgs.xml", num: 12 },
+  { file: "1Chr.xml", num: 13 },
+  { file: "2Chr.xml", num: 14 },
+  { file: "Ezra.xml", num: 15 },
+  { file: "Neh.xml", num: 16 },
+  { file: "Esth.xml", num: 17 },
+  { file: "Job.xml", num: 18 },
+  { file: "Ps.xml", num: 19 },
+  { file: "Prov.xml", num: 20 },
+  { file: "Eccl.xml", num: 21 },
+  { file: "Song.xml", num: 22 },
+  { file: "Isa.xml", num: 23 },
+  { file: "Jer.xml", num: 24 },
+  { file: "Lam.xml", num: 25 },
+  { file: "Ezek.xml", num: 26 },
+  { file: "Dan.xml", num: 27 },
+  { file: "Hos.xml", num: 28 },
+  { file: "Joel.xml", num: 29 },
+  { file: "Amos.xml", num: 30 },
+  { file: "Obad.xml", num: 31 },
+  { file: "Jonah.xml", num: 32 },
+  { file: "Mic.xml", num: 33 },
+  { file: "Nah.xml", num: 34 },
+  { file: "Hab.xml", num: 35 },
+  { file: "Zeph.xml", num: 36 },
+  { file: "Hag.xml", num: 37 },
+  { file: "Zech.xml", num: 38 },
+  { file: "Mal.xml", num: 39 }
+];
+
+const ntBooks = [
+  { file: "61-Mt-morphgnt.txt", num: 40 },
+  { file: "62-Mk-morphgnt.txt", num: 41 },
+  { file: "63-Lk-morphgnt.txt", num: 42 },
+  { file: "64-Jn-morphgnt.txt", num: 43 },
+  { file: "65-Ac-morphgnt.txt", num: 44 },
+  { file: "66-Ro-morphgnt.txt", num: 45 },
+  { file: "67-1Co-morphgnt.txt", num: 46 },
+  { file: "68-2Co-morphgnt.txt", num: 47 },
+  { file: "69-Ga-morphgnt.txt", num: 48 },
+  { file: "70-Eph-morphgnt.txt", num: 49 },
+  { file: "71-Php-morphgnt.txt", num: 50 },
+  { file: "72-Col-morphgnt.txt", num: 51 },
+  { file: "73-1Th-morphgnt.txt", num: 52 },
+  { file: "74-2Th-morphgnt.txt", num: 53 },
+  { file: "75-1Ti-morphgnt.txt", num: 54 },
+  { file: "76-2Ti-morphgnt.txt", num: 55 },
+  { file: "77-Tit-morphgnt.txt", num: 56 },
+  { file: "78-Phm-morphgnt.txt", num: 57 },
+  { file: "79-Heb-morphgnt.txt", num: 58 },
+  { file: "80-Jas-morphgnt.txt", num: 59 },
+  { file: "81-1Pe-morphgnt.txt", num: 60 },
+  { file: "82-2Pe-morphgnt.txt", num: 61 },
+  { file: "83-1Jn-morphgnt.txt", num: 62 },
+  { file: "84-2Jn-morphgnt.txt", num: 63 },
+  { file: "85-3Jn-morphgnt.txt", num: 64 },
+  { file: "86-Jud-morphgnt.txt", num: 65 },
+  { file: "87-Re-morphgnt.txt", num: 66 }
+];
+
 // --- UTILS DE TRANSLITTERATION GRECQUE ---
 function transliterateGreek(text: string): string {
   const map: Record<string, string> = {
@@ -76,19 +149,81 @@ function transliterateGreek(text: string): string {
 }
 
 // --- DECODEURS MORPHOLOGIQUES ---
-function buildGreekMorphologyDesc(attr: Record<string, string>): string {
-  const parts: string[] = [];
-  if (attr.class) {
-    parts.push(attr.class.charAt(0).toUpperCase() + attr.class.slice(1));
+function decodeGreekMorphology(pos: string, parseCode: string): string {
+  const details: string[] = [];
+  
+  const posMap: Record<string, string> = {
+    "A-": "Adjective",
+    "C-": "Conjunction",
+    "D-": "Adverb",
+    "I-": "Interjection",
+    "N-": "Noun",
+    "P-": "Preposition",
+    "RA": "Definite Article",
+    "RD": "Demonstrative Pronoun",
+    "RI": "Interrogative/Indefinite Pronoun",
+    "RP": "Personal Pronoun",
+    "RR": "Relative Pronoun",
+    "V-": "Verb",
+    "X-": "Particle"
+  };
+  
+  const posDesc = posMap[pos] || pos;
+  details.push(posDesc);
+
+  if (parseCode && parseCode.length >= 8) {
+    const p1 = parseCode.charAt(0);
+    const p2 = parseCode.charAt(1);
+    const p3 = parseCode.charAt(2);
+    const p4 = parseCode.charAt(3);
+    const p5 = parseCode.charAt(4);
+    const p6 = parseCode.charAt(5);
+    const p7 = parseCode.charAt(6);
+    const p8 = parseCode.charAt(7);
+
+    if (pos === "V-") {
+      const tenseMap: Record<string, string> = {
+        P: "Present", I: "Imperfect", F: "Future", A: "Aorist", X: "Perfect", Y: "Pluperfect"
+      };
+      const voiceMap: Record<string, string> = {
+        A: "Active", M: "Middle", P: "Passive"
+      };
+      const moodMap: Record<string, string> = {
+        I: "Indicative", D: "Imperative", S: "Subjunctive", O: "Optative", N: "Infinitive", P: "Participle"
+      };
+
+      if (p1 !== '-') details.push(`${p1} person`);
+      if (tenseMap[p2]) details.push(tenseMap[p2]);
+      if (voiceMap[p3]) details.push(voiceMap[p3]);
+      if (moodMap[p4]) details.push(moodMap[p4]);
+
+      const numMap: Record<string, string> = { S: "Singular", P: "Plural" };
+
+      if (p4 === 'P') {
+        const caseMap: Record<string, string> = { N: "Nominative", G: "Genitive", D: "Dative", A: "Accusative" };
+        const genMap: Record<string, string> = { M: "Masculine", F: "Feminine", N: "Neuter" };
+
+        if (caseMap[p5]) details.push(caseMap[p5]);
+        if (numMap[p6]) details.push(numMap[p6]);
+        if (genMap[p7]) details.push(genMap[p7]);
+      } else {
+        if (numMap[p5]) details.push(numMap[p5]);
+        if (numMap[p6]) details.push(numMap[p6]);
+      }
+    } else {
+      const caseMap: Record<string, string> = { N: "Nominative", G: "Genitive", D: "Dative", A: "Accusative" };
+      const numMap: Record<string, string> = { S: "Singular", P: "Plural" };
+      const genMap: Record<string, string> = { M: "Masculine", F: "Feminine", N: "Neuter" };
+      const degMap: Record<string, string> = { C: "Comparative", S: "Superlative" };
+
+      if (caseMap[p5]) details.push(caseMap[p5]);
+      if (numMap[p6]) details.push(numMap[p6]);
+      if (genMap[p7]) details.push(genMap[p7]);
+      if (degMap[p8]) details.push(degMap[p8]);
+    }
   }
-  if (attr.person) parts.push(`${attr.person} person`);
-  if (attr.tense) parts.push(attr.tense);
-  if (attr.voice) parts.push(attr.voice);
-  if (attr.mood) parts.push(attr.mood);
-  if (attr.case) parts.push(attr.case);
-  if (attr.gender) parts.push(attr.gender);
-  if (attr.number) parts.push(attr.number);
-  return parts.join(', ');
+
+  return details.join(", ");
 }
 
 function decodeHebrewMorphology(morph: string): string {
@@ -206,169 +341,213 @@ function parseAttributes(attrStr: string): Record<string, string> {
 }
 
 async function main() {
-  console.log("=== Début du Seed Morphologique Macula (Hébreu + Grec) ===\n");
+  console.log("=== Début du Seed Morphologique Complet (Hébreu + Grec) ===\n");
 
-  // 1. SEED GREC : Évangile de Jean (Livre 43)
-  console.log("--- PARTIE GRECQUE : Évangile de Jean ---");
-  const greekUrl = 'https://raw.githubusercontent.com/Clear-Bible/macula-greek/main/Nestle1904/lowfat/04-john.xml';
-  console.log(`Téléchargement de : ${greekUrl}...`);
-  
-  let greekData: string;
-  try {
-    greekData = await downloadData(greekUrl);
-    console.log("Téléchargement du grec réussi !");
-  } catch (err: any) {
-    console.error("Échec du téléchargement du grec :", err.message);
-    process.exit(1);
+  let totalOtMots = 0;
+  let otBooksSeeded = 0;
+
+  // 1. SEED ANCIEN TESTAMENT (AT)
+  console.log("--- PARTIE HÉBRAÏQUE : ANCIEN TESTAMENT (39 Livres) ---");
+  for (const book of otBooks) {
+    // Éviter le re-seed s'il y a déjà des données pour ce livre
+    const existingCount = await prisma.hebrewWord.count({ where: { book: book.num } });
+    if (existingCount > 0) {
+      console.log(`[AT] ⏩ Livre ${book.file} (${book.num}) déjà présent en base (${existingCount} mots). Saut.`);
+      totalOtMots += existingCount;
+      otBooksSeeded++;
+      continue;
+    }
+
+    const url = `https://raw.githubusercontent.com/openscriptures/morphhb/master/wlc/${book.file}`;
+    console.log(`[AT] Téléchargement de : ${book.file} (${book.num}/39)...`);
+    
+    let xmlData: string;
+    try {
+      xmlData = await downloadData(url);
+    } catch (err: any) {
+      console.error(`[AT] ⚠️ Saut de ${book.file} (404 ou erreur) :`, err.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      continue;
+    }
+
+    try {
+      const hebrewWords: any[] = [];
+      const verseRegex = /<verse osisID="([^.]+)\.(\d+)\.(\d+)">([\s\S]+?)<\/verse>/g;
+      let verseMatch;
+      let wordCount = 0;
+
+      while ((verseMatch = verseRegex.exec(xmlData)) !== null) {
+        const chapter = parseInt(verseMatch[2], 10);
+        const verse = parseInt(verseMatch[3], 10);
+        const verseContent = verseMatch[4];
+
+        const wordRegex = /<w\s+([^>]+)>([^<]+)<\/w>/g;
+        let wordMatch;
+        let position = 1;
+
+        while ((wordMatch = wordRegex.exec(verseContent)) !== null) {
+          const attrStr = wordMatch[1];
+          const text = wordMatch[2].trim();
+          const attr = parseAttributes(attrStr);
+
+          let strong = attr.lemma || "";
+          if (strong) {
+            const parts = strong.split('/');
+            const lastPart = parts[parts.length - 1];
+            const numPart = lastPart.replace(/[a-zA-Z]/g, '').trim();
+            if (numPart && !isNaN(parseInt(numPart, 10))) {
+              strong = 'H' + numPart;
+            } else {
+              strong = "";
+            }
+          }
+
+          const morphDesc = decodeHebrewMorphology(attr.morph || "");
+
+          hebrewWords.push({
+            book: book.num,
+            chapter,
+            verse,
+            wordPosition: position,
+            originalText: text,
+            transliteration: null,
+            strongNumber: strong || null,
+            root: attr.lemma ? attr.lemma.split('/').pop() : null,
+            morphology: attr.morph || null,
+            morphologyDesc: morphDesc || null,
+            gloss: null
+          });
+
+          position++;
+          wordCount++;
+        }
+      }
+
+      // Insertion en base par lots de 500
+      let inserted = 0;
+      for (let i = 0; i < hebrewWords.length; i += 500) {
+        const batch = hebrewWords.slice(i, i + 500);
+        const result = await prisma.hebrewWord.createMany({
+          data: batch,
+          skipDuplicates: true
+        });
+        inserted += result.count;
+      }
+
+      console.log(`[AT] ✅ ${book.file} : ${wordCount} mots trouvés, ${inserted} insérés en base.`);
+      totalOtMots += inserted;
+      otBooksSeeded++;
+    } catch (err: any) {
+      console.error(`[AT] ❌ Erreur lors du parsing de ${book.file} :`, err.message);
+    }
+
+    // Pause de 100ms
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
 
-  const greekWords: any[] = [];
-  const greekWordRegex = /<w\s+([^>]+)>([^<]+)<\/w>/g;
-  let greekMatch;
-  let greekCount = 0;
+  // 2. SEED NOUVEAU TESTAMENT (NT)
+  let totalNtMots = 0;
+  let ntBooksSeeded = 0;
 
-  while ((greekMatch = greekWordRegex.exec(greekData)) !== null) {
-    const attrStr = greekMatch[1];
-    const text = greekMatch[2].trim();
-    const attr = parseAttributes(attrStr);
+  console.log("\n--- PARTIE GRECQUE : NOUVEAU TESTAMENT (27 Livres) ---");
+  for (const book of ntBooks) {
+    // Éviter le re-seed s'il y a déjà des données pour ce livre
+    const existingCount = await prisma.greekWord.count({ where: { book: book.num } });
+    if (existingCount > 0) {
+      console.log(`[NT] ⏩ Livre ${book.file} (${book.num}) déjà présent en base (${existingCount} mots). Saut.`);
+      totalNtMots += existingCount;
+      ntBooksSeeded++;
+      continue;
+    }
 
-    if (attr.ref) {
-      // ref format: JHN 1:1!3
-      const refMatch = attr.ref.match(/JHN\s+(\d+):(\d+)!(\d+)/);
-      if (refMatch) {
-        const chapter = parseInt(refMatch[1], 10);
-        const verse = parseInt(refMatch[2], 10);
-        const wordPosition = parseInt(refMatch[3], 10);
+    const url = `https://raw.githubusercontent.com/morphgnt/sblgnt/master/${book.file}`;
+    console.log(`[NT] Téléchargement de : ${book.file} (${book.num}/66)...`);
 
-        let strong = attr.strong || "";
-        if (strong && !strong.startsWith('G')) {
-          strong = 'G' + strong;
+    let txtData: string;
+    try {
+      txtData = await downloadData(url);
+    } catch (err: any) {
+      console.error(`[NT] ⚠️ Saut de ${book.file} (404 ou erreur) :`, err.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      continue;
+    }
+
+    try {
+      const greekWords: any[] = [];
+      const lines = txtData.split(/\r?\n/);
+      let lastRef = "";
+      let wordPosition = 1;
+      let wordCount = 0;
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+
+        const parts = trimmed.split(/\s+/);
+        if (parts.length < 7) continue;
+
+        const ref = parts[0];
+        if (ref !== lastRef) {
+          wordPosition = 1;
+          lastRef = ref;
         }
 
-        const morphologyDesc = buildGreekMorphologyDesc(attr);
+        const chapter = parseInt(ref.substring(2, 4), 10);
+        const verse = parseInt(ref.substring(4, 6), 10);
+        const pos = parts[1];
+        const parseCode = parts[2];
+        const text = parts[3];
+        const lemma = parts[6];
+
+        const morphologyDesc = decodeGreekMorphology(pos, parseCode);
         const translitteration = transliterateGreek(text);
 
         greekWords.push({
-          book: 43,
+          book: book.num,
           chapter,
           verse,
-          wordPosition,
+          wordPosition: wordPosition,
           originalText: text,
           transliteration: translitteration,
-          strongNumber: strong || null,
-          root: attr.lemma || null,
-          morphology: attr.morph || null,
+          strongNumber: null,
+          root: lemma || null,
+          morphology: parseCode || null,
           morphologyDesc: morphologyDesc || null,
-          gloss: attr.gloss || null
+          gloss: null
         });
 
-        greekCount++;
-      }
-    }
-  }
-
-  console.log(`Nombre de mots grecs parsés : ${greekCount}`);
-  
-  // Insertion en base par lots de 500
-  console.log("Insertion des mots grecs en base...");
-  let insertedGreek = 0;
-  for (let i = 0; i < greekWords.length; i += 500) {
-    const batch = greekWords.slice(i, i + 500);
-    const result = await prisma.greekWord.createMany({
-      data: batch,
-      skipDuplicates: true
-    });
-    insertedGreek += result.count;
-  }
-  console.log(`✅ ${insertedGreek} mots grecs insérés.`);
-
-  // 2. SEED HÉBREU : Genèse (Livre 1)
-  console.log("\n--- PARTIE HÉBRAÏQUE : Genèse ---");
-  const hebrewUrl = 'https://raw.githubusercontent.com/openscriptures/morphhb/master/wlc/Gen.xml';
-  console.log(`Téléchargement de : ${hebrewUrl}...`);
-
-  let hebrewData: string;
-  try {
-    hebrewData = await downloadData(hebrewUrl);
-    console.log("Téléchargement de l'hébreu réussi !");
-  } catch (err: any) {
-    console.error("Échec du téléchargement de l'hébreu :", err.message);
-    process.exit(1);
-  }
-
-  const hebrewWords: any[] = [];
-  const verseRegex = /<verse osisID="Gen\.(\d+)\.(\d+)">([\s\S]+?)<\/verse>/g;
-  let verseMatch;
-  let hebrewCount = 0;
-
-  while ((verseMatch = verseRegex.exec(hebrewData)) !== null) {
-    const chapter = parseInt(verseMatch[1], 10);
-    const verse = parseInt(verseMatch[2], 10);
-    const verseContent = verseMatch[3];
-
-    const wordRegex = /<w\s+([^>]+)>([^<]+)<\/w>/g;
-    let wordMatch;
-    let position = 1;
-
-    while ((wordMatch = wordRegex.exec(verseContent)) !== null) {
-      const attrStr = wordMatch[1];
-      const text = wordMatch[2].trim();
-      const attr = parseAttributes(attrStr);
-
-      let strong = attr.lemma || "";
-      // Nettoyage de lemma pour en faire un Strong hébreu
-      // ex: lemma="c/7200" -> H7200, lemma="430" -> H430
-      if (strong) {
-        const parts = strong.split('/');
-        const lastPart = parts[parts.length - 1];
-        const numPart = lastPart.replace(/[a-zA-Z]/g, '').trim();
-        if (numPart && !isNaN(parseInt(numPart, 10))) {
-          strong = 'H' + numPart;
-        } else {
-          strong = "";
-        }
+        wordPosition++;
+        wordCount++;
       }
 
-      const morphDesc = decodeHebrewMorphology(attr.morph || "");
+      // Insertion en base par lots de 500
+      let inserted = 0;
+      for (let i = 0; i < greekWords.length; i += 500) {
+        const batch = greekWords.slice(i, i + 500);
+        const result = await prisma.greekWord.createMany({
+          data: batch,
+          skipDuplicates: true
+        });
+        inserted += result.count;
+      }
 
-      hebrewWords.push({
-        book: 1,
-        chapter,
-        verse,
-        wordPosition: position,
-        originalText: text,
-        transliteration: null, // Translittération hébraïque non MVP
-        strongNumber: strong || null,
-        root: attr.lemma ? attr.lemma.split('/').pop() : null,
-        morphology: attr.morph || null,
-        morphologyDesc: morphDesc || null,
-        gloss: null // Non disponible dans morphhb direct
-      });
-
-      position++;
-      hebrewCount++;
+      console.log(`[NT] ✅ ${book.file} : ${wordCount} mots trouvés, ${inserted} insérés en base.`);
+      totalNtMots += inserted;
+      ntBooksSeeded++;
+    } catch (err: any) {
+      console.error(`[NT] ❌ Erreur lors du parsing de ${book.file} :`, err.message);
     }
-  }
 
-  console.log(`Nombre de mots hébreux parsés : ${hebrewCount}`);
-
-  // Insertion en base par lots de 500
-  console.log("Insertion des mots hébreux en base...");
-  let insertedHebrew = 0;
-  for (let i = 0; i < hebrewWords.length; i += 500) {
-    const batch = hebrewWords.slice(i, i + 500);
-    const result = await prisma.hebrewWord.createMany({
-      data: batch,
-      skipDuplicates: true
-    });
-    insertedHebrew += result.count;
+    // Pause de 100ms
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
-  console.log(`✅ ${insertedHebrew} mots hébreux insérés.`);
 
   console.log("\n==================================================");
-  console.log("=== Fin du Seed Macula & MorphHB ===");
-  console.log(`Grec (Jean) insérés    : ${insertedGreek}`);
-  console.log(`Hébreu (Genèse) insérés : ${insertedHebrew}`);
+  console.log("=== Résumé du Seed Morphologique Complet ===");
+  console.log(`Testament  | Livres seedés | Mots insérés/total`);
+  console.log(`-----------|---------------|-------------------`);
+  console.log(`AT         | ${otBooksSeeded}/39          | ${totalOtMots}`);
+  console.log(`NT         | ${ntBooksSeeded}/27          | ${totalNtMots}`);
   console.log("==================================================");
 }
 
