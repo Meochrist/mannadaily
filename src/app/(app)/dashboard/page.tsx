@@ -12,6 +12,7 @@ import LingotsCounter from "@/components/gamification/LingotsCounter";
 import PushOptIn from "@/components/notifications/PushOptIn";
 import GameMap from "@/components/dashboard/GameMap";
 import { BookOpen } from "lucide-react";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,17 @@ export default async function DashboardPage() {
   const session = await auth();
   const userId = session?.user?.id;
   const userName = session?.user?.name || "Ami";
+
+  if (userId) {
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: { onboardingCompleted: true }
+    });
+
+    if (user && user.onboardingCompleted === false) {
+      redirect("/onboarding");
+    }
+  }
 
   // Récupérer le verset quotidien dynamique via notre système de rotation
   const dailyVerse = getDailyVerse();

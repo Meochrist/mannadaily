@@ -13,13 +13,21 @@ export async function POST(req: Request) {
     const userId = session.user.id;
 
     const body = await req.json();
-    const { readingReminders, notificationTime } = body;
+    const { readingReminders, notificationTime, favoriteMascot, onboardingCompleted } = body;
 
     // Validation des préférences
     const dataToUpdate: any = {};
     
     if (readingReminders !== undefined) {
       dataToUpdate.readingReminders = Boolean(readingReminders);
+    }
+
+    if (onboardingCompleted !== undefined) {
+      dataToUpdate.onboardingCompleted = Boolean(onboardingCompleted);
+    }
+
+    if (favoriteMascot !== undefined) {
+      dataToUpdate.favoriteMascot = favoriteMascot;
     }
     
     if (notificationTime !== undefined) {
@@ -38,7 +46,9 @@ export async function POST(req: Request) {
       select: {
         id: true,
         readingReminders: true,
-        notificationTime: true
+        notificationTime: true,
+        onboardingCompleted: true,
+        favoriteMascot: true
       }
     });
 
@@ -61,7 +71,9 @@ export async function GET() {
       where: { id: userId },
       select: {
         readingReminders: true,
-        notificationTime: true
+        notificationTime: true,
+        onboardingCompleted: true,
+        favoriteMascot: true
       }
     });
 

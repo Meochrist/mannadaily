@@ -31,6 +31,8 @@ model User {
   readingProgress ReadingPlanProgress[]
   notificationTime  String? @default("19:00")
   readingReminders  Boolean @default(true)
+  onboardingCompleted Boolean @default(false)
+  favoriteMascot String?
 }
 
 model Account {
