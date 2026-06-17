@@ -41,6 +41,15 @@ export default async function ReadingPlansPage() {
     where: { userId }
   });
 
+  // Récupérer les préférences de rappel de l'utilisateur
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      readingReminders: true,
+      notificationTime: true
+    }
+  });
+
   return (
     <div className="flex flex-col h-full space-y-6 max-w-7xl mx-auto p-4">
       {/* Page Title & Navigation Banner */}
@@ -67,6 +76,8 @@ export default async function ReadingPlansPage() {
         initialPlans={plans}
         initialEnrollments={enrollments}
         initialProgress={progress}
+        initialReadingReminders={user?.readingReminders ?? true}
+        initialNotificationTime={user?.notificationTime ?? "19:00"}
       />
     </div>
   );

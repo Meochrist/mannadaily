@@ -71,6 +71,21 @@ export async function GET(req: Request) {
       } : {},
       include: {
         pushSubscriptions: true,
+        readingPlans: {
+          where: { completed: false },
+          include: {
+            plan: {
+              include: {
+                days: {
+                  include: {
+                    readings: true
+                  }
+                }
+              }
+            }
+          }
+        },
+        readingProgress: true
       },
     });
 
@@ -84,7 +99,40 @@ export async function GET(req: Request) {
       }
 
       const userName = user.name || "Ami";
-      const notification = getRandomNotification(situation, userName);
+      let notification;
+
+      const activeEnrollment = user.readingPlans[0];
+      if (activeEnrollment && user.readingReminders) {
+        const hasCompletedToday = user.readingProgress.some(
+          (p) => p.planId === activeEnrollment.planId && p.dayNumber === activeEnrollment.currentDay
+        );
+
+        if (!hasCompletedToday) {
+          const dayData = activeEnrollment.plan.days.find(
+            (d) => d.dayNumber === activeEnrollment.currentDay
+          );
+          const readings = dayData?.readings || [];
+          const chaptersStr = readings.map((r) => `${r.book} ${r.chapter}`).join(", ");
+          const firstReading = readings[0];
+          const firstBook = firstReading?.book || "";
+          const firstChapter = firstReading?.chapter ? String(firstReading.chapter) : "";
+
+          notification = getRandomNotification(
+            "reading_plan_reminder",
+            userName,
+            firstReading ? `${firstBook} ${firstChapter}` : "",
+            {
+              chapitres: chaptersStr,
+              Livre: firstBook,
+              Chapitre: firstChapter
+            }
+          );
+        }
+      }
+
+      if (!notification) {
+        notification = getRandomNotification(situation, userName);
+      }
 
       // 1. Envoi de l'email via Resend
       if (user.email && process.env.RESEND_API_KEY) {

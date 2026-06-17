@@ -10,7 +10,9 @@ import {
   Check, 
   Loader2, 
   Award,
-  Sparkles
+  Sparkles,
+  Bell,
+  Clock
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import * as sounds from "@/lib/sounds";
@@ -60,16 +62,26 @@ interface ReadingPlansClientProps {
   initialPlans: ReadingPlan[];
   initialEnrollments: Enrollment[];
   initialProgress: Progress[];
+  initialReadingReminders: boolean;
+  initialNotificationTime: string;
 }
 
 export default function ReadingPlansClient({
   initialPlans,
   initialEnrollments,
-  initialProgress
+  initialProgress,
+  initialReadingReminders,
+  initialNotificationTime
 }: ReadingPlansClientProps) {
   const [plans, setPlans] = useState<ReadingPlan[]>(initialPlans);
   const [enrollments, setEnrollments] = useState<Enrollment[]>(initialEnrollments);
   const [progress, setProgress] = useState<Progress[]>(initialProgress);
+  
+  // Preferences states
+  const [readingReminders, setReadingReminders] = useState(initialReadingReminders);
+  const [notificationTime, setNotificationTime] = useState(initialNotificationTime);
+  const [savingPreferences, setSavingPreferences] = useState(false);
+  const [preferencesMessage, setPreferencesMessage] = useState<string | null>(null);
   
   // UI states
   const [enrollingPlanId, setEnrollingPlanId] = useState<string | null>(null);
@@ -182,6 +194,30 @@ export default function ReadingPlansClient({
       console.error("Error updating progress:", err);
     } finally {
       setUpdatingProgressDay(null);
+    }
+  };
+
+  // Sauvegarder les préférences de rappel
+  const handleSavePreferences = async (reminders: boolean, time: string) => {
+    setSavingPreferences(true);
+    setPreferencesMessage(null);
+    try {
+      const res = await fetch("/api/user/preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ readingReminders: reminders, notificationTime: time })
+      });
+      if (res.ok) {
+        setPreferencesMessage("Préférences enregistrées avec succès !");
+        setTimeout(() => setPreferencesMessage(null), 3000);
+      } else {
+        setPreferencesMessage("Erreur lors de l'enregistrement des préférences.");
+      }
+    } catch (err) {
+      console.error("Error saving preferences:", err);
+      setPreferencesMessage("Erreur réseau.");
+    } finally {
+      setSavingPreferences(false);
     }
   };
 
@@ -434,7 +470,94 @@ export default function ReadingPlansClient({
           })}
         </div>
       </div>
-      
+
+      {/* 4. Notification Preferences */}
+      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 space-y-6">
+        <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
+          <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-650">
+            <Bell className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Mes préférences de rappel</h3>
+            <p className="text-xs text-slate-400">Configurez vos notifications pour ne rater aucune lecture.</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="space-y-1.5">
+            <label className="text-sm font-bold text-slate-700 block">
+              Recevoir des rappels pour mes plans de lecture
+            </label>
+            <p className="text-xs text-slate-400 max-w-md font-medium">
+              Nous vous enverrons un e-mail et une notification push à l'heure choisie si vous n'avez pas validé votre lecture du jour.
+            </p>
+          </div>
+          <div className="flex items-center">
+            <button
+              onClick={() => {
+                const newValue = !readingReminders;
+                setReadingReminders(newValue);
+                handleSavePreferences(newValue, notificationTime);
+              }}
+              disabled={savingPreferences}
+              className={cn(
+                "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
+                readingReminders ? "bg-indigo-650" : "bg-slate-200"
+              )}
+            >
+              <span
+                className={cn(
+                  "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                  readingReminders ? "translate-x-5" : "translate-x-0"
+                )}
+              />
+            </button>
+          </div>
+        </div>
+
+        {readingReminders && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pt-4 border-t border-slate-50">
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-slate-700 block">
+                Heure de rappel
+              </label>
+              <p className="text-xs text-slate-400 max-w-md font-medium">
+                Sélectionnez le moment de la journée le plus propice à votre étude quotidienne.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-slate-400" />
+              <select
+                value={notificationTime}
+                onChange={(e) => {
+                  const newTime = e.target.value;
+                  setNotificationTime(newTime);
+                  handleSavePreferences(readingReminders, newTime);
+                }}
+                disabled={savingPreferences}
+                className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-indigo-500 transition cursor-pointer"
+              >
+                <option value="07:00">Matin (7h00)</option>
+                <option value="12:00">Midi (12h00)</option>
+                <option value="19:00">Soirée (19h00)</option>
+                <option value="21:00">Dernier appel (21h00)</option>
+              </select>
+            </div>
+          </div>
+        )}
+
+        {preferencesMessage && (
+          <div className={cn(
+            "text-xs font-bold px-4 py-2.5 rounded-xl border transition-all text-center",
+            preferencesMessage.includes("succès") 
+              ? "bg-emerald-50 text-emerald-700 border-emerald-100" 
+              : "bg-rose-50 text-rose-700 border-rose-100"
+          )}>
+            {preferencesMessage}
+          </div>
+        )}
+      </div>
+
     </div>
   );
 }

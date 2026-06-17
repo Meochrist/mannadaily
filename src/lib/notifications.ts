@@ -506,12 +506,109 @@ export const NOTIFICATION_MESSAGES: Record<string, NotificationMessage[]> = {
       emoji: "👸",
     },
   ],
+  reading_plan_reminder: [
+    {
+      mascot: "noe",
+      title: "Les plans de l'arche 🚢",
+      body: "Tu as oublié ta lecture du jour ! J'ai bien lu tous mes plans de construction de l'arche. Chapitre [X] t'attend !",
+      emoji: "🚢",
+    },
+    {
+      mascot: "manny",
+      title: "Ton plan de lecture t'attend 🌱",
+      body: "Tes [chapitres] du jour ne se liront pas tout seuls... Je t'attends dans [Livre] [Chapitre] !",
+      emoji: "📖",
+    },
+    {
+      mascot: "samson",
+      title: "DISCIPLINE MAXIMALE ⚡",
+      body: "PLAN DE LECTURE. PAS DE SKIP. [chapitres] aujourd'hui. On y va !",
+      emoji: "🔥",
+    },
+    {
+      mascot: "esther",
+      title: "Une habitude royale 👑",
+      body: "Un héritier du Royaume suit son plan de lecture. [chapitres] t'attendent aujourd'hui.",
+      emoji: "✨",
+    },
+    {
+      mascot: "gedeon",
+      title: "ALERTE PLAN DE LECTURE ! 🚨",
+      body: "OH NON ! Le plan de lecture ! Sans cette lecture tu vas prendre des décisions sans la sagesse de ce passage ! Vite !",
+      emoji: "😱",
+    },
+  ],
+  reading_plan_milestone: [
+    {
+      mascot: "manny",
+      title: "Jalon atteint ! 🎉",
+      body: "Félicitations [name] ! Tu as atteint un jalon de [X] jours consécutifs sur ton plan de lecture ! Dieu est fidèle.",
+      emoji: "🥳",
+    },
+    {
+      mascot: "samson",
+      title: "FORCE DE FER ! 💪",
+      body: "[X] JOURS DE LECTURE ININTERROMPUE ! Tu es une véritable machine de guerre spirituelle ! Continue à détruire tes limites !",
+      emoji: "🏆",
+    },
+    {
+      mascot: "esther",
+      title: "Une constance impériale 👑",
+      body: "Une constance couronnée de succès ! Atteindre [X] jours sur ton plan montre une noblesse d'esprit admirable.",
+      emoji: "✨",
+    },
+    {
+      mascot: "noe",
+      title: "Navigation tranquille ⚓",
+      body: "[X] jours à tenir le cap. Même pendant la tempête, tu n'as pas lâché le gouvernail de la Parole. Bravo.",
+      emoji: "⚓",
+    },
+    {
+      mascot: "gedeon",
+      title: "C'EST EXTRAORDINAIRE ! 🥳",
+      body: "Incroyable ! [X] jours consécutifs ! Au début j'avais peur qu'on ne tienne pas, mais tu l'as fait ! C'est magique !",
+      emoji: "🎉",
+    },
+  ],
+  reading_plan_complete: [
+    {
+      mascot: "manny",
+      title: "Victoire spirituelle ! 💖",
+      body: "Quel honneur d'avoir fini ce plan de lecture avec toi, [name] ! Tu as terminé le plan [X] ! Gloire à Dieu.",
+      emoji: "💖",
+    },
+    {
+      mascot: "samson",
+      title: "OBJECTIF ATTEINT ! 🥇",
+      body: "PLAN [X] COMPLÈTEMENT DÉTRUIT ! 100% accompli ! Tu as combattu et tu as triomphé ! Quel exploit !",
+      emoji: "🥇",
+    },
+    {
+      mascot: "esther",
+      title: "Accomplissement royal ✨",
+      body: "Le plan [X] est achevé. Tu as parcouru ce chemin avec grâce et dévotion. Le Roi est fier de toi.",
+      emoji: "👑",
+    },
+    {
+      mascot: "noe",
+      title: "Terre ferme en vue ! 🕊️",
+      body: "La colombe est revenue avec un rameau d'olivier ! Tu as fini le plan [X]. La terre ferme de la sagesse est à toi.",
+      emoji: "🕊️",
+    },
+    {
+      mascot: "gedeon",
+      title: "BRAVO BRAVO BRAVO ! 🎉",
+      body: "TU AS FINI LE PLAN [X] !!! C'est extraordinaire ! J'en ai les larmes aux yeux ! Quelle persévérance !",
+      emoji: "🥳",
+    },
+  ],
 };
 
 export function getRandomNotification(
   situation: keyof typeof NOTIFICATION_MESSAGES,
   userName: string,
-  streakOrLevelOrBadge?: string | number
+  streakOrLevelOrBadge?: string | number,
+  extraReplacements?: Record<string, string>
 ): NotificationMessage {
   const messages = NOTIFICATION_MESSAGES[situation];
   if (!messages || messages.length === 0) {
@@ -530,7 +627,16 @@ export function getRandomNotification(
   const replacement = streakOrLevelOrBadge !== undefined ? String(streakOrLevelOrBadge) : "0";
 
   const formatText = (text: string) => {
-    return text.replace(/\[name\]/g, name).replace(/\[X\]/g, replacement);
+    let formatted = text.replace(/\[name\]/g, name).replace(/\[X\]/g, replacement);
+    if (extraReplacements) {
+      Object.entries(extraReplacements).forEach(([key, val]) => {
+        // Échapper les caractères spéciaux dans la clé si nécessaire
+        const escapedKey = key.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const regex = new RegExp(`\\[${escapedKey}\\]`, 'g');
+        formatted = formatted.replace(regex, val);
+      });
+    }
+    return formatted;
   };
 
   return {

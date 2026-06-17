@@ -29,6 +29,8 @@ model User {
   verseNotes    VerseNote[]
   readingPlans  ReadingPlanEnrollment[]
   readingProgress ReadingPlanProgress[]
+  notificationTime  String? @default("19:00")
+  readingReminders  Boolean @default(true)
 }
 
 model Account {
