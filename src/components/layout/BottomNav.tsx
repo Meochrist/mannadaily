@@ -12,7 +12,8 @@ import {
   Trophy,
   Award,
   Sparkles,
-  Calendar
+  Calendar,
+  User
 } from "lucide-react";
 
 export default function BottomNav() {
@@ -53,6 +54,11 @@ export default function BottomNav() {
       label: "Progression",
       href: "/progress",
       icon: Award,
+    },
+    {
+      label: "Profil",
+      href: "/profile",
+      icon: User,
     },
   ];
 
