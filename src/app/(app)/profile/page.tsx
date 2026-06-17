@@ -27,6 +27,7 @@ import Esther from "@/components/mascot/Esther";
 import Gedeon from "@/components/mascot/Gedeon";
 import Noe from "@/components/mascot/Noe";
 import { cn } from "@/lib/utils";
+import ShareCard from "@/components/sharing/ShareCard";
 
 export const dynamic = "force-dynamic";
 
@@ -216,6 +217,14 @@ export default async function ProfilePage() {
           );
         })}
       </div>
+
+      {/* SECTION DE PARTAGE SOCIAL */}
+      <ShareCard
+        type="streak"
+        streakValue={currentStreak}
+        levelName={levelName}
+        title="Partage ton profil et ton streak de méditation biblique quotidien avec tes proches !"
+      />
 
       {/* Reste des sections : Grille à deux colonnes */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

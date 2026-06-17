@@ -18,8 +18,10 @@ import {
   BookOpen, 
   Shield, 
   Trophy, 
-  Zap 
+  Zap,
+  Share2
 } from "lucide-react";
+import ShareCard from "@/components/sharing/ShareCard";
 
 export const dynamic = "force-dynamic";
 
@@ -360,6 +362,21 @@ export default async function ProgressPage() {
             />
           ))}
         </div>
+      </section>
+
+      {/* Section Partager ma progression */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2 border-b pb-3">
+          <Share2 className="w-5 h-5 text-indigo-500" />
+          <h2 className="text-lg font-black text-slate-800 uppercase tracking-wider">
+            Partager ma progression
+          </h2>
+        </div>
+        <ShareCard
+          type="streak"
+          streakValue={data.streak.currentStreak}
+          levelName={data.progress.levelName}
+        />
       </section>
     </div>
   );
