@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Share2, Twitter, Facebook, Copy, Check, Sparkles, Flame, Trophy, ExternalLink } from "lucide-react";
+import { Share2, Copy, Check, Sparkles, Flame, Trophy, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ShareCardProps {
@@ -39,7 +39,7 @@ export default function ShareCard({
   const shareUrl = baseUrl; // Lien vers l'application
 
   useEffect(() => {
-    if (typeof navigator !== "undefined" && navigator.share) {
+    if (typeof navigator !== "undefined" && "share" in navigator) {
       setShareSupported(true);
     }
   }, []);
@@ -154,7 +154,6 @@ export default function ShareCard({
             </button>
           )}
 
-          {/* Boutons Réseaux Sociaux alternatifs */}
           <div className="flex gap-2">
             <a
               href={twitterUrl}
@@ -162,7 +161,9 @@ export default function ShareCard({
               rel="noreferrer"
               className="flex-1 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 rounded-xl py-2 flex items-center justify-center gap-1.5 text-slate-700 font-bold text-[10px] uppercase tracking-wider transition hover:scale-102"
             >
-              <Twitter className="w-3.5 h-3.5 text-sky-500 fill-sky-500/10" />
+              <svg className="w-3.5 h-3.5 text-slate-800" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
               X / Twitter
             </a>
             
@@ -182,7 +183,9 @@ export default function ShareCard({
               rel="noreferrer"
               className="flex-1 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 rounded-xl py-2 flex items-center justify-center gap-1.5 text-slate-700 font-bold text-[10px] uppercase tracking-wider transition hover:scale-102"
             >
-              <Facebook className="w-3.5 h-3.5 text-blue-600 fill-blue-600/10" />
+              <svg className="w-3.5 h-3.5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1V12h3v3h-3v6.8c4.56-.93 8-4.96 8-9.8z" />
+              </svg>
               Facebook
             </a>
           </div>
