@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import TopBar from "@/components/layout/TopBar";
 import BottomNav from "@/components/layout/BottomNav";
+import InstallPrompt from "@/components/pwa/InstallPrompt";
 import { 
   LayoutDashboard, 
   BookOpen, 
@@ -119,6 +120,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         {/* Barre de navigation mobile en bas (visible uniquement sur mobile) */}
         <BottomNav />
+        <InstallPrompt />
       </div>
     </div>
   );
