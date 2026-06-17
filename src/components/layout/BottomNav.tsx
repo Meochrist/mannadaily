@@ -13,7 +13,8 @@ import {
   Award,
   Sparkles,
   Calendar,
-  User
+  User,
+  Brain
 } from "lucide-react";
 
 export default function BottomNav() {
@@ -54,6 +55,11 @@ export default function BottomNav() {
       label: "Progression",
       href: "/progress",
       icon: Award,
+    },
+    {
+      label: "Mémoriser",
+      href: "/memorize",
+      icon: Brain,
     },
     {
       label: "Profil",

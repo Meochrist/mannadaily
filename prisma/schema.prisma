@@ -33,6 +33,7 @@ model User {
   readingReminders  Boolean @default(true)
   onboardingCompleted Boolean @default(false)
   favoriteMascot String?
+  memorizations VerseMemorization[]
 }
 
 model Account {
@@ -390,6 +391,26 @@ model ReadingPlanProgress {
   user        User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, planId, dayNumber])
+}
+
+model VerseMemorization {
+  id           String   @id @default(cuid())
+  userId       String
+  verseId      String
+  reference    String   // "Jean 3:16"
+  verseText    String   @db.Text
+  status       String   @default("learning")
+  // "learning", "reviewing", "mastered"
+  easeFactor   Float    @default(2.5) // algorithme SM-2
+  interval     Int      @default(1)   // jours avant prochaine révision
+  repetitions  Int      @default(0)
+  nextReview   DateTime @default(now())
+  lastReview   DateTime?
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+
+  @@unique([userId, reference])
+  @@index([userId, nextReview])
 }
 
 
