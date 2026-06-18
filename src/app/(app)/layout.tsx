@@ -18,7 +18,7 @@ import {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col md:flex-row">
       {/* Sidebar - Visible uniquement sur Desktop (md:flex) */}
       <aside className="hidden md:flex md:w-64 bg-indigo-900 text-white p-6 flex-col justify-between flex-shrink-0">
         <div className="space-y-8">

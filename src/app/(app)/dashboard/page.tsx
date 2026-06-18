@@ -273,8 +273,8 @@ export default async function DashboardPage() {
         {/* 5. BADGES SPIRITUELS */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-extrabold text-slate-800 tracking-tight">Mes badges spirituels</h3>
-            <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+            <h3 className="text-sm font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Mes badges spirituels</h3>
+            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
               {badges.length} / {defaultBadges.length}
             </span>
           </div>
@@ -292,16 +292,16 @@ export default async function DashboardPage() {
         </div>
 
         {/* 6. STATISTIQUES GLOBALES SPIRITUELLES */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Statistiques</h3>
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col justify-between transition-colors">
+          <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4">Statistiques</h3>
           <div className="space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-              <span className="text-slate-500 font-medium text-xs">Sessions de méditation</span>
-              <span className="text-slate-800 font-black text-sm">{sessionsTotal}</span>
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2.5">
+              <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">Sessions de méditation</span>
+              <span className="text-slate-800 dark:text-slate-100 font-black text-sm">{sessionsTotal}</span>
             </div>
             <div className="flex items-center justify-between pb-1">
-              <span className="text-slate-500 font-medium text-xs">Versets mémorisés</span>
-              <span className="text-slate-800 font-black text-sm">{versesLearned}</span>
+              <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">Versets mémorisés</span>
+              <span className="text-slate-800 dark:text-slate-100 font-black text-sm">{versesLearned}</span>
             </div>
           </div>
         </div>

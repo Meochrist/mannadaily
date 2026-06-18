@@ -14,12 +14,12 @@ export default function StreakCounter({ currentStreak, longestStreak }: StreakCo
   const hasStreak = currentStreak > 0;
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
+    <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center transition-colors">
       <div className="relative mb-4">
         <motion.div
           className={cn(
             "p-4 rounded-full flex items-center justify-center transition-colors",
-            hasStreak ? "bg-orange-50 text-orange-500" : "bg-slate-100 text-slate-400"
+            hasStreak ? "bg-orange-50 dark:bg-orange-950/20 text-orange-500" : "bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500"
           )}
           animate={hasStreak ? {
             scale: [1, 1.08, 1],
@@ -44,19 +44,19 @@ export default function StreakCounter({ currentStreak, longestStreak }: StreakCo
       </div>
 
       <div className="mb-2">
-        <span className="text-4xl font-black text-slate-800 tracking-tight">
+        <span className="text-4xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
           {currentStreak}
         </span>
-        <span className="text-sm font-semibold text-slate-500 ml-1">
+        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 ml-1">
           {currentStreak <= 1 ? "jour" : "jours"}
         </span>
       </div>
 
-      <p className="text-sm font-semibold text-slate-400 mb-4">
+      <p className="text-sm font-semibold text-slate-400 dark:text-slate-500 mb-4">
         {hasStreak ? "Série de jours consécutifs active ! 💫" : "Commencez votre série aujourd'hui !"}
       </p>
 
-      <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 rounded-full text-slate-500 border border-slate-200/40 text-xs font-semibold">
+      <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 dark:bg-slate-900 rounded-full text-slate-500 dark:text-slate-400 border border-slate-200/40 dark:border-slate-700/60 text-xs font-semibold">
         <Trophy className="w-3.5 h-3.5 text-yellow-500" />
         <span>Record : {longestStreak} jours</span>
       </div>
