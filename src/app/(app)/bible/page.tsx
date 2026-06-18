@@ -19,12 +19,15 @@ import {
   Info,
   Search,
   Hash,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Share2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import * as sounds from "@/lib/sounds";
 import Manny from "@/components/mascot/Manny";
 import SpeechMicButton from "@/components/meditation/SpeechMicButton";
+import VerseShareModal from "@/components/bible/VerseShareModal";
+
 
 interface BibleBook {
   name: string;
@@ -96,6 +99,10 @@ export default function BiblePage() {
   // User interactive state
   const [selectedVerse, setSelectedVerse] = useState<Verse | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
+  
+  // Share state
+  const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
+  const [shareVerseData, setShareVerseData] = useState<{ text: string; reference: string; translation: string } | null>(null);
   
   // Right sidebar state
   const [activeTab, setActiveTab] = useState<"notes" | "ai" | "strong" | "references" | "morphology" | "commentary">("notes");
@@ -1173,6 +1180,21 @@ export default function BiblePage() {
                         <Sparkles className="w-3.5 h-3.5 text-blue-500 animate-pulse" />
                         Commentaires
                       </button>
+                      <button
+                        onClick={() => {
+                          setShareVerseData({
+                            text: selectedVerse.text,
+                            reference: `${selectedVerse.book} ${selectedVerse.chapter}:${selectedVerse.verse}`,
+                            translation: selectedVerse.translation || translation
+                          });
+                          setIsShareModalOpen(true);
+                          setContextMenuPosition(null);
+                        }}
+                        className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-rose-250 bg-rose-50/50 text-[11px] font-black text-rose-700 hover:bg-rose-100 hover:text-rose-850 transition cursor-pointer"
+                      >
+                        <Share2 className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
+                        📤 Partager ce verset
+                      </button>
                     </div>
                   </motion.div>
                 </>
@@ -1988,6 +2010,19 @@ export default function BiblePage() {
         </div>
 
       </div>
+
+      {shareVerseData && (
+        <VerseShareModal
+          verseText={shareVerseData.text}
+          reference={shareVerseData.reference}
+          translation={shareVerseData.translation}
+          isOpen={isShareModalOpen}
+          onClose={() => {
+            setIsShareModalOpen(false);
+            setShareVerseData(null);
+          }}
+        />
+      )}
     </div>
   );
 }
