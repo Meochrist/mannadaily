@@ -51,13 +51,21 @@ export default async function DashboardPage() {
 
   if (userId) {
     try {
-      // 1. Récupération directe de la progression de l'utilisateur
+      // 1. Récupération directe de la progression de l'utilisateur avec sélection ciblée
       let progress = await db.userProgress.findUnique({
         where: { userId },
+        select: {
+          totalXP: true,
+          level: true,
+          versesLearned: true,
+          sessionsTotal: true,
+          lingots: true,
+        }
       });
 
       if (!progress) {
-        progress = await db.userProgress.create({
+        // En cas de création, on crée les valeurs par défaut
+        const createdProgress = await db.userProgress.create({
           data: {
             userId,
             totalXP: 0,
@@ -66,7 +74,15 @@ export default async function DashboardPage() {
             sessionsTotal: 0,
             lingots: 0,
           },
+          select: {
+            totalXP: true,
+            level: true,
+            versesLearned: true,
+            sessionsTotal: true,
+            lingots: true,
+          }
         });
+        progress = createdProgress;
       }
 
       totalXP = progress.totalXP;
@@ -74,9 +90,10 @@ export default async function DashboardPage() {
       sessionsTotal = progress.sessionsTotal;
       lingots = progress.lingots;
 
-      // Récupérer le streak freeze
+      // Récupérer le streak freeze avec sélection ciblée
       const streakFreeze = await db.streakFreeze.findUnique({
-        where: { userId }
+        where: { userId },
+        select: { freezesAvailable: true }
       });
       freezesAvailable = streakFreeze ? streakFreeze.freezesAvailable : 0;
 
@@ -85,20 +102,31 @@ export default async function DashboardPage() {
       levelName = levelInfo.name;
       progressPercent = getXPProgress(totalXP);
 
-      // 2. Récupération directe du streak
+      // 2. Récupération directe du streak avec sélection ciblée
       let streak = await db.streak.findUnique({
         where: { userId },
+        select: {
+          currentStreak: true,
+          longestStreak: true,
+          lastActivityAt: true,
+        }
       });
 
       if (!streak) {
-        streak = await db.streak.create({
+        const createdStreak = await db.streak.create({
           data: {
             userId,
             currentStreak: 0,
             longestStreak: 0,
             lastActivityAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
           },
+          select: {
+            currentStreak: true,
+            longestStreak: true,
+            lastActivityAt: true,
+          }
         });
+        streak = createdStreak;
       }
 
       currentStreak = streak.currentStreak;
@@ -108,7 +136,7 @@ export default async function DashboardPage() {
       const diffTime = Math.abs(new Date().getTime() - new Date(streak.lastActivityAt).getTime());
       inactivityDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-      // Vérifier la progression de la journée (session de méditation créée aujourd'hui)
+      // Vérifier la progression de la journée (session de méditation créée aujourd'hui) avec sélection ciblée
       const todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);
       const todaySession = await db.dailySession.findFirst({
@@ -118,15 +146,26 @@ export default async function DashboardPage() {
             gte: todayStart,
           },
         },
+        select: { id: true }
       });
       dayProgress = !!todaySession;
 
       // 3. Récupération directe des badges
+      // 3. Récupération directe des badges avec sélection ciblée et limite aux 3 premiers
       const userBadges = await db.userBadge.findMany({
         where: { userId },
-        include: {
-          badge: true,
-        },
+        take: 3,
+        select: {
+          earnedAt: true,
+          badge: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              icon: true,
+            }
+          }
+        }
       });
 
       badges = userBadges.map((ub) => ({

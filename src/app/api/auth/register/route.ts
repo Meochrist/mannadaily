@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { trackEvent } from "@/lib/posthog";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +62,9 @@ export async function POST(req: Request) {
 
       return newUser;
     });
+
+    // PostHog event tracking (Tâche #79)
+    trackEvent(user.id, "user_registered", {});
 
     return NextResponse.json({ message: "Utilisateur créé avec succès", userId: user.id });
   } catch (error: unknown) {

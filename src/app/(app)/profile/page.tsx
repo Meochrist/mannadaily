@@ -58,36 +58,89 @@ export default async function ProfilePage() {
   }
   const userId = session.user.id;
 
-  // 1. Récupération des données utilisateur complètes
+  // 1. Récupération des données utilisateur avec sélection ciblée (Tâche #79)
   const user = await db.user.findUnique({
     where: { id: userId },
-    include: {
-      progress: true,
-      streak: true,
+    select: {
+      name: true,
+      email: true,
+      image: true,
+      createdAt: true,
+      favoriteMascot: true,
+      progress: {
+        select: {
+          level: true,
+          totalXP: true,
+          sessionsTotal: true,
+          versesLearned: true,
+        }
+      },
+      streak: {
+        select: {
+          currentStreak: true,
+          longestStreak: true,
+        }
+      },
       sessions: {
         orderBy: { createdAt: "desc" },
-        take: 10
+        take: 10,
+        select: {
+          id: true,
+          type: true,
+          xpEarned: true,
+          createdAt: true,
+        }
       },
       verseNotes: {
         orderBy: { createdAt: "desc" },
-        include: {
-          verse: true
+        select: {
+          id: true,
+          content: true,
+          isVoice: true,
+          createdAt: true,
+          verse: {
+            select: {
+              book: true,
+              chapter: true,
+              verse: true,
+            }
+          }
         }
       },
       highlights: {
         orderBy: { createdAt: "desc" },
-        include: {
-          verse: true
+        select: {
+          id: true,
+          color: true,
+          verse: {
+            select: {
+              book: true,
+              chapter: true,
+              verse: true,
+              text: true,
+              translation: true,
+            }
+          }
         }
       },
       badges: {
-        include: {
-          badge: true
+        select: {
+          badgeId: true,
+          earnedAt: true,
         }
       },
       readingPlans: {
-        include: {
-          plan: true
+        select: {
+          id: true,
+          planId: true,
+          currentDay: true,
+          completed: true,
+          plan: {
+            select: {
+              name: true,
+              duration: true,
+            }
+          }
         }
       }
     }
@@ -97,12 +150,22 @@ export default async function ProfilePage() {
     redirect("/login");
   }
 
-  // 2. Charger tous les badges existants pour mapper les débloqués / verrouillés
-  const allBadges = await db.badge.findMany();
+  // 2. Charger tous les badges avec sélection ciblée
+  const allBadges = await db.badge.findMany({
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      icon: true,
+    }
+  });
 
-  // 3. Récupérer la progression des plans pour calculer le pourcentage en mémoire
+  // 3. Récupérer la progression des plans avec sélection ciblée
   const readingProgress = await db.readingPlanProgress.findMany({
-    where: { userId }
+    where: { userId },
+    select: {
+      planId: true,
+    }
   });
 
   // Calculs & fallbacks

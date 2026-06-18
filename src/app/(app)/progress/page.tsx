@@ -90,10 +90,16 @@ export default async function ProgressPage() {
 
       let progress = await db.userProgress.findUnique({
         where: { userId },
+        select: {
+          totalXP: true,
+          level: true,
+          versesLearned: true,
+          sessionsTotal: true,
+        }
       });
 
       if (!progress) {
-        progress = await db.userProgress.create({
+        const createdProgress = await db.userProgress.create({
           data: {
             userId,
             totalXP: 0,
@@ -101,29 +107,55 @@ export default async function ProgressPage() {
             versesLearned: 0,
             sessionsTotal: 0,
           },
+          select: {
+            totalXP: true,
+            level: true,
+            versesLearned: true,
+            sessionsTotal: true,
+          }
         });
+        progress = createdProgress;
       }
 
       let streak = await db.streak.findUnique({
         where: { userId },
+        select: {
+          currentStreak: true,
+          longestStreak: true,
+          lastActivityAt: true,
+        }
       });
 
       if (!streak) {
-        streak = await db.streak.create({
+        const createdStreak = await db.streak.create({
           data: {
             userId,
             currentStreak: 0,
             longestStreak: 0,
             lastActivityAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
           },
+          select: {
+            currentStreak: true,
+            longestStreak: true,
+            lastActivityAt: true,
+          }
         });
+        streak = createdStreak;
       }
 
       const userBadges = await db.userBadge.findMany({
         where: { userId },
-        include: {
-          badge: true,
-        },
+        select: {
+          earnedAt: true,
+          badge: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              icon: true,
+            }
+          }
+        }
       });
 
       const levelInfo = getLevelFromXP(progress.totalXP);

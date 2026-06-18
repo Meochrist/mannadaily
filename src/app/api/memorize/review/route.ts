@@ -4,6 +4,7 @@ import { calculateSM2 } from "@/lib/sm2";
 import { awardXP, checkAndAwardBadges } from "@/lib/gamification";
 import { addXPToLeague } from "@/lib/leaderboard";
 import { NextRequest, NextResponse } from "next/server";
+import { trackEvent } from "@/lib/posthog";
 
 export const dynamic = "force-dynamic";
 
@@ -91,6 +92,9 @@ export async function POST(request: NextRequest) {
       // Vérifier les badges débloqués
       newBadges = await checkAndAwardBadges(userId);
     }
+
+    // PostHog event tracking (Tâche #79)
+    trackEvent(userId, "verse_reviewed", { quality, mastered: newStatus === "mastered" });
 
     return NextResponse.json({
       success: true,

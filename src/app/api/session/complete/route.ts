@@ -4,6 +4,7 @@ import { awardXP, updateStreak, checkAndAwardBadges } from "@/lib/gamification";
 import { addXPToLeague } from "@/lib/leaderboard";
 import { XP_RULES } from "@/types";
 import { NextResponse } from "next/server";
+import { trackEvent } from "@/lib/posthog";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,9 @@ export async function POST(req: Request) {
 
     // Ajouter l'XP gagnée au classement de la ligue hebdomadaire (Tâche #43)
     await addXPToLeague(userId, xpEarned);
+
+    // PostHog event tracking (Tâche #79)
+    trackEvent(userId, "session_completed", { type, xpEarned });
 
     const currentStreak = await updateStreak(userId);
 
