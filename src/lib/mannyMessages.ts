@@ -6,7 +6,8 @@ export type MannySituation =
   | "streak_milestone"
   | "session_complete"
   | "first_visit"
-  | "loading";
+  | "loading"
+  | "evening";
 
 const messagesMap: Record<MannySituation, string[]> = {
   welcome: [
@@ -64,6 +65,13 @@ const messagesMap: Record<MannySituation, string[]> = {
     "Manny est en pleine réflexion... Laisse-moi structurer cette méditation spirituelle.",
     "Je prépare quelque chose d'inspirant pour toi, [name]. Ça arrive...",
     "Analyse du verset en cours... Prépare ton cœur à recevoir cette vérité.",
+  ],
+  evening: [
+    "Le soir est le moment de ruminer Sa Parole...",
+    "Termine ta journée dans Sa présence, [name]",
+    "Avant de dormir, laisse Dieu parler à ton cœur",
+    "La méditation du soir scelle ta journée en Sa présence",
+    "Noé te souhaite une bonne nuit dans la Parole 🌙",
   ],
 };
 

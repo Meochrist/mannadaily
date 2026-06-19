@@ -48,6 +48,8 @@ export default async function DashboardPage() {
   let freezesAvailable = 0;
   let dayProgress = false;
   let inactivityDays = 0;
+  let morningDone = false;
+  let eveningDone = false;
 
   if (userId) {
     try {
@@ -60,6 +62,9 @@ export default async function DashboardPage() {
           versesLearned: true,
           sessionsTotal: true,
           lingots: true,
+          morningSessionToday: true,
+          eveningSessionToday: true,
+          lastSessionDate: true,
         }
       });
 
@@ -73,6 +78,8 @@ export default async function DashboardPage() {
             versesLearned: 0,
             sessionsTotal: 0,
             lingots: 0,
+            morningSessionToday: false,
+            eveningSessionToday: false,
           },
           select: {
             totalXP: true,
@@ -80,6 +87,9 @@ export default async function DashboardPage() {
             versesLearned: true,
             sessionsTotal: true,
             lingots: true,
+            morningSessionToday: true,
+            eveningSessionToday: true,
+            lastSessionDate: true,
           }
         });
         progress = createdProgress;
@@ -89,6 +99,12 @@ export default async function DashboardPage() {
       versesLearned = progress.versesLearned;
       sessionsTotal = progress.sessionsTotal;
       lingots = progress.lingots;
+
+      // Détecter si on est sur un jour différent de la dernière session pour l'affichage
+      const todayStr = new Date().toISOString().split("T")[0];
+      const isToday = progress.lastSessionDate === todayStr;
+      morningDone = isToday ? progress.morningSessionToday : false;
+      eveningDone = isToday ? progress.eveningSessionToday : false;
 
       // Récupérer le streak freeze avec sélection ciblée
       const streakFreeze = await db.streakFreeze.findUnique({
@@ -210,6 +226,10 @@ export default async function DashboardPage() {
     };
   });
 
+  const currentHour = new Date().getHours();
+  const isMorningActive = currentHour >= 0 && currentHour < 17;
+  const isEveningActive = currentHour >= 17 && currentHour < 24;
+
   return (
     <div className="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto p-2 sm:p-4 lg:h-[920px] lg:overflow-hidden min-h-0">
       {/* COLONNE DE GAUCHE : LA CARTE DU PARCOURS DE JEU COMPLÈTE */}
@@ -254,7 +274,106 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* 2. COMPTEUR DE STREAK (SÉRIE DE JOURS DYNAMIQUE) */}
+        {/* 2. JOURNÉE SPIRITUELLE (JOUR & NUIT - JOSUÉ 1:8) */}
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-4 transition-colors">
+          <div className="space-y-1">
+            <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+              Journée Spirituelle (Josué 1:8)
+            </h3>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+              Médite la Parole jour et nuit pour réussir dans tes voies.
+            </p>
+          </div>
+
+          {/* Barre de progression */}
+          <div className="space-y-1.5">
+            <div className="flex justify-between items-center text-xs font-bold text-slate-600 dark:text-slate-300">
+              <span className="text-[10px] tracking-wide">Progression du Jour</span>
+              <span>{morningDone && eveningDone ? "100%" : morningDone || eveningDone ? "50%" : "0%"}</span>
+            </div>
+            <div className="w-full h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden relative">
+              <div 
+                className={`h-full rounded-full transition-all duration-500 ${
+                  morningDone && eveningDone 
+                    ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
+                    : morningDone || eveningDone 
+                    ? "bg-amber-500" 
+                    : "w-0"
+                }`}
+                style={{ width: morningDone && eveningDone ? "100%" : morningDone || eveningDone ? "50%" : "0%" }}
+              />
+            </div>
+            <p className={`text-[10px] font-bold tracking-tight text-center mt-1 ${
+              morningDone && eveningDone 
+                ? "text-emerald-600 dark:text-emerald-400" 
+                : morningDone || eveningDone 
+                ? "text-amber-600 dark:text-amber-400" 
+                : "text-slate-400 dark:text-slate-500"
+            }`}>
+              {morningDone && eveningDone 
+                ? "Ta journée spirituelle est complète ! 🎉" 
+                : morningDone 
+                ? "Encore ta méditation du soir pour compléter ta journée 🌙" 
+                : "Commence ta journée avec la méditation du matin 🌅"}
+            </p>
+          </div>
+
+          {/* Boutons d'action Jour & Nuit */}
+          <div className="grid grid-cols-2 gap-3 pt-1">
+            {/* Bouton Matin */}
+            {morningDone ? (
+              <div className="flex flex-col items-center justify-center p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-150 dark:border-slate-750 text-slate-400 dark:text-slate-500 rounded-2xl text-xs font-black select-none gap-1">
+                <span>🌅 Matin fait ✓</span>
+              </div>
+            ) : !isMorningActive ? (
+              <button
+                disabled
+                className="flex flex-col items-center justify-center p-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-150 dark:border-slate-750 text-slate-400 dark:text-slate-650 rounded-2xl text-xs font-black cursor-not-allowed opacity-60 gap-1"
+                title="Disponible de 00h à 17h"
+              >
+                <span>Matin indisponible</span>
+              </button>
+            ) : (
+              <Link
+                href={`/meditate?period=morning&text=${encodeURIComponent(dailyVerse.text)}&reference=${encodeURIComponent(dailyVerse.reference)}&theme=${encodeURIComponent(dailyVerse.theme)}`}
+                className="flex flex-col items-center justify-center p-3.5 bg-gradient-to-b from-amber-400 to-amber-500 text-slate-950 rounded-2xl text-xs font-black shadow-md hover:brightness-105 active:scale-[0.98] transition-all gap-1 cursor-pointer"
+              >
+                <span>Méditation du matin 🌅</span>
+              </Link>
+            )}
+
+            {/* Bouton Soir */}
+            {eveningDone ? (
+              <div className="flex flex-col items-center justify-center p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-150 dark:border-slate-750 text-slate-400 dark:text-slate-500 rounded-2xl text-xs font-black select-none gap-1">
+                <span>🌙 Soir fait ✓</span>
+              </div>
+            ) : !isEveningActive ? (
+              <button
+                disabled
+                className="flex flex-col items-center justify-center p-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-150 dark:border-slate-750 text-slate-400 dark:text-slate-650 rounded-2xl text-xs font-black cursor-not-allowed opacity-60 gap-1"
+                title="Disponible de 17h à 23h59"
+              >
+                <span>Soir indisponible</span>
+              </button>
+            ) : !morningDone ? (
+              <button
+                className="flex flex-col items-center justify-center p-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-150 dark:border-slate-750 text-slate-400 dark:text-slate-500 rounded-2xl text-xs font-black cursor-help opacity-70 gap-1"
+                title="Fais d'abord ta méditation du matin !"
+              >
+                <span>Méditation du soir 🌙</span>
+              </button>
+            ) : (
+              <Link
+                href={`/meditate?period=evening&text=${encodeURIComponent(dailyVerse.text)}&reference=${encodeURIComponent(dailyVerse.reference)}&theme=${encodeURIComponent(dailyVerse.theme)}`}
+                className="flex flex-col items-center justify-center p-3.5 bg-gradient-to-b from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white rounded-2xl text-xs font-black shadow-md active:scale-[0.98] transition-all gap-1 cursor-pointer"
+              >
+                <span>Méditation du soir 🌙</span>
+              </Link>
+            )}
+          </div>
+        </div>
+
+        {/* 3. COMPTEUR DE STREAK (SÉRIE DE JOURS DYNAMIQUE) */}
         <StreakCounter
           currentStreak={currentStreak}
           longestStreak={longestStreak}

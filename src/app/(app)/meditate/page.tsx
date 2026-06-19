@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Manny from "@/components/mascot/Manny";
 import MascotMessage from "@/components/mascot/MascotMessage";
@@ -62,14 +62,20 @@ interface Answers {
   step6_decision: string;
 }
 
-export default function MeditatePage() {
+import { verses } from "@/lib/verses";
+
+function MeditatePageContent() {
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5 | 6 | 7>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Verset du jour
   const [dailyVerse, setDailyVerse] = useState<DailyVerseType | null>(null);
+
+  // Période de méditation (morning ou evening)
+  const [period, setPeriod] = useState<"morning" | "evening">("morning");
 
   // Contexte biblique (lecture seule en local)
   const [bibleContext, setBibleContext] = useState<{ before: DailyVerseType[]; after: DailyVerseType[] }>({ before: [], after: [] });
@@ -122,10 +128,20 @@ export default function MeditatePage() {
   // Charger le profil utilisateur, initialiser le verset et son contexte
   useEffect(() => {
     // Lire d'abord les query parameters de l'URL pour voir si un verset spécifique a été passé
-    const urlParams = new URLSearchParams(window.location.search);
-    const textParam = urlParams.get("text");
-    const refParam = urlParams.get("reference");
-    const themeParam = urlParams.get("theme");
+    const textParam = searchParams.get("text");
+    const refParam = searchParams.get("reference");
+    const themeParam = searchParams.get("theme");
+    const periodParam = searchParams.get("period");
+
+    // Déterminer la période
+    let p: "morning" | "evening" = "morning";
+    if (periodParam === "morning" || periodParam === "evening") {
+      p = periodParam;
+    } else {
+      const utcHour = new Date().getUTCHours();
+      p = utcHour < 14 ? "morning" : "evening";
+    }
+    setPeriod(p);
 
     let verse: DailyVerseType;
 
@@ -136,7 +152,21 @@ export default function MeditatePage() {
         theme: decodeURIComponent(themeParam)
       };
     } else {
-      verse = getDailyVerse();
+      // Sélectionner un verset dynamique en fonction de la période (index pair pour morning / impair pour evening)
+      const now = new Date();
+      const start = new Date(now.getFullYear(), 0, 0);
+      const diff = now.getTime() - start.getTime() + (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
+      const oneDay = 1000 * 60 * 60 * 24;
+      const dayOfYear = Math.floor(diff / oneDay);
+      const baseIndex = dayOfYear % verses.length;
+
+      let index = baseIndex;
+      if (p === "morning") {
+        index = baseIndex % 2 === 0 ? baseIndex : (baseIndex + 1) % verses.length;
+      } else {
+        index = baseIndex % 2 !== 0 ? baseIndex : (baseIndex + 1) % verses.length;
+      }
+      verse = verses[index];
     }
 
     setDailyVerse(verse);
@@ -149,13 +179,16 @@ export default function MeditatePage() {
         const streak = data.streak?.currentStreak || 0;
         setUserName(name);
         setStreakCount(streak);
-        setWelcomeMessage(getMannyMessage("welcome", name, streak));
+        
+        const situation = p === "morning" ? "first_visit" : "evening";
+        setWelcomeMessage(getMannyMessage(situation, name, streak));
       })
       .catch((err) => {
         console.warn("Failed to fetch user progress:", err);
-        setWelcomeMessage(getMannyMessage("welcome", "Ami", 0));
+        const situation = p === "morning" ? "first_visit" : "evening";
+        setWelcomeMessage(getMannyMessage(situation, "Ami", 0));
       });
-  }, []);
+  }, [searchParams]);
 
   // Reset de la visibilité des suggestions au changement d'étape
   useEffect(() => {
@@ -496,6 +529,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           type: "classic",
+          period: period,
           notes: formattedNotes 
         }),
       });
@@ -712,12 +746,15 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
-                  className="space-y-8 flex flex-col items-center"
+                  className="space-y-6 flex flex-col items-center"
                 >
-                  <Manny mood="happy" size={170} />
+                  <h1 className="text-2xl font-black text-slate-850 dark:text-slate-100 tracking-tight">
+                    {period === "morning" ? "Méditation du matin 🌅" : "Méditation du soir 🌙"}
+                  </h1>
+                  <Manny mood={period === "morning" ? "happy" : "praying"} size={170} />
                   
                   {welcomeMessage && (
-                    <div className="text-center bg-indigo-50/50 border border-indigo-100/30 text-indigo-800 p-4 px-6 rounded-2xl text-xs md:text-sm font-extrabold max-w-md shadow-sm">
+                    <div className="text-center bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100/30 dark:border-indigo-900/40 text-indigo-850 dark:text-indigo-300 p-4 px-6 rounded-2xl text-xs md:text-sm font-extrabold max-w-md shadow-sm">
                       {welcomeMessage}
                     </div>
                   )}
@@ -1383,5 +1420,18 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function MeditatePage() {
+  return (
+    <Suspense fallback={
+      <div className="w-full bg-slate-50/60 dark:bg-slate-900/60 rounded-3xl border border-slate-200/60 dark:border-slate-800 p-8 min-h-[600px] flex flex-col items-center justify-center space-y-4 shadow-sm">
+        <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        <span className="text-xs font-bold text-slate-400 dark:text-slate-500">Chargement de ta méditation...</span>
+      </div>
+    }>
+      <MeditatePageContent />
+    </Suspense>
   );
 }

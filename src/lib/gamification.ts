@@ -40,13 +40,19 @@ export function getXPProgress(xp: number): number {
 
 export async function awardXP(
   userId: string, 
-  action: keyof typeof XP_RULES | "session_complete" | "perfect_session" | "streak_bonus"
+  action: keyof typeof XP_RULES | "session_complete" | "perfect_session" | "streak_bonus" | "morning_session" | "evening_session" | "day_complete_bonus"
 ) {
   try {
-    const xpToAdd = (action in XP_RULES) ? XP_RULES[action as keyof typeof XP_RULES] : 0;
-
+    let xpToAdd = (action in XP_RULES) ? XP_RULES[action as keyof typeof XP_RULES] : 0;
     let lingotsToAdd = 0;
-    if (action === "session_complete" || action === "DAILY_MEDITATION" || action === "PROCLAMATION_SESSION" || action === "MEMORIZATION") {
+
+    if (action === "morning_session" || action === "evening_session") {
+      xpToAdd = 15;
+      lingotsToAdd = 5;
+    } else if (action === "day_complete_bonus") {
+      xpToAdd = 10;
+      lingotsToAdd = 5;
+    } else if (action === "session_complete" || action === "DAILY_MEDITATION" || action === "PROCLAMATION_SESSION" || action === "MEMORIZATION") {
       lingotsToAdd = 5;
     } else if (action === "perfect_session") {
       lingotsToAdd = 10;
@@ -68,6 +74,8 @@ export async function awardXP(
             versesLearned: 0,
             sessionsTotal: 0,
             lingots: 0,
+            morningSessionToday: false,
+            eveningSessionToday: false,
           },
         });
       }
@@ -114,6 +122,39 @@ export async function awardXP(
   }
 }
 
+export async function checkDayCompletion(userId: string) {
+  try {
+    const todayStr = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    const progress = await db.userProgress.findUnique({
+      where: { userId },
+      select: {
+        morningSessionToday: true,
+        eveningSessionToday: true,
+        lastSessionDate: true,
+      }
+    });
+
+    if (!progress) {
+      return { morningDone: false, eveningDone: false, dayComplete: false };
+    }
+
+    // Si le jour a changé par rapport à la dernière session enregistrée, on considère qu'aucune session n'est faite pour aujourd'hui
+    if (progress.lastSessionDate !== todayStr) {
+      return { morningDone: false, eveningDone: false, dayComplete: false };
+    }
+
+    const dayComplete = progress.morningSessionToday && progress.eveningSessionToday;
+    return {
+      morningDone: progress.morningSessionToday,
+      eveningDone: progress.eveningSessionToday,
+      dayComplete,
+    };
+  } catch (error) {
+    console.error("Error checking day completion:", error);
+    return { morningDone: false, eveningDone: false, dayComplete: false };
+  }
+}
+
 export async function updateStreak(userId: string): Promise<number> {
   try {
     const today = new Date();
@@ -145,7 +186,8 @@ export async function updateStreak(userId: string): Promise<number> {
       // Le streak risque d'être brisé, on vérifie si un streak freeze est dispo et on l'applique
       const freezeResult = await applyStreakFreezeIfNeeded(userId);
       if (freezeResult.freezeUsed) {
-        // Le streak est maintenu intact
+        // Le streak est maintenu intact et incrémenté pour aujourd'hui
+        newCurrentStreak += 1;
       } else {
         newCurrentStreak = 1;
       }
