@@ -77,6 +77,7 @@ export default async function ProgressPage() {
   };
 
   let signUpDate: Date | null = null;
+  let completeDaysCount = 0;
 
   if (userId) {
     try {
@@ -186,6 +187,26 @@ export default async function ProgressPage() {
           earnedAt: ub.earnedAt.toISOString(),
         })),
       };
+
+      const sessions = await db.dailySession.findMany({
+        where: { userId },
+        select: { createdAt: true, period: true },
+      });
+
+      const daysMap = new Map<string, Set<string>>();
+      for (const s of sessions) {
+        const dateStr = s.createdAt.toISOString().split("T")[0];
+        if (!daysMap.has(dateStr)) {
+          daysMap.set(dateStr, new Set());
+        }
+        daysMap.get(dateStr)!.add(s.period);
+      }
+
+      for (const periods of daysMap.values()) {
+        if (periods.has("morning") && periods.has("evening")) {
+          completeDaysCount++;
+        }
+      }
     } catch (error) {
       console.error("Error fetching custom progress in ProgressPage:", error);
     }
@@ -348,7 +369,7 @@ export default async function ProgressPage() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           <div className="bg-slate-50/60 p-5 rounded-2xl border border-slate-100 text-center space-y-2">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Sessions quotidiennes</span>
             <span className="text-4xl font-black text-slate-800 block">{data.progress.sessionsTotal}</span>
@@ -359,6 +380,12 @@ export default async function ProgressPage() {
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Versets mémorisés</span>
             <span className="text-4xl font-black text-slate-800 block">{data.progress.versesLearned}</span>
             <p className="text-xs text-slate-400 font-semibold">Vérités divines ancrées dans ton esprit</p>
+          </div>
+
+          <div className="bg-slate-50/60 p-5 rounded-2xl border border-slate-100 text-center space-y-2">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Jours complets</span>
+            <span className="text-4xl font-black text-emerald-600 block">{completeDaysCount}</span>
+            <p className="text-xs text-slate-400 font-semibold">Matin et soir complétés</p>
           </div>
 
           <div className="bg-slate-50/60 p-5 rounded-2xl border border-slate-100 text-center space-y-2">
