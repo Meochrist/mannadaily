@@ -59,10 +59,15 @@ function testUrl(url: string): Promise<number> {
   });
 }
 
-async function generateAIChapterCommentary(book: string, chapter: number): Promise<string> {
-  const prompt = `Génère un commentaire biblique en français (120-150 mots) pour ${book} chapitre ${chapter}.
-Résume le thème central, le contexte historique et l'application spirituelle principale.
-Style : Matthew Henry, profond et pratique. Pas de titres ni de numéros.`;
+interface GenerationResult {
+  text: string;
+  provider: "Gemini" | "Groq" | "GitHub";
+}
+
+async function generateAIChapterCommentary(book: string, chapter: number): Promise<GenerationResult> {
+  const prompt = `Génère un commentaire biblique en français (100-120 mots) pour ${book} chapitre ${chapter}.
+Thème central, contexte historique, application pratique.
+Style Matthew Henry. Prose fluide sans titres.`;
 
   // Fallback 1 : Gemini
   try {
@@ -73,11 +78,15 @@ Style : Matthew Henry, profond et pratique. Pas de titres ni de numéros.`;
       const result = await model.generateContent(prompt);
       const respText = result.response.text();
       if (respText && respText.trim()) {
-        return respText.trim();
+        return { text: respText.trim(), provider: "Gemini" };
       }
     }
   } catch (err: any) {
-    console.warn(`[Seed] ⚠️ Gemini a échoué pour ${book} ${chapter}, tentative avec Groq... (${err.message})`);
+    console.warn(`[Seed] ⚠️ Gemini a échoué pour ${book} ${chapter}: ${err.message}`);
+    if (err.message?.includes("429") || err.status === 429) {
+      console.log("[Seed] Quota Gemini atteint. Pause de 4s...");
+      await new Promise(resolve => setTimeout(resolve, 4000));
+    }
   }
 
   // Fallback 2 : Groq
@@ -91,11 +100,15 @@ Style : Matthew Henry, profond et pratique. Pas de titres ni de numéros.`;
       });
       const respText = chatCompletion.choices[0]?.message?.content || "";
       if (respText && respText.trim()) {
-        return respText.trim();
+        return { text: respText.trim(), provider: "Groq" };
       }
     }
   } catch (err: any) {
-    console.warn(`[Seed] ⚠️ Groq a échoué pour ${book} ${chapter}, tentative avec GitHub Models... (${err.message})`);
+    console.warn(`[Seed] ⚠️ Groq a échoué pour ${book} ${chapter}: ${err.message}`);
+    if (err.message?.includes("429") || err.status === 429) {
+      console.log("[Seed] Quota Groq atteint. Pause de 2s...");
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
   }
 
   // Fallback 3 : GitHub Models
@@ -112,34 +125,33 @@ Style : Matthew Henry, profond et pratique. Pas de titres ni de numéros.`;
       });
       const respText = response.choices[0]?.message?.content || "";
       if (respText && respText.trim()) {
-        return respText.trim();
+        return { text: respText.trim(), provider: "GitHub" };
       }
     }
   } catch (err: any) {
-    console.error(`[Seed] ❌ Tous les fournisseurs d'IA ont échoué pour ${book} ${chapter} (${err.message})`);
+    console.error(`[Seed] ❌ GitHub Models a échoué pour ${book} ${chapter}: ${err.message}`);
+    if (err.message?.includes("429") || err.status === 429) {
+      console.log("[Seed] Quota GitHub atteint. Pause de 6s...");
+      await new Promise(resolve => setTimeout(resolve, 6000));
+    }
   }
 
-  throw new Error("Impossible de générer le commentaire. Tous les fournisseurs d'IA ont échoué.");
+  throw new Error("Tous les fournisseurs d'IA ont échoué.");
 }
 
 async function main() {
   console.log("=== Début du Seed Commentaires de Chapitres (Toute la Bible) ===\n");
 
-  // PARTIE 1 : Test des sources
-  console.log("--- PARTIE 1 : Test des sources disponibles ---");
-  const source1Url = "https://api.getbible.net/v2/commentary/";
-  const source2Url = "https://raw.githubusercontent.com/scrollmapper/bible_databases/master/txt/commentary-mhc.txt";
-
-  const status1 = await testUrl(source1Url);
-  console.log(`Source 1 (GBible Commentary API) → Statut: ${status1}`);
-  
-  const status2 = await testUrl(source2Url);
-  console.log(`Source 2 (Scrollmapper MHC TXT)  → Statut: ${status2}`);
-
-  console.log("\n--- PARTIE 2 : Génération IA des commentaires de chapitres ---");
+  // 1. Récupérer les livres déjà en base
+  const existingBooks = await prisma.bibleCommentary.findMany({
+    distinct: ['book'],
+    select: { book: true },
+  });
+  const coveredBookIds = new Set(existingBooks.map(b => b.book));
+  console.log(`Livres déjà couverts (${coveredBookIds.size}) :`, Array.from(coveredBookIds));
 
   // Récupérer tous les chapitres distincts dans BibleVerse
-  const chapters = await prisma.bibleVerse.findMany({
+  const allChapters = await prisma.bibleVerse.findMany({
     select: {
       bookNumber: true,
       book: true,
@@ -152,22 +164,22 @@ async function main() {
     ]
   });
 
-  console.log(`Nombre total de chapitres trouvés : ${chapters.length}`);
-
   // Calculer le total des chapitres par livre pour un affichage précis
   const totalChaptersPerBook: Record<number, number> = {};
-  for (const ch of chapters) {
+  for (const ch of allChapters) {
     totalChaptersPerBook[ch.bookNumber] = (totalChaptersPerBook[ch.bookNumber] || 0) + 1;
   }
 
+  // Filtrer pour ne garder que les chapitres des livres non encore couverts
+  const chapters = allChapters.filter(ch => !coveredBookIds.has(ch.bookNumber));
+  console.log(`Nombre de chapitres restant à seeder : ${chapters.length}`);
+
   let insertedCount = 0;
-  let skippedCount = 0;
 
   for (const ch of chapters) {
     const totalChaptersInThisBook = totalChaptersPerBook[ch.bookNumber];
-    const progressLabel = `Livre ${ch.bookNumber}/66 (${ch.book}), Chapitre ${ch.chapter}/${totalChaptersInThisBook}`;
 
-    // Vérifier si le commentaire existe déjà
+    // Vérifier à nouveau par mesure d'idempotence
     const existing = await prisma.bibleCommentary.findFirst({
       where: {
         book: ch.bookNumber,
@@ -178,43 +190,35 @@ async function main() {
     });
 
     if (existing) {
-      skippedCount++;
-      if (skippedCount % 50 === 0) {
-        console.log(`[Seed] ${skippedCount} chapitres déjà commentés. Progression : ${progressLabel}`);
-      }
       continue;
     }
 
     try {
-      console.log(`Génération pour : ${progressLabel}...`);
-      const text = await generateAIChapterCommentary(ch.book, ch.chapter);
+      const result = await generateAIChapterCommentary(ch.book, ch.chapter);
       
-      if (text) {
-        await prisma.bibleCommentary.create({
-          data: {
-            book: ch.bookNumber,
-            chapter: ch.chapter,
-            verse: 0,
-            author: "Matthew Henry (IA)",
-            content: text,
-            language: "fr"
-          }
-        });
-        insertedCount++;
-        console.log(`✅ Commentaire inséré pour : ${progressLabel}`);
-      }
+      await prisma.bibleCommentary.create({
+        data: {
+          book: ch.bookNumber,
+          chapter: ch.chapter,
+          verse: 0,
+          author: "Matthew Henry (IA)",
+          content: result.text,
+          language: "fr"
+        }
+      });
+      insertedCount++;
+      console.log(`Livre ${ch.bookNumber}/66 - Chapitre ${ch.chapter}/${totalChaptersInThisBook} - [${result.provider}]`);
     } catch (err: any) {
-      console.error(`❌ Échec pour : ${progressLabel} :`, err.message);
+      console.error(`❌ Échec pour Livre ${ch.bookNumber}/66 (${ch.book}) Chapitre ${ch.chapter} : ${err.message}`);
     }
 
-    // Pause de 200ms entre chaque requête (respecte les quotas)
-    await new Promise(resolve => setTimeout(resolve, 200));
+    // Pause de 300ms entre chaque requête
+    await new Promise(resolve => setTimeout(resolve, 300));
   }
 
   console.log("\n==================================================");
   console.log("=== Fin du Seed Commentaires ===");
   console.log(`Total insérés : ${insertedCount}`);
-  console.log(`Total ignorés (déjà existants) : ${skippedCount}`);
   console.log("==================================================");
 }
 
