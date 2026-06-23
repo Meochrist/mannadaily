@@ -24,11 +24,14 @@ export default async function DashboardPage() {
   if (userId) {
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { onboardingCompleted: true }
+      select: { onboardingCompleted: true, createdAt: true }
     });
 
     if (user && user.onboardingCompleted === false) {
-      redirect("/onboarding");
+      const isNewUser = user.createdAt > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      if (isNewUser) {
+        redirect("/onboarding");
+      }
     }
   }
 

@@ -529,15 +529,30 @@ export const verses: Verse[] = [
   { text: "Que la grâce du Seigneur Jésus-Christ soit avec vous tous ! Amen !", reference: "Philippiens 4:23", theme: "Guidance" }
 ];
 
-export function getDailyVerse(): Verse {
+export function getDailyVerse(theme?: string, period?: "morning" | "evening"): Verse {
+  let filtered = verses;
+  if (theme) {
+    filtered = verses.filter(v => v.theme.toLowerCase() === theme.toLowerCase());
+  }
+
+  if (period === "morning") {
+    filtered = filtered.filter((_, idx) => idx % 2 === 0);
+  } else if (period === "evening") {
+    filtered = filtered.filter((_, idx) => idx % 2 !== 0);
+  }
+
+  if (filtered.length === 0) {
+    filtered = verses;
+  }
+
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const diff = now.getTime() - start.getTime() + (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
   const oneDay = 1000 * 60 * 60 * 24;
   const dayOfYear = Math.floor(diff / oneDay);
   
-  const index = dayOfYear % verses.length;
-  return verses[index];
+  const index = dayOfYear % filtered.length;
+  return filtered[index];
 }
 
 export function getVerseContext(verseRef: string) {

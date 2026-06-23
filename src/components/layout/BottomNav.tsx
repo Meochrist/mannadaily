@@ -37,29 +37,9 @@ export default function BottomNav() {
       icon: BookOpen,
     },
     {
-      label: "Plans",
-      href: "/reading-plans",
-      icon: Calendar,
-    },
-    {
-      label: "Proclamer",
-      href: "/proclaim",
-      icon: Volume2,
-    },
-    {
       label: "Ligue",
       href: "/leaderboard",
       icon: Trophy,
-    },
-    {
-      label: "Progression",
-      href: "/progress",
-      icon: Award,
-    },
-    {
-      label: "Mémoriser",
-      href: "/memorize",
-      icon: Brain,
     },
     {
       label: "Profil",
