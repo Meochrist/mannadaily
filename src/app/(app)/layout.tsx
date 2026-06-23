@@ -13,7 +13,8 @@ import {
   Sparkles,
   Calendar,
   User,
-  Brain
+  Brain,
+  ShoppingBag
 } from "lucide-react";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -108,6 +109,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             >
               <Brain className="w-5 h-5 text-indigo-300" />
               Mémoriser
+            </Link>
+
+            <Link 
+              href="/shop" 
+              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
+            >
+              <ShoppingBag className="w-5 h-5 text-indigo-300" />
+              Boutique Céleste
             </Link>
 
             <Link 

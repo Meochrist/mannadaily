@@ -24,6 +24,7 @@ export interface VerifyTransactionResult {
     lastname?: string
     phone?: string
   }
+  metadata?: Record<string, any>
 }
 
 /**
@@ -35,7 +36,8 @@ export async function createTransaction(
   customerName: string,
   customerEmail: string,
   customerPhone: string,
-  callbackUrl: string
+  callbackUrl: string,
+  metadata?: Record<string, any>
 ): Promise<CreateTransactionResult> {
   try {
     initFedaPay()
@@ -64,7 +66,8 @@ export async function createTransaction(
       amount,
       currency: { iso: 'XOF' },
       callback_url: callbackUrl,
-      customer: customerParams
+      customer: customerParams,
+      metadata: metadata || {}
     })
 
     const token = await transaction.generateToken()
@@ -108,7 +111,8 @@ export async function verifyTransaction(transactionId: string | number): Promise
         firstname: customer.firstname,
         lastname: customer.lastname,
         phone: phone_number.number
-      }
+      },
+      metadata: transaction.metadata || {}
     }
   } catch (error: unknown) {
     console.error("Erreur lors de la verification de la transaction FedaPay:", error)

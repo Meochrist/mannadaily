@@ -34,6 +34,8 @@ model User {
   onboardingCompleted Boolean @default(false)
   favoriteMascot String?
   memorizations VerseMemorization[]
+  isPremium           Boolean            @default(false)
+  premiumUntil        DateTime?
 }
 
 model Account {
