@@ -66,6 +66,9 @@ export async function GET() {
         progressPercent,
         versesLearned: progress.versesLearned,
         sessionsTotal: progress.sessionsTotal,
+        morningSessionToday: (progress as any).morningSessionToday,
+        eveningSessionToday: (progress as any).eveningSessionToday,
+        lastSessionDate: (progress as any).lastSessionDate,
       },
       streak: {
         currentStreak: streak.currentStreak,

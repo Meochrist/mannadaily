@@ -111,6 +111,7 @@ function MeditatePageContent() {
 
   // Résultats de fin de session
   const [sessionResult, setSessionResult] = useState<SessionResult | null>(null);
+  const [morningDoneAlready, setMorningDoneAlready] = useState(false);
 
   // Infos de profil
   const [userName, setUserName] = useState("Ami");
@@ -180,6 +181,12 @@ function MeditatePageContent() {
         setUserName(name);
         setStreakCount(streak);
         
+        // Détecter si la méditation du matin a déjà été faite aujourd'hui (heure locale de la dernière session)
+        const todayStr = new Date().toISOString().split("T")[0];
+        const isToday = data.progress?.lastSessionDate === todayStr;
+        const morningDoneVal = isToday ? !!data.progress?.morningSessionToday : false;
+        setMorningDoneAlready(morningDoneVal);
+
         const situation = p === "morning" ? "first_visit" : "evening";
         setWelcomeMessage(getMannyMessage(situation, name, streak));
       })
@@ -187,6 +194,7 @@ function MeditatePageContent() {
         console.warn("Failed to fetch user progress:", err);
         const situation = p === "morning" ? "first_visit" : "evening";
         setWelcomeMessage(getMannyMessage(situation, "Ami", 0));
+        setMorningDoneAlready(false);
       });
   }, [searchParams]);
 
@@ -663,6 +671,12 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
       </motion.div>
     );
   };
+
+  const completionMessage = period === "morning"
+    ? "🌅 Ta méditation du matin est complète !\nReviens ce soir pour compléter ta journée spirituelle."
+    : morningDoneAlready
+      ? "🌙 Journée spirituelle COMPLÈTE !\nTu as médité jour et nuit comme Josué 1:8 !"
+      : "🌙 Méditation du soir complète !\nN'oublie pas ta méditation du matin demain !";
 
   return (
     <div className={cn(
@@ -1200,7 +1214,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                         <MascotMessage
                           mascot="manny"
                           mood="praying"
-                          message="Reçois cette prière écrite pour sceller ton temps d'étude."
+                          message={completionMessage}
                           size={150}
                         />
                       </div>
@@ -1256,8 +1270,8 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                         <h2 className="text-3xl font-black text-slate-800 tracking-tight">
                           Session validée 🎉
                         </h2>
-                        <p className="text-slate-500 font-medium text-sm">
-                          {getMannyMessage("session_complete", userName, sessionResult.streak)}
+                        <p className="text-slate-500 font-medium text-sm whitespace-pre-line">
+                          {completionMessage}
                         </p>
                       </div>
 
