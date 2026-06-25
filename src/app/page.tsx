@@ -19,11 +19,25 @@ import {
   Award, 
   Users, 
   TrendingUp,
-  MessageSquare
+  MessageSquare,
+  Globe
 } from "lucide-react";
+
+const AppleIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.22.67-2.94 1.5-.64.73-1.2 1.87-1.05 2.99 1.12.09 2.27-.57 3-1.43z"/>
+  </svg>
+);
+
+const AndroidIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M17.523 15.3l1.816 3.146a.5.5 0 0 1-.183.683.5.5 0 0 1-.683-.183L16.64 15.75a10.023 10.023 0 0 1-9.28 0l-1.83 3.196a.5.5 0 0 1-.683.183.5.5 0 0 1-.183-.683L6.48 15.3A9.97 9.97 0 0 1 2 7.5c0-.276.224-.5.5-.5h19a.5.5 0 0 1 .5.5 9.97 9.97 0 0 1-4.477 7.8zM7 11.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM12 2a.5.5 0 0 1 .5.5v1.272a9.97 9.97 0 0 1 0 0V2.5a.5.5 0 0 1 .5-.5z"/>
+  </svg>
+);
 
 export default function LandingPage() {
   const [activeMascotIdx, setActiveMascotIdx] = useState(0);
+  const [isIosModalOpen, setIsIosModalOpen] = useState(false);
 
   // Config des 10 compagnons de route bibliques
   const mascots = [
@@ -256,6 +270,11 @@ export default function LandingPage() {
               >
                 J'ai déjà un compte
               </Link>
+            </div>
+
+            <div className="text-sm text-slate-500 font-extrabold flex items-center justify-center lg:justify-start gap-2.5 py-1">
+              <span>📱</span>
+              <span>Disponible sur Android • iPhone • Web</span>
             </div>
             
             <div className="text-xs text-slate-400 font-bold flex items-center gap-2 justify-center lg:justify-start">
@@ -526,6 +545,170 @@ export default function LandingPage() {
             <div className="text-sm font-bold text-slate-500">Pour t'accompagner sans jamais te lasser</div>
           </div>
         </div>
+      </section>
+
+      {/* SECTION TÉLÉCHARGEMENT */}
+      <section className="py-24 bg-slate-900 text-white border-t-2 border-b-2 border-slate-800 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
+
+        <div className="max-w-6xl mx-auto px-6 space-y-16 relative z-10">
+          <div className="text-center max-w-2xl mx-auto space-y-4">
+            <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white">
+              Disponible sur toutes les plateformes
+            </h2>
+            <p className="text-slate-400 font-bold text-base md:text-lg">
+              Emportez MannaDaily partout avec vous. Choisissez votre support préféré pour commencer votre croissance spirituelle.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {/* Carte 1 - Android */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="bg-slate-950 p-8 rounded-3xl border-2 border-emerald-500/30 hover:border-emerald-500/50 hover:scale-[1.02] transition-all flex flex-col justify-between h-[360px] text-center"
+            >
+              <div className="flex flex-col items-center space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                  <AndroidIcon className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white">Android</h3>
+                  <p className="text-emerald-400 text-xs font-black uppercase tracking-wider mt-1">Téléchargement direct</p>
+                </div>
+                <p className="text-slate-400 text-sm font-semibold leading-relaxed">
+                  Installez directement l'application sécurisée sur votre appareil Android et commencez à méditer.
+                </p>
+              </div>
+              <div className="space-y-3">
+                <a
+                  href="/MannaDaily.apk"
+                  download
+                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-2xl border-b-4 border-emerald-700 active:border-b-0 active:translate-y-[4px] transition-all"
+                >
+                  ⬇️ Télécharger l'APK
+                </a>
+                <p className="text-xs text-slate-500 font-bold">Fonctionne sur Android 8+</p>
+              </div>
+            </motion.div>
+
+            {/* Carte 2 - iPhone/iPad */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-slate-950 p-8 rounded-3xl border-2 border-white/20 hover:border-white/40 hover:scale-[1.02] transition-all flex flex-col justify-between h-[360px] text-center"
+            >
+              <div className="flex flex-col items-center space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-white">
+                  <AppleIcon className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white">iPhone & iPad</h3>
+                  <p className="text-slate-300 text-xs font-black uppercase tracking-wider mt-1">Progressive Web App</p>
+                </div>
+                <p className="text-slate-400 text-sm font-semibold leading-relaxed">
+                  Ajoutez MannaDaily sur votre écran d'accueil iOS en un clin d'œil sans passer par l'App Store.
+                </p>
+              </div>
+              <div className="space-y-3">
+                <button
+                  onClick={() => setIsIosModalOpen(true)}
+                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-slate-100 text-slate-950 font-black rounded-2xl border-b-4 border-slate-300 active:border-b-0 active:translate-y-[4px] transition-all"
+                >
+                  📱 Installer sur iPhone
+                </button>
+                <p className="text-xs text-slate-500 font-bold">Fonctionne comme une vraie app</p>
+              </div>
+            </motion.div>
+
+            {/* Carte 3 - Web App */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="bg-slate-950 p-8 rounded-3xl border-2 border-blue-500/30 hover:border-blue-500/50 hover:scale-[1.02] transition-all flex flex-col justify-between h-[360px] text-center"
+            >
+              <div className="flex flex-col items-center space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-400">
+                  <Globe className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white">Navigateur Web</h3>
+                  <p className="text-blue-400 text-xs font-black uppercase tracking-wider mt-1">Accès immédiat</p>
+                </div>
+                <p className="text-slate-400 text-sm font-semibold leading-relaxed">
+                  Utilisez directement notre plateforme web complète depuis n'importe quel ordinateur ou tablette.
+                </p>
+              </div>
+              <div className="space-y-3">
+                <Link
+                  href="/dashboard"
+                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-400 text-white font-black rounded-2xl border-b-4 border-blue-700 active:border-b-0 active:translate-y-[4px] transition-all"
+                >
+                  🌐 Ouvrir dans le navigateur
+                </Link>
+                <p className="text-xs text-slate-500 font-bold">Aucune installation requise</p>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* MODALE POUR INSTALLATION IOS */}
+        {isIosModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-white text-slate-900 p-8 rounded-3xl border-2 border-slate-200 shadow-2xl max-w-md w-full relative space-y-6"
+            >
+              <button
+                onClick={() => setIsIosModalOpen(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-2xl font-black focus:outline-none"
+              >
+                ✕
+              </button>
+              
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-650">
+                  <AppleIcon className="w-10 h-10" />
+                </div>
+                <h3 className="text-2xl font-black text-slate-900">Installer sur iPhone / iPad</h3>
+                <p className="text-slate-500 font-bold text-sm">Suivez ces étapes simples dans Safari pour installer l'application :</p>
+              </div>
+
+              <div className="space-y-4 font-bold text-slate-700 text-sm bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                <div className="flex gap-3">
+                  <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black flex-shrink-0">1</span>
+                  <span>Ouvrez <strong>mannadaily.vercel.app</strong> dans le navigateur <strong>Safari</strong>.</span>
+                </div>
+                <div className="flex gap-3">
+                  <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black flex-shrink-0">2</span>
+                  <span>Appuyez sur le bouton Partager <strong>⬆️</strong> en bas de votre écran.</span>
+                </div>
+                <div className="flex gap-3">
+                  <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black flex-shrink-0">3</span>
+                  <span>Faites défiler vers le bas et sélectionnez <strong>"Sur l'écran d'accueil"</strong>.</span>
+                </div>
+                <div className="flex gap-3">
+                  <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black flex-shrink-0">4</span>
+                  <span>Appuyez sur "Ajouter". L'application est installée ! 🎉</span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setIsIosModalOpen(false)}
+                className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl border-b-4 border-indigo-800 active:border-b-0 active:translate-y-[4px] transition-all"
+              >
+                J'ai compris !
+              </button>
+            </motion.div>
+          </div>
+        )}
       </section>
 
       {/* SECTION 6 — CTA FINAL */}
