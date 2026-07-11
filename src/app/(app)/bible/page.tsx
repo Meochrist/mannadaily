@@ -95,6 +95,9 @@ export default function BiblePage() {
   const [translation, setTranslation] = useState<string>("LSG");
   const [verses, setVerses] = useState<Verse[]>([]);
   const [loadingVerses, setLoadingVerses] = useState<boolean>(false);
+  const [atOpen, setAtOpen] = useState<boolean>(true);
+  const [ntOpen, setNtOpen] = useState<boolean>(false);
+  const [isBookDrawerOpen, setIsBookDrawerOpen] = useState<boolean>(false);
 
   // User interactive state
   const [selectedVerse, setSelectedVerse] = useState<Verse | null>(null);
@@ -762,72 +765,90 @@ export default function BiblePage() {
       {/* Main Grid: 3 columns */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-270px)] min-h-[500px]">
         
-        {/* COLUMN 1: NAVIGATION (20% -> 2 cols or 3 cols depending on breakpoint) */}
-        <div className="lg:col-span-3 bg-white rounded-3xl border border-slate-100 shadow-sm p-4 flex flex-col overflow-hidden h-full">
-          <div className="flex items-center gap-2 pb-3 border-b border-slate-100 mb-3">
+        {/* COLUMN 1: NAVIGATION (visible on desktop) */}
+        <div className="hidden lg:flex lg:col-span-3 w-64 min-w-[200px] bg-white rounded-3xl border border-slate-100 shadow-sm p-4 flex-col overflow-hidden h-full">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-100 mb-3 flex-shrink-0">
             <List className="w-5 h-5 text-indigo-600" />
             <h2 className="font-extrabold text-slate-800 text-sm">Livres & Chapitres</h2>
           </div>
 
           <div className="flex-1 overflow-y-auto space-y-4 pr-1">
             {/* Old Testament */}
-            <div className="space-y-1">
-              <h3 className="text-xs font-black text-indigo-900 bg-indigo-50 px-2.5 py-1.5 rounded-lg tracking-wider uppercase">
-                Ancien Testament ({oldTestament.length})
-              </h3>
-              <div className="space-y-0.5 pt-1 pl-1">
-                {oldTestament.map((book) => (
-                  <button
-                    key={book.name}
-                    onClick={() => {
-                      setSelectedBook(book.name);
-                      setSelectedChapter(1);
-                      sounds.playXPGain();
-                    }}
-                    className={cn(
-                      "w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-between",
-                      selectedBook === book.name
-                        ? "bg-indigo-650 text-white shadow-sm"
-                        : "text-slate-650 hover:bg-slate-50 hover:text-slate-900"
-                    )}
-                  >
-                    <span>{book.name}</span>
-                    {selectedBook === book.name && (
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-                ))}
-              </div>
+            <div className="space-y-1.5">
+              <button
+                onClick={() => {
+                  setAtOpen(!atOpen);
+                  sounds.playXPGain();
+                }}
+                className="w-full flex items-center justify-between text-xs font-black text-indigo-900 bg-indigo-50 px-3 py-2.5 rounded-xl tracking-wider uppercase hover:bg-indigo-100/80 transition cursor-pointer"
+              >
+                <span>Ancien Testament ({oldTestament.length})</span>
+                <span className="text-[10px]">{atOpen ? "▼" : "▶"}</span>
+              </button>
+              {atOpen && (
+                <div className="space-y-1 pt-1.5 pl-1">
+                  {oldTestament.map((book) => (
+                    <button
+                      key={book.name}
+                      onClick={() => {
+                        setSelectedBook(book.name);
+                        setSelectedChapter(1);
+                        sounds.playXPGain();
+                      }}
+                      className={cn(
+                        "w-full text-left px-3 py-2 rounded-xl text-xs font-extrabold transition flex items-center justify-between cursor-pointer",
+                        selectedBook === book.name
+                          ? "bg-indigo-600 text-white shadow-sm"
+                          : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                      )}
+                    >
+                      <span className="whitespace-normal break-words">{book.name}</span>
+                      {selectedBook === book.name && (
+                        <ChevronRight className="w-3.5 h-3.5 flex-shrink-0" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* New Testament */}
-            <div className="space-y-1">
-              <h3 className="text-xs font-black text-emerald-900 bg-emerald-50 px-2.5 py-1.5 rounded-lg tracking-wider uppercase">
-                Nouveau Testament ({newTestament.length})
-              </h3>
-              <div className="space-y-0.5 pt-1 pl-1">
-                {newTestament.map((book) => (
-                  <button
-                    key={book.name}
-                    onClick={() => {
-                      setSelectedBook(book.name);
-                      setSelectedChapter(1);
-                      sounds.playXPGain();
-                    }}
-                    className={cn(
-                      "w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-between",
-                      selectedBook === book.name
-                        ? "bg-emerald-650 text-white shadow-sm"
-                        : "text-slate-650 hover:bg-slate-50 hover:text-slate-900"
-                    )}
-                  >
-                    <span>{book.name}</span>
-                    {selectedBook === book.name && (
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-                ))}
-              </div>
+            <div className="space-y-1.5">
+              <button
+                onClick={() => {
+                  setNtOpen(!ntOpen);
+                  sounds.playXPGain();
+                }}
+                className="w-full flex items-center justify-between text-xs font-black text-emerald-900 bg-emerald-50 px-3 py-2.5 rounded-xl tracking-wider uppercase hover:bg-emerald-100/80 transition cursor-pointer"
+              >
+                <span>Nouveau Testament ({newTestament.length})</span>
+                <span className="text-[10px]">{ntOpen ? "▼" : "▶"}</span>
+              </button>
+              {ntOpen && (
+                <div className="space-y-1 pt-1.5 pl-1">
+                  {newTestament.map((book) => (
+                    <button
+                      key={book.name}
+                      onClick={() => {
+                        setSelectedBook(book.name);
+                        setSelectedChapter(1);
+                        sounds.playXPGain();
+                      }}
+                      className={cn(
+                        "w-full text-left px-3 py-2 rounded-xl text-xs font-extrabold transition flex items-center justify-between cursor-pointer",
+                        selectedBook === book.name
+                          ? "bg-emerald-600 text-white shadow-sm"
+                          : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                      )}
+                    >
+                      <span className="whitespace-normal break-words">{book.name}</span>
+                      {selectedBook === book.name && (
+                        <ChevronRight className="w-3.5 h-3.5 flex-shrink-0" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -836,11 +857,23 @@ export default function BiblePage() {
         <div className="lg:col-span-6 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col overflow-hidden h-full">
           {/* Header of Reader */}
           <div className="bg-slate-50 border-b border-slate-100 p-4 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <BookOpenCheck className="w-5 h-5 text-indigo-600" />
-              <span className="font-extrabold text-slate-800 text-sm md:text-base">
-                {selectedBook} {selectedChapter}
-              </span>
+            <div className="flex items-center gap-2.5">
+              <button
+                onClick={() => {
+                  setIsBookDrawerOpen(true);
+                  sounds.playXPGain();
+                }}
+                className="lg:hidden flex items-center gap-1.5 px-3 py-2 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-xl text-xs font-black hover:bg-indigo-100/85 active:scale-95 transition"
+                title="Choisir un livre"
+              >
+                📚 <span className="sm:inline hidden">Livres</span>
+              </button>
+              <div className="flex items-center gap-1.5">
+                <BookOpenCheck className="w-4 h-4 text-indigo-600" />
+                <span className="font-extrabold text-slate-800 text-sm md:text-base">
+                  {selectedBook} {selectedChapter}
+                </span>
+              </div>
             </div>
             
             {/* Quick selector of chapters */}
@@ -1145,7 +1178,7 @@ export default function BiblePage() {
                           setActiveTab("references");
                           setContextMenuPosition(null);
                         }}
-                        className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-indigo-200 bg-indigo-50/50 text-[11px] font-black text-indigo-700 hover:bg-indigo-100 hover:text-indigo-850 transition cursor-pointer"
+                        className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-indigo-200 bg-indigo-50/50 text-[11px] font-black text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800 transition cursor-pointer"
                       >
                         <LinkIcon className="w-3.5 h-3.5 animate-pulse text-indigo-500" />
                         Références croisées
@@ -1163,7 +1196,7 @@ export default function BiblePage() {
                               setActiveTab("morphology");
                               setContextMenuPosition(null);
                             }}
-                            className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-emerald-250 bg-emerald-50/50 text-[11px] font-black text-emerald-700 hover:bg-emerald-100 hover:text-emerald-850 transition cursor-pointer"
+                            className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-emerald-200 bg-emerald-50/50 text-[11px] font-black text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 transition cursor-pointer"
                           >
                             <BookOpen className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
                             {isHebrew ? "Morphologie hébraïque" : "Morphologie grecque"}
@@ -1175,7 +1208,7 @@ export default function BiblePage() {
                           setActiveTab("commentary");
                           setContextMenuPosition(null);
                         }}
-                        className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-blue-200 bg-blue-50/50 text-[11px] font-black text-blue-700 hover:bg-blue-100 hover:text-blue-850 transition cursor-pointer"
+                        className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-blue-200 bg-blue-50/50 text-[11px] font-black text-blue-700 hover:bg-blue-100 hover:text-blue-800 transition cursor-pointer"
                       >
                         <Sparkles className="w-3.5 h-3.5 text-blue-500 animate-pulse" />
                         Commentaires
@@ -1190,7 +1223,7 @@ export default function BiblePage() {
                           setIsShareModalOpen(true);
                           setContextMenuPosition(null);
                         }}
-                        className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-rose-250 bg-rose-50/50 text-[11px] font-black text-rose-700 hover:bg-rose-100 hover:text-rose-850 transition cursor-pointer"
+                        className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-rose-200 bg-rose-50/50 text-[11px] font-black text-rose-700 hover:bg-rose-100 hover:text-rose-800 transition cursor-pointer"
                       >
                         <Share2 className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
                         📤 Partager ce verset
@@ -1215,8 +1248,8 @@ export default function BiblePage() {
               className={cn(
                 "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
                 activeTab === "notes"
-                  ? "bg-white text-indigo-750 shadow-sm border border-slate-100"
-                  : "text-slate-400 hover:text-slate-650"
+                  ? "bg-white text-indigo-700 shadow-sm border border-slate-100"
+                  : "text-slate-400 hover:text-slate-600"
               )}
             >
               <Edit3 className="w-3.5 h-3.5" />
@@ -1230,8 +1263,8 @@ export default function BiblePage() {
               className={cn(
                 "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
                 activeTab === "ai"
-                  ? "bg-white text-indigo-750 shadow-sm border border-slate-100"
-                  : "text-slate-400 hover:text-slate-650"
+                  ? "bg-white text-indigo-700 shadow-sm border border-slate-100"
+                  : "text-slate-400 hover:text-slate-600"
               )}
             >
               <Sparkles className="w-3.5 h-3.5" />
@@ -1245,8 +1278,8 @@ export default function BiblePage() {
               className={cn(
                 "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
                 activeTab === "strong"
-                  ? "bg-white text-indigo-750 shadow-sm border border-slate-100"
-                  : "text-slate-400 hover:text-slate-650"
+                  ? "bg-white text-indigo-700 shadow-sm border border-slate-100"
+                  : "text-slate-400 hover:text-slate-600"
               )}
             >
               <Hash className="w-3.5 h-3.5" />
@@ -1260,8 +1293,8 @@ export default function BiblePage() {
               className={cn(
                 "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
                 activeTab === "references"
-                  ? "bg-white text-indigo-750 shadow-sm border border-slate-100"
-                  : "text-slate-400 hover:text-slate-655"
+                  ? "bg-white text-indigo-700 shadow-sm border border-slate-100"
+                  : "text-slate-400 hover:text-slate-600"
               )}
             >
               <LinkIcon className="w-3.5 h-3.5" />
@@ -1275,8 +1308,8 @@ export default function BiblePage() {
               className={cn(
                 "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
                 activeTab === "morphology"
-                  ? "bg-white text-indigo-750 shadow-sm border border-slate-100"
-                  : "text-slate-400 hover:text-slate-655"
+                  ? "bg-white text-indigo-700 shadow-sm border border-slate-100"
+                  : "text-slate-400 hover:text-slate-600"
               )}
             >
               <BookOpen className="w-3.5 h-3.5" />
@@ -1290,8 +1323,8 @@ export default function BiblePage() {
               className={cn(
                 "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
                 activeTab === "commentary"
-                  ? "bg-white text-indigo-750 shadow-sm border border-slate-100"
-                  : "text-slate-400 hover:text-slate-655"
+                  ? "bg-white text-indigo-700 shadow-sm border border-slate-100"
+                  : "text-slate-400 hover:text-slate-600"
               )}
             >
               <Sparkles className="w-3.5 h-3.5" />
@@ -1319,7 +1352,7 @@ export default function BiblePage() {
                       </button>
 
                       {/* Verse preview */}
-                      <div className="bg-slate-50 border border-slate-150 rounded-2xl p-3.5 space-y-2">
+                      <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3.5 space-y-2">
                         <span className="text-xs font-black text-amber-700 block">
                           {selectedVerse.book} {selectedVerse.chapter}:{selectedVerse.verse}
                         </span>
@@ -1330,7 +1363,7 @@ export default function BiblePage() {
 
                       {/* Note Edit Area */}
                       <div className="space-y-1.5 relative">
-                        <label className="text-xs font-extrabold text-slate-755 block">
+                        <label className="text-xs font-extrabold text-slate-700 block">
                           Votre annotation
                         </label>
                         <div className="relative">
@@ -1391,20 +1424,20 @@ export default function BiblePage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                      <div className="flex-1 overflow-y-auto space-y-2 pr-1">
                         {userNotes.map((note) => (
                           <div
                             key={note.id}
                             onClick={() => handleLoadNoteVerse(note)}
-                            className="bg-slate-50 border border-slate-105 hover:border-indigo-150 hover:bg-indigo-50/10 rounded-2xl p-3.5 cursor-pointer transition-all duration-300 space-y-2 group"
+                            className="bg-slate-50 border border-slate-200 hover:border-indigo-100 hover:bg-indigo-50/10 rounded-2xl p-3.5 cursor-pointer transition-all duration-300 space-y-2 group"
                           >
                             <div className="flex justify-between items-center">
-                              <span className="text-xs font-black text-indigo-750">
+                              <span className="text-xs font-black text-indigo-700">
                                 {note.verse.book} {note.verse.chapter}:{note.verse.verse}
                               </span>
                               <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
                             </div>
-                            <p className="text-[11px] text-slate-750 leading-relaxed line-clamp-3 font-semibold">
+                            <p className="text-[11px] text-slate-700 leading-relaxed line-clamp-3 font-semibold">
                               {note.content}
                             </p>
                             <p className="text-[10px] text-slate-400 italic line-clamp-1">
@@ -1429,13 +1462,13 @@ export default function BiblePage() {
                     {/* Chat Area Header & history */}
                     <div className="flex-1 flex flex-col overflow-hidden space-y-3">
                       {/* Back to all notes or reset selection */}
-                      <div className="flex justify-between items-center pb-2 border-b border-slate-150">
+                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
                         <span className="text-[11px] font-black text-amber-700">
                           {selectedVerse.book} {selectedVerse.chapter}:{selectedVerse.verse}
                         </span>
                         <button
                           onClick={() => setSelectedVerse(null)}
-                          className="text-[10px] font-black text-indigo-650 hover:text-indigo-855 flex items-center gap-0.5"
+                          className="text-[10px] font-black text-indigo-600 hover:text-indigo-800 flex items-center gap-0.5"
                         >
                           <ChevronLeft className="w-3.5 h-3.5" /> Retour
                         </button>
@@ -1462,7 +1495,7 @@ export default function BiblePage() {
                                   "flex gap-2 max-w-[85%] rounded-2xl p-3 text-xs leading-relaxed",
                                   msg.role === "user"
                                     ? "bg-indigo-600 text-white font-semibold ml-auto rounded-tr-none"
-                                    : "bg-slate-105 text-slate-800 font-medium rounded-tl-none border border-slate-200/50"
+                                    : "bg-slate-100 text-slate-800 font-medium rounded-tl-none border border-slate-200/50"
                                 )}
                               >
                                 {msg.role === "assistant" && (
@@ -1530,7 +1563,7 @@ export default function BiblePage() {
                               }
                             }
                           }}
-                          className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-655"
+                          className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700"
                           title="Parler pour formuler"
                         >
                           <Mic className="w-3.5 h-3.5" />
@@ -1539,7 +1572,7 @@ export default function BiblePage() {
                       <button
                         type="submit"
                         disabled={aiLoading || !aiQuestion.trim()}
-                        className="bg-indigo-650 text-white rounded-xl px-3.5 flex items-center justify-center hover:bg-indigo-750 transition disabled:bg-slate-350 shadow-sm"
+                        className="bg-indigo-600 text-white rounded-xl px-3.5 flex items-center justify-center hover:bg-indigo-700 transition disabled:bg-slate-300 shadow-sm"
                       >
                         <Send className="w-3.5 h-3.5" />
                       </button>
@@ -1584,7 +1617,7 @@ export default function BiblePage() {
                     <button
                       onClick={() => fetchStrongManual(strongSearch)}
                       disabled={strongLoading || !strongSearch}
-                      className="px-3 py-2 bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-black rounded-xl transition disabled:opacity-40"
+                      className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl transition disabled:opacity-40"
                     >
                       {strongLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "OK"}
                     </button>
@@ -1692,7 +1725,7 @@ export default function BiblePage() {
                   </div>
                 ) : loadingCrossRefs ? (
                   <div className="flex-1 flex flex-col justify-center items-center gap-2">
-                    <Loader2 className="w-8 h-8 text-indigo-650 animate-spin" />
+                    <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
                     <span className="text-xs font-bold text-slate-500">Recherche des versets liés...</span>
                   </div>
                 ) : crossRefs.length === 0 ? (
@@ -1739,10 +1772,10 @@ export default function BiblePage() {
                               setPendingVerseSelection(ref.toVerse);
                             }
                           }}
-                          className="bg-slate-50 border border-slate-105 hover:border-indigo-150 hover:bg-indigo-50/10 rounded-2xl p-3.5 cursor-pointer transition-all duration-300 space-y-2 group"
+                          className="bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:bg-indigo-50/10 rounded-2xl p-3.5 cursor-pointer transition-all duration-300 space-y-2 group"
                         >
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-black text-indigo-750">
+                            <span className="text-xs font-black text-indigo-700">
                               {ref.refLabel}
                             </span>
                             <div className="flex items-center gap-1.5">
@@ -1787,7 +1820,7 @@ export default function BiblePage() {
                   </div>
                 ) : loadingMorphology ? (
                   <div className="flex-1 flex flex-col justify-center items-center gap-2">
-                    <Loader2 className="w-8 h-8 text-emerald-650 animate-spin" />
+                    <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
                     <span className="text-xs font-bold text-slate-500">Chargement de l'analyse...</span>
                   </div>
                 ) : morphologyWords.length === 0 ? (
@@ -1807,7 +1840,7 @@ export default function BiblePage() {
                       return (
                         <div
                           key={word.id}
-                          className="bg-slate-50 border border-slate-105 rounded-2xl p-4 space-y-3"
+                          className="bg-slate-50 border border-slate-100 rounded-2xl p-4 space-y-3"
                         >
                           {/* En-tête : Mot original, translittération, Strong */}
                           <div className="flex justify-between items-start gap-4">
@@ -1822,7 +1855,7 @@ export default function BiblePage() {
                                 {word.originalText}
                               </span>
                               {word.transliteration && (
-                                <span className="text-xs text-indigo-650 font-bold block">
+                                <span className="text-xs text-indigo-600 font-bold block">
                                   {word.transliteration}
                                 </span>
                               )}
@@ -1866,7 +1899,7 @@ export default function BiblePage() {
                                   Morphologie ({word.morphology})
                                 </span>
                               </div>
-                              <p className="text-xs text-slate-650 font-semibold leading-relaxed">
+                              <p className="text-xs text-slate-600 font-semibold leading-relaxed">
                                 {word.morphologyDesc || "Aucune description disponible."}
                               </p>
                             </div>
@@ -2023,6 +2056,127 @@ export default function BiblePage() {
           }}
         />
       )}
+
+      {/* DRAWER MOBILE POUR LES LIVRES */}
+      <AnimatePresence>
+        {isBookDrawerOpen && (
+          <>
+            {/* Overlay flou d'arrière-plan */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsBookDrawerOpen(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] lg:hidden"
+            />
+            {/* Tiroir coulissant */}
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-white z-[100] shadow-2xl p-5 flex flex-col h-full lg:hidden"
+            >
+              {/* Header du Drawer */}
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4 flex-shrink-0">
+                <div className="flex items-center gap-2">
+                  <List className="w-5 h-5 text-indigo-600" />
+                  <span className="font-black text-slate-850 text-base">Livres & Chapitres</span>
+                </div>
+                <button
+                  onClick={() => setIsBookDrawerOpen(false)}
+                  className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Contenu scrollable */}
+              <div className="flex-1 overflow-y-auto space-y-5 pr-1">
+                {/* Old Testament */}
+                <div className="space-y-1.5">
+                  <button
+                    onClick={() => {
+                      setAtOpen(!atOpen);
+                      sounds.playXPGain();
+                    }}
+                    className="w-full flex items-center justify-between text-xs font-black text-indigo-900 bg-indigo-50 px-3 py-2.5 rounded-xl tracking-wider uppercase hover:bg-indigo-100/80 transition cursor-pointer"
+                  >
+                    <span>Ancien Testament ({oldTestament.length})</span>
+                    <span className="text-[10px]">{atOpen ? "▼" : "▶"}</span>
+                  </button>
+                  {atOpen && (
+                    <div className="space-y-1 pt-1.5 pl-1">
+                      {oldTestament.map((book) => (
+                        <button
+                          key={book.name}
+                          onClick={() => {
+                            setSelectedBook(book.name);
+                            setSelectedChapter(1);
+                            sounds.playXPGain();
+                            setIsBookDrawerOpen(false);
+                          }}
+                          className={cn(
+                            "w-full text-left px-3 py-2.5 rounded-xl text-xs font-extrabold transition flex items-center justify-between cursor-pointer",
+                            selectedBook === book.name
+                              ? "bg-indigo-600 text-white shadow-sm"
+                              : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                          )}
+                        >
+                          <span className="whitespace-normal break-words">{book.name}</span>
+                          {selectedBook === book.name && (
+                            <ChevronRight className="w-3.5 h-3.5 flex-shrink-0" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* New Testament */}
+                <div className="space-y-1.5">
+                  <button
+                    onClick={() => {
+                      setNtOpen(!ntOpen);
+                      sounds.playXPGain();
+                    }}
+                    className="w-full flex items-center justify-between text-xs font-black text-emerald-900 bg-emerald-50 px-3 py-2.5 rounded-xl tracking-wider uppercase hover:bg-emerald-100/80 transition cursor-pointer"
+                  >
+                    <span>Nouveau Testament ({newTestament.length})</span>
+                    <span className="text-[10px]">{ntOpen ? "▼" : "▶"}</span>
+                  </button>
+                  {ntOpen && (
+                    <div className="space-y-1 pt-1.5 pl-1">
+                      {newTestament.map((book) => (
+                        <button
+                          key={book.name}
+                          onClick={() => {
+                            setSelectedBook(book.name);
+                            setSelectedChapter(1);
+                            sounds.playXPGain();
+                            setIsBookDrawerOpen(false);
+                          }}
+                          className={cn(
+                            "w-full text-left px-3 py-2.5 rounded-xl text-xs font-extrabold transition flex items-center justify-between cursor-pointer",
+                            selectedBook === book.name
+                              ? "bg-emerald-600 text-white shadow-sm"
+                              : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                          )}
+                        >
+                          <span className="whitespace-normal break-words">{book.name}</span>
+                          {selectedBook === book.name && (
+                            <ChevronRight className="w-3.5 h-3.5 flex-shrink-0" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
