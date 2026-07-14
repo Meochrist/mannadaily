@@ -117,6 +117,7 @@ function MeditatePageContent() {
   // États d'étude biblique pour la barre de verset (Tâche #D)
   const [verseDetails, setVerseDetails] = useState<any | null>(null);
   const [loadingVerseDetails, setLoadingVerseDetails] = useState(false);
+  const [chapterVerses, setChapterVerses] = useState<any[]>([]);
   const [showStudyPanel, setShowStudyPanel] = useState<"strong" | "references" | "highlight" | null>(null);
   const [strongResult, setStrongResult] = useState<any | null>(null);
   const [strongLoading, setStrongLoading] = useState(false);
@@ -680,7 +681,9 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
         const res = await fetch(`/api/bible/${encodeURIComponent(bookVal)}/${chapterVal}?translation=LSG`);
         if (res.ok) {
           const data = await res.json();
-          const v = (data.verses || []).find((verse: any) => verse.verse === verseVal);
+          const list = data.verses || [];
+          setChapterVerses(list);
+          const v = list.find((verse: any) => verse.verse === verseVal);
           if (v) {
             setVerseDetails(v);
           }
@@ -1136,110 +1139,140 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
               )}
 
               {/* ÉTAPE 2 : CONTEXTE BIBLIQUE (CORRECTION 1 : Versets voisins réels en lecture seule) */}
-              {currentStep === 2 && dailyVerse && (
-                <motion.div
-                  key="step2"
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  className="space-y-6"
-                >
-                  <div className="space-y-4 bg-indigo-50/35 p-6 rounded-2xl border border-indigo-100/50">
-                    <div className="flex items-center gap-2 text-indigo-800 border-b border-indigo-100 pb-2 mb-3">
-                      <BookOpen className="w-5 h-5 text-indigo-600" />
-                      <h4 className="font-black text-sm uppercase tracking-wider">Contexte Biblique Immédiat</h4>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      {bibleContext.before.length > 0 && (
+              {currentStep === 2 && dailyVerse && (() => {
+                const parsedRef = parseReference(dailyVerse.reference);
+                const currentIdx = parsedRef
+                  ? chapterVerses.findIndex((v: any) => v.verse === parsedRef.verse)
+                  : -1;
+
+                const beforeVerses = currentIdx !== -1
+                  ? chapterVerses.slice(Math.max(0, currentIdx - 3), currentIdx)
+                  : [];
+
+                const afterVerses = currentIdx !== -1
+                  ? chapterVerses.slice(currentIdx + 1, Math.min(chapterVerses.length, currentIdx + 4))
+                  : [];
+
+                const isFirstVerse = currentIdx === 0 || (parsedRef && parsedRef.verse === 1);
+                const isLastVerse = currentIdx !== -1 && currentIdx === chapterVerses.length - 1;
+
+                return (
+                  <motion.div
+                    key="step2"
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    className="space-y-6"
+                  >
+                    <div className="space-y-4 bg-indigo-50/35 p-6 rounded-2xl border border-indigo-100/50">
+                      <div className="flex items-center gap-2 text-indigo-800 border-b border-indigo-100 pb-2 mb-3">
+                        <BookOpen className="w-5 h-5 text-indigo-600" />
+                        <h4 className="font-black text-sm uppercase tracking-wider">
+                          Contexte Biblique — {parsedRef ? `${parsedRef.book} ${parsedRef.chapter}` : dailyVerse.reference}
+                        </h4>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        {/* Versets précédents */}
                         <div className="space-y-2">
                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Avant...</span>
-                          {bibleContext.before.map((v, i) => (
-                            <p key={i} className="text-xs md:text-sm font-bold text-slate-500 leading-relaxed italic">
-                              « {v.text} » <span className="text-[9px] font-black text-slate-400 not-italic uppercase">({v.reference})</span>
-                            </p>
-                          ))}
+                          {isFirstVerse ? (
+                            <p className="text-xs text-slate-400 font-semibold italic">Début du chapitre</p>
+                          ) : (
+                            beforeVerses.map((v, i) => (
+                              <p key={i} className="text-xs md:text-sm font-semibold text-slate-500 leading-relaxed italic">
+                                <span className="font-bold text-slate-400 not-italic mr-1">{v.verse}.</span>
+                                « {v.text} »
+                              </p>
+                            ))
+                          )}
                         </div>
-                      )}
-                      
-                      <div className="p-3.5 bg-white border border-indigo-100/70 rounded-xl space-y-1">
-                        <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest block">Verset à l'étude :</span>
-                        <p className="text-sm md:text-base font-extrabold text-slate-800 leading-relaxed">
-                          « {dailyVerse.text} » <span className="text-xs font-black text-indigo-600 uppercase">({dailyVerse.reference})</span>
-                        </p>
-                      </div>
+                        
+                        {/* Verset principal mis en évidence */}
+                        <div className="p-4 bg-yellow-100/60 border border-yellow-250/70 rounded-xl space-y-1 shadow-sm">
+                          <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest block">Verset à l'étude :</span>
+                          <p className="text-sm md:text-base font-extrabold text-slate-800 leading-relaxed">
+                            <span className="font-black text-indigo-600 mr-1">{parsedRef?.verse}.</span>
+                            « {dailyVerse.text} »
+                          </p>
+                        </div>
 
-                      {bibleContext.after.length > 0 && (
+                        {/* Versets suivants */}
                         <div className="space-y-2">
                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Après...</span>
-                          {bibleContext.after.map((v, i) => (
-                            <p key={i} className="text-xs md:text-sm font-bold text-slate-500 leading-relaxed italic">
-                              « {v.text} » <span className="text-[9px] font-black text-slate-400 not-italic uppercase">({v.reference})</span>
-                            </p>
-                          ))}
+                          {isLastVerse ? (
+                            <p className="text-xs text-slate-400 font-semibold italic">Fin du chapitre</p>
+                          ) : (
+                            afterVerses.map((v, i) => (
+                              <p key={i} className="text-xs md:text-sm font-semibold text-slate-500 leading-relaxed italic">
+                                <span className="font-bold text-slate-400 not-italic mr-1">{v.verse}.</span>
+                                « {v.text} »
+                              </p>
+                            ))
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h3 className="font-black text-lg text-slate-800 tracking-tight">Analyse du passage</h3>
-                    
-                    <div className="space-y-3">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Qui parle dans ce passage ?</label>
-                      <div className="relative">
-                        <textarea
-                          rows={2}
-                          value={answers.step2_who}
-                          onChange={(e) => setAnswers({ ...answers, step2_who: e.target.value })}
-                          placeholder="Ex: L'apôtre Paul, Jésus, un psalmiste..."
-                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                        />
-                        <SpeechMicButton
-                          value={answers.step2_who}
-                          onChange={(val) => setAnswers({ ...answers, step2_who: val })}
-                        />
                       </div>
                     </div>
 
-                    <div className="space-y-3">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">À qui s'adresse ce message ?</label>
-                      <div className="relative">
-                        <textarea
-                          rows={2}
-                          value={answers.step2_whom}
-                          onChange={(e) => setAnswers({ ...answers, step2_whom: e.target.value })}
-                          placeholder="Ex: Aux chrétiens de Philippe, aux disciples, à Dieu..."
-                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                        />
-                        <SpeechMicButton
-                          value={answers.step2_whom}
-                          onChange={(val) => setAnswers({ ...answers, step2_whom: val })}
-                        />
+                    <div className="space-y-4">
+                      <h3 className="font-black text-lg text-slate-800 tracking-tight">Analyse du passage</h3>
+                      
+                      <div className="space-y-3">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Qui parle dans ce passage ?</label>
+                        <div className="relative">
+                          <textarea
+                            rows={2}
+                            value={answers.step2_who}
+                            onChange={(e) => setAnswers({ ...answers, step2_who: e.target.value })}
+                            placeholder="Ex: L'apôtre Paul, Jésus, un psalmiste..."
+                            className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                          />
+                          <SpeechMicButton
+                            value={answers.step2_who}
+                            onChange={(val) => setAnswers({ ...answers, step2_who: val })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">À qui s'adresse ce message ?</label>
+                        <div className="relative">
+                          <textarea
+                            rows={2}
+                            value={answers.step2_whom}
+                            onChange={(e) => setAnswers({ ...answers, step2_whom: e.target.value })}
+                            placeholder="Ex: Aux chrétiens de Philippe, aux disciples, à Dieu..."
+                            className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                          />
+                          <SpeechMicButton
+                            value={answers.step2_whom}
+                            onChange={(val) => setAnswers({ ...answers, step2_whom: val })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Que se passait-il juste avant ce verset ?</label>
+                        <div className="relative">
+                          <textarea
+                            rows={2}
+                            value={answers.step2_before}
+                            onChange={(e) => setAnswers({ ...answers, step2_before: e.target.value })}
+                            placeholder="Quels événements précèdent directement cette parole ?"
+                            className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+                          />
+                          <SpeechMicButton
+                            value={answers.step2_before}
+                            onChange={(val) => setAnswers({ ...answers, step2_before: val })}
+                          />
+                        </div>
                       </div>
                     </div>
 
-                    <div className="space-y-3">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Que se passait-il juste avant ce verset ?</label>
-                      <div className="relative">
-                        <textarea
-                          rows={2}
-                          value={answers.step2_before}
-                          onChange={(e) => setAnswers({ ...answers, step2_before: e.target.value })}
-                          placeholder="Quels événements précèdent directement cette parole ?"
-                          className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                        />
-                        <SpeechMicButton
-                          value={answers.step2_before}
-                          onChange={(val) => setAnswers({ ...answers, step2_before: val })}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {renderMascotSuggestion()}
-                </motion.div>
-              )}
+                    {renderMascotSuggestion()}
+                  </motion.div>
+                );
+              })()}
 
               {/* ÉTAPE 3 : CONTEXTE HISTORIQUE */}
               {currentStep === 3 && dailyVerse && (
