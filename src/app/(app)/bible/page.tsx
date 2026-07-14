@@ -90,14 +90,50 @@ interface WordPopover {
 export default function BiblePage() {
   // Navigation State
   const [books, setBooks] = useState<BibleBook[]>([]);
-  const [selectedBook, setSelectedBook] = useState<string>("Genèse");
-  const [selectedChapter, setSelectedChapter] = useState<number>(1);
+  const [selectedBook, setSelectedBook] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("manna_bible_position");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed.book === "string") {
+            return parsed.book;
+          }
+        } catch {}
+      }
+    }
+    return "Genèse";
+  });
+  const [selectedChapter, setSelectedChapter] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("manna_bible_position");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed.chapter === "number") {
+            return parsed.chapter;
+          }
+        } catch {}
+      }
+    }
+    return 1;
+  });
   const [translation, setTranslation] = useState<string>("LSG");
   const [verses, setVerses] = useState<Verse[]>([]);
   const [loadingVerses, setLoadingVerses] = useState<boolean>(false);
   const [showAT, setShowAT] = useState<boolean>(true);
   const [showNT, setShowNT] = useState<boolean>(true);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+
+  // Synchronisation de la position de la Bible (Tâche #C)
+  useEffect(() => {
+    if (typeof window !== "undefined" && selectedBook) {
+      sessionStorage.setItem(
+        "manna_bible_position",
+        JSON.stringify({ book: selectedBook, chapter: selectedChapter })
+      );
+    }
+  }, [selectedBook, selectedChapter]);
 
   // User interactive state
   const [selectedVerse, setSelectedVerse] = useState<Verse | null>(null);

@@ -126,6 +126,25 @@ function MeditatePageContent() {
   // Suggestions des mascottes : visibilité individuelle
   const [showSuggestion, setShowSuggestion] = useState(true);
 
+  // Persistance de l'étape de méditation (Tâche #C)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedStep = sessionStorage.getItem("manna_meditate_step");
+      if (savedStep) {
+        const stepNum = parseInt(savedStep, 10);
+        if (!isNaN(stepNum) && stepNum >= 0 && stepNum <= 6) {
+          setCurrentStep((stepNum + 1) as any);
+        }
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("manna_meditate_step", (currentStep - 1).toString());
+    }
+  }, [currentStep]);
+
   // Charger le profil utilisateur, initialiser le verset et son contexte
   useEffect(() => {
     // Lire d'abord les query parameters de l'URL pour voir si un verset spécifique a été passé
