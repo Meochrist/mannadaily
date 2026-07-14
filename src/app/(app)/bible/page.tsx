@@ -95,9 +95,9 @@ export default function BiblePage() {
   const [translation, setTranslation] = useState<string>("LSG");
   const [verses, setVerses] = useState<Verse[]>([]);
   const [loadingVerses, setLoadingVerses] = useState<boolean>(false);
-  const [atOpen, setAtOpen] = useState<boolean>(true);
-  const [ntOpen, setNtOpen] = useState<boolean>(false);
-  const [isBookDrawerOpen, setIsBookDrawerOpen] = useState<boolean>(false);
+  const [showAT, setShowAT] = useState<boolean>(true);
+  const [showNT, setShowNT] = useState<boolean>(true);
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
 
   // User interactive state
   const [selectedVerse, setSelectedVerse] = useState<Verse | null>(null);
@@ -766,26 +766,26 @@ export default function BiblePage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-270px)] min-h-[500px]">
         
         {/* COLUMN 1: NAVIGATION (visible on desktop) */}
-        <div className="hidden lg:flex lg:col-span-3 w-64 min-w-[200px] bg-white rounded-3xl border border-slate-100 shadow-sm p-4 flex-col overflow-hidden h-full">
+        <div className="hidden md:flex md:col-span-3 w-[220px] min-w-[220px] bg-white rounded-3xl border border-slate-100 shadow-sm p-4 flex-col overflow-hidden h-full">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100 mb-3 flex-shrink-0">
             <List className="w-5 h-5 text-indigo-600" />
             <h2 className="font-extrabold text-slate-800 text-sm">Livres & Chapitres</h2>
           </div>
 
-          <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+          <div className="flex-1 overflow-y-auto space-y-4 pr-1 bg-white">
             {/* Old Testament */}
             <div className="space-y-1.5">
               <button
                 onClick={() => {
-                  setAtOpen(!atOpen);
+                  setShowAT(!showAT);
                   sounds.playXPGain();
                 }}
                 className="w-full flex items-center justify-between text-xs font-black text-indigo-900 bg-indigo-50 px-3 py-2.5 rounded-xl tracking-wider uppercase hover:bg-indigo-100/80 transition cursor-pointer"
               >
                 <span>Ancien Testament ({oldTestament.length})</span>
-                <span className="text-[10px]">{atOpen ? "▼" : "▶"}</span>
+                <span className="text-[10px]">{showAT ? "▼" : "▶"}</span>
               </button>
-              {atOpen && (
+              {showAT && (
                 <div className="space-y-1 pt-1.5 pl-1">
                   {oldTestament.map((book) => (
                     <button
@@ -796,7 +796,7 @@ export default function BiblePage() {
                         sounds.playXPGain();
                       }}
                       className={cn(
-                        "w-full text-left px-3 py-2 rounded-xl text-xs font-extrabold transition flex items-center justify-between cursor-pointer",
+                        "w-full text-left px-3 py-2 rounded text-xs font-extrabold transition flex items-center justify-between cursor-pointer",
                         selectedBook === book.name
                           ? "bg-indigo-600 text-white shadow-sm"
                           : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
@@ -816,15 +816,15 @@ export default function BiblePage() {
             <div className="space-y-1.5">
               <button
                 onClick={() => {
-                  setNtOpen(!ntOpen);
+                  setShowNT(!showNT);
                   sounds.playXPGain();
                 }}
                 className="w-full flex items-center justify-between text-xs font-black text-emerald-900 bg-emerald-50 px-3 py-2.5 rounded-xl tracking-wider uppercase hover:bg-emerald-100/80 transition cursor-pointer"
               >
                 <span>Nouveau Testament ({newTestament.length})</span>
-                <span className="text-[10px]">{ntOpen ? "▼" : "▶"}</span>
+                <span className="text-[10px]">{showNT ? "▼" : "▶"}</span>
               </button>
-              {ntOpen && (
+              {showNT && (
                 <div className="space-y-1 pt-1.5 pl-1">
                   {newTestament.map((book) => (
                     <button
@@ -835,9 +835,9 @@ export default function BiblePage() {
                         sounds.playXPGain();
                       }}
                       className={cn(
-                        "w-full text-left px-3 py-2 rounded-xl text-xs font-extrabold transition flex items-center justify-between cursor-pointer",
+                        "w-full text-left px-3 py-2 rounded text-xs font-extrabold transition flex items-center justify-between cursor-pointer",
                         selectedBook === book.name
-                          ? "bg-emerald-600 text-white shadow-sm"
+                          ? "bg-emerald-650 text-white shadow-sm"
                           : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
                       )}
                     >
@@ -860,10 +860,10 @@ export default function BiblePage() {
             <div className="flex items-center gap-2.5">
               <button
                 onClick={() => {
-                  setIsBookDrawerOpen(true);
+                  setDrawerOpen(true);
                   sounds.playXPGain();
                 }}
-                className="lg:hidden flex items-center gap-1.5 px-3 py-2 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-xl text-xs font-black hover:bg-indigo-100/85 active:scale-95 transition"
+                className="md:hidden flex items-center gap-1.5 px-3 py-2 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-xl text-xs font-black hover:bg-indigo-100/85 active:scale-95 transition cursor-pointer"
                 title="Choisir un livre"
               >
                 📚 <span className="sm:inline hidden">Livres</span>
@@ -2038,10 +2038,8 @@ export default function BiblePage() {
                 )}
               </div>
             )}
-
           </div>
         </div>
-
       </div>
 
       {shareVerseData && (
@@ -2059,15 +2057,15 @@ export default function BiblePage() {
 
       {/* DRAWER MOBILE POUR LES LIVRES */}
       <AnimatePresence>
-        {isBookDrawerOpen && (
+        {drawerOpen && (
           <>
             {/* Overlay flou d'arrière-plan */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.5 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsBookDrawerOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] lg:hidden"
+              onClick={() => setDrawerOpen(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] md:hidden"
             />
             {/* Tiroir coulissant */}
             <motion.div
@@ -2075,7 +2073,7 @@ export default function BiblePage() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-white z-[100] shadow-2xl p-5 flex flex-col h-full lg:hidden"
+              className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-white z-[100] shadow-2xl p-5 flex flex-col h-full md:hidden"
             >
               {/* Header du Drawer */}
               <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4 flex-shrink-0">
@@ -2084,7 +2082,7 @@ export default function BiblePage() {
                   <span className="font-black text-slate-850 text-base">Livres & Chapitres</span>
                 </div>
                 <button
-                  onClick={() => setIsBookDrawerOpen(false)}
+                  onClick={() => setDrawerOpen(false)}
                   className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400"
                 >
                   <X className="w-5 h-5" />
@@ -2097,15 +2095,15 @@ export default function BiblePage() {
                 <div className="space-y-1.5">
                   <button
                     onClick={() => {
-                      setAtOpen(!atOpen);
+                      setShowAT(!showAT);
                       sounds.playXPGain();
                     }}
                     className="w-full flex items-center justify-between text-xs font-black text-indigo-900 bg-indigo-50 px-3 py-2.5 rounded-xl tracking-wider uppercase hover:bg-indigo-100/80 transition cursor-pointer"
                   >
                     <span>Ancien Testament ({oldTestament.length})</span>
-                    <span className="text-[10px]">{atOpen ? "▼" : "▶"}</span>
+                    <span className="text-[10px]">{showAT ? "▼" : "▶"}</span>
                   </button>
-                  {atOpen && (
+                  {showAT && (
                     <div className="space-y-1 pt-1.5 pl-1">
                       {oldTestament.map((book) => (
                         <button
@@ -2114,10 +2112,10 @@ export default function BiblePage() {
                             setSelectedBook(book.name);
                             setSelectedChapter(1);
                             sounds.playXPGain();
-                            setIsBookDrawerOpen(false);
+                            setDrawerOpen(false);
                           }}
                           className={cn(
-                            "w-full text-left px-3 py-2.5 rounded-xl text-xs font-extrabold transition flex items-center justify-between cursor-pointer",
+                            "w-full text-left px-3 py-2.5 rounded text-xs font-extrabold transition flex items-center justify-between cursor-pointer",
                             selectedBook === book.name
                               ? "bg-indigo-600 text-white shadow-sm"
                               : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
@@ -2137,15 +2135,15 @@ export default function BiblePage() {
                 <div className="space-y-1.5">
                   <button
                     onClick={() => {
-                      setNtOpen(!ntOpen);
+                      setShowNT(!showNT);
                       sounds.playXPGain();
                     }}
                     className="w-full flex items-center justify-between text-xs font-black text-emerald-900 bg-emerald-50 px-3 py-2.5 rounded-xl tracking-wider uppercase hover:bg-emerald-100/80 transition cursor-pointer"
                   >
                     <span>Nouveau Testament ({newTestament.length})</span>
-                    <span className="text-[10px]">{ntOpen ? "▼" : "▶"}</span>
+                    <span className="text-[10px]">{showNT ? "▼" : "▶"}</span>
                   </button>
-                  {ntOpen && (
+                  {showNT && (
                     <div className="space-y-1 pt-1.5 pl-1">
                       {newTestament.map((book) => (
                         <button
@@ -2154,10 +2152,10 @@ export default function BiblePage() {
                             setSelectedBook(book.name);
                             setSelectedChapter(1);
                             sounds.playXPGain();
-                            setIsBookDrawerOpen(false);
+                            setDrawerOpen(false);
                           }}
                           className={cn(
-                            "w-full text-left px-3 py-2.5 rounded-xl text-xs font-extrabold transition flex items-center justify-between cursor-pointer",
+                            "w-full text-left px-3 py-2.5 rounded text-xs font-extrabold transition flex items-center justify-between cursor-pointer",
                             selectedBook === book.name
                               ? "bg-emerald-600 text-white shadow-sm"
                               : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
