@@ -18,7 +18,12 @@ import {
   ArrowLeft,
   Heart,
   HelpCircle,
-  Clock
+  Clock,
+  Bookmark,
+  Hash,
+  Link2 as LinkIcon,
+  Loader2,
+  Mic
 } from "lucide-react";
 import { getMannyMessage } from "@/lib/mannyMessages";
 import * as sounds from "@/lib/sounds";
@@ -108,6 +113,16 @@ function MeditatePageContent() {
     step6_transform: "",
     step6_decision: "",
   });
+
+  // États d'étude biblique pour la barre de verset (Tâche #D)
+  const [verseDetails, setVerseDetails] = useState<any | null>(null);
+  const [loadingVerseDetails, setLoadingVerseDetails] = useState(false);
+  const [showStudyPanel, setShowStudyPanel] = useState<"strong" | "references" | "highlight" | null>(null);
+  const [strongResult, setStrongResult] = useState<any | null>(null);
+  const [strongLoading, setStrongLoading] = useState(false);
+  const [strongSearch, setStrongSearch] = useState("");
+  const [crossRefs, setCrossRefs] = useState<any[]>([]);
+  const [loadingCrossRefs, setLoadingCrossRefs] = useState(false);
 
   // Résultats de fin de session
   const [sessionResult, setSessionResult] = useState<SessionResult | null>(null);
@@ -635,6 +650,134 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
     setSessionResult(null);
   };
 
+  // Helper pour extraire les informations de référence (Tâche #D)
+  const parseReference = (ref: string) => {
+    const regex = /^(.+?)\s+(\d+):(\d+)(-\d+)?$/;
+    const match = ref.match(regex);
+    if (match) {
+      return {
+        book: match[1],
+        chapter: parseInt(match[2], 10),
+        verse: parseInt(match[3], 10)
+      };
+    }
+    return null;
+  };
+
+  // Charger les détails du verset pour obtenir l'ID et d'autres infos (Tâche #D)
+  useEffect(() => {
+    if (!dailyVerse) return;
+    const parsed = parseReference(dailyVerse.reference);
+    if (!parsed) return;
+    
+    const bookVal = parsed.book;
+    const chapterVal = parsed.chapter;
+    const verseVal = parsed.verse;
+    
+    async function loadDetails() {
+      setLoadingVerseDetails(true);
+      try {
+        const res = await fetch(`/api/bible/${encodeURIComponent(bookVal)}/${chapterVal}?translation=LSG`);
+        if (res.ok) {
+          const data = await res.json();
+          const v = (data.verses || []).find((verse: any) => verse.verse === verseVal);
+          if (v) {
+            setVerseDetails(v);
+          }
+        }
+      } catch (err) {
+        console.error("Error loading verse details in meditation:", err);
+      } finally {
+        setLoadingVerseDetails(false);
+      }
+    }
+    loadDetails();
+  }, [dailyVerse]);
+
+  // Surlignage du verset (Tâche #D)
+  const handleHighlight = async (color: string) => {
+    if (!verseDetails) return;
+    try {
+      sounds.playXPGain();
+      const res = await fetch("/api/bible/highlight", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ verseId: verseDetails.id, color })
+      });
+      if (res.ok) {
+        setVerseDetails({ ...verseDetails, highlightColor: color });
+        setShowStudyPanel(null);
+      }
+    } catch (err) {
+      console.error("Error highlighting verse in meditation:", err);
+    }
+  };
+
+  const handleDeleteHighlight = async () => {
+    if (!verseDetails) return;
+    try {
+      const res = await fetch(`/api/bible/highlight?verseId=${verseDetails.id}`, {
+        method: "DELETE"
+      });
+      if (res.ok) {
+        setVerseDetails({ ...verseDetails, highlightColor: null });
+        setShowStudyPanel(null);
+      }
+    } catch (err) {
+      console.error("Error deleting highlight in meditation:", err);
+    }
+  };
+
+  // Références croisées (Tâche #D)
+  const loadCrossRefs = async () => {
+    if (!verseDetails) return;
+    setLoadingCrossRefs(true);
+    try {
+      const res = await fetch(`/api/bible/crossrefs?book=${verseDetails.bookNumber || 1}&chapter=${verseDetails.chapter}&verse=${verseDetails.verse}`);
+      if (res.ok) {
+        const data = await res.json();
+        setCrossRefs(data.crossRefs || []);
+      }
+    } catch (err) {
+      console.error("Error loading cross references in meditation:", err);
+    } finally {
+      setLoadingCrossRefs(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showStudyPanel === "references") {
+      loadCrossRefs();
+    }
+  }, [showStudyPanel, verseDetails]);
+
+  // Dictionnaire Strong (Tâche #D)
+  const handleStrongLookup = async (strongNum: string) => {
+    setStrongSearch(strongNum);
+    setStrongLoading(true);
+    try {
+      const res = await fetch(`/api/bible/strong/${encodeURIComponent(strongNum)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setStrongResult(data);
+      } else {
+        setStrongResult(null);
+      }
+    } catch (err) {
+      console.error("Error looking up Strong number in meditation:", err);
+    } finally {
+      setStrongLoading(false);
+    }
+  };
+
+  const getStrongNumber = (bookNumber: number, wordIndex: number): string => {
+    if (bookNumber <= 39) {
+      return `H${wordIndex + 1}`;
+    } else {
+      return `G${wordIndex + 1}`;
+    }
+  };
+
   // Rendu de la suggestion de la bonne mascotte avec MascotMessage (Tâche #39)
   const renderMascotSuggestion = () => {
     if (!showSuggestion) return null;
@@ -722,6 +865,181 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
               />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* BARRE STICKY DU VERSET POUR LES ÉTAPES 2 À 7 (Tâche #D) */}
+      {!sessionResult && currentStep >= 2 && currentStep <= 7 && dailyVerse && (
+        <div className="sticky top-0 z-30 w-full bg-indigo-950 text-white rounded-3xl p-4 md:p-5 shadow-lg border border-indigo-900/60 flex flex-col gap-3">
+          <div className="flex justify-between items-start gap-4">
+            <div className="space-y-1">
+              <blockquote className="text-xs md:text-sm font-semibold leading-relaxed line-clamp-3 italic text-indigo-100">
+                « {dailyVerse.text} »
+              </blockquote>
+              <span className="block text-[10px] font-black text-indigo-300 uppercase tracking-widest">
+                — {dailyVerse.reference}
+              </span>
+            </div>
+            
+            {/* Outils d'étude rapides */}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <button
+                onClick={() => {
+                  setShowStudyPanel(showStudyPanel === "highlight" ? null : "highlight");
+                  sounds.playSuccess();
+                }}
+                className={cn(
+                  "p-2 rounded-xl border transition-all cursor-pointer",
+                  verseDetails?.highlightColor
+                    ? "bg-indigo-800 border-indigo-700 text-amber-300"
+                    : "bg-indigo-900/50 border-indigo-800 text-indigo-200 hover:text-white"
+                )}
+                title="Surligner ce verset"
+              >
+                <Bookmark className="w-3.5 h-3.5" />
+              </button>
+              
+              <button
+                onClick={() => {
+                  setShowStudyPanel(showStudyPanel === "strong" ? null : "strong");
+                  sounds.playSuccess();
+                }}
+                className={cn(
+                  "p-2 rounded-xl border transition-all cursor-pointer",
+                  showStudyPanel === "strong"
+                    ? "bg-indigo-800 border-indigo-700 text-white"
+                    : "bg-indigo-900/50 border-indigo-800 text-indigo-200 hover:text-white"
+                )}
+                title="Concordance Strong"
+              >
+                <Hash className="w-3.5 h-3.5" />
+              </button>
+              
+              <button
+                onClick={() => {
+                  setShowStudyPanel(showStudyPanel === "references" ? null : "references");
+                  sounds.playSuccess();
+                }}
+                className={cn(
+                  "p-2 rounded-xl border transition-all cursor-pointer",
+                  showStudyPanel === "references"
+                    ? "bg-indigo-800 border-indigo-700 text-white"
+                    : "bg-indigo-900/50 border-indigo-800 text-indigo-200 hover:text-white"
+                )}
+                title="Références croisées"
+              >
+                <LinkIcon className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* PANNEAU D'ÉTUDE RAPIDE DÉPLOYÉ */}
+          <AnimatePresence>
+            {showStudyPanel && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden border-t border-indigo-900/50 pt-3 mt-1"
+              >
+                {/* SURLIGNAGE PANEL */}
+                {showStudyPanel === "highlight" && (
+                  <div className="flex items-center justify-between gap-3 bg-indigo-900/40 p-2 rounded-2xl">
+                    <span className="text-[10px] font-black text-indigo-300 uppercase tracking-wider">Couleur :</span>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleHighlight("yellow")}
+                        className="w-6 h-6 rounded-full bg-yellow-350 border border-yellow-400 hover:scale-110 transition cursor-pointer"
+                      />
+                      <button
+                        onClick={() => handleHighlight("green")}
+                        className="w-6 h-6 rounded-full bg-emerald-400 border border-emerald-500 hover:scale-110 transition cursor-pointer"
+                      />
+                      <button
+                        onClick={() => handleHighlight("blue")}
+                        className="w-6 h-6 rounded-full bg-sky-400 border border-sky-500 hover:scale-110 transition cursor-pointer"
+                      />
+                      <button
+                        onClick={() => handleHighlight("pink")}
+                        className="w-6 h-6 rounded-full bg-rose-450 border border-rose-500 hover:scale-110 transition cursor-pointer"
+                      />
+                      {verseDetails?.highlightColor && (
+                        <button
+                          onClick={handleDeleteHighlight}
+                          className="px-2.5 py-1 rounded-xl bg-rose-600/30 text-rose-300 hover:bg-rose-600 hover:text-white text-[10px] font-black transition cursor-pointer"
+                        >
+                          Retirer
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* STRONG CONCORDANCE PANEL */}
+                {showStudyPanel === "strong" && (
+                  <div className="space-y-3 bg-indigo-900/30 p-3 rounded-2xl border border-indigo-900/50">
+                    <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
+                      {dailyVerse.text.split(/\s+/).map((word, idx) => {
+                        const cleanWord = word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+                        if (!cleanWord.trim()) return null;
+                        const strongNum = getStrongNumber(verseDetails?.bookNumber || 1, idx);
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => handleStrongLookup(strongNum)}
+                            className="text-[10px] font-bold bg-indigo-950/80 border border-indigo-900 text-indigo-200 hover:text-white hover:bg-indigo-900 px-2 py-1 rounded-lg transition cursor-pointer"
+                          >
+                            {cleanWord} ({strongNum})
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {strongLoading && (
+                      <div className="flex items-center gap-2 text-indigo-300 text-xs">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Chargement...</span>
+                      </div>
+                    )}
+
+                    {strongResult && (
+                      <div className="bg-indigo-950/90 rounded-xl p-3 border border-indigo-900/50 space-y-2 text-xs">
+                        <div className="flex justify-between items-center text-[10px] font-black text-indigo-400">
+                          <span>STRONG {strongResult.number}</span>
+                          {strongResult.pronunciation && <span>/{strongResult.pronunciation}/</span>}
+                        </div>
+                        <div className="text-sm font-bold text-white">« {strongResult.lemma} »</div>
+                        <p className="text-indigo-200 leading-relaxed text-[11px]">{strongResult.definition}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* CROSS REFERENCES PANEL */}
+                {showStudyPanel === "references" && (
+                  <div className="bg-indigo-900/30 p-3 rounded-2xl border border-indigo-900/50 space-y-3 max-h-48 overflow-y-auto">
+                    {loadingCrossRefs ? (
+                      <div className="flex items-center gap-2 text-indigo-300 text-xs py-4 justify-center">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Chargement des références...</span>
+                      </div>
+                    ) : crossRefs.length === 0 ? (
+                      <p className="text-center text-xs text-indigo-300 py-3">Aucune référence croisée disponible.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {crossRefs.map((ref) => (
+                          <div key={ref.id} className="bg-indigo-950/60 p-2.5 rounded-xl border border-indigo-900/40 space-y-1">
+                            <span className="text-[10px] font-black text-indigo-400 block">{ref.refLabel}</span>
+                            <p className="text-xs text-indigo-100 italic">"{ref.toVerse.text}"</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
 
