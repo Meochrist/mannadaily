@@ -241,7 +241,7 @@ export default function BiblePage() {
   // Fetch cross references when selected verse changes
   useEffect(() => {
     async function fetchCrossRefs() {
-      if (!selectedVerse) {
+      if (!selectedVerse || activeTab !== "references") {
         setCrossRefs([]);
         return;
       }
@@ -441,8 +441,8 @@ export default function BiblePage() {
       if (res.ok) {
         // Update local state
         setVerses(prev => prev.map(v => v.id === selectedVerse.id ? { ...v, highlightColor: color } : v));
-        setSelectedVerse(prev => prev ? { ...prev, highlightColor: color } : null);
         setContextMenuPosition(null);
+        setSelectedVerse(null);
       }
     } catch (err) {
       console.error("Error highlighting verse:", err);
@@ -460,8 +460,8 @@ export default function BiblePage() {
       if (res.ok) {
         // Update local state
         setVerses(prev => prev.map(v => v.id === selectedVerse.id ? { ...v, highlightColor: null } : v));
-        setSelectedVerse(prev => prev ? { ...prev, highlightColor: null } : null);
         setContextMenuPosition(null);
+        setSelectedVerse(null);
       }
     } catch (err) {
       console.error("Error deleting highlight:", err);
@@ -1151,67 +1151,21 @@ export default function BiblePage() {
 
                     {/* Action buttons */}
                     <div className="flex flex-col gap-2">
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={() => {
-                            setActiveTab("notes");
-                            setContextMenuPosition(null);
-                          }}
-                          className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-slate-200 text-[11px] font-black text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 transition cursor-pointer"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          Annoter
-                        </button>
-                        <button
-                          onClick={() => {
-                            setActiveTab("ai");
-                            setContextMenuPosition(null);
-                          }}
-                          className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-indigo-600 text-[11px] font-black text-white hover:bg-indigo-700 hover:scale-102 transition shadow-sm cursor-pointer"
-                        >
-                          <Sparkles className="w-3.5 h-3.5 text-indigo-200" />
-                          IA Chat
-                        </button>
-                      </div>
                       <button
                         onClick={() => {
-                          setActiveTab("references");
-                          setContextMenuPosition(null);
+                          setActiveTab("strong");
+                          const defaultStrong = selectedVerse.bookNumber <= 39 ? "H1" : "G1";
+                          setStrongSearch(defaultStrong);
+                          fetchStrongManual(defaultStrong);
+                          sounds.playXPGain();
+                          setTimeout(() => {
+                            setContextMenuPosition(null);
+                          }, 400);
                         }}
                         className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-indigo-200 bg-indigo-50/50 text-[11px] font-black text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800 transition cursor-pointer"
                       >
-                        <LinkIcon className="w-3.5 h-3.5 animate-pulse text-indigo-500" />
-                        Références croisées
-                      </button>
-                      {(() => {
-                        let bookNum = selectedVerse.bookNumber;
-                        if (!bookNum || bookNum === 0) {
-                          const bookIdx = books.findIndex(b => b.name === selectedVerse.book);
-                          if (bookIdx !== -1) bookNum = bookIdx + 1;
-                        }
-                        const isHebrew = bookNum <= 39;
-                        return (
-                          <button
-                            onClick={() => {
-                              setActiveTab("morphology");
-                              setContextMenuPosition(null);
-                            }}
-                            className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-emerald-200 bg-emerald-50/50 text-[11px] font-black text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 transition cursor-pointer"
-                          >
-                            <BookOpen className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
-                            {isHebrew ? "Morphologie hébraïque" : "Morphologie grecque"}
-                          </button>
-                        );
-                      })()}
-                      <button
-                        onClick={() => {
-                          setActiveTab("commentary");
-                          setContextMenuPosition(null);
-                        }}
-                        className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-blue-200 bg-blue-50/50 text-[11px] font-black text-blue-700 hover:bg-blue-100 hover:text-blue-800 transition cursor-pointer"
-                      >
-                        <Sparkles className="w-3.5 h-3.5 text-blue-500 animate-pulse" />
-                        Commentaires
+                        <Hash className="w-3.5 h-3.5 text-indigo-500 animate-pulse" />
+                        Concordance Strong
                       </button>
                       <button
                         onClick={() => {
@@ -1681,21 +1635,47 @@ export default function BiblePage() {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-slate-600">Concordance Strong</p>
-                      <p className="text-[10px] text-slate-400 mt-1 max-w-[200px] leading-relaxed">
-                        Entrez un numéro Strong (ex: H430 = Elohim, G3056 = Logos) ou cliquez sur un mot dans un verset.
-                      </p>
+                      {selectedVerse ? (
+                        <div className="space-y-2 mt-2">
+                          <p className="text-[10px] text-slate-400 max-w-[200px] leading-relaxed">
+                            Cliquez sur un mot ci-dessous pour ce verset ({selectedVerse.book} {selectedVerse.chapter}:{selectedVerse.verse}) :
+                          </p>
+                          <div className="flex flex-wrap gap-1.5 justify-center max-h-36 overflow-y-auto p-1.5 bg-slate-50 border border-slate-100 rounded-xl">
+                             {selectedVerse.text.split(/\s+/).map((word, idx) => {
+                               const cleanWord = word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+                               if (!cleanWord.trim()) return null;
+                               const strongNum = getStrongNumber(selectedVerse.bookNumber || 1, idx);
+                               return (
+                                 <button
+                                   key={idx}
+                                   onClick={() => { setStrongSearch(strongNum); fetchStrongManual(strongNum); }}
+                                   className="text-[10px] font-black bg-white border border-indigo-150 text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition cursor-pointer"
+                                 >
+                                   {cleanWord} ({strongNum})
+                                 </button>
+                               );
+                             })}
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-[10px] text-slate-400 mt-1 max-w-[200px] leading-relaxed">
+                          Entrez un numéro Strong (ex: H430 = Elohim, G3056 = Logos) ou cliquez sur un mot dans un verset.
+                        </p>
+                      )}
                     </div>
-                    <div className="flex flex-wrap gap-1.5 justify-center">
-                      {["H430", "H3068", "G3056", "G26", "G5547"].map(num => (
-                        <button
-                          key={num}
-                          onClick={() => { setStrongSearch(num); fetchStrongManual(num); }}
-                          className="text-[10px] font-black bg-white border border-indigo-100 text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition"
-                        >
-                          {num}
-                        </button>
-                      ))}
-                    </div>
+                    {!selectedVerse && (
+                      <div className="flex flex-wrap gap-1.5 justify-center">
+                        {["H430", "H3068", "G3056", "G26", "G5547"].map(num => (
+                          <button
+                            key={num}
+                            onClick={() => { setStrongSearch(num); fetchStrongManual(num); }}
+                            className="text-[10px] font-black bg-white border border-indigo-100 text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition cursor-pointer"
+                          >
+                            {num}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
