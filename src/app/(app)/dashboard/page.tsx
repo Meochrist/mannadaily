@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getLevelFromXP, getXPProgress } from "@/lib/gamification";
 import { getDailyVerse } from "@/lib/verses";
+import { getMascotMoodFromProgress } from "@/lib/mascots";
 import RandomMascotMessage from "@/components/dashboard/RandomMascotMessage";
 import XPBar from "@/components/gamification/XPBar";
 import StreakCounter from "@/components/gamification/StreakCounter";
@@ -21,6 +22,8 @@ export default async function DashboardPage() {
   const session = await auth();
   const userId = session?.user?.id;
   const userName = session?.user?.name || "Ami";
+
+  let meditationProgressData = null;
 
   if (userId) {
     const user = await db.user.findUnique({
@@ -170,6 +173,20 @@ export default async function DashboardPage() {
       });
       dayProgress = !!todaySession;
 
+      // Récupérer la progression de méditation du jour pour calculer l'humeur de la mascotte
+      const userWithMedProgress = await db.user.findUnique({
+        where: { id: userId },
+        select: { meditationProgress: true }
+      });
+
+      if (userWithMedProgress?.meditationProgress) {
+        const mp = userWithMedProgress.meditationProgress as any;
+        const todayStr = new Date().toISOString().split("T")[0];
+        if (mp.lastActivityDate === todayStr) {
+          meditationProgressData = mp;
+        }
+      }
+
       // 3. Récupération directe des badges
       // 3. Récupération directe des badges avec sélection ciblée et limite aux 3 premiers
       const userBadges = await db.userBadge.findMany({
@@ -242,6 +259,7 @@ export default async function DashboardPage() {
             dayProgress={dayProgress}
             inactivityDays={inactivityDays}
             className="max-w-none w-full"
+            mood={getMascotMoodFromProgress(meditationProgressData as any)}
           />
         </div>
         

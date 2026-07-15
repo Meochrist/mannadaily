@@ -5,6 +5,7 @@ export type MascotMood =
   | "encouraging"
   | "celebrating"
   | "sleeping"
-  | "praying";
+  | "praying"
+  | "sad";
 
 export type MascotCharacter = "manny" | "samson" | "esther" | "gedeon" | "noe";

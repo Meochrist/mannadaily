@@ -30,6 +30,9 @@ export const XP_RULES = {
   PROCLAMATION_SESSION: 20,
   STREAK_BONUS_BASE: 5,
   READING_PLAN_DAY: 10,
+  meditation_mini_1: 10,
+  meditation_mini_2: 15,
+  meditation_mini_3: 20,
 };
 
 export interface ThemeConfig {

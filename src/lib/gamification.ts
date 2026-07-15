@@ -58,6 +58,12 @@ export async function awardXP(
       lingotsToAdd = 10;
     } else if (action === "streak_bonus" || action === "STREAK_BONUS_BASE") {
       lingotsToAdd = 3;
+    } else if (action === "meditation_mini_1") {
+      lingotsToAdd = 2;
+    } else if (action === "meditation_mini_2") {
+      lingotsToAdd = 3;
+    } else if (action === "meditation_mini_3") {
+      lingotsToAdd = 5;
     }
 
     return await db.$transaction(async (tx) => {
@@ -164,31 +170,38 @@ export async function updateStreak(userId: string): Promise<number> {
     });
 
     if (!streak) {
+      // Initialisation : lastActivityAt = hier pour que la première complétion donne streak = 1
       streak = await db.streak.create({
         data: {
           userId,
           currentStreak: 0,
           longestStreak: 0,
-          lastActivityAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+          lastActivityAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
         },
       });
     }
 
+    // differenceInCalendarDays compare les dates calendaires (ignore les heures, minutes, secondes)
     const daysDiff = differenceInCalendarDays(today, streak.lastActivityAt);
 
-    let newCurrentStreak = streak.currentStreak;
+    let newCurrentStreak: number;
 
     if (daysDiff === 0) {
+      // Même jour calendaire → pas de changement, on ne compte pas deux fois le même jour
       return streak.currentStreak;
     } else if (daysDiff === 1) {
-      newCurrentStreak += 1;
+      // Hier → le streak continue, on incrémente de 1
+      newCurrentStreak = streak.currentStreak + 1;
     } else {
-      // Le streak risque d'être brisé, on vérifie si un streak freeze est dispo et on l'applique
+      // Plus d'un jour calendaire complet sans activité → le streak est brisé
+      // On vérifie si un streak freeze est disponible pour le protéger
       const freezeResult = await applyStreakFreezeIfNeeded(userId);
       if (freezeResult.freezeUsed) {
-        // Le streak est maintenu intact et incrémenté pour aujourd'hui
-        newCurrentStreak += 1;
+        // Le freeze maintient le streak intact SANS l'incrémenter
+        // (l'utilisateur n'a pas médité ce jour manquant)
+        newCurrentStreak = streak.currentStreak;
       } else {
+        // Streak brisé → on recommence à 1 (aujourd'hui est le nouveau jour 1 de la série)
         newCurrentStreak = 1;
       }
     }

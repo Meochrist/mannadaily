@@ -9,6 +9,60 @@ export interface UserState {
   level?: number;
 }
 
+// Type pour la progression de méditation (correspond à MeditationProgress dans meditate/page.tsx)
+export interface MeditationProgress {
+  currentMiniSession: 1 | 2 | 3;
+  currentStep: 0 | 1;
+  sessionsCompleted: number[];
+  lastActivityDate: string;
+  dayCompleted: boolean;
+}
+
+/**
+ * Calcule l'humeur de la mascotte en fonction de la progression de méditation du jour.
+ *
+ * Règles :
+ * - null / pas de progression → "sad" (aucune méditation aujourd'hui)
+ * - dayCompleted === false et sessionsCompleted.length === 0 → "sad"
+ * - sessionsCompleted.length === 1 ou 2 → "happy" (encourageant, en cours)
+ * - sessionsCompleted.length === 3 et dayCompleted === true → "celebrating"
+ * - Si la méditation est en cours (currentStep > 0 ou currentMiniSession > 1) → "thinking"
+ *
+ * @param progress - L'objet de progression de méditation ou null
+ * @returns Le mood approprié pour la mascotte
+ */
+export function getMascotMoodFromProgress(progress: MeditationProgress | null): MascotMood {
+  // Cas 1 : Pas de progression du tout → triste
+  if (!progress) {
+    return "sad";
+  }
+
+  const { sessionsCompleted, dayCompleted, currentMiniSession, currentStep } = progress;
+
+  // Cas 2 : Aucune session complétée aujourd'hui → triste / suppliant
+  if (sessionsCompleted.length === 0 && !dayCompleted) {
+    return "sad";
+  }
+
+  // Cas 3 : Les 3 mini-sessions complétées → célébration
+  if (sessionsCompleted.length === 3 && dayCompleted) {
+    return "celebrating";
+  }
+
+  // Cas 4 : En cours de méditation (sur une étape avancée) → concentré / pensif
+  if (currentMiniSession > 1 || currentStep > 0) {
+    return "thinking";
+  }
+
+  // Cas 5 : 1 ou 2 sessions complétées → encourageant / heureux
+  if (sessionsCompleted.length === 1 || sessionsCompleted.length === 2) {
+    return "happy";
+  }
+
+  // Cas par défaut : happy
+  return "happy";
+}
+
 // 1. Dictionnaire des System Prompts pour chaque personnage
 export const MASCOT_SYSTEM_PROMPTS: Record<string, string> = {
   manny: `Tu es Manny, une Bible animée et chaleureuse qui sert de guide spirituel bienveillant pour l'application MannaDaily.

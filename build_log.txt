@@ -1,0 +1,81 @@
+
+> mannadaily@0.1.0 build
+> next build
+
+▲ Next.js 16.2.6 (Turbopack)
+- Environments: .env.local, .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 33.4s
+  Running TypeScript ...
+  Finished TypeScript in 49s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/14) ...
+  Generating static pages using 7 workers (3/14) 
+  Generating static pages using 7 workers (6/14) 
+  Generating static pages using 7 workers (10/14) 
+✓ Generating static pages using 7 workers (14/14) in 3.2s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ○ /_not-found
+├ ƒ /api/auth/[...nextauth]
+├ ƒ /api/auth/register
+├ ƒ /api/bible/[book]/[chapter]
+├ ƒ /api/bible/books
+├ ƒ /api/bible/commentary
+├ ƒ /api/bible/crossrefs
+├ ƒ /api/bible/highlight
+├ ƒ /api/bible/morphology
+├ ƒ /api/bible/note
+├ ƒ /api/bible/strong/[number]
+├ ƒ /api/bible/translations
+├ ƒ /api/cron/daily-reminder
+├ ƒ /api/cron/reading-plan-reminder
+├ ƒ /api/cron/streak-check
+├ ƒ /api/leaderboard
+├ ƒ /api/lingots/balance
+├ ƒ /api/lingots/buy-freeze
+├ ƒ /api/mascot/speak
+├ ƒ /api/meditate/progress
+├ ƒ /api/meditation/generate
+├ ƒ /api/meditations
+├ ƒ /api/memorize
+├ ƒ /api/memorize/review
+├ ƒ /api/payment
+├ ƒ /api/payment/webhook
+├ ƒ /api/push/subscribe
+├ ƒ /api/push/unsubscribe
+├ ƒ /api/reading-plans
+├ ƒ /api/reading-plans/[slug]
+├ ƒ /api/reading-plans/enroll
+├ ƒ /api/reading-plans/progress
+├ ƒ /api/session/complete
+├ ƒ /api/share/badge
+├ ƒ /api/share/streak
+├ ƒ /api/share/verse
+├ ƒ /api/user/preferences
+├ ƒ /api/user/progress
+├ ○ /bible
+├ ƒ /dashboard
+├ ƒ /leaderboard
+├ ○ /login
+├ ○ /meditate
+├ ○ /memorize
+├ ○ /my-meditations
+├ ƒ /onboarding
+├ ○ /proclaim
+├ ƒ /profile
+├ ƒ /progress
+├ ƒ /reading-plans
+├ ○ /register
+├ ○ /shop
+└ ○ /themes
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

@@ -14,7 +14,8 @@ import {
   Calendar,
   User,
   Brain,
-  ShoppingBag
+  ShoppingBag,
+  BookMarked
 } from "lucide-react";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -53,6 +54,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             >
               <Sparkles className="w-5 h-5 text-indigo-300" />
               Méditation du jour
+            </Link>
+
+            <Link 
+              href="/my-meditations" 
+              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
+            >
+              <BookMarked className="w-5 h-5 text-indigo-300" />
+              Mes Méditations
             </Link>
 
             <Link 
