@@ -1,0 +1,86 @@
+
+> mannadaily@0.1.0 lint
+> eslint
+
+
+D:\Antigravity\mannadaily\prisma\seedCommentary.ts
+  50:10  warning  'testUrl' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\prisma\seedStrong.ts
+  77:3  warning  'prefix' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\(app)\bible\page.tsx
+  338:6   warning  React Hook useEffect has a missing dependency: 'activeTab'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  537:15  warning  'data' is assigned a value but never used                                                                     @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\(app)\leaderboard\page.tsx
+  27:11  warning  'leagueName' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  75:9   warning  'otherMembers' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\(app)\meditate\page.tsx
+   35:10  warning  'getDailyVerse' is defined but never used                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+  127:7   warning  'defaultProgress' is assigned a value but never used                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+  160:10  warning  'bibleContext' is assigned a value but never used                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  167:10  warning  'prefetchedMeditation' is assigned a value but never used                                                                                                                                                                               @typescript-eslint/no-unused-vars
+  181:10  warning  'loadingVerseDetails' is assigned a value but never used                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  186:10  warning  'strongSearch' is assigned a value but never used                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  555:13  warning  'xpReward' is assigned a value but never used                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  820:9   warning  The 'loadCrossRefs' function makes the dependencies of useEffect Hook (at line 838) change on every render. Move it inside the useEffect callback. Alternatively, wrap the definition of 'loadCrossRefs' in its own useCallback() Hook  react-hooks/exhaustive-deps
+  924:9   warning  'mascotMood' is assigned a value but never used                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+  942:11  warning  'stepNum' is assigned a value but never used                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\(app)\my-meditations\page.tsx
+   97:10  warning  'getDateGroup' is defined but never used           @typescript-eslint/no-unused-vars
+  115:10  warning  'formatDate' is defined but never used             @typescript-eslint/no-unused-vars
+  238:9   warning  'currentMonth' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\(app)\proclaim\page.tsx
+  67:10  warning  'loading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  69:10  warning  'error' is assigned a value but never used    @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\(app)\profile\page.tsx
+  187:9  warning  'completedPlans' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\(auth)\login\page.tsx
+  42:14  warning  '_err' is defined but never used  @typescript-eslint/no-unused-vars
+  52:14  warning  '_err' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\(auth)\register\page.tsx
+  79:14  warning  '_err' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\components\dashboard\GameMap.tsx
+  75:35  warning  'currentXP' is defined but never used   @typescript-eslint/no-unused-vars
+  75:46  warning  'userName' is defined but never used    @typescript-eslint/no-unused-vars
+  75:56  warning  'dailyVerse' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\components\gamification\LingotsCounter.tsx
+  19:10  warning  'successMessage' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  27:25  warning  'setLingotTrigger' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\components\layout\BottomNav.tsx
+  11:3  warning  'Grid' is defined but never used   @typescript-eslint/no-unused-vars
+  13:3  warning  'Award' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\components\meditation\SpeechMicButton.tsx
+  44:5  warning  'hasPermission' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\components\notifications\PushOptIn.tsx
+  22:10  warning  'permission' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\components\onboarding\OnboardingClient.tsx
+  38:44  warning  'userId' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\components\reading-plans\ReadingPlansClient.tsx
+   76:17  warning  'setPlans' is assigned a value but never used        @typescript-eslint/no-unused-vars
+  101:9   warning  'isDayCompleted' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\hooks\useSpeechRecognition.ts
+  160:16  warning  '_e' is defined but never used  @typescript-eslint/no-unused-vars
+  218:18  warning  '_e' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\lib\ai.ts
+  211:15  warning  '_e' is defined but never used  @typescript-eslint/no-unused-vars
+  257:15  warning  '_e' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 41 problems (0 errors, 41 warnings)
+

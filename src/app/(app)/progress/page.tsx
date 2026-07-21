@@ -12,12 +12,7 @@ import {
   Award, 
   Calendar, 
   CheckCircle2, 
-  Clock, 
-  Compass, 
-  Flame, 
-  BookOpen, 
-  Shield, 
-  Trophy, 
+  Trophy,
   Zap,
   Share2
 } from "lucide-react";

@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getLevelFromXP, getXPProgress } from "@/lib/gamification";

@@ -39,7 +39,7 @@ export default function LoginPage() {
         router.push("/dashboard");
         router.refresh();
       }
-    } catch (err) {
+    } catch (_err) {
       setError("Une erreur est survenue lors de la connexion.");
     } finally {
       setLoading(false);
@@ -49,7 +49,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     try {
       await signIn("google", { callbackUrl: "/dashboard" });
-    } catch (err) {
+    } catch (_err) {
       setError("Impossible de se connecter avec Google.");
     }
   };

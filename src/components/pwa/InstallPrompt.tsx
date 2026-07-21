@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { X, Download, Share } from "lucide-react";
 import Manny from "@/components/mascot/Manny";
-import { cn } from "@/lib/utils";
 
 interface DeferredPrompt {
   prompt(): Promise<void>;

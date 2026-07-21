@@ -12,6 +12,15 @@ const eslintConfig = defineConfig([
     files: ["prisma/**/*.ts"],
     rules: { "@typescript-eslint/no-explicit-any": "off" },
   },
+  // Scripts utilitaires (génération, tests)
+  {
+    files: ["scripts/**/*.js"],
+    rules: { "@typescript-eslint/no-unused-vars": "off" },
+  },
+  // Règles non critiques pour une PWA avec images dynamiques
+  {
+    rules: { "@next/next/no-img-element": "off" },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

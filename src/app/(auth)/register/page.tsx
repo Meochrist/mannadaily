@@ -76,7 +76,7 @@ export default function RegisterPage() {
         router.push("/dashboard");
         router.refresh();
       }
-    } catch (err) {
+    } catch (_err) {
       setError("Une erreur est survenue lors de la création du compte.");
     } finally {
       setLoading(false);

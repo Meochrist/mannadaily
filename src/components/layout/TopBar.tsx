@@ -2,7 +2,7 @@
 
 import React from "react";
 import { signOut } from "next-auth/react";
-import { LogOut, Sparkles, Award } from "lucide-react";
+import { LogOut, Award } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export default function TopBar() {

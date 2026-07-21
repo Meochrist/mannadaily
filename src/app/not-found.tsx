@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Home, ArrowLeft } from "lucide-react";
+import { Home } from "lucide-react";
 import Manny from "@/components/mascot/Manny";
 
 export default function NotFound() {

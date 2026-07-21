@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Share2, Copy, Check, Sparkles, Flame, Trophy, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 

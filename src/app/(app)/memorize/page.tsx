@@ -15,7 +15,7 @@ import {
   Calendar,
   Loader2,
   X,
-  ChevronRight
+  
 } from "lucide-react";
 import Manny from "@/components/mascot/Manny";
 import * as sounds from "@/lib/sounds";

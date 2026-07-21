@@ -1,4 +1,4 @@
-import { MascotCharacter, MascotMood } from "@/types/mascot";
+import {  MascotMood } from "@/types/mascot";
 import { isBuildTime } from "@/lib/utils";
 
 // Définition des types locaux si pas encore exportés globalement

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Lock, Check, Star, Trophy, BookOpen, Play, HelpCircle, Sparkles, ChevronDown, Award } from "lucide-react";
 import Manny from "../mascot/Manny";
-import { PATHS, getVersesForPath, PathConfig, Verse } from "@/lib/verses";
+import { PATHS, getVersesForPath } from "@/lib/verses";
 import * as sounds from "@/lib/sounds";
 
 interface GameMapProps {

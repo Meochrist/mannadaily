@@ -7,14 +7,12 @@ import { cn } from "@/lib/utils";
 import { 
   LayoutDashboard, 
   BookOpen, 
-  Volume2, 
-  Grid, 
+  
   Trophy,
-  Award,
   Sparkles,
-  Calendar,
+  
   User,
-  Brain
+  
 } from "lucide-react";
 
 export default function BottomNav() {

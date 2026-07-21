@@ -12,14 +12,9 @@ import {
   Heart, 
   ShieldCheck, 
   ArrowRight, 
-  Check, 
-  Zap, 
-  Compass, 
-  ShoppingBag, 
-  Award, 
-  Users, 
-  TrendingUp,
-  MessageSquare,
+  Zap,
+  Compass,
+  ShoppingBag,
   Globe
 } from "lucide-react";
 

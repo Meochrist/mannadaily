@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import BadgeCard from "@/components/gamification/BadgeCard";
 import { 
-  User as UserIcon, 
+  User as  
   Mail, 
   Calendar, 
   Award, 
@@ -13,17 +13,15 @@ import {
   Flame, 
   BookOpen, 
   FileText, 
-  History, 
-  Highlighter, 
-  CheckCircle2, 
-  Mic, 
-  ChevronRight, 
+  History,
+  Highlighter,
+  Mic,
+  ChevronRight,
   Activity,
   Trophy
 } from "lucide-react";
 import Manny from "@/components/mascot/Manny";
 import Samson from "@/components/mascot/Samson";
-import Esther from "@/components/mascot/Esther";
 import Gedeon from "@/components/mascot/Gedeon";
 import Noe from "@/components/mascot/Noe";
 import { cn } from "@/lib/utils";
