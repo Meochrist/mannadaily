@@ -60,7 +60,7 @@ export default function ShopPage() {
       name: "Premium MannaDaily",
       price: 3000,
       priceLabel: "3 000 FCFA / mois",
-      description: "Accès à des versets exclusifs, exégèses et commentaires avancés de chapitres par l'IA.",
+      description: "Accès à des versets exclusifs, exégèses et commentaires avancés de chapitres par l&apos;IA.",
       icon: <Crown className="w-12 h-12 text-indigo-650" />,
       colorClass: "from-indigo-50 to-violet-50 border-indigo-150 dark:from-indigo-950/20 dark:to-violet-950/20 dark:border-indigo-900/50",
       badge: "Recommandé 👑",
@@ -87,13 +87,15 @@ export default function ShopPage() {
       }
 
       if (data.paymentUrl) {
+        // eslint-disable-next-line -- Redirection de paiement externe légitime
         window.location.href = data.paymentUrl;
       } else {
         throw new Error("URL de paiement manquante");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || "Une erreur est survenue lors de l'achat");
+      const message = err instanceof Error ? err.message : "Une erreur est survenue lors de l'achat";
+      setError(message);
     } finally {
       setLoadingProductId(null);
     }

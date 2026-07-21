@@ -2,12 +2,22 @@ import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { trackEvent } from "@/lib/posthog";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password } = await req.json();
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const limiter = rateLimit(`register:${ip}`, 5, 60 * 60 * 1000);
+    if (!limiter.allowed) {
+      return NextResponse.json({ error: "Trop de tentatives. Réessayez plus tard." }, { status: 429, headers: { "Retry-After": String(limiter.retryAfter) } });
+    }
+
+    const body = await req.json();
+    const name = typeof body?.name === "string" ? body.name.trim() : "";
+    const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
+    const password = typeof body?.password === "string" ? body.password : "";
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: "Tous les champs sont requis" }, { status: 400 });
@@ -18,8 +28,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Format d'adresse e-mail invalide" }, { status: 400 });
     }
 
-    if (password.length < 6) {
-      return NextResponse.json({ error: "Le mot de passe doit contenir au moins 6 caractères" }, { status: 400 });
+    if (password.length < 8 || password.length > 128) {
+      return NextResponse.json({ error: "Le mot de passe doit contenir entre 8 et 128 caractères" }, { status: 400 });
     }
 
     const existingUser = await db.user.findUnique({
@@ -69,7 +79,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: "Utilisateur créé avec succès", userId: user.id });
   } catch (error: unknown) {
     console.error("Error in registration API:", error);
-    const message = error instanceof Error ? error.message : "Internal Server Error";
+    const message = error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

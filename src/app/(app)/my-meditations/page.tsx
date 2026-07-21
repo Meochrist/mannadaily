@@ -140,14 +140,15 @@ export default function MyMeditationsPage() {
           throw new Error(errData.error || "Erreur lors du chargement");
         }
         const data = await res.json();
-        const cards: SessionCard[] = (data.sessions || []).map((s: any) => ({
+        const rawSessions = (data.sessions || []) as Array<{ id: string; type: string; period: string; xpEarned: number; duration: number; createdAt: string; notes?: unknown }>;
+        const cards: SessionCard[] = rawSessions.map((s) => ({
           id: s.id,
           type: s.type,
           period: s.period,
           xpEarned: s.xpEarned,
           duration: s.duration,
           createdAt: s.createdAt,
-          parsed: parseNotes(s.notes),
+          parsed: parseNotes(typeof s.notes === 'string' ? s.notes : null),
         }));
         setSessions(cards);
       } catch (err: unknown) {

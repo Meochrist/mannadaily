@@ -28,7 +28,7 @@ export async function getOrCreateLeague(userId: string) {
   const weekEnd = endOfWeek(today, { weekStartsOn: 1 });     // Dimanche
 
   // 1. Chercher si l'utilisateur est déjà inscrit dans une ligue cette semaine
-  let memberRecord = await db.leagueMember.findFirst({
+  const memberRecord = await db.leagueMember.findFirst({
     where: {
       userId,
       league: {

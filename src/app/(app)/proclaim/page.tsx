@@ -86,15 +86,10 @@ export default function ProclaimPage() {
     const refParam = urlParams.get("reference");
 
     if (textParam && refParam) {
-      setVerses([
-        {
-          text: decodeURIComponent(textParam),
-          reference: decodeURIComponent(refParam),
-        },
-      ]);
+      queueMicrotask(() => setVerses([{ text: decodeURIComponent(textParam), reference: decodeURIComponent(refParam) }]));
     }
 
-    // Récupérer le nom et le streak de l'utilisateur
+    // Récupérer le nom et le streak de l&apos;utilisateur
     fetch("/api/user/progress")
       .then((res) => res.json())
       .then((data) => {
@@ -415,7 +410,7 @@ export default function ProclaimPage() {
                   )}
                 </button>
                 <p className="text-xs text-indigo-400 font-semibold max-w-xs text-center">
-                  Confesse la vérité biblique de tout ton cœur et laisse-la s'enraciner.
+                  Confesse la vérité biblique de tout ton cœur et laisse-la s&apos;enraciner.
                 </p>
               </div>
 

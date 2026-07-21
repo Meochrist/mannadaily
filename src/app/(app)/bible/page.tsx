@@ -1,6 +1,17 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+
+// Minimal local type pour éviter d'ajouter une dépendance DOM externe sur SpeechRecognitionEvent
+type SpeechRecognitionEvent = {
+  results: {
+    [index: number]: {
+      [index: number]: {
+        transcript: string;
+      };
+    };
+  };
+};
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   BookOpen, 
@@ -167,22 +178,37 @@ export default function BiblePage() {
   const [strongError, setStrongError] = useState<string>("");
 
   // Cross references state
-  const [crossRefs, setCrossRefs] = useState<any[]>([]);
+  const [crossRefs, setCrossRefs] = useState<{id: string; text: string; refLabel?: string; toBook?: string | number; toChapter?: number; toVerse?: number; votes?: number}[]>([]);
   const [loadingCrossRefs, setLoadingCrossRefs] = useState<boolean>(false);
   const [pendingVerseSelection, setPendingVerseSelection] = useState<number | null>(null);
 
   // Morphology state
-  const [morphologyWords, setMorphologyWords] = useState<any[]>([]);
+  type MorphologyWord = { id: string; strongNumber?: string; originalText?: string; transliteration?: string; root?: string; gloss?: string; morphology?: string; morphologyDesc?: string; language?: string; parsing?: string };
+  const [morphologyWords, setMorphologyWords] = useState<MorphologyWord[]>([]);
   const [loadingMorphology, setLoadingMorphology] = useState<boolean>(false);
 
   // Commentary state
-  const [commentaries, setCommentaries] = useState<any[]>([]);
+  type Commentary = { id: string; verse: number; author?: string; createdAt: string; content?: string };
+  const [commentaries, setCommentaries] = useState<Commentary[]>([]);
   const [loadingCommentaries, setLoadingCommentaries] = useState<boolean>(false);
   const [generatingCommentary, setGeneratingCommentary] = useState<boolean>(false);
 
   // UI layout reference
   const containerRef = useRef<HTMLDivElement>(null);
   const speechRecognitionActive = useRef<boolean>(false);
+
+  // Fetch all user notes
+  const fetchUserNotes = async () => {
+    try {
+      const res = await fetch("/api/bible/note");
+      if (res.ok) {
+        const data = await res.json();
+        setUserNotes(data.notes || []);
+      }
+    } catch (err) {
+      console.error("Error fetching user notes:", err);
+    }
+  };
 
   // Fetch books and translations on mount
   useEffect(() => {
@@ -212,7 +238,7 @@ export default function BiblePage() {
     }
     fetchBooks();
     fetchTranslations();
-    fetchUserNotes();
+    queueMicrotask(() => fetchUserNotes());
   }, []);
 
   // Synchroniser avec les query parameters de l'URL s'ils existent
@@ -222,10 +248,10 @@ export default function BiblePage() {
       const bookParam = params.get("book");
       const chapterParam = params.get("chapter");
       if (bookParam) {
-        setSelectedBook(bookParam);
+        queueMicrotask(() => setSelectedBook(bookParam));
       }
       if (chapterParam) {
-        setSelectedChapter(parseInt(chapterParam, 10) || 1);
+        queueMicrotask(() => setSelectedChapter(parseInt(chapterParam, 10) || 1));
       }
     }
   }, []);
@@ -268,9 +294,9 @@ export default function BiblePage() {
   // Load verse text if active verse changes to edit notes
   useEffect(() => {
     if (selectedVerse) {
-      setCurrentNoteText(selectedVerse.note?.content || "");
+      queueMicrotask(() => setCurrentNoteText(selectedVerse.note?.content || ""));
     } else {
-      setCurrentNoteText("");
+      queueMicrotask(() => setCurrentNoteText(""));
     }
   }, [selectedVerse]);
 
@@ -391,24 +417,11 @@ export default function BiblePage() {
     if (pendingVerseSelection && verses.length > 0 && !loadingVerses) {
       const targetVerse = verses.find(v => v.verse === pendingVerseSelection);
       if (targetVerse) {
-        setSelectedVerse(targetVerse);
+        queueMicrotask(() => setSelectedVerse(targetVerse));
       }
-      setPendingVerseSelection(null);
+      queueMicrotask(() => setPendingVerseSelection(null));
     }
   }, [verses, pendingVerseSelection, loadingVerses]);
-
-  // Fetch all user notes
-  const fetchUserNotes = async () => {
-    try {
-      const res = await fetch("/api/bible/note");
-      if (res.ok) {
-        const data = await res.json();
-        setUserNotes(data.notes || []);
-      }
-    } catch (err) {
-      console.error("Error fetching user notes:", err);
-    }
-  };
 
   // Helper to split books into Old and New Testament
   const oldTestament = books.slice(0, 39);
@@ -540,7 +553,7 @@ export default function BiblePage() {
     }
   };
 
-  // Poser question à l'IA
+  // Poser question à l&apos;IA
   const handleAskAI = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedVerse || !aiQuestion.trim() || aiLoading) return;
@@ -721,7 +734,7 @@ export default function BiblePage() {
     }
   }, []);
 
-  // Générer un commentaire via l'IA
+  // Générer un commentaire via l&apos;IA
   const handleGenerateCommentary = async () => {
     if (!selectedVerse) return;
     setGeneratingCommentary(true);
@@ -759,7 +772,7 @@ export default function BiblePage() {
             La Sainte Bible
           </h1>
           <p className="text-indigo-200 text-sm max-w-md font-medium">
-            Explorez les Écritures, surlignez des passages inspirants, rédigez vos annotations et conversez avec l'intelligence artificielle pour approfondir votre foi.
+            Explorez les Écritures, surlignez des passages inspirants, rédigez vos annotations et conversez avec l&apos;intelligence artificielle pour approfondir votre foi.
           </p>
         </div>
         <div className="flex gap-4 items-center flex-wrap justify-center md:justify-end">
@@ -962,7 +975,7 @@ export default function BiblePage() {
                 <div>
                   <h3 className="font-bold text-slate-700">Aucun verset disponible</h3>
                   <p className="text-xs text-slate-500 max-w-sm">
-                    Ce chapitre n'a pas encore été importé. Vérifiez vos paramètres ou revenez plus tard.
+                    Ce chapitre n&apos;a pas encore été importé. Vérifiez vos paramètres ou revenez plus tard.
                   </p>
                 </div>
               </div>
@@ -1347,7 +1360,7 @@ export default function BiblePage() {
                           {selectedVerse.book} {selectedVerse.chapter}:{selectedVerse.verse}
                         </span>
                         <p className="text-[11px] text-slate-600 italic leading-relaxed line-clamp-3">
-                          "{selectedVerse.text}"
+                          &quot;{selectedVerse.text}&quot;
                         </p>
                       </div>
 
@@ -1409,7 +1422,7 @@ export default function BiblePage() {
                         <div>
                           <h4 className="font-bold text-slate-700 text-xs">Aucune note pour le moment</h4>
                           <p className="text-[10px] text-slate-500 mt-1 max-w-[180px]">
-                            Surlignez un verset puis cliquez sur "Annoter" pour enregistrer vos pensées ici.
+                            Surlignez un verset puis cliquez sur &quot;Annoter&quot; pour enregistrer vos pensées ici.
                           </p>
                         </div>
                       </div>
@@ -1431,7 +1444,7 @@ export default function BiblePage() {
                               {note.content}
                             </p>
                             <p className="text-[10px] text-slate-400 italic line-clamp-1">
-                              "{note.verse.text}"
+                              &quot;{note.verse.text}&quot;
                             </p>
                           </div>
                         ))}
@@ -1470,9 +1483,9 @@ export default function BiblePage() {
                           <div className="flex flex-col items-center justify-center text-center p-4 py-8 space-y-4">
                             <Manny mood="thinking" size={100} />
                             <div>
-                              <h4 className="font-bold text-slate-700 text-xs">Parler à l'Écriture</h4>
+                              <h4 className="font-bold text-slate-700 text-xs">Parler à l&apos;Écriture</h4>
                               <p className="text-[10px] text-slate-500 mt-1 max-w-[190px] leading-relaxed">
-                                Posez n'importe quelle question sur ce verset. L'IA vous guidera avec sagesse.
+                                Posez n&apos;importe quelle question sur ce verset. L&apos;IA vous guidera avec sagesse.
                               </p>
                             </div>
                           </div>
@@ -1538,12 +1551,13 @@ export default function BiblePage() {
                           type="button"
                           onClick={() => {
                             if (typeof window !== "undefined") {
+                              // eslint-disable-next-line @typescript-eslint/no-explicit-any
                               const SpeechObj = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
                               if (SpeechObj) {
                                 sounds.playXPGain();
                                 const rec = new SpeechObj();
                                 rec.lang = "fr-FR";
-                                rec.onresult = (evt: any) => {
+                                rec.onresult = (evt: SpeechRecognitionEvent) => {
                                   const text = evt.results[0][0].transcript;
                                   if (text) {
                                     setAiQuestion(text);
@@ -1574,9 +1588,9 @@ export default function BiblePage() {
                   <div className="flex-1 flex flex-col justify-center items-center text-center p-4 space-y-4">
                     <Manny mood="praying" size={130} />
                     <div>
-                      <h4 className="font-extrabold text-slate-800 text-sm">Dialogue avec l'Écriture</h4>
+                      <h4 className="font-extrabold text-slate-800 text-sm">Dialogue avec l&apos;Écriture</h4>
                       <p className="text-xs text-slate-500 mt-1.5 max-w-[210px] leading-relaxed">
-                        Sélectionnez un verset dans le lecteur puis cliquez sur <strong>"IA Chat"</strong> pour lui poser des questions et obtenir des explications.
+                        Sélectionnez un verset dans le lecteur puis cliquez sur <strong>&quot;IA Chat&quot;</strong> pour lui poser des questions et obtenir des explications.
                       </p>
                     </div>
                   </div>
@@ -1735,7 +1749,7 @@ export default function BiblePage() {
                     <div>
                       <h4 className="font-extrabold text-slate-800 text-sm">Références Croisées</h4>
                       <p className="text-xs text-slate-500 mt-1.5 max-w-[210px] leading-relaxed">
-                        Sélectionnez un verset dans le lecteur puis cliquez sur <strong>"Références croisées"</strong> dans le menu contextuel.
+                        Sélectionnez un verset dans le lecteur puis cliquez sur <strong>&quot;Références croisées&quot;</strong> dans le menu contextuel.
                       </p>
                     </div>
                   </div>
@@ -1750,7 +1764,7 @@ export default function BiblePage() {
                     <div>
                       <h4 className="font-bold text-slate-700 text-xs">Aucun verset lié</h4>
                       <p className="text-[10px] text-slate-500 mt-1 max-w-[180px] leading-relaxed">
-                        Aucune référence croisée n'a été répertoriée pour ce verset dans notre base.
+                        Aucune référence croisée n&apos;a été répertoriée pour ce verset dans notre base.
                       </p>
                     </div>
                   </div>
@@ -1780,12 +1794,13 @@ export default function BiblePage() {
                         <div
                           key={ref.id}
                           onClick={() => {
-                            const bookName = BIBLE_BOOKS_MAP[ref.toBook];
+                            const bookKey = typeof ref.toBook === "number" ? ref.toBook : Number(ref.toBook);
+                            const bookName = BIBLE_BOOKS_MAP[bookKey];
                             if (bookName) {
                               sounds.playXPGain();
                               setSelectedBook(bookName);
-                              setSelectedChapter(ref.toChapter);
-                              setPendingVerseSelection(ref.toVerse);
+                              setSelectedChapter(ref.toChapter ?? 1);
+                              setPendingVerseSelection(ref.toVerse ?? null);
                             }
                           }}
                           className="bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:bg-indigo-50/10 rounded-2xl p-3.5 cursor-pointer transition-all duration-300 space-y-2 group"
@@ -1830,14 +1845,14 @@ export default function BiblePage() {
                     <div>
                       <h4 className="font-extrabold text-slate-800 text-sm">Morphologie des mots</h4>
                       <p className="text-xs text-slate-500 mt-1.5 max-w-[210px] leading-relaxed">
-                        Sélectionnez un verset dans le lecteur puis cliquez sur <strong>"Morphologie"</strong> pour analyser le texte original (hébreu/grec).
+                        Sélectionnez un verset dans le lecteur puis cliquez sur <strong>&quot;Morphologie&quot;</strong> pour analyser le texte original (hébreu/grec).
                       </p>
                     </div>
                   </div>
                 ) : loadingMorphology ? (
                   <div className="flex-1 flex flex-col justify-center items-center gap-2">
                     <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
-                    <span className="text-xs font-bold text-slate-500">Chargement de l'analyse...</span>
+                    <span className="text-xs font-bold text-slate-500">Chargement de l&apos;analyse...</span>
                   </div>
                 ) : morphologyWords.length === 0 ? (
                   <div className="flex-1 flex flex-col justify-center items-center text-center p-4 space-y-4">
@@ -1845,7 +1860,7 @@ export default function BiblePage() {
                     <div>
                       <h4 className="font-bold text-slate-700 text-xs">Aucune donnée disponible</h4>
                       <p className="text-[10px] text-slate-500 mt-1 max-w-[180px] leading-relaxed">
-                        La morphologie n'est pas encore importée pour ce livre. (Disponible pour Genèse et Jean).
+                        La morphologie n&apos;est pas encore importée pour ce livre. (Disponible pour Genèse et Jean).
                       </p>
                     </div>
                   </div>
@@ -1879,9 +1894,9 @@ export default function BiblePage() {
                             {word.strongNumber && (
                               <button
                                 onClick={() => {
-                                  setStrongSearch(word.strongNumber);
+                                  setStrongSearch(word.strongNumber as string);
                                   setActiveTab("strong");
-                                  fetchStrongManual(word.strongNumber);
+                                  fetchStrongManual(word.strongNumber as string);
                                 }}
                                 className="text-[10px] bg-indigo-50 border border-indigo-100 text-indigo-700 font-black px-2.5 py-1 rounded-lg hover:bg-indigo-100 transition cursor-pointer"
                                 title="Voir la définition Strong"
@@ -1946,7 +1961,7 @@ export default function BiblePage() {
                     <div>
                       <h4 className="font-extrabold text-slate-800 text-sm">Commentaires de versets</h4>
                       <p className="text-xs text-slate-500 mt-1.5 max-w-[210px] leading-relaxed">
-                        Sélectionnez un verset dans le lecteur puis cliquez sur <strong>"Commentaires"</strong> pour voir l'exégèse.
+                        Sélectionnez un verset dans le lecteur puis cliquez sur <strong>&quot;Commentaires&quot;</strong> pour voir l&apos;exégèse.
                       </p>
                     </div>
                   </div>
@@ -1961,7 +1976,7 @@ export default function BiblePage() {
                     <div>
                       <h4 className="font-bold text-slate-700 text-xs">Aucun commentaire</h4>
                       <p className="text-[10px] text-slate-500 mt-1.5 max-w-[200px] leading-relaxed mb-4">
-                        Aucun commentaire n'est enregistré pour ce verset dans notre base de données.
+                        Aucun commentaire n&apos;est enregistré pour ce verset dans notre base de données.
                       </p>
                       <button
                         onClick={handleGenerateCommentary}

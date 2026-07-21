@@ -9,18 +9,26 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { character, theme, userState: clientUserState } = body;
+    if (JSON.stringify(body).length > 8_000) {
+      return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+    }
+    const { character, theme } = body;
 
-    if (!character) {
+    if (typeof character !== "string" || character.length > 32) {
       return NextResponse.json(
-        { error: "Le paramètre 'character' est requis (ex: manny, samson, esther, gedeon, noe)." },
+        { error: "Le paramètre 'character' est requis et invalide." },
         { status: 400 }
-      ) ;
+      );
+    }
+    if (theme !== undefined && (typeof theme !== "string" || theme.length > 64)) {
+      return NextResponse.json({ error: "Invalid theme" }, { status: 400 });
     }
 
-    // Récupération de l'authentification
     const session = await auth();
-    let finalUserState: UserState = {
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const finalUserState: UserState = {
       streakCount: 0,
       hasMissedADay: false,
       xp: 0,
@@ -56,16 +64,7 @@ export async function POST(req: Request) {
       }
     }
 
-    // Si le client a fourni des données spécifiques, elles écrasent les données de la base de données
-    // (Utile pour tester des états spécifiques ou pour les utilisateurs invités)
-    if (clientUserState) {
-      finalUserState = {
-        ...finalUserState,
-        ...clientUserState,
-      };
-    }
-
-    // Appel du service de génération de réplique de la mascotte
+    // L'état de progression provient exclusivement de la base de données.
     const result = await getMascotReply(character, theme || "general", finalUserState);
 
     return NextResponse.json({
@@ -78,7 +77,7 @@ export async function POST(req: Request) {
     });
   } catch (error: unknown) {
     console.error("Error generating mascot speech:", error);
-    const message = error instanceof Error ? error.message : "Internal Server Error";
+    const message = error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

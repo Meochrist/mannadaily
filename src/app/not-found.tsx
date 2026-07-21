@@ -45,7 +45,7 @@ export default function NotFound() {
             Manny est fatigué
           </p>
           <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed italic max-w-xs mx-auto">
-            « Zzz... Je rêve de manne fraîche et de versets dorés... Oh, pardon ! Cette page n'existe pas ou a été déplacée dans le désert... »
+            « Zzz... Je rêve de manne fraîche et de versets dorés... Oh, pardon ! Cette page n&apos;existe pas ou a été déplacée dans le désert... »
           </p>
         </div>
 

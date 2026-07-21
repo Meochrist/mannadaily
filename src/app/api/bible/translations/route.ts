@@ -18,7 +18,7 @@ export async function GET() {
     const translations = verses.map((v) => v.translation);
 
     return NextResponse.json({ translations });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching translations:", error);
     return NextResponse.json({ error: "Failed to fetch translations" }, { status: 500 });
   }

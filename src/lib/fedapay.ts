@@ -2,12 +2,10 @@ import { FedaPay, Transaction } from 'fedapay'
 
 // Fonction d'initialisation dynamique de FedaPay (évite les problèmes de cache de variables d'env)
 function initFedaPay() {
-  if (process.env.NODE_ENV === 'development') {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-  }
-  const apiKey = process.env.FEDAPAY_SECRET_KEY || "sk_sandbox_placeholder";
+  const apiKey = process.env.FEDAPAY_SECRET_KEY;
+  if (!apiKey) throw new Error("FEDAPAY_SECRET_KEY is not configured");
   FedaPay.setApiKey(apiKey);
-  FedaPay.setEnvironment('sandbox'); // mode sandbox par défaut pour la sécurité et les tests
+  FedaPay.setEnvironment(process.env.FEDAPAY_ENVIRONMENT === "production" ? "live" : "sandbox");
 }
 
 export interface CreateTransactionResult {
@@ -24,7 +22,7 @@ export interface VerifyTransactionResult {
     lastname?: string
     phone?: string
   }
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 /**
@@ -37,7 +35,7 @@ export async function createTransaction(
   customerEmail: string,
   customerPhone: string,
   callbackUrl: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ): Promise<CreateTransactionResult> {
   try {
     initFedaPay()
@@ -48,7 +46,7 @@ export async function createTransaction(
     // Nettoyage sommaire du numéro de téléphone
     const cleanedPhone = customerPhone.replace(/[\s\-\+\(\)]/g, "")
 
-    const customerParams: any = {
+    const customerParams: Record<string, unknown> = {
       firstname,
       lastname,
       email: customerEmail.toLowerCase().trim()

@@ -122,7 +122,7 @@ async function main() {
 
   let totalVersesInserted = 0;
   let totalChaptersProcessed = 0;
-  let errors: string[] = [];
+  const errors: string[] = [];
 
   for (let bookNr = 1; bookNr <= 66; bookNr++) {
     const bookName = BIBLE_BOOKS_MAP[bookNr];

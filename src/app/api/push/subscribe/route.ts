@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, message: "Abonnement push enregistré" });
   } catch (error: unknown) {
     console.error("Erreur dans l'API de souscription push :", error);
-    const message = error instanceof Error ? error.message : "Erreur interne du serveur";
+    const message = error instanceof Error ? (error instanceof Error ? error.message : "") : "Erreur interne du serveur";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

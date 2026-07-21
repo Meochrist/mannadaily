@@ -32,7 +32,7 @@ export async function GET(
         "Cache-Control": "public, max-age=86400, s-maxage=86400",
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching Strong entry:", error);
     return NextResponse.json(
       { error: "Failed to fetch Strong entry" },

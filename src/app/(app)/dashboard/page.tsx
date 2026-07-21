@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getLevelFromXP, getXPProgress } from "@/lib/gamification";
 import { getDailyVerse } from "@/lib/verses";
-import { getMascotMoodFromProgress } from "@/lib/mascots";
+import { getMascotMoodFromProgress, type MeditationProgress } from "@/lib/mascots";
 import RandomMascotMessage from "@/components/dashboard/RandomMascotMessage";
 import XPBar from "@/components/gamification/XPBar";
 import StreakCounter from "@/components/gamification/StreakCounter";
@@ -60,7 +60,7 @@ export default async function DashboardPage() {
 
   if (userId) {
     try {
-      // 1. Récupération directe de la progression de l'utilisateur avec sélection ciblée
+      // 1. Récupération directe de la progression de l&apos;utilisateur avec sélection ciblée
       let progress = await db.userProgress.findUnique({
         where: { userId },
         select: {
@@ -180,7 +180,7 @@ export default async function DashboardPage() {
       });
 
       if (userWithMedProgress?.meditationProgress) {
-        const mp = userWithMedProgress.meditationProgress as any;
+        const mp = userWithMedProgress.meditationProgress as Record<string, unknown>;
         const todayStr = new Date().toISOString().split("T")[0];
         if (mp.lastActivityDate === todayStr) {
           meditationProgressData = mp;
@@ -259,7 +259,7 @@ export default async function DashboardPage() {
             dayProgress={dayProgress}
             inactivityDays={inactivityDays}
             className="max-w-none w-full"
-            mood={getMascotMoodFromProgress(meditationProgressData as any)}
+            mood={getMascotMoodFromProgress(meditationProgressData as MeditationProgress | null)}
           />
         </div>
         

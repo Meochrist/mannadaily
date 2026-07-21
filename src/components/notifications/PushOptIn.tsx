@@ -26,19 +26,19 @@ export default function PushOptIn({ vapidPublicKey }: PushOptInProps) {
 
   useEffect(() => {
     if (typeof window === "undefined" || !("serviceWorker" in navigator) || !("PushManager" in window)) {
-      setLoading(false);
+      queueMicrotask(() => setLoading(false));
       return;
     }
 
     // Récupérer l'état initial de la permission
-    setPermission(Notification.permission);
+    queueMicrotask(() => setPermission(Notification.permission));
 
     // Utiliser getRegistration pour éviter de bloquer indéfiniment sur .ready si aucun SW n'est enregistré
     navigator.serviceWorker.getRegistration()
       .then((registration) => {
         if (!registration) {
           setIsSubscribed(false);
-          setLoading(false);
+          queueMicrotask(() => setLoading(false));
           return;
         }
         return registration.pushManager.getSubscription()
@@ -50,7 +50,7 @@ export default function PushOptIn({ vapidPublicKey }: PushOptInProps) {
         console.error("Erreur de récupération de l'état push :", err);
       })
       .finally(() => {
-        setLoading(false);
+        queueMicrotask(() => setLoading(false));
       });
   }, []);
 
@@ -102,9 +102,10 @@ export default function PushOptIn({ vapidPublicKey }: PushOptInProps) {
       }
 
       setIsSubscribed(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Erreur d'activation push :", err);
-      setErrorMsg(err.message || "Une erreur est survenue lors de l'activation.");
+      const message = err instanceof Error ? err.message : "Une erreur est survenue lors de l'activation.";
+      setErrorMsg(message);
     } finally {
       setLoading(false);
     }
@@ -133,7 +134,7 @@ export default function PushOptIn({ vapidPublicKey }: PushOptInProps) {
       }
 
       setIsSubscribed(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Erreur de désactivation push :", err);
       setErrorMsg("Impossible de désactiver les notifications push.");
     } finally {

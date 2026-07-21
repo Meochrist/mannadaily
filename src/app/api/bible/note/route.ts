@@ -32,8 +32,8 @@ export async function POST(req: Request) {
           },
         });
         return NextResponse.json({ success: true, message: "Note deleted" });
-      } catch (dbErr: any) {
-        if (dbErr.code !== "P2025") {
+      } catch (dbErr: unknown) {
+        if (!(dbErr instanceof Error) || dbErr.message !== "P2025") {
           throw dbErr;
         }
         return NextResponse.json({ success: true, message: "No note to delete" });
@@ -60,8 +60,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ note });
-  } catch (error: any) {
-    console.error("Error saving verse note:", error);
+  } catch (error: unknown) {
+    console.error("Error saving verse note:", error instanceof Error ? error.message : error);
     return NextResponse.json({ error: "Failed to save note" }, { status: 500 });
   }
 }
@@ -88,8 +88,8 @@ export async function GET() {
     });
 
     return NextResponse.json({ notes });
-  } catch (error: any) {
-    console.error("Error fetching notes:", error);
+  } catch (error: unknown) {
+    console.error("Error fetching notes:", error instanceof Error ? error.message : error);
     return NextResponse.json({ error: "Failed to fetch notes" }, { status: 500 });
   }
 }

@@ -50,7 +50,7 @@ export async function GET(request: Request) {
     } else {
       return NextResponse.json({ error: "Invalid language. Must be 'hebrew' or 'greek'" }, { status: 400 });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching morphology data:", error);
     return NextResponse.json({ error: "Failed to fetch morphology data" }, { status: 500 });
   }

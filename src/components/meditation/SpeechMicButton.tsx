@@ -18,7 +18,9 @@ export default function SpeechMicButton({
 }: SpeechMicButtonProps) {
   // Store the latest value in a ref so the hook's onResult always has fresh data
   const valueRef = useRef(value);
-  valueRef.current = value;
+  useEffect(() => {
+    valueRef.current = value;
+  });
 
   const handleSpeechResult = useCallback(
     (fullTranscript: string) => {
@@ -47,8 +49,6 @@ export default function SpeechMicButton({
     resetTranscript,
     error,
   } = useSpeechRecognition(handleSpeechResult);
-
-  if (!isSupported) return null;
 
   const handleClick = async () => {
     if (isListening) {
@@ -79,6 +79,8 @@ export default function SpeechMicButton({
       }
     }
   }, [isListening, interimTranscript, transcript, onChange, value]);
+
+  if (!isSupported) return null;
 
   return (
     <div className="relative inline-flex items-center">

@@ -62,28 +62,30 @@ export default function RiveRenderer({
     const inputs = rive.stateMachineInputs("State Machine 1");
     if (!inputs) return;
 
+    const isEnum = (name: string) => ["state", "pose", "expression", "outfit"].includes(name);
+
     // 1. Mise à jour de l'état global sémantique (String, Number ou Boolean)
     const stateInput = inputs.find((i) => i.name === "state");
-    if (stateInput) {
-      stateInput.value = state as any;
+    if (stateInput && isEnum(stateInput.name)) {
+      (stateInput as unknown as { value: string }).value = state;
     }
 
     // 2. Mise à jour de la pose (si la machine d'état prend en charge les contrôles fins)
     const poseInput = inputs.find((i) => i.name === "pose");
-    if (poseInput) {
-      poseInput.value = pose as any;
+    if (poseInput && isEnum(poseInput.name)) {
+      (poseInput as unknown as { value: string }).value = pose;
     }
 
     // 3. Mise à jour de l'expression
     const expressionInput = inputs.find((i) => i.name === "expression");
-    if (expressionInput) {
-      expressionInput.value = expression as any;
+    if (expressionInput && isEnum(expressionInput.name)) {
+      (expressionInput as unknown as { value: string }).value = expression;
     }
 
     // 4. Mise à jour de la tenue
     const outfitInput = inputs.find((i) => i.name === "outfit");
-    if (outfitInput) {
-      outfitInput.value = outfit as any;
+    if (outfitInput && isEnum(outfitInput.name)) {
+      (outfitInput as unknown as { value: string }).value = outfit;
     }
   }, [rive, isReady, state, pose, expression, outfit]);
 

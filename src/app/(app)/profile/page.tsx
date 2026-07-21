@@ -32,10 +32,11 @@ import ShareCard from "@/components/sharing/ShareCard";
 export const dynamic = "force-dynamic";
 
 // Dictionnaire des composants de mascottes
-const mascotMap: Record<string, React.ComponentType<{ mood: any; size?: number; className?: string }>> = {
+import type { MascotMood } from "@/types/mascot";
+
+const mascotMap: Record<string, React.ComponentType<{ mood: MascotMood; size?: number; className?: string }>> = {
   manny: Manny,
   samson: Samson,
-  esther: Esther,
   gedeon: Gedeon,
   noe: Noe,
 };

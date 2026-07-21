@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ highlight });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error upserting highlight:", error);
     return NextResponse.json({ error: "Failed to save highlight" }, { status: 500 });
   }
@@ -74,15 +74,15 @@ export async function DELETE(req: Request) {
           },
         },
       });
-    } catch (dbErr: any) {
+    } catch (dbErr: unknown) {
       // Si le highlight n'existait pas, on ignore l'erreur
-      if (dbErr.code !== "P2025") {
+      if (!(dbErr instanceof Error) || dbErr.message !== "P2025") {
         throw dbErr;
       }
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error deleting highlight:", error);
     return NextResponse.json({ error: "Failed to delete highlight" }, { status: 500 });
   }

@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'out',
   server: {
     url: 'https://mannadaily.vercel.app', // Mettez ici l'URL de production de votre site (Vercel ou autre)
-    cleartext: true
+    cleartext: false
   }
 };
 

@@ -11,7 +11,7 @@ export default function ThemesPage() {
       <section className="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-2">
         <h1 className="text-3xl font-black text-slate-800 tracking-tight">Parcours Thématiques</h1>
         <p className="text-slate-500 font-medium max-w-xl">
-          Sélectionne un domaine de ta vie spirituelle ou émotionnelle pour guider tes méditations guidées par l'IA et trouver de la force.
+          Sélectionne un domaine de ta vie spirituelle ou émotionnelle pour guider tes méditations guidées par l&apos;IA et trouver de la force.
         </p>
       </section>
 

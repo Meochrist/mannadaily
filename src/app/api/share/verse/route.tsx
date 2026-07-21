@@ -168,7 +168,7 @@ export async function GET(request: NextRequest) {
         height: 630,
       }
     );
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error("Error generating verse image:", e);
     return new Response(`Failed to generate the image`, {
       status: 500,

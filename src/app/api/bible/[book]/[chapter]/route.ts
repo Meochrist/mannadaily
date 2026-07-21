@@ -36,8 +36,8 @@ export async function GET(
     const session = await auth();
     const userId = session?.user?.id;
 
-    let highlights: any[] = [];
-    let notes: any[] = [];
+    let highlights: { id: string; userId: string; verseId: string; color?: string | null }[] = [];
+    let notes: { id: string; userId: string; verseId: string; content?: string | null; isVoice?: boolean | null }[] = [];
 
     if (userId && verses.length > 0) {
       const verseIds = verses.map((v) => v.id);
@@ -78,7 +78,7 @@ export async function GET(
     });
 
     return NextResponse.json({ verses: formattedVerses });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching bible chapter:", error);
     return NextResponse.json({ error: "Failed to fetch chapter" }, { status: 500 });
   }

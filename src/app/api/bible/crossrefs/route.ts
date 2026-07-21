@@ -96,7 +96,7 @@ export async function GET(request: Request) {
     const response = NextResponse.json({ crossRefs: results });
     response.headers.set("Cache-Control", "public, max-age=3600, s-maxage=3600");
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching cross references:", error);
     return NextResponse.json({ error: "Failed to fetch cross references" }, { status: 500 });
   }

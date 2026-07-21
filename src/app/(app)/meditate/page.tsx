@@ -77,6 +77,36 @@ interface Answers {
   step6_decision: string;
 }
 
+interface CrossRef {
+  id: number;
+  refLabel: string;
+  toVerse?: { text?: string };
+}
+
+interface ChapterVerse {
+  verse: number;
+  text: string;
+}
+
+interface StrongResult {
+  number: string;
+  pronunciation?: string;
+  lemma?: string;
+  definition?: string;
+}
+
+interface VerseDetails {
+  id: number;
+  reference: string;
+  text: string;
+  translation?: string;
+  theme?: string;
+  highlightColor?: string | null;
+  bookNumber?: number;
+  chapter?: number;
+  verse?: number;
+}
+
 // Mini-session configuration
 const MINI_SESSIONS = [
   { id: 1, label: "Verset & Contexte", icon: BookOpen, color: "indigo", xp: 10 },
@@ -147,14 +177,14 @@ function MeditatePageContent() {
   });
 
   // Study panel (Task #D)
-  const [verseDetails, setVerseDetails] = useState<any | null>(null);
+  const [verseDetails, setVerseDetails] = useState<VerseDetails | null>(null);
   const [loadingVerseDetails, setLoadingVerseDetails] = useState(false);
-  const [chapterVerses, setChapterVerses] = useState<any[]>([]);
+  const [chapterVerses, setChapterVerses] = useState<ChapterVerse[]>([]);
   const [showStudyPanel, setShowStudyPanel] = useState<"strong" | "references" | "highlight" | null>(null);
-  const [strongResult, setStrongResult] = useState<any | null>(null);
+  const [strongResult, setStrongResult] = useState<StrongResult | null>(null);
   const [strongLoading, setStrongLoading] = useState(false);
   const [strongSearch, setStrongSearch] = useState("");
-  const [crossRefs, setCrossRefs] = useState<any[]>([]);
+  const [crossRefs, setCrossRefs] = useState<CrossRef[]>([]);
   const [loadingCrossRefs, setLoadingCrossRefs] = useState(false);
 
   // Session results
@@ -281,7 +311,7 @@ function MeditatePageContent() {
       const utcHour = new Date().getUTCHours();
       p = utcHour < 14 ? "morning" : "evening";
     }
-    setPeriod(p);
+    queueMicrotask(() => setPeriod(p));
 
     let verse: DailyVerseType;
 
@@ -308,8 +338,10 @@ function MeditatePageContent() {
       verse = verses[index];
     }
 
-    setDailyVerse(verse);
-    setBibleContext(getVerseContext(verse.reference));
+    queueMicrotask(() => {
+      setDailyVerse(verse);
+      setBibleContext(getVerseContext(verse.reference));
+    });
 
     fetch("/api/user/progress")
       .then((res) => res.json())
@@ -337,7 +369,7 @@ function MeditatePageContent() {
 
   // Reset mascot suggestion on step change
   useEffect(() => {
-    setShowSuggestion(true);
+    queueMicrotask(() => setShowSuggestion(true));
   }, [currentMiniSession, currentStepInMini]);
 
   // Pre-fetch AI content
@@ -350,15 +382,17 @@ function MeditatePageContent() {
       const cachedMeditation = sessionStorage.getItem(medKey);
 
       if (cachedHistorical) {
-        setHistoricalContext(cachedHistorical);
-        setPrefetchedHistorical(cachedHistorical);
+        queueMicrotask(() => {
+          setHistoricalContext(cachedHistorical);
+          setPrefetchedHistorical(cachedHistorical);
+        });
       }
       if (cachedMeditation) {
-        setPrefetchedMeditation(cachedMeditation);
+        queueMicrotask(() => setPrefetchedMeditation(cachedMeditation));
       }
       if (cachedHistorical && cachedMeditation) return;
 
-      setIsPrefetching(true);
+      queueMicrotask(() => setIsPrefetching(true));
       const fetchTasks = [];
 
       if (!cachedHistorical) {
@@ -740,7 +774,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
           const data = await res.json();
           const list = data.verses || [];
           setChapterVerses(list);
-          const v = list.find((vItem: any) => vItem.verse === verse);
+          const v = list.find((vItem: ChapterVerse) => vItem.verse === verse);
           if (v) setVerseDetails(v);
         }
       } catch (err) {
@@ -800,12 +834,14 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
   };
 
   useEffect(() => {
-    if (showStudyPanel === "references") loadCrossRefs();
-  }, [showStudyPanel, verseDetails]);
+    if (showStudyPanel === "references") queueMicrotask(() => loadCrossRefs());
+  }, [showStudyPanel, verseDetails, loadCrossRefs]);
 
   const handleStrongLookup = async (strongNum: string) => {
-    setStrongSearch(strongNum);
-    setStrongLoading(true);
+    queueMicrotask(() => {
+      setStrongSearch(strongNum);
+      setStrongLoading(true);
+    });
     try {
       const res = await fetch(`/api/bible/strong/${encodeURIComponent(strongNum)}`);
       if (res.ok) {
@@ -817,7 +853,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
     } catch (err) {
       console.error("Error looking up Strong number:", err);
     } finally {
-      setStrongLoading(false);
+      queueMicrotask(() => setStrongLoading(false));
     }
   };
 
@@ -946,7 +982,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
             onClick={handleNextStep}
             className="flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white font-extrabold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base animate-pulse"
           >
-            J'ai lu le verset
+            J&apos;ai lu le verset
             <ArrowRight className="w-5 h-5" />
           </button>
         </motion.div>
@@ -958,7 +994,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
       return dailyVerse && (() => {
         const parsedRef = parseReference(dailyVerse.reference);
         const currentIdx = parsedRef
-          ? chapterVerses.findIndex((v: any) => v.verse === parsedRef.verse)
+          ? chapterVerses.findIndex((v: ChapterVerse) => v.verse === parsedRef.verse)
           : -1;
         const beforeVerses = currentIdx !== -1
           ? chapterVerses.slice(Math.max(0, currentIdx - 3), currentIdx)
@@ -992,7 +1028,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   {isFirstVerse ? (
                     <p className="text-xs text-slate-400 font-semibold italic">Début du chapitre</p>
                   ) : (
-                    beforeVerses.map((v: any, i: number) => (
+                    beforeVerses.map((v: ChapterVerse, i: number) => (
                       <p key={i} className="text-xs md:text-sm font-semibold text-slate-500 leading-relaxed italic">
                         <span className="font-bold text-slate-400 not-italic mr-1">{v.verse}.</span>
                         « {v.text} »
@@ -1003,7 +1039,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                 
                 {/* Main verse highlighted */}
                 <div className="p-4 bg-yellow-100/60 border border-yellow-250/70 rounded-xl space-y-1 shadow-sm">
-                  <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest block">Verset à l'étude :</span>
+                  <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest block">Verset à l&apos;étude :</span>
                   <p className="text-sm md:text-base font-extrabold text-slate-800 leading-relaxed">
                     <span className="font-black text-indigo-600 mr-1">{parsedRef?.verse}.</span>
                     « {dailyVerse.text} »
@@ -1016,7 +1052,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   {isLastVerse ? (
                     <p className="text-xs text-slate-400 font-semibold italic">Fin du chapitre</p>
                   ) : (
-                    afterVerses.map((v: any, i: number) => (
+                    afterVerses.map((v: ChapterVerse, i: number) => (
                       <p key={i} className="text-xs md:text-sm font-semibold text-slate-500 leading-relaxed italic">
                         <span className="font-bold text-slate-400 not-italic mr-1">{v.verse}.</span>
                         « {v.text} »
@@ -1043,7 +1079,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
               </div>
 
               <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">À qui s'adresse ce message ?</label>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">À qui s&apos;adresse ce message ?</label>
                 <div className="relative">
                   <textarea rows={2} value={answers.step2_whom}
                     onChange={(e) => setAnswers({ ...answers, step2_whom: e.target.value })}
@@ -1115,7 +1151,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
             </div>
 
             <div className="space-y-3">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quel est le fait ou l'action principale décrite ?</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quel est le fait ou l&apos;action principale décrite ?</label>
               <div className="relative">
                 <textarea rows={2} value={answers.step4_action}
                   onChange={(e) => setAnswers({ ...answers, step4_action: e.target.value })}
@@ -1150,7 +1186,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
 
           <div className="space-y-4">
             <div className="space-y-3">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Que voulait communiquer l'auteur à ses lecteurs de l'époque ?</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Que voulait communiquer l&apos;auteur à ses lecteurs de l&apos;époque ?</label>
               <div className="relative">
                 <textarea rows={2} value={answers.step5_author}
                   onChange={(e) => setAnswers({ ...answers, step5_author: e.target.value })}
@@ -1162,7 +1198,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
             </div>
 
             <div className="space-y-3">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Qu'est-ce que ce verset signifie à la lumière de Jésus-Christ ?</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Qu&apos;est-ce que ce verset signifie à la lumière de Jésus-Christ ?</label>
               <div className="relative">
                 <textarea rows={2} value={answers.step5_jesus}
                   onChange={(e) => setAnswers({ ...answers, step5_jesus: e.target.value })}
@@ -1209,7 +1245,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
 
           <div className="space-y-4">
             <div className="space-y-3">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Comment ce verset parle-t-il directement à ta situation aujourd'hui ?</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Comment ce verset parle-t-il directement à ta situation aujourd&apos;hui ?</label>
               <div className="relative">
                 <textarea rows={2} value={answers.step6_situation}
                   onChange={(e) => setAnswers({ ...answers, step6_situation: e.target.value })}
@@ -1221,7 +1257,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
             </div>
 
             <div className="space-y-3">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Qu'est-ce que Dieu veut transformer dans ta vie à travers ce texte ?</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Qu&apos;est-ce que Dieu veut transformer dans ta vie à travers ce texte ?</label>
               <div className="relative">
                 <textarea rows={2} value={answers.step6_transform}
                   onChange={(e) => setAnswers({ ...answers, step6_transform: e.target.value })}
@@ -1270,7 +1306,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                 <div className="w-full bg-indigo-950 text-indigo-50 p-8 rounded-3xl border border-indigo-900 shadow-lg relative overflow-hidden flex flex-col space-y-4">
                   <div className="flex items-center gap-2 border-b border-indigo-900/60 pb-3 text-amber-400">
                     <Sparkles className="w-4.5 h-4.5 text-amber-400 fill-amber-400/10" />
-                    <span className="font-black text-xs uppercase tracking-wider text-amber-400">Ce que Dieu t'a dit aujourd'hui</span>
+                    <span className="font-black text-xs uppercase tracking-wider text-amber-400">Ce que Dieu t&apos;a dit aujourd&apos;hui</span>
                   </div>
                   <p className="text-indigo-100 font-bold leading-relaxed text-base text-justify whitespace-pre-line">{summaryContent}</p>
                 </div>
@@ -1602,10 +1638,10 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                       <p className="text-center text-xs text-indigo-300 py-3">Aucune référence croisée disponible.</p>
                     ) : (
                       <div className="space-y-2">
-                        {crossRefs.map((ref: any) => (
+                        {crossRefs.map((ref: CrossRef) => (
                           <div key={ref.id} className="bg-indigo-950/60 p-2.5 rounded-xl border border-indigo-900/40 space-y-1">
                             <span className="text-[10px] font-black text-indigo-400 block">{ref.refLabel}</span>
-                            <p className="text-xs text-indigo-100 italic">"{ref.toVerse?.text || ""}"</p>
+                            <p className="text-xs text-indigo-100 italic">&quot;{ref.toVerse?.text || ""}&quot;</p>
                           </div>
                         ))}
                       </div>

@@ -171,7 +171,7 @@ export async function GET(req: Request) {
     });
   } catch (error: unknown) {
     console.error("Erreur d'exécution du cron daily-reminder :", error);
-    const message = error instanceof Error ? error.message : "Erreur interne";
+    const message = error instanceof Error ? (error instanceof Error ? error.message : "") : "Erreur interne";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

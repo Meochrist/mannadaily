@@ -30,9 +30,10 @@ export async function GET() {
         longestStreak: streak?.longestStreak ?? 0,
       },
       progress: {
-        morningSessionToday: (progress as any)?.morningSessionToday ?? false,
-        eveningSessionToday: (progress as any)?.eveningSessionToday ?? false,
-        dayCompleted: (progress as any)?.dayCompleted ?? false,
+        morningSessionToday: progress?.morningSessionToday ?? false,
+        middaySessionToday: progress?.middaySessionToday ?? false,
+        eveningSessionToday: progress?.eveningSessionToday ?? false,
+        dayCompleted: progress?.lastSessionDate === new Date().toISOString().split("T")[0],
       },
       verse: `${verse.text} — ${verse.reference}`,
     });

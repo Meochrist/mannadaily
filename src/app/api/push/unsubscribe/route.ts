@@ -35,7 +35,7 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ success: true, message: "Désabonnement push réussi" });
   } catch (error: unknown) {
     console.error("Erreur dans l'API de désabonnement push :", error);
-    const message = error instanceof Error ? error.message : "Erreur interne du serveur";
+    const message = error instanceof Error ? (error instanceof Error ? error.message : "") : "Erreur interne du serveur";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

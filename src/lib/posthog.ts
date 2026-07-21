@@ -22,7 +22,7 @@ export function getPostHogClient(): PostHog | null {
 export function trackEvent(
   userId: string,
   eventName: string,
-  properties: Record<string, any> = {}
+  properties: Record<string, unknown> = {}
 ) {
   try {
     const client = getPostHogClient();
@@ -46,7 +46,7 @@ export function trackEvent(
  */
 export function identifyUser(
   userId: string,
-  properties: Record<string, any> = {}
+  properties: Record<string, unknown> = {}
 ) {
   try {
     const client = getPostHogClient();

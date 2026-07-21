@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     let xpEarned = 0;
     let leveledUp = false;
     let newLevel = "";
-    let newBadges: any[] = [];
+    let newBadges: unknown[] = [];
 
     // Si le statut passe à "mastered", on attribue 25 XP
     if (newStatus === "mastered" && oldStatus !== "mastered") {
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       newLevel,
       newBadges,
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const __message = error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error"; return NextResponse.json({ error: __message }, { status: 500 });
   }
 }

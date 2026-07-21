@@ -96,7 +96,7 @@ export async function sendPushNotification(
       },
     };
 
-    return webpush.sendNotification(pushSub, payload).catch(async (error: any) => {
+    return webpush.sendNotification(pushSub, payload).catch(async (error: { statusCode?: number }) => {
       // 404 (Not Found) ou 410 (Gone) signifie que la souscription a expiré ou a été révoquée
       if (error.statusCode === 410 || error.statusCode === 404) {
         console.log(`[WebPush] Suppression d'un abonnement expiré : ${sub.endpoint}`);

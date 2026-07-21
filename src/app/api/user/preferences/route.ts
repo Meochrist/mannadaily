@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     const { readingReminders, notificationTime, favoriteMascot, onboardingCompleted } = body;
 
     // Validation des préférences
-    const dataToUpdate: any = {};
+    const dataToUpdate: Record<string, unknown> = {};
     
     if (readingReminders !== undefined) {
       dataToUpdate.readingReminders = Boolean(readingReminders);
@@ -53,9 +53,10 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, user: updatedUser });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Internal Server Error";
     console.error("Error in POST /api/user/preferences:", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -82,8 +83,8 @@ export async function GET() {
     }
 
     return NextResponse.json({ preferences: user });
-  } catch (error: any) {
-    console.error("Error in GET /api/user/preferences:", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+  } catch (error: unknown) {
+    console.error("Error in GET /api/user/preferences:", error instanceof Error ? error.message : error);
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Internal Server Error" }, { status: 500 });
   }
 }

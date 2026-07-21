@@ -154,9 +154,11 @@ export default function RandomMascotMessage({
         break;
     }
 
-    setMascot(randomMascot);
-    setMessage(`${prefix}${rawMessage}`);
-    setMounted(true);
+    queueMicrotask(() => {
+      setMascot(randomMascot);
+      setMessage(`${prefix}${rawMessage}`);
+      setMounted(true);
+    });
   }, [userName, streakCount]);
 
   // Rendu de secours pendant le SSR pour éviter les décalages d'hydratation

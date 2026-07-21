@@ -2,6 +2,48 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 
+interface SpeechRecognitionResultItem {
+  transcript: string;
+  isFinal?: boolean;
+}
+
+interface SpeechRecognitionResult {
+  readonly isFinal: boolean;
+  readonly length: number;
+  0: SpeechRecognitionResultItem;
+  [index: number]: SpeechRecognitionResultItem;
+}
+
+interface SpeechRecognitionEvent {
+  resultIndex: number;
+  results: {
+    readonly length: number;
+    [index: number]: SpeechRecognitionResult;
+  };
+}
+
+interface SpeechRecognitionErrorEvent {
+  error: string;
+}
+
+interface SpeechRecognitionInstance {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  maxAlternatives: number;
+  onstart: (() => void) | null;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+  start(): void;
+  stop(): void;
+  abort(): void;
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognitionInstance;
+}
+
 interface SpeechRecognitionHook {
   isListening: boolean;
   isSupported: boolean;
@@ -24,7 +66,8 @@ export function useSpeechRecognition(
   const [interimTranscript, setInterimTranscript] = useState("");
   const [error, setError] = useState("");
 
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+
   const finalTranscriptRef = useRef(""); // non-reactive accumulator
   const isListeningRef = useRef(false);   // mirror for callbacks
 
@@ -33,14 +76,15 @@ export function useSpeechRecognition(
     if (typeof window === "undefined") return;
 
     const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      (window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor; webkitSpeechRecognition?: SpeechRecognitionConstructor }).SpeechRecognition ||
+      (window as unknown as { webkitSpeechRecognition?: SpeechRecognitionConstructor }).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      setIsSupported(false);
+      queueMicrotask(() => setIsSupported(false));
       return;
     }
 
-    setIsSupported(true);
+    queueMicrotask(() => setIsSupported(true));
 
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
@@ -53,7 +97,7 @@ export function useSpeechRecognition(
       isListeningRef.current = true;
     };
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
       let finalText = "";
       let interimText = "";
 
@@ -85,7 +129,7 @@ export function useSpeechRecognition(
       setInterimTranscript(interimText);
     };
 
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       const errorMsg = event.error || "Erreur inconnue";
       console.error("Speech recognition error:", errorMsg);
 
@@ -140,11 +184,11 @@ export function useSpeechRecognition(
       stream.getTracks().forEach((track) => track.stop());
       setHasPermission(true);
       return true;
-    } catch (err: any) {
+    } catch (err: unknown) {
       const msg =
-        err.name === "NotAllowedError" || err.name === "PermissionDeniedError"
+        (err instanceof Error && (err.name === "NotAllowedError" || err.name === "PermissionDeniedError"))
           ? "Permission microphone refusée. Veuillez autoriser le microphone."
-          : `Impossible d'accéder au microphone : ${err.message}`;
+          : `Impossible d'accéder au microphone : ${err instanceof Error ? err.message : String(err)}`;
       setError(msg);
       setHasPermission(false);
       return false;
@@ -166,9 +210,9 @@ export function useSpeechRecognition(
 
     try {
       recognitionRef.current.start();
-    } catch (err: any) {
+    } catch (err: unknown) {
       // If already started, stop and restart
-      if (err.name === "InvalidStateError") {
+      if (err instanceof Error && err.name === "InvalidStateError") {
         try {
           recognitionRef.current.stop();
         } catch (_) {}

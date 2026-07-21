@@ -66,9 +66,10 @@ export async function GET() {
         progressPercent,
         versesLearned: progress.versesLearned,
         sessionsTotal: progress.sessionsTotal,
-        morningSessionToday: (progress as any).morningSessionToday,
-        eveningSessionToday: (progress as any).eveningSessionToday,
-        lastSessionDate: (progress as any).lastSessionDate,
+        morningSessionToday: progress.morningSessionToday,
+        middaySessionToday: progress.middaySessionToday,
+        eveningSessionToday: progress.eveningSessionToday,
+        lastSessionDate: progress.lastSessionDate,
       },
       streak: {
         currentStreak: streak.currentStreak,
@@ -87,7 +88,7 @@ export async function GET() {
     });
   } catch (error: unknown) {
     console.error("Error in progress fetching API:", error);
-    const message = error instanceof Error ? error.message : "Internal Server Error";
+    const message = error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

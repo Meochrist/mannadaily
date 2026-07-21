@@ -1,0 +1,197 @@
+
+> mannadaily@0.1.0 lint
+> eslint
+
+
+D:\Antigravity\mannadaily\prisma\seedCommentary.ts
+  50:10  warning  'testUrl' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\prisma\seedStrong.ts
+  77:3  warning  'prefix' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\scripts\generate-character-svgs.js
+   4:7  warning  'CHARACTERS' is assigned a value but never used      @typescript-eslint/no-unused-vars
+   5:7  warning  'POSES' is assigned a value but never used           @typescript-eslint/no-unused-vars
+   6:7  warning  'EXPRESSIONS' is assigned a value but never used     @typescript-eslint/no-unused-vars
+   7:7  warning  'OUTFITS' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  15:7  warning  'DESIGN_CONFIGS' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\scripts\generate-manny-prototype.js
+  10:7  warning  'colors' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\(app)\bible\page.tsx
+   338:6   warning  React Hook useEffect has a missing dependency: 'activeTab'. Either include it or remove the dependency array                                                                                                                                                                             react-hooks/exhaustive-deps
+   537:15  warning  'data' is assigned a value but never used                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  1506:37  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  1521:35  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+D:\Antigravity\mannadaily\src\app\(app)\dashboard\page.tsx
+  2:8  warning  'Link' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\(app)\layout.tsx
+  30:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+D:\Antigravity\mannadaily\src\app\(app)\leaderboard\page.tsx
+    6:48  warning  'UserIcon' is defined but never used                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+   27:11  warning  'leagueName' is assigned a value but never used                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+   75:9   warning  'otherMembers' is assigned a value but never used                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  139:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  164:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  189:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  241:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+D:\Antigravity\mannadaily\src\app\(app)\meditate\page.tsx
+   22:3   warning  'Clock' is defined but never used                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+   27:3   warning  'Mic' is defined but never used                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   28:3   warning  'Sun' is defined but never used                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   29:3   warning  'Moon' is defined but never used                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   35:10  warning  'getDailyVerse' is defined but never used                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+  127:7   warning  'defaultProgress' is assigned a value but never used                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+  160:10  warning  'bibleContext' is assigned a value but never used                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  167:10  warning  'prefetchedMeditation' is assigned a value but never used                                                                                                                                                                               @typescript-eslint/no-unused-vars
+  181:10  warning  'loadingVerseDetails' is assigned a value but never used                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  186:10  warning  'strongSearch' is assigned a value but never used                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  555:13  warning  'xpReward' is assigned a value but never used                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  820:9   warning  The 'loadCrossRefs' function makes the dependencies of useEffect Hook (at line 838) change on every render. Move it inside the useEffect callback. Alternatively, wrap the definition of 'loadCrossRefs' in its own useCallback() Hook  react-hooks/exhaustive-deps
+  924:9   warning  'mascotMood' is assigned a value but never used                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+  942:11  warning  'stepNum' is assigned a value but never used                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\(app)\memorize\page.tsx
+  18:3  warning  'ChevronRight' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\(app)\my-meditations\page.tsx
+   97:10  warning  'getDateGroup' is defined but never used           @typescript-eslint/no-unused-vars
+  115:10  warning  'formatDate' is defined but never used             @typescript-eslint/no-unused-vars
+  238:9   warning  'currentMonth' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\(app)\proclaim\page.tsx
+  67:10  warning  'loading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  69:10  warning  'error' is assigned a value but never used    @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\(app)\profile\page.tsx
+    8:11  warning  'UserIcon' is defined but never used                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+   18:3   warning  'CheckCircle2' is defined but never used                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+   26:8   warning  'Esther' is defined but never used                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  189:9   warning  'completedPlans' is assigned a value but never used                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+  210:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+D:\Antigravity\mannadaily\src\app\(app)\progress\page.tsx
+  15:3  warning  'Clock' is defined but never used     @typescript-eslint/no-unused-vars
+  16:3  warning  'Compass' is defined but never used   @typescript-eslint/no-unused-vars
+  17:3  warning  'Flame' is defined but never used     @typescript-eslint/no-unused-vars
+  18:3  warning  'BookOpen' is defined but never used  @typescript-eslint/no-unused-vars
+  19:3  warning  'Shield' is defined but never used    @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\(auth)\login\page.tsx
+  42:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+  52:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\(auth)\register\page.tsx
+  79:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\app\LandingPageClient.tsx
+   15:3   warning  'Check' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   19:3   warning  'Award' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   20:3   warning  'Users' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   21:3   warning  'TrendingUp' is defined but never used                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+   22:3   warning  'MessageSquare' is defined but never used                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  207:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  750:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+D:\Antigravity\mannadaily\src\app\not-found.tsx
+  6:16  warning  'ArrowLeft' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\components\bible\VerseShareModal.tsx
+  146:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+D:\Antigravity\mannadaily\src\components\dashboard\GameMap.tsx
+   6:23  warning  'Star' is defined but never used        @typescript-eslint/no-unused-vars
+   6:29  warning  'Trophy' is defined but never used      @typescript-eslint/no-unused-vars
+   6:53  warning  'HelpCircle' is defined but never used  @typescript-eslint/no-unused-vars
+   6:88  warning  'Award' is defined but never used       @typescript-eslint/no-unused-vars
+   8:35  warning  'PathConfig' is defined but never used  @typescript-eslint/no-unused-vars
+   8:47  warning  'Verse' is defined but never used       @typescript-eslint/no-unused-vars
+  75:35  warning  'currentXP' is defined but never used   @typescript-eslint/no-unused-vars
+  75:46  warning  'userName' is defined but never used    @typescript-eslint/no-unused-vars
+  75:56  warning  'dailyVerse' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\components\gamification\LingotsCounter.tsx
+   5:48  warning  'Sparkles' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+  19:10  warning  'successMessage' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+  27:25  warning  'setLingotTrigger' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+  87:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\Antigravity\mannadaily\src\components\gamification\LingotsCounter.tsx:87:9
+  85 |
+  86 |       if (status === "verify" && payment === "freeze" && transactionId) {
+> 87 |         verifyFedaPayPayment(transactionId);
+     |         ^^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  88 |       }
+  89 |     }
+  90 |   }, []);  react-hooks/set-state-in-effect
+
+D:\Antigravity\mannadaily\src\components\layout\BottomNav.tsx
+  10:3  warning  'Volume2' is defined but never used   @typescript-eslint/no-unused-vars
+  11:3  warning  'Grid' is defined but never used      @typescript-eslint/no-unused-vars
+  13:3  warning  'Award' is defined but never used     @typescript-eslint/no-unused-vars
+  15:3  warning  'Calendar' is defined but never used  @typescript-eslint/no-unused-vars
+  17:3  warning  'Brain' is defined but never used     @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\components\layout\TopBar.tsx
+   5:18  warning  'Sparkles' is defined but never used                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+  15:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+D:\Antigravity\mannadaily\src\components\mascot\CharacterRenderer.tsx
+  271:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  280:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+D:\Antigravity\mannadaily\src\components\meditation\SpeechMicButton.tsx
+  44:5  warning  'hasPermission' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\components\notifications\PushOptIn.tsx
+  22:10  warning  'permission' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\components\onboarding\OnboardingClient.tsx
+   5:10   warning  'Sparkles' is defined but never used     @typescript-eslint/no-unused-vars
+   5:50   warning  'BookOpen' is defined but never used     @typescript-eslint/no-unused-vars
+   5:60   warning  'Heart' is defined but never used        @typescript-eslint/no-unused-vars
+   5:77   warning  'Trophy' is defined but never used       @typescript-eslint/no-unused-vars
+   5:85   warning  'Award' is defined but never used        @typescript-eslint/no-unused-vars
+   5:92   warning  'Settings' is defined but never used     @typescript-eslint/no-unused-vars
+   5:102  warning  'Bell' is defined but never used         @typescript-eslint/no-unused-vars
+   5:108  warning  'ShieldAlert' is defined but never used  @typescript-eslint/no-unused-vars
+   5:121  warning  'BadgeCheck' is defined but never used   @typescript-eslint/no-unused-vars
+  38:44   warning  'userId' is defined but never used       @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\components\pwa\InstallPrompt.tsx
+  6:10  warning  'cn' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\components\reading-plans\ReadingPlansClient.tsx
+    8:3   warning  'Circle' is defined but never used                   @typescript-eslint/no-unused-vars
+   76:17  warning  'setPlans' is assigned a value but never used        @typescript-eslint/no-unused-vars
+  101:9   warning  'isDayCompleted' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\components\sharing\ShareCard.tsx
+   4:10  warning  'motion' is defined but never used                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+   4:18  warning  'AnimatePresence' is defined but never used                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+  80:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+D:\Antigravity\mannadaily\src\hooks\useSpeechRecognition.ts
+  160:16  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
+  218:18  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\lib\ai.ts
+  211:15  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
+  257:15  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity\mannadaily\src\lib\mascots.ts
+  1:10  warning  'MascotCharacter' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 109 problems (1 error, 108 warnings)
+

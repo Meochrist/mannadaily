@@ -7,11 +7,11 @@ import {
   CheckCircle, 
   BookOpen, 
   ArrowRight, 
-  Sparkles, 
-  Award, 
+//  Sparkles, 
+//  Award, 
   RotateCcw, 
   Check, 
-  Volume2, 
+//  Volume2, 
   Calendar,
   Loader2,
   X,
@@ -74,7 +74,7 @@ export default function MemorizePage() {
   };
 
   useEffect(() => {
-    fetchData();
+    queueMicrotask(() => fetchData());
   }, []);
 
   // Commencer la révision

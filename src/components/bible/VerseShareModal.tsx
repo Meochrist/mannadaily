@@ -34,7 +34,7 @@ export default function VerseShareModal({
 
   useEffect(() => {
     if (typeof navigator !== "undefined" && "share" in navigator) {
-      setShareSupported(true);
+      queueMicrotask(() => setShareSupported(true));
     }
   }, []);
 

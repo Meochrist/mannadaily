@@ -147,7 +147,7 @@ async function seedVersion(key: string, name: string) {
   console.log(`\n=== Importation de la version : ${name} (${key}) ===`);
   let totalVersesInserted = 0;
   let totalChaptersProcessed = 0;
-  let errors: string[] = [];
+  const errors: string[] = [];
 
   for (let bookNr = 1; bookNr <= 66; bookNr++) {
     const bookName = BIBLE_BOOKS_MAP[bookNr];
@@ -229,15 +229,16 @@ async function main() {
   const excludedKeys = ["ls1910", "darby", "martin"];
   const versionsToSeed: Array<{ key: string; name: string }> = [];
 
-  Object.entries(translations).forEach(([key, val]: [string, any]) => {
-    const isFrench = val.language === 'French' || val.lang === 'fr' || 
-                     (val.language && val.language.toLowerCase().includes('french')) ||
-                     (val.language && val.language.toLowerCase().includes('fran'));
+  Object.entries(translations).forEach(([key, val]) => {
+    const v = val as Record<string, unknown>;
+    const isFrench = v.language === 'French' || v.lang === 'fr' || 
+                     (v.language && (v.language as string).toLowerCase().includes('french')) ||
+                     (v.language && (v.language as string).toLowerCase().includes('fran'));
     
     if (isFrench && !excludedKeys.includes(key)) {
       versionsToSeed.push({
         key,
-        name: val.translation
+        name: v.translation as string
       });
     }
   });
@@ -252,8 +253,8 @@ async function main() {
   for (const version of versionsToSeed) {
     try {
       await seedVersion(version.key, version.name);
-    } catch (e: any) {
-      console.error(`Erreur critique sur la version ${version.name} :`, e.message || e);
+    } catch (e: unknown) {
+      console.error(`Erreur critique sur la version ${version.name} :`, e instanceof Error ? e.message : e);
     }
   }
 }

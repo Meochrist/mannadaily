@@ -81,6 +81,7 @@ export async function awardXP(
             sessionsTotal: 0,
             lingots: 0,
             morningSessionToday: false,
+            middaySessionToday: false,
             eveningSessionToday: false,
           },
         });
@@ -135,23 +136,25 @@ export async function checkDayCompletion(userId: string) {
       where: { userId },
       select: {
         morningSessionToday: true,
+        middaySessionToday: true,
         eveningSessionToday: true,
         lastSessionDate: true,
       }
     });
 
     if (!progress) {
-      return { morningDone: false, eveningDone: false, dayComplete: false };
+      return { morningDone: false, middayDone: false, eveningDone: false, dayComplete: false };
     }
 
     // Si le jour a changé par rapport à la dernière session enregistrée, on considère qu'aucune session n'est faite pour aujourd'hui
     if (progress.lastSessionDate !== todayStr) {
-      return { morningDone: false, eveningDone: false, dayComplete: false };
+      return { morningDone: false, middayDone: false, eveningDone: false, dayComplete: false };
     }
 
-    const dayComplete = progress.morningSessionToday && progress.eveningSessionToday;
+    const dayComplete = progress.morningSessionToday && progress.middaySessionToday && progress.eveningSessionToday;
     return {
       morningDone: progress.morningSessionToday,
+      middayDone: progress.middaySessionToday,
       eveningDone: progress.eveningSessionToday,
       dayComplete,
     };

@@ -33,7 +33,22 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
+    if (JSON.stringify(body).length > 50_000) {
+      return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+    }
     const { verse, reference, theme, type = "meditation", answers, question, verseContext } = body;
+
+    if (typeof type !== "string" || !["meditation", "contexte_biblique", "contexte_historique", "priere", "commentary", "bible_chat", "summary", "prayer_personal"].includes(type)) {
+      return NextResponse.json({ error: "Invalid generation type" }, { status: 400 });
+    }
+    for (const [name, value, max] of [["verse", verse, 20_000], ["reference", reference, 200], ["theme", theme, 200], ["question", question, 4_000], ["verseContext", verseContext, 20_000]] as const) {
+      if (value !== undefined && value !== null && (typeof value !== "string" || value.length > max)) {
+        return NextResponse.json({ error: `${name} is invalid or too long` }, { status: 400 });
+      }
+    }
+    if (answers !== undefined && (typeof answers !== "object" || answers === null || Array.isArray(answers) || JSON.stringify(answers).length > 20_000)) {
+      return NextResponse.json({ error: "Answers are invalid or too long" }, { status: 400 });
+    }
 
     // Prise en charge du commentaire IA
     if (type === "commentary") {
@@ -119,7 +134,8 @@ export async function POST(req: Request) {
       },
     });
 
-    const meditationText = await generateMeditation(verse, reference, theme, type);
+    const generationType = type as "meditation" | "contexte_biblique" | "contexte_historique" | "priere";
+    const meditationText = await generateMeditation(verse, reference, theme, generationType);
 
     // On ne sauvegarde dans l'historique d'étude que la méditation classique de base
     if (type === "meditation") {
@@ -134,7 +150,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ meditation: meditationText });
   } catch (error: unknown) {
     console.error("Error in meditation generation API:", error);
-    const message = error instanceof Error ? error.message : "Internal Server Error";
+    const message = error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

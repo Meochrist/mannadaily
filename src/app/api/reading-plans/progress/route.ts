@@ -34,9 +34,9 @@ export async function GET() {
     });
 
     return NextResponse.json({ progress, enrollments });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in GET /api/reading-plans/progress:", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -133,8 +133,8 @@ export async function POST(req: Request) {
       newLevel: xpResult.newLevel,
       levelName: xpResult.levelName
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in POST /api/reading-plans/progress:", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error" }, { status: 500 });
   }
 }

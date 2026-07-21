@@ -2,62 +2,111 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { awardXP, updateStreak, checkAndAwardBadges } from "@/lib/gamification";
 import { addXPToLeague } from "@/lib/leaderboard";
-import { XP_RULES } from "@/types";
 import { NextResponse } from "next/server";
 import { trackEvent } from "@/lib/posthog";
 
 export const dynamic = "force-dynamic";
 
+const ALLOWED_TYPES = new Set(["classic", "thematic", "proclaim", "proclamation"]);
+const ALLOWED_PERIODS = new Set(["morning", "midday", "evening"]);
+const MAX_NOTES_LENGTH = 10_000;
+
+function getActivityDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function isUniqueConstraintError(error: unknown) {
+  return typeof error === "object" && error !== null && "code" in error && error.code === "P2002";
+}
+
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    if (!session?.user) {
+    const userId = session?.user?.id;
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = session.user.id;
-    const body = await req.json();
-    const { type, notes } = body;
-    let period = body.period;
+    const contentLength = Number(req.headers.get("content-length") || 0);
+    if (contentLength > 32_000) {
+      return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+    }
 
-    const allowedTypes = ["classic", "thematic", "proclaim", "proclamation"];
-    if (!type || !allowedTypes.includes(type)) {
+    const body = await req.json();
+    const { type, period, notes } = body as {
+      type?: unknown;
+      period?: unknown;
+      notes?: unknown;
+    };
+
+    if (typeof type !== "string" || !ALLOWED_TYPES.has(type)) {
       return NextResponse.json({ error: "Invalid or missing session type" }, { status: 400 });
     }
-
-    // Auto-détecter la période si non fournie (si heure UTC < 14h -> morning, sinon evening)
-    if (!period) {
-      const utcHour = new Date().getUTCHours();
-      period = utcHour < 14 ? "morning" : "evening";
+    if (typeof period !== "string" || !ALLOWED_PERIODS.has(period)) {
+      return NextResponse.json({ error: "Invalid period" }, { status: 400 });
+    }
+    if (notes !== undefined && notes !== null && (typeof notes !== "string" || notes.length > MAX_NOTES_LENGTH)) {
+      return NextResponse.json({ error: "Notes are too long" }, { status: 400 });
     }
 
-    if (period !== "morning" && period !== "evening") {
-      return NextResponse.json({ error: "Invalid period. Must be morning or evening" }, { status: 400 });
+    const activityDate = getActivityDate();
+
+    // The composite unique key is the server-side idempotency guard.
+    try {
+      await db.dailySession.create({
+        data: {
+          userId,
+          type,
+          period,
+          activityDate,
+          xpEarned: 15,
+          duration: 120,
+          notes: typeof notes === "string" && notes.trim() ? notes.trim() : null,
+        },
+      });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        const progress = await db.userProgress.findUnique({ where: { userId } });
+        return NextResponse.json({
+          success: true,
+          alreadyCompleted: true,
+          dayComplete: Boolean(progress?.morningSessionToday && progress.middaySessionToday && progress.eveningSessionToday),
+          morningDone: progress?.lastSessionDate === activityDate && progress.morningSessionToday,
+          middayDone: progress?.lastSessionDate === activityDate && progress.middaySessionToday,
+          eveningDone: progress?.lastSessionDate === activityDate && progress.eveningSessionToday,
+        });
+      }
+      throw error;
     }
 
-    // Chaque session de période rapporte 15 XP de base
-    const xpEarned = 15;
-    const xpReason = period === "morning" ? "morning_session" : "evening_session";
+    // Une méditation classique est déjà récompensée par les trois mini-sessions
+    // via /api/meditate/progress. Cette route persiste uniquement le journal final
+    // afin d'éviter de créditer deux fois l'XP.
+    if (type === "classic") {
+      const progress = await db.userProgress.findUnique({ where: { userId } });
+      const sameDay = progress?.lastSessionDate === activityDate;
+      const morningDone = Boolean(sameDay && progress?.morningSessionToday);
+      const middayDone = Boolean(sameDay && progress?.middaySessionToday);
+      const eveningDone = Boolean(sameDay && progress?.eveningSessionToday);
+      return NextResponse.json({
+        success: true,
+        alreadyCompleted: false,
+        xpEarned: 0,
+        bonusXP: 0,
+        dayComplete: morningDone && middayDone && eveningDone,
+        morningDone,
+        middayDone,
+        eveningDone,
+        newXP: progress?.totalXP ?? 0,
+        leveledUp: false,
+        newLevel: progress?.level ?? "Semence",
+        levelName: progress?.level ?? "Semence",
+        streak: (await db.streak.findUnique({ where: { userId }, select: { currentStreak: true } }))?.currentStreak ?? 0,
+        newBadges: [],
+      });
+    }
 
-    // Enregistrer la session
-    await db.dailySession.create({
-      data: {
-        userId,
-        type,
-        period,
-        xpEarned,
-        duration: 120,
-        notes: notes || null,
-      },
-    });
-
-    const todayStr = new Date().toISOString().split("T")[0];
-
-    // Récupérer et mettre à jour UserProgress (flags de sessions quotidiennes)
-    let progress = await db.userProgress.findUnique({
-      where: { userId },
-    });
-
+    let progress = await db.userProgress.findUnique({ where: { userId } });
     if (!progress) {
       progress = await db.userProgress.create({
         data: {
@@ -68,74 +117,61 @@ export async function POST(req: Request) {
           sessionsTotal: 0,
           lingots: 0,
           morningSessionToday: false,
+          middaySessionToday: false,
           eveningSessionToday: false,
         },
       });
     }
 
-    const isNewDay = progress.lastSessionDate !== todayStr;
-    const wasMorningDoneBefore = isNewDay ? false : progress.morningSessionToday;
-    const wasEveningDoneBefore = isNewDay ? false : progress.eveningSessionToday;
-    const wasDayCompleteBefore = wasMorningDoneBefore && wasEveningDoneBefore;
+    const sameDay = progress.lastSessionDate === activityDate;
+    const wasMorningDone = sameDay && progress.morningSessionToday;
+    const wasMiddayDone = sameDay && progress.middaySessionToday;
+    const wasEveningDone = sameDay && progress.eveningSessionToday;
+    const wasDayComplete = wasMorningDone && wasMiddayDone && wasEveningDone;
 
-    const morningDone = period === "morning" ? true : wasMorningDoneBefore;
-    const eveningDone = period === "evening" ? true : wasEveningDoneBefore;
-    const dayComplete = morningDone && eveningDone;
-    const dayJustCompleted = dayComplete && !wasDayCompleteBefore;
+    const morningDone = period === "morning" || wasMorningDone;
+    const middayDone = period === "midday" || wasMiddayDone;
+    const eveningDone = period === "evening" || wasEveningDone;
+    const dayComplete = morningDone && middayDone && eveningDone;
+    const dayJustCompleted = dayComplete && !wasDayComplete;
 
-    // Sauvegarder l'état mis à jour dans la progression de l'utilisateur
     await db.userProgress.update({
       where: { userId },
       data: {
         morningSessionToday: morningDone,
+        middaySessionToday: middayDone,
         eveningSessionToday: eveningDone,
-        lastSessionDate: todayStr,
-        sessionsTotal: {
-          increment: 1,
-        },
+        lastSessionDate: activityDate,
+        sessionsTotal: { increment: 1 },
       },
     });
 
-    // Attribuer l'XP de base
-    let finalXPResult = await awardXP(userId, xpReason);
-
-    // Si la journée vient d'être complétée, attribuer le bonus et mettre à jour le streak
+    const baseXPResult = await awardXP(userId, "morning_session");
+    let finalXPResult = baseXPResult;
     let bonusXP = 0;
-    let currentStreak = 0;
+    let currentStreak = (await db.streak.findUnique({ where: { userId }, select: { currentStreak: true } }))?.currentStreak ?? 0;
 
     if (dayJustCompleted) {
       bonusXP = 10;
       finalXPResult = await awardXP(userId, "day_complete_bonus");
       currentStreak = await updateStreak(userId);
-    } else {
-      const userStreak = await db.streak.findUnique({
-        where: { userId },
-        select: { currentStreak: true }
-      });
-      currentStreak = userStreak ? userStreak.currentStreak : 0;
     }
 
-    // Ajouter l'XP gagnée au classement de la ligue hebdomadaire
-    await addXPToLeague(userId, xpEarned + bonusXP);
-
-    // PostHog event tracking
-    trackEvent(userId, "session_completed", { 
-      type, 
-      period, 
-      xpEarned: xpEarned + bonusXP, 
-      dayComplete 
-    });
-
+    await addXPToLeague(userId, 15 + bonusXP);
+    trackEvent(userId, "session_completed", { type, period, xpEarned: 15 + bonusXP, dayComplete });
     const newBadges = await checkAndAwardBadges(userId);
 
     return NextResponse.json({
-      xpEarned,
+      success: true,
+      alreadyCompleted: false,
+      xpEarned: 15,
       bonusXP,
       dayComplete,
       morningDone,
+      middayDone,
       eveningDone,
-      newXP: finalXPResult.newXP,
-      leveledUp: finalXPResult.leveledUp,
+      newXP: baseXPResult.newXP + bonusXP,
+      leveledUp: baseXPResult.leveledUp || finalXPResult.leveledUp,
       newLevel: finalXPResult.newLevel,
       levelName: finalXPResult.levelName,
       streak: currentStreak,
@@ -143,7 +179,6 @@ export async function POST(req: Request) {
     });
   } catch (error: unknown) {
     console.error("Error in session completion API:", error);
-    const message = error instanceof Error ? error.message : "Internal Server Error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: "Unable to complete session" }, { status: 500 });
   }
 }

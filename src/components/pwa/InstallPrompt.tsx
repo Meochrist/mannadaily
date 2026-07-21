@@ -5,9 +5,14 @@ import { X, Download, Share } from "lucide-react";
 import Manny from "@/components/mascot/Manny";
 import { cn } from "@/lib/utils";
 
+interface DeferredPrompt {
+  prompt(): Promise<void>;
+  userChoice: Promise<{ outcome: string }>;
+}
+
 export default function InstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<DeferredPrompt | null>(null);
   const [isIOSPlatform, setIsIOSPlatform] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
 
@@ -19,7 +24,7 @@ export default function InstallPrompt() {
         .catch((err) => console.warn("SW: Registration failed", err));
     }
 
-    // 2. Vérifier si l'utilisateur a déjà refusé l'installation récemment
+    // 2. Vérifier si l&apos;utilisateur a déjà refusé l'installation récemment
     const isDismissed = localStorage.getItem("pwa-install-dismissed");
     if (isDismissed) {
       const dismissedTime = parseInt(isDismissed, 10);
@@ -32,15 +37,15 @@ export default function InstallPrompt() {
     // 3. Détecter si l'application est déjà lancée en mode autonome
     const isStandalone = 
       window.matchMedia("(display-mode: standalone)").matches || 
-      (navigator as any).standalone === true;
+      (navigator as unknown as { standalone?: boolean }).standalone === true;
     
     if (isStandalone) {
       return;
     }
 
     // 4. Détecter la plateforme iOS
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-    setIsIOSPlatform(isIOS);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as unknown as { MSStream?: unknown }).MSStream;
+    queueMicrotask(() => setIsIOSPlatform(isIOS));
 
     if (isIOS) {
       // Pour iOS, on affiche le prompt après 5 secondes si pas de refus
@@ -53,7 +58,7 @@ export default function InstallPrompt() {
     // 5. Pour Android/Chrome : écouter l'événement standard beforeinstallprompt
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as unknown as DeferredPrompt);
       setShowPrompt(true);
     };
 

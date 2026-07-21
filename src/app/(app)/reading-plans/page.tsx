@@ -31,17 +31,17 @@ export default async function ReadingPlansPage() {
     }
   });
 
-  // Récupérer les inscriptions de l'utilisateur
+  // Récupérer les inscriptions de l&apos;utilisateur
   const enrollments = await db.readingPlanEnrollment.findMany({
     where: { userId }
   });
 
-  // Récupérer la progression (jours complétés) de l'utilisateur
+  // Récupérer la progression (jours complétés) de l&apos;utilisateur
   const progress = await db.readingPlanProgress.findMany({
     where: { userId }
   });
 
-  // Récupérer les préférences de rappel de l'utilisateur
+  // Récupérer les préférences de rappel de l&apos;utilisateur
   const user = await db.user.findUnique({
     where: { id: userId },
     select: {

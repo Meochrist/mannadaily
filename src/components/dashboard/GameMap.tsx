@@ -82,21 +82,23 @@ export default function GameMap({ currentXP, userName, dailyVerse }: GameMapProp
 
   // Charger la progression locale au montage client
   useEffect(() => {
-    setMounted(true);
+    queueMicrotask(() => {
+      setMounted(true);
     
-    const savedPath = localStorage.getItem("mannadaily_active_path_id");
-    if (savedPath) {
-      setActivePathId(savedPath);
-    }
-    
-    const savedProgress = localStorage.getItem("mannadaily_path_progress");
-    if (savedProgress) {
-      try {
-        setPathProgress(JSON.parse(savedProgress));
-      } catch (err) {
-        console.error("Error parsing path progress", err);
+      const savedPath = localStorage.getItem("mannadaily_active_path_id");
+      if (savedPath) {
+        setActivePathId(savedPath);
       }
-    }
+    
+      const savedProgress = localStorage.getItem("mannadaily_path_progress");
+      if (savedProgress) {
+        try {
+          setPathProgress(JSON.parse(savedProgress));
+        } catch (err) {
+          console.error("Error parsing path progress", err);
+        }
+      }
+    });
   }, []);
 
   const activePath = PATHS.find((p) => p.id === activePathId) || PATHS[0];

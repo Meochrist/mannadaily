@@ -74,7 +74,7 @@ export default async function LeaderboardPage() {
   const thirdPlace = members.find((m) => m.rank === 3);
   const otherMembers = members.filter((m) => m.rank > 3);
 
-  // Trouver le rang de l'utilisateur courant
+  // Trouver le rang de l&apos;utilisateur courant
   const currentUserMember = members.find((m) => m.isCurrentUser);
   const userRank = currentUserMember ? currentUserMember.rank : 0;
 

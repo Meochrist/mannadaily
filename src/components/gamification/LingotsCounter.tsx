@@ -28,28 +28,15 @@ export default function LingotsCounter({ initialLingots, initialFreezes }: Lingo
   const [freezeTrigger, setFreezeTrigger] = useState(false);
 
   useEffect(() => {
-    setLingots(initialLingots);
+    queueMicrotask(() => setLingots(initialLingots));
   }, [initialLingots]);
 
   useEffect(() => {
-    setFreezes(initialFreezes);
+    queueMicrotask(() => setFreezes(initialFreezes));
   }, [initialFreezes]);
 
   // Détecter la redirection après un paiement FedaPay
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const urlParams = new URLSearchParams(window.location.search);
-      const status = urlParams.get("status");
-      const payment = urlParams.get("payment");
-      const transactionId = urlParams.get("id"); // FedaPay retourne l'ID sous le paramètre 'id'
-
-      if (status === "verify" && payment === "freeze" && transactionId) {
-        verifyFedaPayPayment(transactionId);
-      }
-    }
-  }, []);
-
-  const verifyFedaPayPayment = async (txId: string) => {
+  async function verifyFedaPayPayment(txId: string) {
     setVerifyingPayment(true);
     setVerificationError("");
     
@@ -75,9 +62,10 @@ export default function LingotsCounter({ initialLingots, initialFreezes }: Lingo
       } else {
         throw new Error(`Le paiement n'a pas été approuvé (statut: ${data.status})`);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error verifying payment:", err);
-      setVerificationError(err.message || "La vérification du paiement a échoué.");
+      const message = err instanceof Error ? err.message : "La vérification du paiement a échoué.";
+      setVerificationError(message);
       sounds.playAbandonWarning();
     } finally {
       setVerifyingPayment(false);
@@ -86,7 +74,20 @@ export default function LingotsCounter({ initialLingots, initialFreezes }: Lingo
         window.history.replaceState({}, document.title, window.location.pathname);
       }
     }
-  };
+  }
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const status = urlParams.get("status");
+      const payment = urlParams.get("payment");
+      const transactionId = urlParams.get("id"); // FedaPay retourne l'ID sous le paramètre 'id'
+
+      if (status === "verify" && payment === "freeze" && transactionId) {
+        queueMicrotask(() => verifyFedaPayPayment(transactionId));
+      }
+    }
+  }, []);
 
   const handleBuyWithFedaPay = async () => {
     setLoading(true);
@@ -106,7 +107,7 @@ export default function LingotsCounter({ initialLingots, initialFreezes }: Lingo
       }
 
       if (data.paymentUrl) {
-        // Rediriger l'utilisateur vers FedaPay
+        // Rediriger l&apos;utilisateur vers FedaPay
         window.location.href = data.paymentUrl;
       } else {
         throw new Error("L'URL de paiement n'a pas pu être générée.");

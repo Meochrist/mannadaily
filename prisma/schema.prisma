@@ -7,52 +7,53 @@ datasource db {
 }
 
 model User {
-  id            String             @id @default(cuid())
-  name          String?
-  email         String?            @unique
-  emailVerified DateTime?
-  password      String?
-  image         String?
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  accounts      Account[]
-  sessions      DailySession[]
-  xpTransactions XPTransaction[]
-  streak        Streak?
-  badges        UserBadge[]
-  progress      UserProgress?
-  proclamations UserProclamation[]
-  streakFreeze  StreakFreeze?
-  leagueMemberships LeagueMember[]
-  pushSubscriptions PushSubscription[]
-  highlights    VerseHighlight[]
-  verseNotes    VerseNote[]
-  readingPlans  ReadingPlanEnrollment[]
-  readingProgress ReadingPlanProgress[]
-  notificationTime  String? @default("19:00")
-  readingReminders  Boolean @default(true)
-  onboardingCompleted Boolean @default(false)
-  favoriteMascot String?
-  memorizations VerseMemorization[]
-  isPremium           Boolean            @default(false)
+  id                  String                  @id @default(cuid())
+  name                String?
+  email               String?                 @unique
+  emailVerified       DateTime?
+  password            String?
+  image               String?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  accounts            Account[]
+  sessions            DailySession[]
+  xpTransactions      XPTransaction[]
+  streak              Streak?
+  badges              UserBadge[]
+  progress            UserProgress?
+  proclamations       UserProclamation[]
+  streakFreeze        StreakFreeze?
+  leagueMemberships   LeagueMember[]
+  pushSubscriptions   PushSubscription[]
+  highlights          VerseHighlight[]
+  verseNotes          VerseNote[]
+  readingPlans        ReadingPlanEnrollment[]
+  readingProgress     ReadingPlanProgress[]
+  notificationTime    String?                 @default("19:00")
+  readingReminders    Boolean                 @default(true)
+  onboardingCompleted Boolean                 @default(false)
+  favoriteMascot      String?
+  memorizations       VerseMemorization[]
+  payments            Payment[]
+  isPremium           Boolean                 @default(false)
   premiumUntil        DateTime?
   meditationProgress  Json?
 }
 
 model Account {
-  id                String   @id @default(cuid())
+  id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?  @db.Text
-  access_token      String?  @db.Text
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?  @db.Text
+  id_token          String? @db.Text
   session_state     String?
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -101,22 +102,43 @@ model Meditation {
 }
 
 model DailySession {
-  id        String   @id @default(cuid())
-  userId    String
-  type      String   // classic / thematic / proclamation
-  period    String   @default("morning")
-  xpEarned  Int
-  duration  Int      // in seconds
-  notes     String?  @db.Text
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  userId       String
+  type         String // classic / thematic / proclamation
+  period       String   @default("morning") // morning / midday / evening
+  activityDate String // Date métier UTC au format YYYY-MM-DD
+  xpEarned     Int
+  duration     Int // in seconds
+  notes        String?  @db.Text
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, activityDate, period])
+  @@index([userId, activityDate])
+}
+
+model Payment {
+  id          String    @id @default(cuid())
+  provider    String
+  providerId  String
+  userId      String
+  product     String
+  amount      Int
+  currency    String    @default("XOF")
+  status      String
+  createdAt   DateTime  @default(now())
+  processedAt DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+  @@index([userId, createdAt])
 }
 
 model XPTransaction {
   id        String   @id @default(cuid())
   userId    String
   amount    Int
-  reason    String   // e.g. "daily_verse", "proclamation_session"
+  reason    String // e.g. "daily_verse", "proclamation_session"
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -159,6 +181,7 @@ model UserProgress {
   sessionsTotal       Int      @default(0)
   lingots             Int      @default(0)
   morningSessionToday Boolean  @default(false)
+  middaySessionToday  Boolean  @default(false)
   eveningSessionToday Boolean  @default(false)
   lastSessionDate     String?
   updatedAt           DateTime @updatedAt
@@ -178,55 +201,55 @@ model UserProclamation {
 }
 
 model StreakFreeze {
-  id               String   @id @default(cuid())
-  userId           String   @unique
-  freezesAvailable Int      @default(0)
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  freezesAvailable Int       @default(0)
   lastUsedAt       DateTime?
-  createdAt        DateTime @default(now())
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt        DateTime  @default(now())
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model League {
-  id        String   @id @default(cuid())
+  id        String         @id @default(cuid())
   name      String
-  tier      String   // "bronze", "argent", "or", "diamant"
+  tier      String // "bronze", "argent", "or", "diamant"
   weekStart DateTime
   weekEnd   DateTime
   members   LeagueMember[]
-  createdAt DateTime @default(now())
+  createdAt DateTime       @default(now())
 }
 
 model LeagueMember {
-  id        String   @id @default(cuid())
-  leagueId  String
-  userId    String
-  xpThisWeek Int     @default(0)
-  rank      Int      @default(0)
-  league    League   @relation(fields: [leagueId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  leagueId   String
+  userId     String
+  xpThisWeek Int      @default(0)
+  rank       Int      @default(0)
+  league     League   @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
 
   @@unique([leagueId, userId])
 }
 
 model PushSubscription {
-  id           String   @id @default(cuid())
-  userId       String
-  endpoint     String   @unique
-  p256dh       String
-  auth         String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt    DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
 
 model BibleVerse {
-  id          String   @id @default(cuid())
+  id          String           @id @default(cuid())
   book        String
   bookNumber  Int
   chapter     Int
   verse       Int
-  text        String   @db.Text
-  translation String   @default("LSG")
+  text        String           @db.Text
+  translation String           @default("LSG")
   highlights  VerseHighlight[]
   notes       VerseNote[]
 
@@ -235,41 +258,41 @@ model BibleVerse {
 }
 
 model VerseHighlight {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   userId    String
   verseId   String
-  color     String   // "yellow", "green", "blue", "pink"
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  color     String // "yellow", "green", "blue", "pink"
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   verse     BibleVerse @relation(fields: [verseId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  createdAt DateTime   @default(now())
 
   @@unique([userId, verseId])
 }
 
 model VerseNote {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   userId    String
   verseId   String
-  content   String   @db.Text
-  isVoice   Boolean  @default(false)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String     @db.Text
+  isVoice   Boolean    @default(false)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   verse     BibleVerse @relation(fields: [verseId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
   @@unique([userId, verseId])
 }
 
 model StrongEntry {
-  id                String   @id @default(cuid())
-  number            String   @unique  // "H1", "G1", etc.
-  language          String            // "hebrew" ou "greek"
-  lemma             String?
-  transliteration   String?
-  pronunciation     String?
-  definition        String?  @db.Text
-  kjvUsage          String?  @db.Text
-  createdAt         DateTime @default(now())
+  id              String   @id @default(cuid())
+  number          String   @unique // "H1", "G1", etc.
+  language        String // "hebrew" ou "greek"
+  lemma           String?
+  transliteration String?
+  pronunciation   String?
+  definition      String?  @db.Text
+  kjvUsage        String?  @db.Text
+  createdAt       DateTime @default(now())
 
   @@index([language])
 }
@@ -290,12 +313,12 @@ model CrossReference {
 }
 
 model HebrewWord {
-  id              String  @id @default(cuid())
+  id              String   @id @default(cuid())
   book            Int
   chapter         Int
   verse           Int
   wordPosition    Int
-  originalText    String  // mot hébreu original
+  originalText    String // mot hébreu original
   transliteration String?
   strongNumber    String? // ex: H430
   root            String? // racine du mot
@@ -309,7 +332,7 @@ model HebrewWord {
 }
 
 model GreekWord {
-  id              String  @id @default(cuid())
+  id              String   @id @default(cuid())
   book            Int
   chapter         Int
   verse           Int
@@ -328,39 +351,39 @@ model GreekWord {
 }
 
 model BibleCommentary {
-  id          String   @id @default(cuid())
-  book        Int
-  chapter     Int
-  verse       Int
-  verseEnd    Int?
-  author      String   // "Matthew Henry", "John Wesley", etc.
-  content     String   @db.Text
-  language    String   @default("fr")
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  book      Int
+  chapter   Int
+  verse     Int
+  verseEnd  Int?
+  author    String // "Matthew Henry", "John Wesley", etc.
+  content   String   @db.Text
+  language  String   @default("fr")
+  createdAt DateTime @default(now())
 
   @@index([book, chapter, verse])
   @@index([author])
 }
 
 model ReadingPlan {
-  id          String   @id @default(cuid())
+  id          String                  @id @default(cuid())
   name        String
-  slug        String   @unique
+  slug        String                  @unique
   description String
-  duration    Int      // nombre de jours (365, 180, 90, 30)
-  category    String   // "full_bible", "nt_only", "psalms", "thematic"
+  duration    Int // nombre de jours (365, 180, 90, 30)
+  category    String // "full_bible", "nt_only", "psalms", "thematic"
   days        ReadingPlanDay[]
   enrollments ReadingPlanEnrollment[]
-  createdAt   DateTime @default(now())
+  createdAt   DateTime                @default(now())
 }
 
 model ReadingPlanDay {
-  id         String      @id @default(cuid())
-  planId     String
-  dayNumber  Int
-  title      String?
-  readings   ReadingPlanReading[]
-  plan       ReadingPlan @relation(fields: [planId], references: [id])
+  id        String               @id @default(cuid())
+  planId    String
+  dayNumber Int
+  title     String?
+  readings  ReadingPlanReading[]
+  plan      ReadingPlan          @relation(fields: [planId], references: [id])
 
   @@unique([planId, dayNumber])
 }
@@ -375,16 +398,16 @@ model ReadingPlanReading {
 }
 
 model ReadingPlanEnrollment {
-  id            String      @id @default(cuid())
-  userId        String
-  planId        String
-  startDate     DateTime    @default(now())
-  currentDay    Int         @default(1)
-  completed     Boolean     @default(false)
-  completedAt   DateTime?
-  user          User        @relation(fields: [userId], references: [id])
-  plan          ReadingPlan @relation(fields: [planId], references: [id])
-  updatedAt     DateTime    @updatedAt
+  id          String      @id @default(cuid())
+  userId      String
+  planId      String
+  startDate   DateTime    @default(now())
+  currentDay  Int         @default(1)
+  completed   Boolean     @default(false)
+  completedAt DateTime?
+  user        User        @relation(fields: [userId], references: [id])
+  plan        ReadingPlan @relation(fields: [planId], references: [id])
+  updatedAt   DateTime    @updatedAt
 
   @@unique([userId, planId])
 }
@@ -401,24 +424,21 @@ model ReadingPlanProgress {
 }
 
 model VerseMemorization {
-  id           String   @id @default(cuid())
-  userId       String
-  verseId      String
-  reference    String   // "Jean 3:16"
-  verseText    String   @db.Text
-  status       String   @default("learning")
+  id          String    @id @default(cuid())
+  userId      String
+  verseId     String
+  reference   String // "Jean 3:16"
+  verseText   String    @db.Text
+  status      String    @default("learning")
   // "learning", "reviewing", "mastered"
-  easeFactor   Float    @default(2.5) // algorithme SM-2
-  interval     Int      @default(1)   // jours avant prochaine révision
-  repetitions  Int      @default(0)
-  nextReview   DateTime @default(now())
-  lastReview   DateTime?
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt    DateTime @default(now())
+  easeFactor  Float     @default(2.5) // algorithme SM-2
+  interval    Int       @default(1) // jours avant prochaine révision
+  repetitions Int       @default(0)
+  nextReview  DateTime  @default(now())
+  lastReview  DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
 
   @@unique([userId, reference])
   @@index([userId, nextReview])
 }
-
-
-

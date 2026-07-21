@@ -43,3 +43,12 @@ next-env.d.ts
 /src/generated/prisma
 
 .vercel
+
+# Android artifacts and secrets
+mannadaily.keystore
+MannaDaily.apk
+MannaDaily-Release.apk
+MannaDaily-Release.apk.idsig
+public/MannaDaily.apk
+IDEA.md
+tmp/
