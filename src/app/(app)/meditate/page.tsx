@@ -1426,58 +1426,150 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
               </div>
             </>
           ) : (
-            /* Session validated */
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="space-y-8 w-full flex flex-col items-center">
-              <Manny mood={mascotMood} size={185} />
+            /* Session validated — Full summary */
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="space-y-6 w-full flex flex-col items-center">
+              <Manny mood={mascotMood} size={150} />
 
-              <div className="text-center space-y-2">
-                <h2 className="text-3xl font-black text-slate-800 tracking-tight">Session validée 🎉</h2>
-                <p className="text-slate-500 font-medium text-sm whitespace-pre-line">{completionMessage}</p>
+              <div className="text-center space-y-1">
+                <h2 className="text-2xl font-black text-slate-800 tracking-tight">📖 Résumé de votre méditation</h2>
+                <p className="text-slate-400 font-semibold text-xs">{completionMessage}</p>
               </div>
 
-              <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
-                  <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 mb-2">
-                    <Award className="w-6 h-6" />
-                  </div>
-                  <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Points gagnés</span>
-                  <span className="text-3xl font-black text-amber-500">+{sessionResult.xpEarned} XP</span>
-                  <p className="text-xs font-semibold text-slate-400 mt-1">Total : {sessionResult.newXP} XP</p>
+              {/* Verse reminder */}
+              {dailyVerse && (
+                <div className="w-full bg-indigo-50/60 border border-indigo-100/50 p-4 rounded-2xl text-center">
+                  <blockquote className="text-sm font-black text-indigo-800 italic leading-relaxed">
+                    « {dailyVerse.text} »
+                  </blockquote>
+                  <cite className="block text-[10px] font-bold text-indigo-400 uppercase tracking-widest mt-1 not-italic">
+                    — {dailyVerse.reference} (Thème : {dailyVerse.theme})
+                  </cite>
                 </div>
+              )}
 
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
-                  <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500 mb-2 animate-bounce">
-                    <Flame className="w-6 h-6 fill-orange-500" />
+              {/* Mini-session 1 */}
+              <div className="w-full bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+                <h3 className="text-xs font-black text-indigo-600 uppercase tracking-widest flex items-center gap-2">
+                  <span className="w-5 h-5 bg-indigo-100 rounded-full flex items-center justify-center text-[10px]">1</span>
+                  Mini‑session 1 — Verset & Contexte
+                </h3>
+                <div className="space-y-2 text-xs">
+                  <div className="bg-slate-50 rounded-lg p-2.5">
+                    <span className="font-bold text-slate-400 text-[10px] uppercase">Qui parle ?</span>
+                    <p className="text-slate-700 font-medium mt-0.5">{answers.step2_who || "Non renseigné"}</p>
                   </div>
-                  <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Série actuelle</span>
-                  <span className="text-3xl font-black text-orange-500">{sessionResult.streak} {sessionResult.streak <= 1 ? "jour" : "jours"}</span>
-                  <p className="text-xs font-semibold text-slate-400 mt-1">Série ininterrompue active 🔥</p>
+                  <div className="bg-slate-50 rounded-lg p-2.5">
+                    <span className="font-bold text-slate-400 text-[10px] uppercase">À qui ?</span>
+                    <p className="text-slate-700 font-medium mt-0.5">{answers.step2_whom || "Non renseigné"}</p>
+                  </div>
+                  <div className="bg-slate-50 rounded-lg p-2.5">
+                    <span className="font-bold text-slate-400 text-[10px] uppercase">Contexte avant</span>
+                    <p className="text-slate-700 font-medium mt-0.5">{answers.step2_before || "Non renseigné"}</p>
+                  </div>
                 </div>
               </div>
 
+              {/* Mini-session 2 */}
+              <div className="w-full bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+                <h3 className="text-xs font-black text-indigo-600 uppercase tracking-widest flex items-center gap-2">
+                  <span className="w-5 h-5 bg-indigo-100 rounded-full flex items-center justify-center text-[10px]">2</span>
+                  Mini‑session 2 — Observation & Interprétation
+                </h3>
+                <div className="space-y-2 text-xs">
+                  <div className="bg-slate-50 rounded-lg p-2.5">
+                    <span className="font-bold text-slate-400 text-[10px] uppercase">Époque / Destinataires</span>
+                    <p className="text-slate-700 font-medium mt-0.5">{answers.step3_epoch || answers.step3_dest || "Non renseigné"}</p>
+                  </div>
+                  <div className="bg-slate-50 rounded-lg p-2.5">
+                    <span className="font-bold text-slate-400 text-[10px] uppercase">Problème</span>
+                    <p className="text-slate-700 font-medium mt-0.5">{answers.step3_problem || "Non renseigné"}</p>
+                  </div>
+                  <div className="bg-slate-50 rounded-lg p-2.5">
+                    <span className="font-bold text-slate-400 text-[10px] uppercase">Acteurs</span>
+                    <p className="text-slate-700 font-medium mt-0.5">{answers.step4_actors || "Non renseigné"}</p>
+                  </div>
+                  <div className="bg-slate-50 rounded-lg p-2.5">
+                    <span className="font-bold text-slate-400 text-[10px] uppercase">Répétitions / Action</span>
+                    <p className="text-slate-700 font-medium mt-0.5">{answers.step4_repeats || answers.step4_action || "Non renseigné"}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mini-session 3 */}
+              <div className="w-full bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+                <h3 className="text-xs font-black text-indigo-600 uppercase tracking-widest flex items-center gap-2">
+                  <span className="w-5 h-5 bg-indigo-100 rounded-full flex items-center justify-center text-[10px]">3</span>
+                  Mini‑session 3 — Application & Prière
+                </h3>
+                <div className="space-y-2 text-xs">
+                  <div className="bg-slate-50 rounded-lg p-2.5">
+                    <span className="font-bold text-slate-400 text-[10px] uppercase">Situation personnelle</span>
+                    <p className="text-slate-700 font-medium mt-0.5">{answers.step6_situation || "Non renseigné"}</p>
+                  </div>
+                  <div className="bg-slate-50 rounded-lg p-2.5">
+                    <span className="font-bold text-slate-400 text-[10px] uppercase">Transformation</span>
+                    <p className="text-slate-700 font-medium mt-0.5">{answers.step6_transform || "Non renseigné"}</p>
+                  </div>
+                  <div className="bg-slate-50 rounded-lg p-2.5">
+                    <span className="font-bold text-slate-400 text-[10px] uppercase">Décision</span>
+                    <p className="text-slate-700 font-medium mt-0.5">{answers.step6_decision || "Non renseigné"}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Prayer */}
+              {prayerContent && (
+                <div className="w-full bg-purple-50/60 border border-purple-100/50 p-5 rounded-2xl">
+                  <h3 className="text-xs font-black text-purple-600 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <Heart className="w-3.5 h-3.5 fill-purple-500 text-purple-500" />
+                    Prière générée
+                  </h3>
+                  <p className="text-sm text-slate-700 font-medium italic leading-relaxed">« {prayerContent} »</p>
+                </div>
+              )}
+
+              {/* XP + Streak stats */}
+              <div className="w-full grid grid-cols-2 gap-4">
+                <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
+                  <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 mb-1.5">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">XP gagnés</span>
+                  <span className="text-2xl font-black text-amber-500">+{sessionResult.xpEarned}</span>
+                  <p className="text-[10px] font-semibold text-slate-400 mt-0.5">Total : {sessionResult.newXP} XP</p>
+                </div>
+                <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
+                  <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500 mb-1.5">
+                    <Flame className="w-5 h-5 fill-orange-500" />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Série</span>
+                  <span className="text-2xl font-black text-orange-500">{sessionResult.streak} j</span>
+                  <p className="text-[10px] font-semibold text-slate-400 mt-0.5">Ininterrompue 🔥</p>
+                </div>
+              </div>
+
+              {/* Level up */}
               {sessionResult.leveledUp && (
                 <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }}
-                  className="w-full p-5 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 rounded-2xl text-center space-y-2 shadow-lg border border-amber-300 relative overflow-hidden">
-                  <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-4 translate-y-4">
-                    <Award className="w-24 h-24" />
-                  </div>
-                  <h4 className="font-black text-lg tracking-tight">FÉLICITATIONS 🎉 NIVEAU SUPÉRIEUR</h4>
-                  <p className="text-sm font-extrabold">{getMannyMessage("level_up", userName, sessionResult.streak)}</p>
+                  className="w-full p-4 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 rounded-2xl text-center shadow-lg border border-amber-300">
+                  <h4 className="font-black text-base tracking-tight">FÉLICITATIONS 🎉 NIVEAU SUPÉRIEUR</h4>
+                  <p className="text-xs font-extrabold mt-1">{getMannyMessage("level_up", userName, sessionResult.streak)}</p>
                 </motion.div>
               )}
 
+              {/* Badges */}
               {sessionResult.newBadges.length > 0 && (
-                <div className="w-full space-y-3 text-center">
-                  <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Nouveaux Badges obtenus</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="w-full space-y-2 text-center">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nouveaux Badges</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {sessionResult.newBadges.map((badge, idx) => (
-                      <div key={idx} className="bg-white p-4 rounded-xl border border-amber-100 flex items-center gap-3 text-left shadow-sm">
-                        <div className="w-10 h-10 bg-amber-500 text-white rounded-lg flex items-center justify-center flex-shrink-0">
-                          <CheckCircle className="w-5 h-5" />
+                      <div key={idx} className="bg-white p-3 rounded-xl border border-amber-100 flex items-center gap-3 text-left shadow-sm">
+                        <div className="w-8 h-8 bg-amber-500 text-white rounded-lg flex items-center justify-center flex-shrink-0">
+                          <CheckCircle className="w-4 h-4" />
                         </div>
                         <div>
-                          <h5 className="font-bold text-sm text-slate-800">{badge.name}</h5>
-                          <p className="text-xs text-slate-400 font-semibold">{badge.description}</p>
+                          <h5 className="font-bold text-xs text-slate-800">{badge.name}</h5>
+                          <p className="text-[10px] text-slate-400 font-semibold">{badge.description}</p>
                         </div>
                       </div>
                     ))}
@@ -1485,8 +1577,9 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                 </div>
               )}
 
-              <button onClick={() => router.push("/dashboard")} className="px-8 py-4 bg-indigo-650 text-white font-extrabold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all">
-                Retour au tableau de bord
+              {/* Single CTA button */}
+              <button onClick={() => router.push("/dashboard")} className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-xl shadow-lg transition-all text-sm">
+                Terminer et retourner au tableau de bord
               </button>
             </motion.div>
           )}
