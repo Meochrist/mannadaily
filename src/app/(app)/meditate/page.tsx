@@ -493,32 +493,40 @@ function MeditatePageContent() {
   const isStepValid = useCallback(() => {
     const stepNum = computeStepNumber();
     switch (stepNum) {
+      case 1: // Reading (mini 1, step 0) — always valid
+        return true;
       case 2: // Bible context (mini 1, step 1)
         return (
           answers.step2_who.trim().length >= 10 ||
           answers.step2_whom.trim().length >= 10 ||
           answers.step2_before.trim().length >= 10
         );
-      case 3: // Observation (mini 2, step 0) - was step 4
+      case 3: // Observation (mini 2, step 0)
+        return (
+          answers.step3_epoch.trim().length >= 10 ||
+          answers.step3_dest.trim().length >= 10 ||
+          answers.step3_problem.trim().length >= 10
+        );
+      case 4: // Interpretation (mini 2, step 1)
         return (
           answers.step4_actors.trim().length >= 10 ||
           answers.step4_repeats.trim().length >= 10 ||
           answers.step4_action.trim().length >= 10
         );
-      case 4: // Interpretation (mini 2, step 1) - was step 5
+      case 5: // Application (mini 3, step 0)
         return (
           answers.step5_author.trim().length >= 10 ||
           answers.step5_jesus.trim().length >= 10 ||
           answers.step5_summary.trim().length >= 10
         );
-      case 5: // Application (mini 3, step 0) - was step 6
+      case 6: // Prayer & Proclamation (mini 3, step 1)
         return (
           answers.step6_situation.trim().length >= 10 ||
           answers.step6_transform.trim().length >= 10 ||
           answers.step6_decision.trim().length >= 10
         );
       default:
-        return true; // Steps 1 and 6 are always valid
+        return true;
     }
   }, [computeStepNumber, answers]);
 
@@ -690,6 +698,7 @@ function MeditatePageContent() {
 
   // === Handle prayer/celebration completion ===
   const handleCompleteSession = async () => {
+    setLoadingMessage("Finalisation de ta session...");
     setLoading(true);
     setError("");
 
@@ -770,7 +779,10 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
         sounds.playXPGain();
       }
     } catch (err: unknown) {
+      console.error("Session completion failed:", err);
       setError(err instanceof Error ? err.message : "Erreur de validation");
+      // Fallback : rediriger vers le tableau de bord même en cas d'erreur
+      setTimeout(() => router.push("/dashboard"), 3000);
     } finally {
       setLoading(false);
     }
@@ -1525,7 +1537,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
               </button>
             )}
             <button
-              onClick={handleComeBackLater}
+              onClick={isFullyDone ? handleCompleteSession : handleComeBackLater}
               className={cn(
                 "py-4 px-6 font-extrabold rounded-xl transition-all text-sm",
                 isFullyDone
@@ -1533,7 +1545,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   : "flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600"
               )}
             >
-              {isFullyDone ? "Voir mon tableau de bord" : "Revenir plus tard"}
+              {isFullyDone ? "Voir le résumé de ma session" : "Revenir plus tard"}
             </button>
           </div>
         </motion.div>
