@@ -39,27 +39,26 @@ export function getMascotMoodFromProgress(progress: MeditationProgress | null): 
 
   const { sessionsCompleted, dayCompleted, currentMiniSession, currentStep } = progress;
 
-  // Cas 2 : Aucune session complétée aujourd'hui → triste / suppliant
-  if (sessionsCompleted.length === 0 && !dayCompleted) {
-    return "sad";
-  }
-
-  // Cas 3 : Les 3 mini-sessions complétées → célébration
-  if (sessionsCompleted.length === 3 && dayCompleted) {
+  // Cas 2 : Les 3 mini-sessions complétées → célébration (priorité absolue)
+  if (sessionsCompleted.length === 3 || dayCompleted) {
     return "celebrating";
   }
 
-  // Cas 4 : En cours de méditation (sur une étape avancée) → concentré / pensif
+  // Cas 3 : Aucune session complétée aujourd'hui → triste
+  if (sessionsCompleted.length === 0) {
+    return "sad";
+  }
+
+  // Cas 4 : 1 ou 2 sessions complétées → heureux (prioritaire sur "thinking")
+  if (sessionsCompleted.length >= 1 && sessionsCompleted.length <= 2) {
+    return "happy";
+  }
+
+  // Cas 5 : En cours de méditation (sur une étape avancée) → concentré
   if (currentMiniSession > 1 || currentStep > 0) {
     return "thinking";
   }
 
-  // Cas 5 : 1 ou 2 sessions complétées → encourageant / heureux
-  if (sessionsCompleted.length === 1 || sessionsCompleted.length === 2) {
-    return "happy";
-  }
-
-  // Cas par défaut : happy
   return "happy";
 }
 

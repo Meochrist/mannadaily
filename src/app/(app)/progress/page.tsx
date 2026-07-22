@@ -186,6 +186,7 @@ export default async function ProgressPage() {
       const sessions = await db.dailySession.findMany({
         where: { userId },
         select: { createdAt: true, period: true },
+        orderBy: { createdAt: "desc" },
       });
 
       const daysMap = new Map<string, Set<string>>();

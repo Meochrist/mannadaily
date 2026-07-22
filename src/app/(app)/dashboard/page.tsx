@@ -11,9 +11,10 @@ import BadgeCard from "@/components/gamification/BadgeCard";
 import LingotsCounter from "@/components/gamification/LingotsCounter";
 import PushOptIn from "@/components/notifications/PushOptIn";
 import GameMap from "@/components/dashboard/GameMap";
+import VerseSelector from "@/components/dashboard/VerseSelector";
+import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import { BookOpen } from "lucide-react";
 import { redirect } from "next/navigation";
-import DayNightButtons from "@/components/dashboard/DayNightButtons";
 
 export const dynamic = "force-dynamic";
 
@@ -270,91 +271,8 @@ export default async function DashboardPage() {
         />
       </div>
 
-      {/* COLONNE DE DROITE : LE PANNEAU DE STATISTIQUES & DE BOUTIQUE */}
-      <div className="w-full lg:w-[35%] flex-shrink-0 space-y-6 lg:overflow-y-auto lg:h-full lg:pr-2 pb-10 lg:pb-6 scrollbar-thin scrollbar-thumb-slate-200">
-        {/* 1. LE VERSET DU JOUR (FORMAT EMBARQUÉ PREMIUM) */}
-        <div className="bg-gradient-to-br from-indigo-900 to-indigo-950 text-white p-6 rounded-2xl shadow-xl flex flex-col justify-between relative overflow-hidden">
-          <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-8 translate-y-8">
-            <BookOpen className="w-48 h-48" />
-          </div>
-
-          <div className="space-y-3 relative z-10">
-            <div className="inline-block px-3 py-0.5 bg-indigo-800/80 rounded-full border border-indigo-700/60 text-[10px] font-bold uppercase tracking-wider text-indigo-200">
-              Verset du jour (Thème : {dailyVerse.theme})
-            </div>
-            <blockquote className="text-lg font-black leading-snug tracking-tight italic">
-              « {dailyVerse.text} »
-            </blockquote>
-            <cite className="block text-xs font-bold text-indigo-300 not-italic uppercase tracking-widest">
-              — {dailyVerse.reference}
-            </cite>
-          </div>
-        </div>
-
-        {/* 2. JOURNÉE SPIRITUELLE (JOUR & NUIT - JOSUÉ 1:8) */}
-        <DayNightButtons
-          morningDone={morningDone}
-          eveningDone={eveningDone}
-          verseText={dailyVerse.text}
-          verseReference={dailyVerse.reference}
-          verseTheme={dailyVerse.theme}
-        />
-
-        {/* 3. COMPTEUR DE STREAK (SÉRIE DE JOURS DYNAMIQUE) */}
-        <StreakCounter
-          currentStreak={currentStreak}
-          longestStreak={longestStreak}
-        />
-
-        {/* 3. BARRE D'XP ET NIVEAU ACTUEL */}
-        <XPBar
-          currentXP={totalXP}
-          levelName={levelName}
-          progressPercent={progressPercent}
-        />
-
-        {/* 4. COMPTEUR DE LINGOTS ET STREAK FREEZE (BOUTIQUE CÉLESTE) */}
-        <LingotsCounter initialLingots={lingots} initialFreezes={freezesAvailable} />
-
-        {/* 5. BADGES SPIRITUELS */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">Mes badges spirituels</h3>
-            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
-              {badges.length} / {defaultBadges.length}
-            </span>
-          </div>
-          <div className="grid grid-cols-1 gap-3">
-            {badgesToDisplay.map((badge, index) => (
-              <BadgeCard
-                key={index}
-                name={badge.name}
-                description={badge.description}
-                icon={badge.icon}
-                earnedAt={badge.earnedAt}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* 6. STATISTIQUES GLOBALES SPIRITUELLES */}
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col justify-between transition-colors">
-          <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4">Statistiques</h3>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2.5">
-              <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">Sessions de méditation</span>
-              <span className="text-slate-800 dark:text-slate-100 font-black text-sm">{sessionsTotal}</span>
-            </div>
-            <div className="flex items-center justify-between pb-1">
-              <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">Versets mémorisés</span>
-              <span className="text-slate-800 dark:text-slate-100 font-black text-sm">{versesLearned}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* 7. COMPOSANT D'OPT-IN PUSH NOTIFICATIONS */}
-        <PushOptIn vapidPublicKey={process.env.VAPID_PUBLIC_KEY || ""} />
-      </div>
+      {/* COLONNE DE DROITE : SYNCHRONISÉE AVEC L'API */}
+      <DashboardSidebar />
     </div>
   );
 }

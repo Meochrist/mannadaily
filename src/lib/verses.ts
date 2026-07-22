@@ -692,5 +692,15 @@ export function getVersesForPath(pathId: string): Verse[] {
     filtered = [...filtered, ...extra];
   }
   
-  return filtered.slice(0, 30);
+  // Déduplication par référence (un verset = une seule occurrence) + ordre stable
+  const seen = new Set<string>();
+  const deduped: Verse[] = [];
+  for (const v of filtered) {
+    if (!seen.has(v.reference)) {
+      seen.add(v.reference);
+      deduped.push(v);
+    }
+  }
+  
+  return deduped.slice(0, 30);
 }

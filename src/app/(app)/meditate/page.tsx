@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 import { 
   BookOpen, 
   Sparkles, 
-  Send, 
   Award, 
   Flame, 
   CheckCircle, 
@@ -118,7 +117,7 @@ const MINI_SESSIONS = [
 const STEP_LABELS: Record<number, [string, string]> = {
   1: ["Lecture du verset", "Contexte biblique"],
   2: ["Observation (O)", "Interprétation (I)"],
-  3: ["Application (A)", "Prière & Célébration"],
+  3: ["Application (A)", "Prière"],
 };
 
 // XP rewards per mini-session
@@ -180,12 +179,16 @@ function MeditatePageContent() {
   const [verseDetails, setVerseDetails] = useState<VerseDetails | null>(null);
   const [loadingVerseDetails, setLoadingVerseDetails] = useState(false);
   const [chapterVerses, setChapterVerses] = useState<ChapterVerse[]>([]);
-  const [showStudyPanel, setShowStudyPanel] = useState<"strong" | "references" | "highlight" | null>(null);
+  const [showStudyPanel, setShowStudyPanel] = useState<"strong" | "references" | "highlight" | "context" | null>(null);
   const [strongResult, setStrongResult] = useState<StrongResult | null>(null);
   const [strongLoading, setStrongLoading] = useState(false);
   const [strongSearch, setStrongSearch] = useState("");
   const [crossRefs, setCrossRefs] = useState<CrossRef[]>([]);
   const [loadingCrossRefs, setLoadingCrossRefs] = useState(false);
+  const [contextData, setContextData] = useState<{
+    author: string; period: string; historicalContext: string; culturalNotes: string; keyEvents: string;
+  } | null>(null);
+  const [loadingContext, setLoadingContext] = useState(false);
 
   // Session results
   const [sessionResult, setSessionResult] = useState<SessionResult | null>(null);
@@ -303,6 +306,9 @@ function MeditatePageContent() {
     const refParam = searchParams.get("reference");
     const themeParam = searchParams.get("theme");
     const periodParam = searchParams.get("period");
+    const bookParam = searchParams.get("book");
+    const chapterParam = searchParams.get("chapter");
+    const verseParam = searchParams.get("verse");
 
     let p: "morning" | "evening" = "morning";
     if (periodParam === "morning" || periodParam === "evening") {
@@ -314,6 +320,58 @@ function MeditatePageContent() {
     queueMicrotask(() => setPeriod(p));
 
     let verse: DailyVerseType;
+
+    // Méditation personnelle : verset choisi par l'utilisateur
+    if (bookParam && chapterParam && verseParam) {
+      const book = decodeURIComponent(bookParam);
+      const chapter = parseInt(chapterParam, 10);
+      const verseNum = parseInt(verseParam, 10);
+      
+      fetch(`/api/bible/${encodeURIComponent(book)}/${chapter}?translation=LSG`)
+        .then((res) => res.json())
+        .then((data) => {
+          const versesList = data.verses || [];
+          const found = versesList.find((v: { verse: number; text: string }) => v.verse === verseNum);
+          if (found) {
+            const customVerse = {
+              text: found.text,
+              reference: `${book} ${chapter}:${verseNum}`,
+              theme: "Méditation personnelle",
+            };
+            queueMicrotask(() => {
+              setDailyVerse(customVerse);
+              setBibleContext(getVerseContext(customVerse.reference));
+            });
+          } else {
+            // Verset non trouvé, fallback au verset du jour
+            const dv = getDailyVerse();
+            queueMicrotask(() => {
+              setDailyVerse(dv);
+              setBibleContext(getVerseContext(dv.reference));
+            });
+          }
+        })
+        .catch(() => {
+          const dv = getDailyVerse();
+          queueMicrotask(() => {
+            setDailyVerse(dv);
+            setBibleContext(getVerseContext(dv.reference));
+          });
+        });
+      
+      // Continue with user progress fetch
+      fetch("/api/user/progress")
+        .then((res) => res.json())
+        .then((data) => {
+          const name = data.userName || "Ami";
+          const streak = data.streak?.currentStreak || 0;
+          setUserName(name);
+          setStreakCount(streak);
+        })
+        .catch((err) => console.error("Error loading user progress:", err));
+      
+      return;
+    }
 
     if (textParam && refParam && themeParam) {
       verse = {
@@ -861,6 +919,28 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
     return bookNumber <= 39 ? `H${wordIndex + 1}` : `G${wordIndex + 1}`;
   };
 
+  // Load historical/cultural context for the current verse
+  const loadContext = async () => {
+    if (!dailyVerse) return;
+    const refParts = dailyVerse.reference.match(/^(.+?)\s+(\d+):/);
+    if (!refParts) return;
+    const book = refParts[1];
+    const chapter = refParts[2];
+    
+    setLoadingContext(true);
+    try {
+      const res = await fetch(`/api/bible/context?book=${encodeURIComponent(book)}&chapter=${chapter}`);
+      if (res.ok) {
+        const data = await res.json();
+        setContextData(data);
+      }
+    } catch (err) {
+      console.error("Error loading context:", err);
+    } finally {
+      setLoadingContext(false);
+    }
+  };
+
   // === Mascot suggestion ===
   const renderMascotSuggestion = () => {
     if (!showSuggestion) return null;
@@ -955,7 +1035,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
           <h1 className="text-2xl font-black text-slate-850 dark:text-slate-100 tracking-tight">
             {periodTitle} {periodEmoji}
           </h1>
-          <Manny mood={period === "morning" ? "happy" : "praying"} size={170} />
+          <Manny mood={mascotMood} size={170} />
           
           {welcomeMessage && (
             <div className="text-center bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100/30 dark:border-indigo-900/40 text-indigo-850 dark:text-indigo-300 p-4 px-6 rounded-2xl text-xs md:text-sm font-extrabold max-w-md shadow-sm">
@@ -1321,21 +1401,11 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   « {prayerContent} »
                 </p>
               </div>
-
-              <div className="flex gap-4 pt-4">
-                <button onClick={handlePrevStep} className="px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm">
-                  Retour
-                </button>
-                <button onClick={handleCompleteSession} className="flex items-center gap-2 px-8 py-4 bg-indigo-650 text-white font-extrabold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base">
-                  Terminer la session
-                  <Send className="w-4 h-4" />
-                </button>
-              </div>
             </>
           ) : (
             /* Session validated */
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="space-y-8 w-full flex flex-col items-center">
-              <Manny mood="celebrating" size={185} />
+              <Manny mood={mascotMood} size={185} />
 
               <div className="text-center space-y-2">
                 <h2 className="text-3xl font-black text-slate-800 tracking-tight">Session validée 🎉</h2>
@@ -1418,7 +1488,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
           animate={{ opacity: 1, scale: 1 }}
           className="bg-white rounded-3xl p-8 md:p-12 border border-slate-100 shadow-2xl max-w-lg w-full text-center space-y-8"
         >
-          <Manny mood="celebrating" size={185} />
+          <Manny mood={mascotMood} size={185} />
 
           <div className="space-y-2">
             <h2 className="text-2xl font-black text-slate-800 tracking-tight">
@@ -1481,7 +1551,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
     )}>
       {/* 1. PROGRESS BAR */}
       {!sessionResult && (
-        <div className="w-full">
+        <div className="w-full mb-6">
           <div className="flex justify-between items-center mb-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
             <span className="flex items-center gap-1.5">
               <Coffee className="w-3.5 h-3.5" />
@@ -1529,11 +1599,97 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   isCompleted ? "text-emerald-500" : isCurrent ? "text-indigo-500" : "text-slate-300"
                 )}>
                   {ms.id === 1 ? "📖 " : ms.id === 2 ? "🔍 " : "🙏 "}
-                  {ms.id === 1 ? "Verset" : ms.id === 2 ? "O&I" : "A&Prière"}
+                  {ms.id === 1 ? "Verset" : ms.id === 2 ? "OIA+" : "Prière"}
                 </span>
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* MINI-SESSION SUMMARY — Récapitulatif des sessions précédentes */}
+      {currentMiniSession > 1 && !sessionResult && (
+        <div className="w-full bg-amber-50/80 border border-amber-200/60 rounded-2xl p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">📋</span>
+            <h4 className="text-xs font-black text-amber-800 uppercase tracking-wider">
+              Récapitulatif des mini‑sessions précédentes
+            </h4>
+          </div>
+          
+          {/* Mini-session 1 — always shown when currentMiniSession >= 2 */}
+          <div className="bg-white/70 rounded-xl p-3 border border-amber-100/60 space-y-2">
+            <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5">
+              <span>📖</span> Mini‑session 1 — Verset & Contexte
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+              {answers.step2_who && (
+                <div className="bg-slate-50 rounded-lg p-2">
+                  <span className="font-bold text-slate-500 text-[9px] uppercase">Qui parle ?</span>
+                  <p className="text-slate-700 font-medium mt-0.5 line-clamp-2">{answers.step2_who}</p>
+                </div>
+              )}
+              {answers.step2_whom && (
+                <div className="bg-slate-50 rounded-lg p-2">
+                  <span className="font-bold text-slate-500 text-[9px] uppercase">À qui ?</span>
+                  <p className="text-slate-700 font-medium mt-0.5 line-clamp-2">{answers.step2_whom}</p>
+                </div>
+              )}
+              {answers.step2_before && (
+                <div className="bg-slate-50 rounded-lg p-2 sm:col-span-2">
+                  <span className="font-bold text-slate-500 text-[9px] uppercase">Contexte avant</span>
+                  <p className="text-slate-700 font-medium mt-0.5 line-clamp-2">{answers.step2_before}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Mini-session 2 — shown when currentMiniSession >= 3 */}
+          {currentMiniSession >= 3 && (
+            <div className="bg-white/70 rounded-xl p-3 border border-amber-100/60 space-y-2">
+              <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5">
+                <span>🔍</span> Mini‑session 2 — Observation & Interprétation
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                {answers.step3_epoch && (
+                  <div className="bg-slate-50 rounded-lg p-2">
+                    <span className="font-bold text-slate-500 text-[9px] uppercase">Époque</span>
+                    <p className="text-slate-700 font-medium mt-0.5 line-clamp-2">{answers.step3_epoch}</p>
+                  </div>
+                )}
+                {answers.step3_dest && (
+                  <div className="bg-slate-50 rounded-lg p-2">
+                    <span className="font-bold text-slate-500 text-[9px] uppercase">Destinataires</span>
+                    <p className="text-slate-700 font-medium mt-0.5 line-clamp-2">{answers.step3_dest}</p>
+                  </div>
+                )}
+                {answers.step3_problem && (
+                  <div className="bg-slate-50 rounded-lg p-2 sm:col-span-2">
+                    <span className="font-bold text-slate-500 text-[9px] uppercase">Problème</span>
+                    <p className="text-slate-700 font-medium mt-0.5 line-clamp-2">{answers.step3_problem}</p>
+                  </div>
+                )}
+                {answers.step4_actors && (
+                  <div className="bg-slate-50 rounded-lg p-2">
+                    <span className="font-bold text-slate-500 text-[9px] uppercase">Acteurs</span>
+                    <p className="text-slate-700 font-medium mt-0.5 line-clamp-2">{answers.step4_actors}</p>
+                  </div>
+                )}
+                {answers.step4_action && (
+                  <div className="bg-slate-50 rounded-lg p-2">
+                    <span className="font-bold text-slate-500 text-[9px] uppercase">Action</span>
+                    <p className="text-slate-700 font-medium mt-0.5 line-clamp-2">{answers.step4_action}</p>
+                  </div>
+                )}
+                {answers.step4_repeats && (
+                  <div className="bg-slate-50 rounded-lg p-2 sm:col-span-2">
+                    <span className="font-bold text-slate-500 text-[9px] uppercase">Répétitions</span>
+                    <p className="text-slate-700 font-medium mt-0.5 line-clamp-2">{answers.step4_repeats}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -1568,6 +1724,12 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   showStudyPanel === "references" ? "bg-indigo-800 border-indigo-700 text-white" : "bg-indigo-900/50 border-indigo-800 text-indigo-200 hover:text-white")}
                 title="Références croisées">
                 <LinkIcon className="w-3.5 h-3.5" />
+              </button>
+              <button onClick={() => { setShowStudyPanel(showStudyPanel === "context" ? null : "context"); loadContext(); sounds.playSuccess(); }}
+                className={cn("p-2 rounded-xl border transition-all cursor-pointer",
+                  showStudyPanel === "context" ? "bg-indigo-800 border-indigo-700 text-white" : "bg-indigo-900/50 border-indigo-800 text-indigo-200 hover:text-white")}
+                title="Contexte historique & culturel">
+                <BookOpen className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -1648,6 +1810,48 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                     )}
                   </div>
                 )}
+
+                {showStudyPanel === "context" && (
+                  <div className="bg-indigo-900/30 p-4 rounded-2xl border border-indigo-900/50 space-y-3 max-h-72 overflow-y-auto">
+                    {loadingContext ? (
+                      <div className="flex items-center gap-2 text-indigo-300 text-xs py-4 justify-center">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Chargement du contexte...</span>
+                      </div>
+                    ) : contextData ? (
+                      <div className="space-y-3 text-xs">
+                        <div>
+                          <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest block">📜 Contexte historique</span>
+                          <p className="text-indigo-100 leading-relaxed mt-1">{contextData.historicalContext}</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 pt-2 border-t border-indigo-900/50">
+                          <div>
+                            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-wider block">Auteur</span>
+                            <p className="text-indigo-200 font-semibold mt-0.5">{contextData.author}</p>
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-wider block">Période</span>
+                            <p className="text-indigo-200 font-semibold mt-0.5">{contextData.period}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest block">🎭 Coutumes & culture</span>
+                          <p className="text-indigo-100 leading-relaxed mt-1">{contextData.culturalNotes}</p>
+                        </div>
+                        {contextData.keyEvents && contextData.keyEvents !== "—" && (
+                          <div>
+                            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest block">⚡ Événements clés</span>
+                            <p className="text-indigo-100 leading-relaxed mt-1">{contextData.keyEvents}</p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-center text-xs text-indigo-300 py-3">
+                        Contexte non disponible pour ce passage.
+                      </p>
+                    )}
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -1700,12 +1904,21 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
               <button onClick={handleTriggerAbandon} className="px-5 py-3 text-slate-400 hover:text-rose-600 rounded-xl font-bold transition text-sm">
                 Abandonner
               </button>
-              <button onClick={handleNextStep} disabled={!isStepValid()}
-                className={cn("flex items-center gap-2 px-6 py-3 font-extrabold rounded-xl shadow-md transition transform text-sm",
-                  isStepValid() ? "bg-indigo-600 hover:bg-indigo-700 text-white hover:shadow-lg active:scale-98" : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed shadow-none")}>
-                Suivant
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              {(currentMiniSession === 3 && currentStepInMini === 1) ? (
+                <button onClick={handleCompleteSession} disabled={!isStepValid()}
+                  className={cn("flex items-center gap-2 px-6 py-3 font-extrabold rounded-xl shadow-md transition transform text-sm",
+                    isStepValid() ? "bg-emerald-600 hover:bg-emerald-700 text-white hover:shadow-lg active:scale-98" : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed shadow-none")}>
+                  Terminer
+                  <CheckCircle className="w-4 h-4" />
+                </button>
+              ) : (
+                <button onClick={handleNextStep} disabled={!isStepValid()}
+                  className={cn("flex items-center gap-2 px-6 py-3 font-extrabold rounded-xl shadow-md transition transform text-sm",
+                    isStepValid() ? "bg-indigo-600 hover:bg-indigo-700 text-white hover:shadow-lg active:scale-98" : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed shadow-none")}>
+                  Suivant
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
 
