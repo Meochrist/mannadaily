@@ -788,7 +788,18 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
     }
   };
 
-  // === Abandon modal ===
+  // Generate mini-session summary text for display
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const getMiniSummaryText = useCallback(() => {
+    const parts: string[] = [];
+    if (currentMiniSession >= 2 && answers.step2_who) {
+      parts.push(`Mini 1 : ${answers.step2_who} — ${answers.step2_before?.slice(0, 60) || answers.step2_whom || ""}`);
+    }
+    if (currentMiniSession >= 3 && answers.step4_actors) {
+      parts.push(`Mini 2 : Acteurs principaux : ${answers.step4_actors}. ${answers.step4_action?.slice(0, 60) || ""}`);
+    }
+    return parts.length > 0 ? parts.join(" | ") : null;
+  }, [currentMiniSession, answers]);
   const handleTriggerAbandon = () => {
     sounds.playAbandonWarning();
     setAbandonMessage(getMannyMessage("abandon_attempt", userName, streakCount));
@@ -1621,13 +1632,20 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
 
       {/* MINI-SESSION SUMMARY — Récapitulatif des sessions précédentes */}
       {currentMiniSession > 1 && !sessionResult && (
-        <div className="w-full bg-amber-50/80 border border-amber-200/60 rounded-2xl p-4 space-y-3">
+        <div className="w-full bg-amber-50/80 border border-amber-200/60 rounded-2xl p-4 space-y-3 mt-6">
           <div className="flex items-center gap-2">
             <span className="text-lg">📋</span>
             <h4 className="text-xs font-black text-amber-800 uppercase tracking-wider">
               Récapitulatif des mini‑sessions précédentes
             </h4>
           </div>
+
+          {/* Résumé textuel généré */}
+          {getMiniSummaryText() && (
+            <p className="text-xs font-bold text-indigo-800 leading-relaxed px-3 py-2 bg-indigo-50/70 rounded-xl border border-indigo-100/50">
+              {getMiniSummaryText()}
+            </p>
+          )}
           
           {/* Mini-session 1 — always shown when currentMiniSession >= 2 */}
           <div className="bg-white/70 rounded-xl p-3 border border-amber-100/60 space-y-2">
@@ -1652,6 +1670,11 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   <span className="font-bold text-slate-500 text-[9px] uppercase">Contexte avant</span>
                   <p className="text-slate-700 font-medium mt-0.5 line-clamp-2">{answers.step2_before}</p>
                 </div>
+              )}
+              {!answers.step2_who && !answers.step2_whom && !answers.step2_before && (
+                <p className="text-[11px] text-slate-400 italic col-span-full text-center py-1">
+                  Aucune réponse enregistrée pour cette mini-session
+                </p>
               )}
             </div>
           </div>
@@ -1698,6 +1721,11 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                     <span className="font-bold text-slate-500 text-[9px] uppercase">Répétitions</span>
                     <p className="text-slate-700 font-medium mt-0.5 line-clamp-2">{answers.step4_repeats}</p>
                   </div>
+                )}
+                {!answers.step3_epoch && !answers.step4_actors && (
+                  <p className="text-[11px] text-slate-400 italic col-span-full text-center py-1">
+                    Aucune réponse enregistrée pour cette mini-session
+                  </p>
                 )}
               </div>
             </div>
@@ -1871,7 +1899,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
       )}
 
       {/* 2. MAIN CONTENT */}
-      <div className="flex-1 flex flex-col justify-center">
+      <div className="flex-1 flex flex-col justify-center pt-8">
         <AnimatePresence mode="wait">
           {loading ? (
             <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
