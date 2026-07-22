@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense, useCallback } from "react";
+import React, { useState, useEffect, Suspense, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Manny from "@/components/mascot/Manny";
@@ -1021,14 +1021,16 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
   };
 
   // === Compute mascot mood based on current progress ===
-  const progressForMood: MeditationProgress = {
-    currentMiniSession,
-    currentStep: currentStepInMini,
-    sessionsCompleted,
-    lastActivityDate: getTodayStr(),
-    dayCompleted,
-  };
-  const mascotMood = getMascotMoodFromProgress(progressForMood);
+  const mascotMood = useMemo(
+    () => getMascotMoodFromProgress({
+      currentMiniSession,
+      currentStep: currentStepInMini,
+      sessionsCompleted,
+      lastActivityDate: getTodayStr(),
+      dayCompleted,
+    }),
+    [currentMiniSession, currentStepInMini, sessionsCompleted, dayCompleted]
+  );
 
   // === Messages ===
   const periodEmoji = period === "morning" ? "🌅" : "🌙";
