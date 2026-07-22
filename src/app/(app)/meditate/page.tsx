@@ -1632,7 +1632,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
 
       {/* MINI-SESSION SUMMARY — Récapitulatif des sessions précédentes */}
       {currentMiniSession > 1 && !sessionResult && (
-        <div className="w-full bg-amber-50/80 border border-amber-200/60 rounded-2xl p-4 space-y-3 mt-6">
+        <div className="w-full bg-amber-50/80 border border-amber-200/60 rounded-2xl p-4 space-y-3 mt-6 mb-4">
           <div className="flex items-center gap-2">
             <span className="text-lg">📋</span>
             <h4 className="text-xs font-black text-amber-800 uppercase tracking-wider">
@@ -1735,7 +1735,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
 
       {/* STUDY BAR */}
       {showStudyBar && dailyVerse && (
-        <div className="sticky top-0 z-30 w-full bg-indigo-950 text-white rounded-3xl p-4 md:p-5 shadow-lg border border-indigo-900/60 flex flex-col gap-3">
+        <div className="sticky top-0 z-30 w-full bg-indigo-950 text-white rounded-3xl p-4 md:p-5 shadow-lg border border-indigo-900/60 flex flex-col gap-3 mb-4">
           <div className="flex justify-between items-start gap-4">
             <div className="space-y-1">
               <blockquote className="text-xs md:text-sm font-semibold leading-relaxed line-clamp-3 italic text-indigo-100">
@@ -1899,7 +1899,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
       )}
 
       {/* 2. MAIN CONTENT */}
-      <div className="flex-1 flex flex-col justify-center pt-8">
+      <div className="flex-1 flex flex-col justify-center pt-[130px] pb-8">
         <AnimatePresence mode="wait">
           {loading ? (
             <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
