@@ -208,7 +208,7 @@ export async function generatePersonalizedSummary(
 
   // Formater les réponses pour le prompt
   const formattedAnswers = Object.entries(answers)
-    .filter(([_e, val]) => val && val.trim().length > 0)
+    .filter(([_unused, val]) => val && val.trim().length > 0)
     .map(([key, val]) => `${key}: ${val.trim()}`)
     .join("\n");
 
@@ -254,7 +254,7 @@ export async function generatePersonalizedPrayer(
 
   // Formater les réponses
   const formattedAnswers = Object.entries(answers)
-    .filter(([_e, val]) => val && val.trim().length > 0)
+    .filter(([_unused, val]) => val && val.trim().length > 0)
     .map(([key, val]) => `${key}: ${val.trim()}`)
     .join("\n");
 

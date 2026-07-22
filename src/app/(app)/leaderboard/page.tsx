@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getLeaderboard } from "@/lib/leaderboard";
 import MascotMessage from "@/components/mascot/MascotMessage";
-import { Trophy, Shield, Award, Crown, User as UserIcon } from "lucide-react";
+import { Trophy, Shield, Award, Crown } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 

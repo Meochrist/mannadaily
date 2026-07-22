@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, ArrowRight, ArrowLeft, Check, BookOpen, Heart, Calendar, Trophy, Award, Settings, Bell, ShieldAlert, BadgeCheck, Loader2 } from "lucide-react";
+import {  ArrowRight, ArrowLeft, Check, Calendar, Loader2 } from "lucide-react";
 import { THEMES } from "@/types";
 import * as sounds from "@/lib/sounds";
 import Manny from "@/components/mascot/Manny";

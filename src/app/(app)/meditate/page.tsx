@@ -18,14 +18,14 @@ import {
   ArrowLeft,
   Heart,
   HelpCircle,
-  Clock,
+  
   Bookmark,
   Hash,
   Link2 as LinkIcon,
   Loader2,
-  Mic,
-  Sun,
-  Moon,
+  
+  
+  
   Coffee,
   Layers
 } from "lucide-react";

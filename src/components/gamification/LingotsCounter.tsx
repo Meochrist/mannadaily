@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Gem, Snowflake, ShoppingBag, Loader2, Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Gem, Snowflake, ShoppingBag, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import * as sounds from "@/lib/sounds";
 import Manny from "../mascot/Manny";
 

@@ -6,7 +6,12 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   // Le français utilise naturellement des apostrophes et guillemets dans le JSX
-  { rules: { "react/no-unescaped-entities": "off" } },
+  {
+    rules: {
+      "react/no-unescaped-entities": "off",
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" }],
+    },
+  },
   // Les scripts prisma manipulent des données JSON externes
   {
     files: ["prisma/**/*.ts"],

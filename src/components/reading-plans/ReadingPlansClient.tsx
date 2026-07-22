@@ -5,7 +5,7 @@ import {
   Calendar, 
   BookOpen, 
   CheckCircle, 
-  Circle, 
+   
   ArrowRight, 
   Check, 
   Loader2, 

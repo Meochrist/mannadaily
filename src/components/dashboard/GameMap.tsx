@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Lock, Check, Star, Trophy, BookOpen, Play, HelpCircle, Sparkles, ChevronDown, Award } from "lucide-react";
+import { Lock, Check, BookOpen, Play, Sparkles, ChevronDown } from "lucide-react";
 import Manny from "../mascot/Manny";
 import { PATHS, getVersesForPath } from "@/lib/verses";
 import * as sounds from "@/lib/sounds";

@@ -298,7 +298,7 @@ export default function BiblePage() {
     } else {
       queueMicrotask(() => setCurrentNoteText(""));
     }
-  }, [selectedVerse]);
+  }, [selectedVerse, activeTab]);
 
   // Fetch cross references when selected verse changes
   useEffect(() => {

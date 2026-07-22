@@ -157,7 +157,7 @@ export function useSpeechRecognition(
     return () => {
       try {
         recognition.abort();
-      } catch (_e) {}
+      } catch (_unused) {}
       recognitionRef.current = null;
     };
   }, [onResult]);
@@ -215,7 +215,7 @@ export function useSpeechRecognition(
       if (err instanceof Error && err.name === "InvalidStateError") {
         try {
           recognitionRef.current.stop();
-        } catch (_e) {}
+        } catch (_unused) {}
         setTimeout(() => {
           try {
             recognitionRef.current?.start();
