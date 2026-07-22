@@ -1667,7 +1667,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
     )}>
       {/* 1. PROGRESS BAR */}
       {!sessionResult && (
-        <div className="w-full mb-6">
+        <div className="w-full mb-8 pb-2">
           <div className="flex justify-between items-center mb-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
             <span className="flex items-center gap-1.5">
               <Coffee className="w-3.5 h-3.5" />
