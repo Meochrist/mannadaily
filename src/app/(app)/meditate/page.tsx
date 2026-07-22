@@ -115,10 +115,14 @@ const MINI_SESSIONS = [
 
 // Maps: (miniSession, stepInMini) => actual step label
 const STEP_LABELS: Record<number, [string, string]> = {
-  1: ["Lecture du verset", "Contexte biblique"],
-  2: ["Observation (O)", "Interprétation (I)"],
-  3: ["Application (A)", "Prière"],
+  1: ["🙏 Prière d'ouverture", "📖 Contexte biblique"],
+  2: ["🔎 OIA+ — Observation", "🧠 Méditation & Réflexion"],
+  3: ["✍️ Application", "🙌 Prière & Proclamation"],
 };
+
+// Emojis for mini-session summary cards
+const MINI_EMOJIS: Record<number, string> = { 1: "📖", 2: "🔎", 3: "✍️" };
+const MINI_COLORS: Record<number, string> = { 1: "indigo", 2: "emerald", 3: "amber" };
 
 // XP rewards per mini-session
 const XP_REWARDS: Record<number, number> = { 1: 10, 2: 15, 3: 20 };
@@ -1671,7 +1675,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
           <div className="flex justify-between items-center mb-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
             <span className="flex items-center gap-1.5">
               <Coffee className="w-3.5 h-3.5" />
-              Mini‑session {currentMiniSession}/3
+              Mini‑session {currentMiniSession}/3 · Étape {currentStepInMini + 1}/2
             </span>
             <span>
               {STEP_LABELS[currentMiniSession][currentStepInMini]}
@@ -1714,8 +1718,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   "text-[9px] font-black uppercase tracking-wider",
                   isCompleted ? "text-emerald-500" : isCurrent ? "text-indigo-500" : "text-slate-300"
                 )}>
-                  {ms.id === 1 ? "📖 " : ms.id === 2 ? "🔍 " : "🙏 "}
-                  {ms.id === 1 ? "Verset" : ms.id === 2 ? "OIA+" : "Prière"}
+                  {ms.id === 1 ? "📖 Verset" : ms.id === 2 ? "🔎 OIA+" : "🙏 Prière"}
                 </span>
               );
             })}
@@ -1741,9 +1744,9 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
           )}
           
           {/* Mini-session 1 — always shown when currentMiniSession >= 2 */}
-          <div className="bg-white/70 rounded-xl p-3 border border-amber-100/60 space-y-2">
+          <div className="bg-indigo-50/60 border border-indigo-100/60 rounded-xl p-3 space-y-2">
             <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5">
-              <span>📖</span> Mini‑session 1 — Verset & Contexte
+              <span>{MINI_EMOJIS[1]}</span> Mini‑session 1 — Verset & Contexte
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
               {answers.step2_who && (
@@ -1774,9 +1777,9 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
 
           {/* Mini-session 2 — shown when currentMiniSession >= 3 */}
           {currentMiniSession >= 3 && (
-            <div className="bg-white/70 rounded-xl p-3 border border-amber-100/60 space-y-2">
-              <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5">
-                <span>🔍</span> Mini‑session 2 — Observation & Interprétation
+            <div className="bg-emerald-50/60 border border-emerald-100/60 rounded-xl p-3 space-y-2">
+              <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-1.5">
+                <span>{MINI_EMOJIS[2]}</span> Mini‑session 2 — Observation & Interprétation
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
                 {answers.step3_epoch && (
