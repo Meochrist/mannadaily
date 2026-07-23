@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Manny from "@/components/mascot/Manny";
 import MascotMessage from "@/components/mascot/MascotMessage";
 import { MannyMood } from "@/types";
-import { getMascotMoodFromProgress } from "@/lib/mascots";
+import { getMascotMoodFromProgress, getMascotState } from "@/lib/mascots";
 import { cn } from "@/lib/utils";
 import { 
   BookOpen, 
@@ -1032,6 +1032,18 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
     [currentMiniSession, currentStepInMini, sessionsCompleted, dayCompleted]
   );
 
+  // Time-aware mascot state for welcome message
+  const mascotState = useMemo(
+    () => getMascotState({
+      currentMiniSession,
+      currentStep: currentStepInMini,
+      sessionsCompleted,
+      lastActivityDate: getTodayStr(),
+      dayCompleted,
+    }),
+    [currentMiniSession, currentStepInMini, sessionsCompleted, dayCompleted]
+  );
+
   // === Messages ===
   const periodEmoji = period === "morning" ? "🌅" : "🌙";
   const periodTitle = period === "morning" ? "Méditation du matin" : "Méditation du soir";
@@ -1069,6 +1081,12 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
           {welcomeMessage && (
             <div className="text-center bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100/30 dark:border-indigo-900/40 text-indigo-850 dark:text-indigo-300 p-4 px-6 rounded-2xl text-xs md:text-sm font-extrabold max-w-md shadow-sm">
               {welcomeMessage}
+            </div>
+          )}
+
+          {mascotState.message && (
+            <div className="text-center bg-amber-50/50 dark:bg-amber-950/30 border border-amber-100/30 dark:border-amber-900/40 text-amber-800 dark:text-amber-300 p-3 px-5 rounded-xl text-xs font-bold max-w-md">
+              {mascotState.message}
             </div>
           )}
 

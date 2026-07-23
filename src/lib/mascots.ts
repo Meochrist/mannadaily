@@ -62,6 +62,83 @@ export function getMascotMoodFromProgress(progress: MeditationProgress | null): 
   return "happy";
 }
 
+/**
+ * Calcule l'état complet de la mascotte (humeur + message) en fonction de la progression,
+ * de l'heure de la journée, et du fait que l'utilisateur revient.
+ */
+export function getMascotState(
+  progress: MeditationProgress | null,
+  timeOfDay?: "morning" | "midday" | "afternoon" | "evening" | "night"
+): { mood: MascotMood; message: string } {
+  const sessionsCompleted = progress?.sessionsCompleted?.length ?? 0;
+  const dayCompleted = progress?.dayCompleted ?? false;
+
+  // Auto-detect time of day
+  if (!timeOfDay) {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 11) timeOfDay = "morning";
+    else if (hour >= 11 && hour < 14) timeOfDay = "midday";
+    else if (hour >= 14 && hour < 18) timeOfDay = "afternoon";
+    else if (hour >= 18 && hour < 22) timeOfDay = "evening";
+    else timeOfDay = "night";
+  }
+
+  // Day completed = always celebrating
+  if (dayCompleted || sessionsCompleted === 3) {
+    const messages: Record<string, string> = {
+      morning: "☀️ Super méditation ce matin ! Tu as bien commencé ta journée.",
+      midday: "🎉 Journée spirituelle complète ! Le Seigneur est avec toi.",
+      afternoon: "✅ Tu as médité aujourd'hui, c'est parfait !",
+      evening: "🌙 Belle méditation en soirée ! Que la Parole t'accompagne.",
+      night: "💤 Journée bénie. Repose-toi dans la paix du Seigneur.",
+    };
+    return { mood: "celebrating", message: messages[timeOfDay] || messages.evening };
+  }
+
+  // 1-2 sessions done = happy
+  if (sessionsCompleted >= 1 && sessionsCompleted <= 2) {
+    const messages: Record<string, string> = {
+      morning: "😊 Bon début ! Continue ta méditation.",
+      midday: "🙂 Tu es sur la bonne voie. Termine ta session !",
+      afternoon: "👍 Bonne progression ! Encore un effort.",
+      evening: "💪 Tu avances bien. Termine avant la nuit.",
+      night: "🌛 Belle avancée. Demain sera un autre jour.",
+    };
+    return { mood: "happy", message: messages[timeOfDay] || messages.midday };
+  }
+
+  // In progress (thinking) but no sessions completed
+  if (progress && (progress.currentMiniSession > 1 || progress.currentStep > 0)) {
+    return { mood: "thinking", message: "🤔 Continue ta réflexion. La Parole t'éclaire." };
+  }
+
+  // No sessions — mood varies by time
+  const timeMessages: Record<string, { mood: MascotMood; message: string }> = {
+    morning: {
+      mood: "happy",
+      message: "🌅 Bonjour ! Commençons cette nouvelle journée avec la Parole de Dieu.",
+    },
+    midday: {
+      mood: "thinking",
+      message: "🕐 Il est déjà midi... C'est le moment parfait pour méditer !",
+    },
+    afternoon: {
+      mood: "sad",
+      message: "☀️ L'après-midi avance. N'oublie pas ta méditation du jour !",
+    },
+    evening: {
+      mood: "sad",
+      message: "🌅 Le soir tombe. Prends un moment pour te recentrer sur la Parole.",
+    },
+    night: {
+      mood: "sleepy" as MascotMood,
+      message: "🌙 Il est tard. Repose-toi, demain est un nouveau jour.",
+    },
+  };
+
+  return timeMessages[timeOfDay] || timeMessages.morning;
+}
+
 // 1. Dictionnaire des System Prompts pour chaque personnage
 export const MASCOT_SYSTEM_PROMPTS: Record<string, string> = {
   manny: `Tu es Manny, une Bible animée et chaleureuse qui sert de guide spirituel bienveillant pour l'application MannaDaily.
