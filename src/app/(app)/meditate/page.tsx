@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Manny from "@/components/mascot/Manny";
 import MascotMessage from "@/components/mascot/MascotMessage";
 import { MannyMood } from "@/types";
-import { getMascotMoodFromProgress, getMascotState } from "@/lib/mascots";
+import { getMascotState } from "@/lib/mascots";
 import { cn } from "@/lib/utils";
 import { 
   BookOpen, 
@@ -1020,19 +1020,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
     );
   };
 
-  // === Compute mascot mood based on current progress ===
-  const mascotMood = useMemo(
-    () => getMascotMoodFromProgress({
-      currentMiniSession,
-      currentStep: currentStepInMini,
-      sessionsCompleted,
-      lastActivityDate: getTodayStr(),
-      dayCompleted,
-    }),
-    [currentMiniSession, currentStepInMini, sessionsCompleted, dayCompleted]
-  );
-
-  // Time-aware mascot state for welcome message
+  // === Compute mascot mood based on current progress + time of day ===
   const mascotState = useMemo(
     () => getMascotState({
       currentMiniSession,
@@ -1076,7 +1064,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
           <h1 className="text-2xl font-black text-slate-850 dark:text-slate-100 tracking-tight">
             {periodTitle} {periodEmoji}
           </h1>
-          <Manny mood={mascotMood} size={170} />
+          <Manny mood={mascotState.mood} size={170} />
           
           {welcomeMessage && (
             <div className="text-center bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100/30 dark:border-indigo-900/40 text-indigo-850 dark:text-indigo-300 p-4 px-6 rounded-2xl text-xs md:text-sm font-extrabold max-w-md shadow-sm">
@@ -1452,7 +1440,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
           ) : (
             /* Session validated — Full summary */
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="space-y-6 w-full flex flex-col items-center">
-              <Manny mood={mascotMood} size={150} />
+              <Manny mood={mascotState.mood} size={150} />
 
               <div className="text-center space-y-1">
                 <h2 className="text-2xl font-black text-slate-800 tracking-tight">📖 Résumé de votre méditation</h2>
@@ -1628,7 +1616,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
           animate={{ opacity: 1, scale: 1 }}
           className="bg-white rounded-3xl p-8 md:p-12 border border-slate-100 shadow-2xl max-w-lg w-full text-center space-y-8"
         >
-          <Manny mood={mascotMood} size={185} />
+          <Manny mood={mascotState.mood} size={185} />
 
           <div className="space-y-2">
             <h2 className="text-2xl font-black text-slate-800 tracking-tight">

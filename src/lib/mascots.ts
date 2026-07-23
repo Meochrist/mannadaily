@@ -31,7 +31,7 @@ export interface MeditationProgress {
  * @param progress - L'objet de progression de méditation ou null
  * @returns Le mood approprié pour la mascotte
  */
-export function getMascotMoodFromProgress(progress: MeditationProgress | null): MascotMood {
+function getMascotMoodFromProgress(progress: MeditationProgress | null): MascotMood {
   // Cas 1 : Pas de progression du tout → triste
   if (!progress) {
     return "sad";

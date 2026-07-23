@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import MascotMessage from "../mascot/MascotMessage";
 import { useCharacterState } from "@/hooks/useCharacterState";
 import { getMannyMessage, MannySituation } from "@/lib/mannyMessages";
-import { getMascotMoodFromProgress, MeditationProgress } from "@/lib/mascots";
+import { getMascotState, MeditationProgress } from "@/lib/mascots";
 import { MannyMood } from "@/types";
 
 interface RandomMascotMessageProps {
@@ -55,7 +55,7 @@ export default function RandomMascotMessage({
   }, [moodProp]);
 
   // Calcul du mood basé sur la progression (uniquement si mood n'est pas fourni par props)
-  const computedMood: MannyMood | undefined = moodProp || (progress ? getMascotMoodFromProgress(progress) : undefined);
+  const computedMood: MannyMood | undefined = moodProp || (progress ? getMascotState(progress).mood : undefined);
 
   // Appeler le hook d'état global du personnage pour calculer les poses/expressions et la tenue météo
   const { pose: envPose, expression: envExpression, outfit, mascotState } = useCharacterState({

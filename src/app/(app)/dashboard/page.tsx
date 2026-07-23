@@ -2,7 +2,7 @@ import React from "react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getDailyVerse } from "@/lib/verses";
-import { getMascotMoodFromProgress, type MeditationProgress } from "@/lib/mascots";
+import { getMascotState, type MeditationProgress } from "@/lib/mascots";
 import RandomMascotMessage from "@/components/dashboard/RandomMascotMessage";
 import GameMap from "@/components/dashboard/GameMap";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
@@ -91,7 +91,7 @@ export default async function DashboardPage() {
             dayProgress={dayProgress}
             inactivityDays={inactivityDays}
             className="max-w-none w-full"
-            mood={getMascotMoodFromProgress(meditationProgressData as MeditationProgress | null)}
+            mood={getMascotState(meditationProgressData as MeditationProgress | null).mood}
           />
         </div>
         
