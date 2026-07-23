@@ -119,8 +119,8 @@ export function getMascotState(
       message: "🌅 Bonjour ! Commençons cette nouvelle journée avec la Parole de Dieu.",
     },
     midday: {
-      mood: "thinking",
-      message: "🕐 Il est déjà midi... C'est le moment parfait pour méditer !",
+      mood: "encouraging" as MascotMood,
+      message: "🕐 Il est déjà midi et tu n'as pas encore médité... Prends 10 minutes pour la Parole !",
     },
     afternoon: {
       mood: "sad",

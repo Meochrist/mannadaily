@@ -1684,7 +1684,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
   // === Main render ===
   return (
     <div className={cn(
-      "w-full max-w-4xl mx-auto rounded-3xl p-6 md:p-10 transition-all duration-700 min-h-[85vh] flex flex-col justify-between space-y-8 relative",
+      "w-full max-w-4xl mx-auto rounded-3xl p-6 md:p-10 pb-24 md:pb-12 transition-all duration-700 min-h-[85vh] flex flex-col justify-between space-y-8 relative",
       currentMiniSession === 1 && currentStepInMini === 0 && "bg-transparent",
       currentMiniSession === 3 && currentStepInMini === 1 && sessionResult && "bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-yellow-500/5 border border-amber-500/20 shadow-2xl",
       !(currentMiniSession === 1 && currentStepInMini === 0) && !(currentMiniSession === 3 && currentStepInMini === 1 && sessionResult) && "bg-white border border-slate-100 shadow-xl"
