@@ -151,6 +151,7 @@ function MeditatePageContent() {
   const [currentStepInMini, setCurrentStepInMini] = useState<0 | 1>(0);
   const [sessionsCompleted, setSessionsCompleted] = useState<number[]>([]);
   const [dayCompleted, setDayCompleted] = useState(false);
+  const [isDayDone, setIsDayDone] = useState(false); // journée déjà complète → écran spécial
   const [progressLoaded, setProgressLoaded] = useState(false);
 
   // UI states
@@ -254,18 +255,34 @@ function MeditatePageContent() {
   // === Load progress from storage ===
   useEffect(() => {
     async function loadProgress() {
+      const fresh = searchParams.get("fresh") === "true";
+
+      // If fresh mode, skip all progress loading
+      if (fresh) {
+        setProgressLoaded(true);
+        return;
+      }
+
       // 1. Try sessionStorage first
       if (typeof window !== "undefined") {
         const saved = sessionStorage.getItem("manna_meditate_progress");
         if (saved) {
           try {
-            const parsed: MeditationProgress = JSON.parse(saved);
+            const parsed = JSON.parse(saved) as MeditationProgress & { answers?: Answers };
             const today = getTodayStr();
             if (parsed.lastActivityDate === today) {
+              // If day already completed, show special screen
+              if (parsed.dayCompleted) {
+                setIsDayDone(true);
+                setProgressLoaded(true);
+                if (parsed.answers) setAnswers(parsed.answers);
+                return;
+              }
               setCurrentMiniSession(parsed.currentMiniSession);
               setCurrentStepInMini(parsed.currentStep);
               setSessionsCompleted(parsed.sessionsCompleted);
               setDayCompleted(parsed.dayCompleted);
+              if (parsed.answers) setAnswers(parsed.answers);
               setProgressLoaded(true);
               return;
             }
@@ -280,13 +297,21 @@ function MeditatePageContent() {
         const res = await fetch("/api/meditate/progress");
         if (res.ok) {
           const data = await res.json();
-          const p = data.progress as MeditationProgress;
+          const p = data.progress as MeditationProgress & { answers?: Answers };
           const today = getTodayStr();
           if (p.lastActivityDate === today) {
+            // If day already completed, show special screen
+            if (p.dayCompleted) {
+              setIsDayDone(true);
+              setProgressLoaded(true);
+              if (p.answers) setAnswers(p.answers);
+              return;
+            }
             setCurrentMiniSession(p.currentMiniSession);
             setCurrentStepInMini(p.currentStep);
             setSessionsCompleted(p.sessionsCompleted);
             setDayCompleted(p.dayCompleted);
+            if (p.answers) setAnswers(p.answers);
           }
         }
       } catch (err) {
@@ -303,6 +328,19 @@ function MeditatePageContent() {
     if (!progressLoaded) return;
     saveToSessionStorage(currentMiniSession, currentStepInMini, sessionsCompleted, dayCompleted);
   }, [currentMiniSession, currentStepInMini, sessionsCompleted, dayCompleted, progressLoaded, saveToSessionStorage]);
+
+  // === Auto-save answers to sessionStorage ===
+  useEffect(() => {
+    if (!progressLoaded || typeof window === "undefined") return;
+    const saved = sessionStorage.getItem("manna_meditate_progress");
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        data.answers = answers;
+        sessionStorage.setItem("manna_meditate_progress", JSON.stringify(data));
+      } catch { /* ignore */ }
+    }
+  }, [answers, progressLoaded]);
 
   // === Load verse and user data ===
   useEffect(() => {
@@ -1665,6 +1703,33 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
             </button>
           </div>
         </motion.div>
+      </div>
+    );
+  }
+
+  // === Special screen : Day already completed ===
+  if (isDayDone && !sessionResult) {
+    const freshUrl = "/meditate?fresh=true";
+    return (
+      <div className="w-full max-w-4xl mx-auto rounded-3xl p-6 md:p-10 min-h-[85vh] flex flex-col items-center justify-center space-y-6">
+        <Manny mood="celebrating" size={170} />
+        <div className="text-center space-y-3">
+          <h2 className="text-2xl font-black text-slate-800 tracking-tight">
+            🎉 Tu as déjà médité aujourd'hui !
+          </h2>
+          <p className="text-slate-500 font-medium text-sm max-w-md">
+            Ta journée spirituelle est complète. Tu peux faire une méditation personnelle ou retourner au tableau de bord.
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm">
+          <a href={freshUrl} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-xl shadow-lg transition-all text-sm">
+            <BookOpen className="w-4 h-4" />
+            Faire une méditation personnelle
+          </a>
+          <a href="/dashboard" className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all text-sm">
+            Voir mon tableau de bord
+          </a>
+        </div>
       </div>
     );
   }
