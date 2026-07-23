@@ -342,6 +342,13 @@ function MeditatePageContent() {
     }
   }, [answers, progressLoaded]);
 
+  // === Auto-load historical context at step 3 (Observation) ===
+  useEffect(() => {
+    if (currentMiniSession === 2 && currentStepInMini === 0 && dailyVerse && !contextData) {
+      loadContext();
+    }
+  }, [currentMiniSession, currentStepInMini, dailyVerse]);
+
   // === Load verse and user data ===
   useEffect(() => {
     const textParam = searchParams.get("text");
@@ -416,11 +423,16 @@ function MeditatePageContent() {
     }
 
     if (textParam && refParam && themeParam) {
-      verse = {
-        text: decodeURIComponent(textParam),
-        reference: decodeURIComponent(refParam),
-        theme: decodeURIComponent(themeParam),
-      };
+      try {
+        verse = {
+          text: decodeURIComponent(textParam),
+          reference: decodeURIComponent(refParam),
+          theme: decodeURIComponent(themeParam),
+        };
+      } catch {
+        // Fallback to daily verse if URL params are malformed
+        verse = getDailyVerse();
+      }
     } else {
       const now = new Date();
       const start = new Date(now.getFullYear(), 0, 0);

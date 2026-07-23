@@ -56,14 +56,6 @@ export default async function DashboardPage() {
         inactivityDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
       }
 
-      const todayStart = new Date();
-      todayStart.setHours(0, 0, 0, 0);
-      const todaySession = await db.dailySession.findFirst({
-        where: { userId, createdAt: { gte: todayStart } },
-        select: { id: true }
-      });
-      dayProgress = !!todaySession;
-
       const userWithMedProgress = await db.user.findUnique({
         where: { id: userId },
         select: { meditationProgress: true }
@@ -74,6 +66,8 @@ export default async function DashboardPage() {
         const todayStr = new Date().toISOString().split("T")[0];
         if (mp.lastActivityDate === todayStr) {
           meditationProgressData = mp;
+          const sessions = Array.isArray(mp.sessionsCompleted) ? mp.sessionsCompleted as number[] : [];
+          dayProgress = sessions.length > 0;
         }
       }
     } catch (error) {
