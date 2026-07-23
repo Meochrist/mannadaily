@@ -1236,6 +1236,65 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
 
           <div className="space-y-4">
             <div className="space-y-3">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">À quelle époque ce passage a-t-il été écrit ?</label>
+              <div className="relative">
+                <textarea rows={2} value={answers.step3_epoch}
+                  onChange={(e) => setAnswers({ ...answers, step3_epoch: e.target.value })}
+                  placeholder="Quel siècle, sous quel roi ou empire ?"
+                  className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
+                <SpeechMicButton value={answers.step3_epoch}
+                  onChange={(val) => setAnswers({ ...answers, step3_epoch: val })} />
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Qui sont les destinataires de ce passage ?</label>
+              <div className="relative">
+                <textarea rows={2} value={answers.step3_dest}
+                  onChange={(e) => setAnswers({ ...answers, step3_dest: e.target.value })}
+                  placeholder="Peuple d'Israël, une église, un individu ?"
+                  className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
+                <SpeechMicButton value={answers.step3_dest}
+                  onChange={(val) => setAnswers({ ...answers, step3_dest: val })} />
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quel problème ce passage cherche-t-il à résoudre ?</label>
+              <div className="relative">
+                <textarea rows={2} value={answers.step3_problem}
+                  onChange={(e) => setAnswers({ ...answers, step3_problem: e.target.value })}
+                  placeholder="Quelle question ou défi adresse-t-il ?"
+                  className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
+                <SpeechMicButton value={answers.step3_problem}
+                  onChange={(val) => setAnswers({ ...answers, step3_problem: val })} />
+              </div>
+            </div>
+          </div>
+
+          {renderMascotSuggestion()}
+        </motion.div>
+      );
+    }
+
+    if (currentMiniSession === 2 && currentStepInMini === 1) {
+      // Step 4: Interpretation (I)
+      return dailyVerse && (
+        <motion.div
+          key="step5"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          className="space-y-6"
+        >
+          <div className="text-center space-y-2 mb-6">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-violet-600 bg-violet-50 px-3 py-1 rounded-full">Méthode Inductive</span>
+            <h2 className="text-2xl font-black text-slate-800 tracking-tight">I : Interprétation</h2>
+            <p className="text-slate-400 font-semibold text-xs max-w-sm mx-auto">Cherche à comprendre le sens spirituel profond du message</p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="space-y-3">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quels sont les personnages ou acteurs mentionnés ?</label>
               <div className="relative">
                 <textarea rows={2} value={answers.step4_actors}
@@ -1277,20 +1336,20 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
       );
     }
 
-    if (currentMiniSession === 2 && currentStepInMini === 1) {
-      // Step 4: Interpretation (I)
+    if (currentMiniSession === 3 && currentStepInMini === 0) {
+      // Step 5: Application (A)
       return dailyVerse && (
         <motion.div
-          key="step5"
+          key="step6"
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.98 }}
           className="space-y-6"
         >
           <div className="text-center space-y-2 mb-6">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-violet-600 bg-violet-50 px-3 py-1 rounded-full">Méthode Inductive</span>
-            <h2 className="text-2xl font-black text-slate-800 tracking-tight">I : Interprétation</h2>
-            <p className="text-slate-400 font-semibold text-xs max-w-sm mx-auto">Cherche à comprendre le sens spirituel profond du message</p>
+            <span className="text-xs font-extrabold uppercase tracking-widest text-orange-600 bg-orange-50 px-3 py-1 rounded-full">Méthode Inductive</span>
+            <h2 className="text-2xl font-black text-slate-800 tracking-tight">A : Application</h2>
+            <p className="text-slate-400 font-semibold text-xs max-w-sm mx-auto">Ancre la vérité du verset dans ta vie concrète aujourd'hui</p>
           </div>
 
           <div className="space-y-4">
@@ -1327,65 +1386,6 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
                 <SpeechMicButton value={answers.step5_summary}
                   onChange={(val) => setAnswers({ ...answers, step5_summary: val })} />
-              </div>
-            </div>
-          </div>
-
-          {renderMascotSuggestion()}
-        </motion.div>
-      );
-    }
-
-    if (currentMiniSession === 3 && currentStepInMini === 0) {
-      // Step 5: Application (A)
-      return dailyVerse && (
-        <motion.div
-          key="step6"
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.98 }}
-          className="space-y-6"
-        >
-          <div className="text-center space-y-2 mb-6">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">Méthode Inductive</span>
-            <h2 className="text-2xl font-black text-slate-800 tracking-tight">A : Application</h2>
-            <p className="text-slate-400 font-semibold text-xs max-w-sm mx-auto">Fais descendre la Parole dans ton cœur et dans tes actions</p>
-          </div>
-
-          <div className="space-y-4">
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Comment ce verset parle-t-il directement à ta situation aujourd&apos;hui ?</label>
-              <div className="relative">
-                <textarea rows={2} value={answers.step6_situation}
-                  onChange={(e) => setAnswers({ ...answers, step6_situation: e.target.value })}
-                  placeholder="Fais un lien avec ton travail, ta famille, tes soucis actuels..."
-                  className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
-                <SpeechMicButton value={answers.step6_situation}
-                  onChange={(val) => setAnswers({ ...answers, step6_situation: val })} />
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Qu&apos;est-ce que Dieu veut transformer dans ta vie à travers ce texte ?</label>
-              <div className="relative">
-                <textarea rows={2} value={answers.step6_transform}
-                  onChange={(e) => setAnswers({ ...answers, step6_transform: e.target.value })}
-                  placeholder="Une attitude, une habitude, une crainte à abandonner ?"
-                  className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
-                <SpeechMicButton value={answers.step6_transform}
-                  onChange={(val) => setAnswers({ ...answers, step6_transform: val })} />
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quelle décision concrète tu prends suite à cette méditation ?</label>
-              <div className="relative">
-                <textarea rows={2} value={answers.step6_decision}
-                  onChange={(e) => setAnswers({ ...answers, step6_decision: e.target.value })}
-                  placeholder="Quelle action précise ou engagement vas-tu mettre en œuvre aujourd'hui ?"
-                  className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
-                <SpeechMicButton value={answers.step6_decision}
-                  onChange={(val) => setAnswers({ ...answers, step6_decision: val })} />
               </div>
             </div>
           </div>
