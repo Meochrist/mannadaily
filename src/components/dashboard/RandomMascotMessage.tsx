@@ -111,12 +111,9 @@ export default function RandomMascotMessage({
     ];
     const randomMascot = mascots[Math.floor(Math.random() * mascots.length)];
 
-    // 2. Choix aléatoire entre "welcome" et "first_visit"
-    const situations: MannySituation[] = ["welcome", "first_visit"];
-    const randomSituation = situations[Math.floor(Math.random() * situations.length)];
-
-    // 3. Génération du message d'accueil
-    const rawMessage = getMannyMessage(randomSituation, userName, streakCount);
+    // 2. Choix de la situation basé sur la progression réelle
+    const situation: MannySituation = dayProgress ? "welcome" : "first_visit";
+    const rawMessage = getMannyMessage(situation, userName, streakCount);
 
     // 4. Signature spécifique pour identifier le personnage qui parle
     let prefix = "";

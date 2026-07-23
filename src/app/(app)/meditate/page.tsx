@@ -346,6 +346,7 @@ function MeditatePageContent() {
   useEffect(() => {
     if (currentMiniSession === 2 && currentStepInMini === 0 && dailyVerse && !contextData) {
       loadContext();
+      queueMicrotask(() => setShowStudyPanel("context"));
     }
   }, [currentMiniSession, currentStepInMini, dailyVerse]);
 
