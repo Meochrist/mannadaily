@@ -131,7 +131,15 @@ export async function GET(req: Request) {
       }
 
       if (!notification) {
-        notification = getRandomNotification(situation, userName);
+        // Get meditation progress to adapt the notification
+        const medProgress = await db.user.findUnique({
+          where: { id: user.id },
+          select: { meditationProgress: true },
+        });
+        const sessions = Array.isArray((medProgress?.meditationProgress as any)?.sessionsCompleted)
+          ? (medProgress?.meditationProgress as any).sessionsCompleted.length
+          : 0;
+        notification = getRandomNotification(situation, userName, undefined, undefined, sessions);
       }
 
       // 1. Envoi de l'email via Resend

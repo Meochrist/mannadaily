@@ -572,14 +572,30 @@ export function getRandomNotification(
   situation: keyof typeof NOTIFICATION_MESSAGES,
   userName: string,
   streakOrLevelOrBadge?: string | number,
-  extraReplacements?: Record<string, string>
+  extraReplacements?: Record<string, string>,
+  sessionsCompleted?: number
 ): NotificationMessage {
+  // If all 3 mini-sessions are done, don't send a reminder
+  if (sessionsCompleted === 3) {
+    return {
+      mascot: "manny",
+      title: "🎉 Journée spirituelle complète !",
+      body: `Bravo ${userName || "Ami"} ! Tes 3 mini-sessions sont faites. Que la Parole t'accompagne.`,
+      emoji: "🎉",
+    };
+  }
+
   const messages = NOTIFICATION_MESSAGES[situation];
   if (!messages || messages.length === 0) {
+    const progressMsg = sessionsCompleted === 0
+      ? "Prends un moment pour méditer la Parole de Dieu aujourd'hui."
+      : sessionsCompleted === 1
+        ? "Belle progression ! Continue ta méditation, il te reste 2 mini-sessions."
+        : "Tu y es presque ! Une dernière mini-session pour compléter ta journée.";
     return {
       mascot: "manny",
       title: "Rappel quotidien 📖",
-      body: "Prends un moment pour méditer la Parole de Dieu aujourd'hui.",
+      body: progressMsg,
       emoji: "🌱",
     };
   }
