@@ -65,6 +65,13 @@ export async function GET(req: Request) {
     // Calculer l'humeur de la mascotte
     const mascotState = getMascotState(meditationProgress as any);
 
+    // Déterminer la mascotte selon l'heure
+    const hour = new Date().getHours();
+    let widgetMascot = "abraham";
+    if (hour >= 11 && hour < 14) widgetMascot = "gedeon";
+    else if (hour >= 14 && hour < 18) widgetMascot = "esther";
+    else if (hour >= 18 || hour < 5) widgetMascot = "noe";
+
     return NextResponse.json({
       streak: {
         currentStreak: streak?.currentStreak ?? 0,
@@ -73,6 +80,7 @@ export async function GET(req: Request) {
       verse: `${verse.text} — ${verse.reference}`,
       sessionsCompleted,
       dayCompleted,
+      mascot: widgetMascot,
       mood: mascotState.mood,
       message: mascotState.message,
     });

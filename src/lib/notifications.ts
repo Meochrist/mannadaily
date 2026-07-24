@@ -568,6 +568,50 @@ export const NOTIFICATION_MESSAGES: Record<string, NotificationMessage[]> = {
   ],
 };
 
+/**
+ * Personalized notification messages by mascot, hour, and progression.
+ * Each mascot has 5 message tiers: 0 session, 1 session, 2 sessions, 3 sessions, streak danger.
+ */
+const PERSONALIZED_MESSAGES: Record<string, Record<string, { title: string; body: string; emoji: string }>> = {
+  // === ABRAHAM — Morning (5h-11h) — Père encourageant ===
+  "abraham_0": { title: "🌅 Un nouveau jour t'attend", body: "[name], le soleil se lève ! La Parole de Dieu t'attend. Prends 5 minutes pour L'écouter. 📖", emoji: "📖" },
+  "abraham_1": { title: "🌅 Bien débuté !", body: "Bien, [name] ! Une mini-session de faite. Continue à marcher avec Dieu aujourd'hui.", emoji: "🌅" },
+  "abraham_2": { title: "💪 Presque au sommet !", body: "[name], une dernière mini-session et ta journée sera complète. Dieu t'attend.", emoji: "🏔️" },
+  "abraham_3": { title: "🎉 Journée bénie !", body: "🎉 [name], ta journée est remplie de la Parole ! Que Dieu te bénisse abondamment.", emoji: "🙌" },
+  "abraham_streak": { title: "🔥 Ta flamme vacille !", body: "[name], ta flamme de [X] jours est sur le point de s'éteindre ! Ouvre l'app maintenant !", emoji: "🔥" },
+
+  // === GÉDÉON — Midday (11h-14h) — Guerrier déterminé ===
+  "gedeon_0": { title: "⚔️ Il est déjà midi !", body: "[name] ! Il est midi et tu n'as pas encore médité. Le Seigneur est avec toi, lève-toi !", emoji: "⚔️" },
+  "gedeon_1": { title: "🛡️ Belle progression !", body: "[name], le Seigneur combat pour toi. Continue ta méditation. Une mini-session de faite !", emoji: "🛡️" },
+  "gedeon_2": { title: "🏆 La victoire est proche !", body: "[name], une dernière mini-session et tu auras vaincu. Termine le combat !", emoji: "🏆" },
+  "gedeon_3": { title: "✝️ Victoire totale !", body: "🎉 [name], tu as vaincu ! Ta journée est scellée dans la Parole. Gloire à Dieu !", emoji: "✝️" },
+  "gedeon_streak": { title: "⚔️ Ton épée s'émousse !", body: "[name], ton streak de [X] jours est menacé ! Sauve-le maintenant !", emoji: "⚔️🔥" },
+
+  // === ESTHER — Afternoon (14h-18h) — Reine stratégique ===
+  "esther_0": { title: "👑 Pour un temps comme celui-ci", body: "[name], c'est pour un temps comme celui-ci que tu es appelé à méditer. N'attends pas !", emoji: "👑" },
+  "esther_1": { title: "🌟 Fidélité remarquable", body: "Bien joué, [name] ! Ta fidélité à la Parole est remarquable. Continue.", emoji: "🌟" },
+  "esther_2": { title: "🕊️ La délivrance est proche", body: "[name], une dernière mini-session et tu seras libre. Termine ta course !", emoji: "🕊️" },
+  "esther_3": { title: "✨ Destinée accomplie !", body: "🎉 [name], tu as accompli ta destinée du jour ! Que Dieu soit glorifié !", emoji: "✨" },
+  "esther_streak": { title: "👑 Ta couronne est en danger !", body: "[name], ta couronne de [X] jours vacille ! Sauve ton streak maintenant !", emoji: "👑🔥" },
+
+  // === NOÉ — Evening (18h-22h) — Sage patient ===
+  "noe_0": { title: "🌙 Le soir tombe", body: "[name], le soir approche. Prends un moment pour te recentrer sur la Parole avant la nuit.", emoji: "🌙" },
+  "noe_1": { title: "🌈 Belle méditation !", body: "[name], une session de faite. La pluie s'arrête et le soleil revient. Continue.", emoji: "🌈" },
+  "noe_2": { title: "🕊️ Presque arrivé !", body: "[name], une dernière mini-session et tu pourras te reposer en paix. Dieu veille.", emoji: "🕊️" },
+  "noe_3": { title: "🌙✨ Paix complète", body: "🎉 [name], ta journée est complète ! Repose-toi en paix, Dieu veille sur toi.", emoji: "🌙✨" },
+  "noe_streak": { title: "🌊 L'arche s'éloigne !", body: "[name], ton streak de [X] jours va couler ! Sauve-le avant qu'il ne soit trop tard !", emoji: "🌊🔥" },
+};
+
+/**
+ * Maps the hour of day to a mascot personality.
+ */
+function getMascotForHour(hour: number): "abraham" | "gedeon" | "esther" | "noe" {
+  if (hour >= 5 && hour < 11) return "abraham";
+  if (hour >= 11 && hour < 14) return "gedeon";
+  if (hour >= 14 && hour < 18) return "esther";
+  return "noe";
+}
+
 export function getRandomNotification(
   situation: keyof typeof NOTIFICATION_MESSAGES,
   userName: string,
@@ -575,49 +619,50 @@ export function getRandomNotification(
   extraReplacements?: Record<string, string>,
   sessionsCompleted?: number
 ): NotificationMessage {
-  // If all 3 mini-sessions are done, don't send a reminder
-  if (sessionsCompleted === 3) {
+  const name = userName || "Ami";
+  const streak = streakOrLevelOrBadge !== undefined ? String(streakOrLevelOrBadge) : "0";
+
+  // Determine mascot based on current hour
+  const hour = new Date().getHours();
+  const mascot = getMascotForHour(hour);
+
+  // Determine progression tier
+  let tier: string;
+  if (sessionsCompleted === 3) tier = "3";
+  else if (sessionsCompleted === 2) tier = "2";
+  else if (sessionsCompleted === 1) tier = "1";
+  else if (extraReplacements?.streak_danger === "true") tier = "streak";
+  else tier = "0";
+
+  const key = `${mascot}_${tier}`;
+  const msg = PERSONALIZED_MESSAGES[key];
+
+  if (msg) {
+    const format = (text: string) =>
+      text.replace(/\[name\]/g, name).replace(/\[X\]/g, streak);
     return {
-      mascot: "manny",
-      title: "🎉 Journée spirituelle complète !",
-      body: `Bravo ${userName || "Ami"} ! Tes 3 mini-sessions sont faites. Que la Parole t'accompagne.`,
-      emoji: "🎉",
+      mascot: mascot as any,
+      title: format(msg.title),
+      body: format(msg.body),
+      emoji: msg.emoji,
     };
   }
 
+  // Fallback to old system for backward compatibility
   const messages = NOTIFICATION_MESSAGES[situation];
   if (!messages || messages.length === 0) {
-    const progressMsg = sessionsCompleted === 0
-      ? "Prends un moment pour méditer la Parole de Dieu aujourd'hui."
-      : sessionsCompleted === 1
-        ? "Belle progression ! Continue ta méditation, il te reste 2 mini-sessions."
-        : "Tu y es presque ! Une dernière mini-session pour compléter ta journée.";
     return {
       mascot: "manny",
       title: "Rappel quotidien 📖",
-      body: progressMsg,
+      body: `${name}, prends un moment pour méditer la Parole de Dieu aujourd'hui.`,
       emoji: "🌱",
     };
   }
 
   const randomIndex = Math.floor(Math.random() * messages.length);
   const selected = messages[randomIndex];
-
-  const name = userName || "Ami";
-  const replacement = streakOrLevelOrBadge !== undefined ? String(streakOrLevelOrBadge) : "0";
-
-  const formatText = (text: string) => {
-    let formatted = text.replace(/\[name\]/g, name).replace(/\[X\]/g, replacement);
-    if (extraReplacements) {
-      Object.entries(extraReplacements).forEach(([key, val]) => {
-        // Échapper les caractères spéciaux dans la clé si nécessaire
-        const escapedKey = key.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-        const regex = new RegExp(`\\[${escapedKey}\\]`, 'g');
-        formatted = formatted.replace(regex, val);
-      });
-    }
-    return formatted;
-  };
+  const formatText = (text: string) =>
+    text.replace(/\[name\]/g, name).replace(/\[X\]/g, streak);
 
   return {
     mascot: selected.mascot,
