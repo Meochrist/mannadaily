@@ -730,10 +730,13 @@ function MeditatePageContent() {
 
   // === Handle "Come Back Later" ===
   const handleComeBackLater = async () => {
+    const nextMini = lastCompletedMiniSession ? Math.min(lastCompletedMiniSession + 1, 3) as 1 | 2 | 3 : currentMiniSession;
+    const nextStep = lastCompletedMiniSession ? 0 as 0 | 1 : currentStepInMini;
+
     setShowMiniComplete(false);
     setLastCompletedMiniSession(null);
-    // Save final state
-    await saveProgressToAPI(currentMiniSession, currentStepInMini, sessionsCompleted, dayCompleted);
+    // Save next state (advance to next mini-session)
+    await saveProgressToAPI(nextMini, nextStep, sessionsCompleted, dayCompleted);
     // Redirect to dashboard
     router.push("/dashboard");
   };
