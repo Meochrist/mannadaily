@@ -572,7 +572,7 @@ export const NOTIFICATION_MESSAGES: Record<string, NotificationMessage[]> = {
  * Personalized notification messages by mascot, hour, and progression.
  * Each mascot has 5 message tiers: 0 session, 1 session, 2 sessions, 3 sessions, streak danger.
  */
-const PERSONALIZED_MESSAGES: Record<string, Record<string, { title: string; body: string; emoji: string }>> = {
+const PERSONALIZED_MESSAGES: Record<string, { title: string; body: string; emoji: string }> = {
   // === ABRAHAM — Morning (5h-11h) — Père encourageant ===
   "abraham_0": { title: "🌅 Un nouveau jour t'attend", body: "[name], le soleil se lève ! La Parole de Dieu t'attend. Prends 5 minutes pour L'écouter. 📖", emoji: "📖" },
   "abraham_1": { title: "🌅 Bien débuté !", body: "Bien, [name] ! Une mini-session de faite. Continue à marcher avec Dieu aujourd'hui.", emoji: "🌅" },
