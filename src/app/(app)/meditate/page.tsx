@@ -7,6 +7,7 @@ import Manny from "@/components/mascot/Manny";
 import MascotMessage from "@/components/mascot/MascotMessage";
 import { MannyMood } from "@/types";
 import { getMascotState } from "@/lib/mascots";
+import { saveMeditationProgress, loadFromSessionStorage, loadFromAPI, type ProgressState } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 import { 
   BookOpen, 
@@ -220,114 +221,49 @@ function MeditatePageContent() {
   }, [currentMiniSession, currentStepInMini]);
 
   // === Save progress to sessionStorage ===
-  const saveToSessionStorage = useCallback((miniSession: 1|2|3, step: 0|1, completed: number[], dayDone: boolean) => {
-    if (typeof window === "undefined") return;
-    const progress: MeditationProgress = {
-      currentMiniSession: miniSession,
-      currentStep: step,
-      sessionsCompleted: completed,
-      lastActivityDate: getTodayStr(),
-      dayCompleted: dayDone,
-    };
-    sessionStorage.setItem("manna_meditate_progress", JSON.stringify(progress));
-  }, []);
+// (removed saveToSessionStorage — using saveMeditationProgress from @/lib/progress)
 
   // === Save progress to the API ===
-  const saveProgressToAPI = useCallback(async (miniSession: 1|2|3, step: 0|1, completed: number[], dayDone: boolean, claimXPForSession?: number) => {
-    const progress: MeditationProgress = {
-      currentMiniSession: miniSession,
-      currentStep: step,
-      sessionsCompleted: completed,
-      lastActivityDate: getTodayStr(),
-      dayCompleted: dayDone,
-    };
-    try {
-      await fetch("/api/meditate/progress", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ progress, claimXPForSession }),
-      });
-    } catch (err) {
-      console.warn("Failed to save progress to API:", err);
-    }
-  }, []);
+// (removed saveProgressToAPI — using saveMeditationProgress from @/lib/progress)
 
   // === Load progress from storage ===
   useEffect(() => {
     async function loadProgress() {
       const fresh = searchParams.get("fresh") === "true";
+      if (fresh) { setProgressLoaded(true); return; }
 
-      // If fresh mode, skip all progress loading
-      if (fresh) {
+      const today = getTodayStr();
+
+      // Helpers
+      const restore = (p: MeditationProgress & { answers?: Answers }) => {
+        if (p.dayCompleted) { setIsDayDone(true); setProgressLoaded(true); if (p.answers) setAnswers(p.answers); return true; }
+        setCurrentMiniSession(p.currentMiniSession);
+        setCurrentStepInMini(p.currentStep);
+        setSessionsCompleted(p.sessionsCompleted);
+        setDayCompleted(p.dayCompleted);
+        if (p.answers) setAnswers(p.answers);
         setProgressLoaded(true);
-        return;
-      }
+        return true;
+      };
 
-      // 1. Try sessionStorage first
-      if (typeof window !== "undefined") {
-        const saved = sessionStorage.getItem("manna_meditate_progress");
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved) as MeditationProgress & { answers?: Answers };
-            const today = getTodayStr();
-            if (parsed.lastActivityDate === today) {
-              // If day already completed, show special screen
-              if (parsed.dayCompleted) {
-                setIsDayDone(true);
-                setProgressLoaded(true);
-                if (parsed.answers) setAnswers(parsed.answers);
-                return;
-              }
-              setCurrentMiniSession(parsed.currentMiniSession);
-              setCurrentStepInMini(parsed.currentStep);
-              setSessionsCompleted(parsed.sessionsCompleted);
-              setDayCompleted(parsed.dayCompleted);
-              if (parsed.answers) setAnswers(parsed.answers);
-              setProgressLoaded(true);
-              return;
-            }
-          } catch (e) {
-            console.warn("Failed to parse sessionStorage progress:", e);
-          }
-        }
-      }
+      // 1. sessionStorage
+      const local = loadFromSessionStorage();
+      if (local && local.lastActivityDate === today && restore(local as MeditationProgress & { answers?: Answers })) return;
 
-      // 2. Fallback to API
-      try {
-        const res = await fetch("/api/meditate/progress");
-        if (res.ok) {
-          const data = await res.json();
-          const p = data.progress as MeditationProgress & { answers?: Answers };
-          const today = getTodayStr();
-          if (p.lastActivityDate === today) {
-            // If day already completed, show special screen
-            if (p.dayCompleted) {
-              setIsDayDone(true);
-              setProgressLoaded(true);
-              if (p.answers) setAnswers(p.answers);
-              return;
-            }
-            setCurrentMiniSession(p.currentMiniSession);
-            setCurrentStepInMini(p.currentStep);
-            setSessionsCompleted(p.sessionsCompleted);
-            setDayCompleted(p.dayCompleted);
-            if (p.answers) setAnswers(p.answers);
-          }
-        }
-      } catch (err) {
-        console.warn("Failed to load progress from API:", err);
-      } finally {
-        setProgressLoaded(true);
-      }
+      // 2. API
+      const remote = await loadFromAPI();
+      if (remote && restore(remote as MeditationProgress & { answers?: Answers })) return;
+
+      setProgressLoaded(true);
     }
     loadProgress();
   }, []);
 
-  // === Auto-save to sessionStorage on state change ===
+  // === Auto-save progress on state change ===
   useEffect(() => {
     if (!progressLoaded) return;
-    saveToSessionStorage(currentMiniSession, currentStepInMini, sessionsCompleted, dayCompleted);
-  }, [currentMiniSession, currentStepInMini, sessionsCompleted, dayCompleted, progressLoaded, saveToSessionStorage]);
+    saveMeditationProgress({ currentMiniSession, currentStep: currentStepInMini, sessionsCompleted, dayCompleted });
+  }, [currentMiniSession, currentStepInMini, sessionsCompleted, dayCompleted, progressLoaded]);
 
   // === Auto-save answers to sessionStorage ===
   useEffect(() => {
@@ -676,8 +612,8 @@ function MeditatePageContent() {
       const xpReward = XP_REWARDS[currentMiniSession];
       
       // Save to API with XP
-      await saveProgressToAPI(currentMiniSession, currentStepInMini, newCompleted, dayCompleted, currentMiniSession);
-      saveToSessionStorage(currentMiniSession, currentStepInMini, newCompleted, dayCompleted);
+      await saveMeditationProgress({ currentMiniSession, currentStep: currentStepInMini, sessionsCompleted: newCompleted, dayCompleted, claimXPForSession: currentMiniSession });
+      // (sessionStorage saved via saveMeditationProgress above)
 
       // Show completion modal
       setLastCompletedMiniSession(currentMiniSession);
@@ -691,8 +627,8 @@ function MeditatePageContent() {
       // Move to next step in same mini-session
       const newStep = 1 as 0 | 1;
       setCurrentStepInMini(newStep);
-      saveToSessionStorage(currentMiniSession, newStep, sessionsCompleted, dayCompleted);
-      await saveProgressToAPI(currentMiniSession, newStep, sessionsCompleted, dayCompleted);
+      // (sessionStorage saved via saveMeditationProgress below)
+      await saveMeditationProgress({ currentMiniSession, currentStep: newStep, sessionsCompleted, dayCompleted });
 
       // If moving to step 3 (historical context), trigger fetch
       if (currentMiniSession === 1 && currentStepInMini === 0) {
@@ -720,8 +656,8 @@ function MeditatePageContent() {
       setCurrentStepInMini(0);
       setShowMiniComplete(false);
       setLastCompletedMiniSession(null);
-      saveToSessionStorage(nextSession, 0, sessionsCompleted, dayCompleted);
-      saveProgressToAPI(nextSession, 0, sessionsCompleted, dayCompleted);
+      // (sessionStorage saved via saveMeditationProgress below)
+      saveMeditationProgress({ currentMiniSession: nextSession, currentStep: 0, sessionsCompleted, dayCompleted });
     } else {
       // All done! Go to dashboard
       router.push("/dashboard");
@@ -736,7 +672,7 @@ function MeditatePageContent() {
     setShowMiniComplete(false);
     setLastCompletedMiniSession(null);
     // Save next state (advance to next mini-session)
-    await saveProgressToAPI(nextMini, nextStep, sessionsCompleted, dayCompleted);
+    await saveMeditationProgress({ currentMiniSession: nextMini, currentStep: nextStep, sessionsCompleted, dayCompleted });
     // Redirect to dashboard
     router.push("/dashboard");
   };
@@ -747,7 +683,7 @@ function MeditatePageContent() {
       const newStep = 0 as 0 | 1;
       setCurrentStepInMini(newStep);
       sounds.playSuccess();
-      saveToSessionStorage(currentMiniSession, newStep, sessionsCompleted, dayCompleted);
+      // (sessionStorage saved via saveMeditationProgress below)
     } else if (currentStepInMini === 0 && currentMiniSession > 1) {
       // Can't go back beyond the current mini-session start
       // Just stay at the first step
