@@ -10,14 +10,30 @@ function isProgress(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    let userId: string | undefined;
+
+    // Try cookie-based auth first
     const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (session?.user?.id) {
+      userId = session.user.id;
+    } else {
+      // Fallback: token-based auth for widget
+      const authHeader = req.headers.get("authorization");
+      if (authHeader?.startsWith("Bearer ")) {
+        const token = authHeader.slice(7);
+        const user = await db.user.findFirst({
+          where: { widgetToken: token },
+          select: { id: true },
+        });
+        if (user) userId = user.id;
+      }
     }
 
-    const userId = session.user.id;
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const streak = await db.streak.findUnique({
       where: { userId },
