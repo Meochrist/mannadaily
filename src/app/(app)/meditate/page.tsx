@@ -683,10 +683,12 @@ function MeditatePageContent() {
       const newStep = 0 as 0 | 1;
       setCurrentStepInMini(newStep);
       sounds.playSuccess();
-      // (sessionStorage saved via saveMeditationProgress below)
     } else if (currentStepInMini === 0 && currentMiniSession > 1) {
-      // Can't go back beyond the current mini-session start
-      // Just stay at the first step
+      // Go back to previous mini-session, last step
+      const prevMini = (currentMiniSession - 1) as 1 | 2;
+      setCurrentMiniSession(prevMini);
+      setCurrentStepInMini(1);
+      sounds.playSuccess();
     }
   };
 
