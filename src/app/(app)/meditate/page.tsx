@@ -528,11 +528,14 @@ function MeditatePageContent() {
           answers.step4_repeats.trim().length >= 10 ||
           answers.step4_action.trim().length >= 10
         );
-      case 5: // Application (mini 3, step 0)
+      case 5: // Application (mini 3, step 0) — interpretation + personal application
         return (
           answers.step5_author.trim().length >= 10 ||
           answers.step5_jesus.trim().length >= 10 ||
-          answers.step5_summary.trim().length >= 10
+          answers.step5_summary.trim().length >= 10 ||
+          answers.step6_situation.trim().length >= 10 ||
+          answers.step6_transform.trim().length >= 10 ||
+          answers.step6_decision.trim().length >= 10
         );
       case 6: // Prayer & Proclamation (mini 3, step 1) — read-only, no user input
         return true;
@@ -1392,6 +1395,49 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
                 <SpeechMicButton value={answers.step5_summary}
                   onChange={(val) => setAnswers({ ...answers, step5_summary: val })} />
+              </div>
+            </div>
+
+            {/* Séparateur : passage à l'application personnelle */}
+            <div className="pt-2 border-t border-orange-200/60">
+              <p className="text-xs font-extrabold text-orange-600 uppercase tracking-wider mb-3 text-center">
+                ➕ Application personnelle
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Comment ce verset parle-t-il directement à ta situation aujourd&apos;hui ?</label>
+              <div className="relative">
+                <textarea rows={2} value={answers.step6_situation}
+                  onChange={(e) => setAnswers({ ...answers, step6_situation: e.target.value })}
+                  placeholder="Quel domaine de ta vie est concerné : travail, famille, santé, foi ?"
+                  className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition" />
+                <SpeechMicButton value={answers.step6_situation}
+                  onChange={(val) => setAnswers({ ...answers, step6_situation: val })} />
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Qu&apos;est-ce que Dieu veut transformer dans ta vie à travers ce texte ?</label>
+              <div className="relative">
+                <textarea rows={2} value={answers.step6_transform}
+                  onChange={(e) => setAnswers({ ...answers, step6_transform: e.target.value })}
+                  placeholder="Un comportement, une attitude, une croyance, une habitude ?"
+                  className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition" />
+                <SpeechMicButton value={answers.step6_transform}
+                  onChange={(val) => setAnswers({ ...answers, step6_transform: val })} />
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quelle décision concrète vas-tu prendre aujourd&apos;hui ?</label>
+              <div className="relative">
+                <textarea rows={2} value={answers.step6_decision}
+                  onChange={(e) => setAnswers({ ...answers, step6_decision: e.target.value })}
+                  placeholder="Une action précise, un engagement, une parole à dire, un pardon à accorder..."
+                  className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition" />
+                <SpeechMicButton value={answers.step6_decision}
+                  onChange={(val) => setAnswers({ ...answers, step6_decision: val })} />
               </div>
             </div>
           </div>
