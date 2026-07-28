@@ -13,77 +13,134 @@ const BOOK_CONTEXT: Record<string, {
   "Genèse": {
     author: "Moïse (traditionnellement)",
     period: "~1450-1400 av. J.-C.",
-    historicalContext: "Le livre de la Genèse couvre la période de la Création jusqu'à la mort de Joseph en Égypte. Il retrace les origines de l'humanité, le déluge, la Tour de Babel, et l'histoire des patriarches Abraham, Isaac, Jacob et Joseph. Le Proche-Orient ancien était dominé par de grandes civilisations : l'Égypte, la Mésopotamie (Sumer, Babylone), les Hittites.",
-    culturalNotes: "À l'époque patriarcale, la société était organisée en clans familiaux nomades ou semi-nomades. L'hospitalité était sacrée, les alliances scellées par des serments solennels. La circoncision était le signe de l'alliance. Les mariages étaient arrangés au sein de la parenté. La bénédiction du patriarche avait une valeur juridique et prophétique.",
-    keyEvents: "Création, Chute, Déluge, Tour de Babel, Appel d'Abraham, Alliance, Naissance d'Isaac, Sacrifice d'Isaac, Échelle de Jacob, Joseph vendu par ses frères, Joseph en Égypte, Famine, Migration en Égypte."
+    historicalContext: "Le livre de la Genèse couvre la période de la Création jusqu'à la mort de Joseph en Égypte. Il retrace les origines de l'humanité, le déluge, la Tour de Babel, et l'histoire des patriarches Abraham, Isaac, Jacob et Joseph.",
+    culturalNotes: "À l'époque patriarcale, la société était organisée en clans familiaux nomades. L'hospitalité était sacrée, les alliances scellées par des serments. La circoncision était le signe de l'alliance.",
+    keyEvents: "Création, Chute, Déluge, Appel d'Abraham, Joseph en Égypte."
   },
   "Exode": {
     author: "Moïse (traditionnellement)",
     period: "~1450-1400 av. J.-C.",
-    historicalContext: "L'Exode raconte la libération du peuple d'Israël de l'esclavage en Égypte. L'Égypte du Nouvel Empire (18e-19e dynasties) était la superpuissance de l'époque, avec des pharaons comme Thoutmosis III, Ramsès II. Les Hébreux étaient une minorité asservie, employée aux travaux de construction (briques, cités-entrepôts de Pitom et Ramsès).",
-    culturalNotes: "La magie égyptienne était réputée ; les magiciens de Pharaon reproduisaient certains signes. Le culte égyptien était polythéiste avec des dieux comme Râ (soleil), Hâpi (Nil), Héqet (grenouille). Les dix plaies visaient directement ces divinités égyptiennes. La Pâque instituée au chapitre 12 est le rite fondateur d'Israël.",
-    keyEvents: "Esclavage en Égypte, Naissance de Moïse, Buisson Ardent, Dix Plaies, Pâque, Traversée de la Mer Rouge, Don de la Loi au Sinaï, Veau d'Or, Construction du Tabernacle."
+    historicalContext: "L'Exode raconte la libération d'Israël de l'esclavage en Égypte sous le Nouvel Empire (18e-19e dynasties). Les Hébreux étaient une minorité asservie aux travaux de construction.",
+    culturalNotes: "Les dix plaies visaient les divinités égyptiennes (Râ, Hâpi, Héqet). La Pâque est le rite fondateur d'Israël.",
+    keyEvents: "Dix Plaies, Traversée de la Mer Rouge, Don de la Loi au Sinaï."
   },
   "Psaumes": {
-    author: "David (majorité), Asaph, Fils de Koré, Salomon, Moïse, anonymes",
+    author: "David (majorité), Asaph, Fils de Koré, Salomon, Moïse",
     period: "~1000-400 av. J.-C.",
-    historicalContext: "Le livre des Psaumes est le recueil de cantiques d'Israël, compilé sur plusieurs siècles. Il couvre toute la période de la monarchie israélite (David, Salomon), l'exil à Babylone (586 av. J.-C.), et le retour d'exil. Le temple de Jérusalem était le centre du culte, avec des lévites musiciens organisés par David.",
-    culturalNotes: "Les psaumes étaient chantés avec accompagnement instrumental (lyre, harpe, cymbales). Les genres incluent : louange, lamentation, action de grâce, psaumes royaux, psaumes de sagesse. Le parallélisme hébraïque est la technique poétique principale (synonymique, antithétique, synthétique). Le mot 'Sélah' (71 fois) indique probablement une pause musicale.",
-    keyEvents: "Onction de David, Fuite devant Saül, Construction du Temple, Exil à Babylone, Retour d'exil, Reconstruction du Temple."
+    historicalContext: "Le livre des Psaumes est le recueil de cantiques d'Israël compilé sur plusieurs siècles, couvrant la monarchie, l'exil à Babylone (586 av. J.-C.) et le retour. Le temple de Jérusalem était le centre du culte.",
+    culturalNotes: "Les psaumes étaient chantés avec instruments (lyre, harpe). Genres : louange, lamentation, action de grâce. Le parallélisme hébraïque est la technique poétique principale.",
+    keyEvents: "Onction de David, Construction du Temple, Exil à Babylone."
   },
   "Ésaïe": {
     author: "Ésaïe ben Amots",
     period: "~740-680 av. J.-C.",
-    historicalContext: "Ésaïe prophétise sous les rois Ozias, Jotham, Achaz et Ézéchias de Juda. L'Assyrie est la puissance dominante qui menace le Proche-Orient. En 722, le Royaume du Nord (Israël/Samarie) tombe aux mains des Assyriens. Jérusalem est miraculeusement sauvée en 701. Le livre annonce aussi l'exil babylonien (586) et le retour.",
-    culturalNotes: "Les prophètes hébreux étaient des porte-parole de Dieu, souvent confrontés aux rois et aux faux prophètes. Leurs messages étaient parfois mis en scène (Ésaïe marche nu 3 ans). Le conseil divin est évoqué. Le Serviteur souffrant d'Ésaïe 53 est l'un des textes les plus commentés de l'Ancien Testament.",
-    keyEvents: "Guerre syro-éphraïmite, Invasion assyrienne, Siège de Jérusalem, Miracle de l'ombre qui recule, Ambassade babylonienne."
+    historicalContext: "Ésaïe prophétise sous les rois Ozias, Jotham, Achaz et Ézéchias. L'Assyrie domine le Proche-Orient. En 722, le Royaume du Nord tombe. Jérusalem est sauvée en 701.",
+    culturalNotes: "Les prophètes hébreux étaient des porte-parole de Dieu, confrontés aux rois. Le Serviteur souffrant d'Ésaïe 53 est l'un des textes les plus commentés.",
+    keyEvents: "Invasion assyrienne, Siège de Jérusalem, Ambassade babylonienne."
   },
   "Matthieu": {
-    author: "Matthieu (Lévi), apôtre et ancien collecteur d'impôts",
+    author: "Matthieu (Lévi), apôtre",
     period: "~60-80 ap. J.-C.",
-    historicalContext: "L'Évangile de Matthieu s'adresse principalement à un public juif. Écrit après la destruction du Temple de Jérusalem (70 ap. J.-C.), il cherche à démontrer que Jésus est le Messie annoncé par les Écritures. La Palestine était sous domination romaine, avec Hérode Antipas comme tétrarque de Galilée. Les pharisiens et sadducéens étaient les principaux groupes religieux juifs.",
-    culturalNotes: "Matthieu cite abondamment l'Ancien Testament (plus de 60 citations explicites). La généalogie de Jésus (ch.1) suit la structure juive en trois groupes de 14. Le Sermon sur la Montagne (ch.5-7) réinterprète la Loi mosaïque. Les paraboles du Royaume (ch.13) utilisent des images agricoles familières au public galiléen.",
-    keyEvents: "Naissance de Jésus, Visite des Mages, Baptême de Jésus, Sermon sur la Montagne, Multiplication des pains, Transfiguration, Entrée triomphale, Crucifixion, Résurrection, Grande Commission."
+    historicalContext: "Évangile adressé à un public juif après la destruction du Temple (70 ap. J.-C.). La Palestine est sous domination romaine. Pharisiens et sadducéens sont les groupes religieux dominants.",
+    culturalNotes: "Plus de 60 citations de l'Ancien Testament. Le Sermon sur la Montagne réinterprète la Loi mosaïque. Les paraboles utilisent des images agricoles galiléennes.",
+    keyEvents: "Sermon sur la Montagne, Multiplication des pains, Crucifixion, Résurrection."
   },
   "Jean": {
-    author: "Jean, fils de Zébédée, le 'disciple que Jésus aimait'",
+    author: "Jean, fils de Zébédée",
     period: "~85-95 ap. J.-C.",
-    historicalContext: "L'Évangile de Jean est le dernier des quatre évangiles. Il est écrit depuis Éphèse, dans un contexte où le christianisme se sépare progressivement du judaïsme. Les chrétiens sont expulsés des synagogues. L'Empire romain, sous Domitien, commence à persécuter les chrétiens. La philosophie grecque (Logos) influence le vocabulaire théologique de Jean.",
-    culturalNotes: "Jean utilise un vocabulaire dualiste (lumière/ténèbres, vérité/mensonge, vie/mort) compréhensible dans le monde hellénistique. Les 7 'Je suis' de Jésus (Pain de vie, Lumière du monde, Porte, Bon Berger, Résurrection, Chemin, Cep) répondent aux besoins spirituels universels. La fête des Tabernacles (ch.7-8) et la Dédicace (ch.10) servent de cadre aux discours de Jésus.",
-    keyEvents: "Projet du Verbe, Noces de Cana, Nicodème, Samaritaine, Résurrection de Lazare, Lavement des pieds, Dernier discours, Crucifixion, Résurrection, Thomas, Pêche miraculeuse."
+    historicalContext: "Dernier des quatre évangiles, écrit depuis Éphèse. Le christianisme se sépare du judaïsme. Les chrétiens sont expulsés des synagogues. L'Empire romain, sous Domitien, persécute les chrétiens.",
+    culturalNotes: "Vocabulaire dualiste (lumière/ténèbres). Les 7 'Je suis' de Jésus répondent aux besoins spirituels universels. La philosophie grecque (Logos) influence le prologue.",
+    keyEvents: "Noces de Cana, Résurrection de Lazare, Dernier discours, Crucifixion."
   },
   "Romains": {
-    author: "Paul (Saul de Tarse), apôtre des nations",
+    author: "Paul (Saul de Tarse)",
     period: "~57 ap. J.-C.",
-    historicalContext: "L'épître aux Romains est écrite depuis Corinthe, pendant le 3e voyage missionnaire de Paul. L'Église de Rome était composée de Juifs et de non-Juifs, dans la capitale de l'Empire romain. Néron était empereur. Paul n'avait pas encore visité Rome, mais souhaitait y passer avant d'aller en Espagne. L'épître expose systématiquement la doctrine du salut par la foi.",
-    culturalNotes: "Rome, ville d'environ 1 million d'habitants, était le centre politique, économique et culturel du monde méditerranéen. La citoyenneté romaine conférait des privilèges. L'esclavage était omniprésent. Le culte impérial se développait. Les Juifs de Rome avaient été expulsés sous Claude (49 ap.) puis étaient revenus.",
-    keyEvents: "Condamnation universelle, Justification par la foi, Paix avec Dieu, Adoption, Élection, Israël et les nations, Vie par l'Esprit."
+    historicalContext: "Écrite depuis Corinthe, 3e voyage missionnaire. L'Église de Rome compte Juifs et non-Juifs. Néron est empereur. Paul expose systématiquement le salut par la foi.",
+    culturalNotes: "Rome, ~1 million d'habitants, centre du monde méditerranéen. La citoyenneté romaine confère des privilèges. L'esclavage est omniprésent.",
+    keyEvents: "Justification par la foi, Adoption, Vie par l'Esprit."
   }
 };
+
+async function generateAIContext(book: string, chapter: string | null): Promise<{
+  author: string; period: string; historicalContext: string; culturalNotes: string; keyEvents: string;
+} | null> {
+  const token = process.env.HUGGINGFACE_API_KEY || process.env.HF_TOKEN;
+  if (!token) return null;
+
+  const ref = chapter ? `${book} ${chapter}` : book;
+  const prompt = `Tu es un expert en histoire biblique. Donne un résumé concis du contexte historique et culturel du passage biblique suivant : ${ref}. Réponds en français au format JSON avec les champs : author (auteur présumé), period (période approximative), historicalContext (2-3 phrases sur le contexte historique), culturalNotes (2-3 phrases sur les coutumes/culture de l'époque), keyEvents (événements clés du livre). Sois précis et informatif.`;
+
+  try {
+    const response = await fetch(
+      "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-72B-Instruct",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `*** ${token}`,
+        },
+        body: JSON.stringify({
+          inputs: `<|im_start|>system\nTu es un assistant qui répond UNIQUEMENT en JSON valide, sans texte avant ni après.<|im_end|>\n<|im_start|>user\n${prompt}<|im_end|>\n<|im_start|>assistant\n`,
+          parameters: { max_new_tokens: 400, temperature: 0.7, do_sample: true },
+        }),
+      }
+    );
+
+    if (!response.ok) return null;
+    const result = await response.json();
+    const text = (Array.isArray(result) ? result[0]?.generated_text : result?.generated_text) || "";
+    const jsonStr = text.split("<|im_start|>assistant\n").pop()?.replace(/<\|im_end\|>/g, "").trim() || text;
+
+    try {
+      return JSON.parse(jsonStr);
+    } catch {
+      // If JSON parsing fails, return structured fallback
+      return {
+        author: "Information générée par IA",
+        period: "—",
+        historicalContext: jsonStr.substring(0, 300) || "Contexte non disponible pour ce passage.",
+        culturalNotes: "Consulte une Bible d'étude pour plus de détails.",
+        keyEvents: "—",
+      };
+    }
+  } catch {
+    return null;
+  }
+}
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const book = searchParams.get("book");
     const chapter = searchParams.get("chapter");
+    const forceIA = searchParams.get("forceIA") === "true";
 
     if (!book) {
       return NextResponse.json({ error: "Le paramètre 'book' est requis" }, { status: 400 });
     }
 
-    // Chercher le contexte du livre (supporte les noms courts comme "Jn" pour "Jean")
-    const context = BOOK_CONTEXT[book] || {
-      author: "Non disponible pour ce livre",
-      period: "—",
-      historicalContext: "Le contexte historique détaillé pour ce livre sera ajouté prochainement. Le texte biblique reste la source d'autorité : c'est la Parole de Dieu, inspirée et utile pour enseigner, convaincre, corriger et instruire dans la justice (2 Timothée 3:16).",
-      culturalNotes: "Les coutumes et pratiques culturelles varient selon l'époque et le lieu. Pour une compréhension approfondie, nous recommandons de consulter une Bible d'étude avec notes historiques.",
-      keyEvents: "—"
-    };
+    // 1. Static context (fast, always available for covered books)
+    const staticContext = BOOK_CONTEXT[book];
+    if (staticContext && !forceIA) {
+      return NextResponse.json({ book, chapter: chapter || null, ...staticContext, source: "static" });
+    }
 
+    // 2. AI fallback for uncovered books or forced
+    const aiContext = await generateAIContext(book, chapter);
+    if (aiContext) {
+      return NextResponse.json({ book, chapter: chapter || null, ...aiContext, source: "ai" });
+    }
+
+    // 3. Ultimate fallback
     return NextResponse.json({
       book,
       chapter: chapter || null,
-      ...context,
+      author: "Non disponible pour ce livre",
+      period: "—",
+      historicalContext: `Le contexte historique détaillé pour ${book} sera ajouté prochainement. Le texte biblique reste la source d'autorité : c'est la Parole de Dieu (2 Timothée 3:16).`,
+      culturalNotes: "Pour une compréhension approfondie, nous recommandons une Bible d'étude avec notes historiques.",
+      keyEvents: "—",
+      source: "fallback",
     });
   } catch (error: unknown) {
     console.error("Error fetching context:", error);
