@@ -278,13 +278,37 @@ function MeditatePageContent() {
     }
   }, [answers, progressLoaded]);
 
+  // Load historical/cultural context for the current verse (defined early to avoid access-before-declaration)
+  const loadContext = useCallback(async () => {
+    if (!dailyVerse) return;
+    const refParts = dailyVerse.reference.match(/^(.+?)\s+(\d+):/);
+    if (!refParts) return;
+    const book = refParts[1];
+    const chapter = refParts[2];
+    
+    setLoadingContext(true);
+    try {
+      const res = await fetch(`/api/bible/context?book=${encodeURIComponent(book)}&chapter=${chapter}`);
+      if (res.ok) {
+        const data = await res.json();
+        setContextData(data);
+      }
+    } catch (err) {
+      console.error("Error loading context:", err);
+    } finally {
+      setLoadingContext(false);
+    }
+  }, [dailyVerse]);
+
   // === Auto-load historical context at step 3 (Observation) ===
   useEffect(() => {
     if (currentMiniSession === 2 && currentStepInMini === 0 && dailyVerse && !contextData) {
-      loadContext();
-      queueMicrotask(() => setShowStudyPanel("context"));
+      queueMicrotask(() => {
+        loadContext();
+        queueMicrotask(() => setShowStudyPanel("context"));
+      });
     }
-  }, [currentMiniSession, currentStepInMini, dailyVerse]);
+  }, [currentMiniSession, currentStepInMini, dailyVerse, contextData, loadContext]);
 
   // === Load verse and user data ===
   useEffect(() => {
@@ -946,28 +970,6 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
 
   const getStrongNumber = (bookNumber: number, wordIndex: number): string => {
     return bookNumber <= 39 ? `H${wordIndex + 1}` : `G${wordIndex + 1}`;
-  };
-
-  // Load historical/cultural context for the current verse
-  const loadContext = async () => {
-    if (!dailyVerse) return;
-    const refParts = dailyVerse.reference.match(/^(.+?)\s+(\d+):/);
-    if (!refParts) return;
-    const book = refParts[1];
-    const chapter = refParts[2];
-    
-    setLoadingContext(true);
-    try {
-      const res = await fetch(`/api/bible/context?book=${encodeURIComponent(book)}&chapter=${chapter}`);
-      if (res.ok) {
-        const data = await res.json();
-        setContextData(data);
-      }
-    } catch (err) {
-      console.error("Error loading context:", err);
-    } finally {
-      setLoadingContext(false);
-    }
   };
 
   // === Mascot suggestion ===
