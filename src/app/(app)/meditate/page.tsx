@@ -650,14 +650,18 @@ function MeditatePageContent() {
   // === Handle "Continue Now" after mini-session complete ===
   const handleContinueNow = () => {
     if (!lastCompletedMiniSession) return;
+
+    // Rebuild correct sessionsCompleted (React state is stale — setSessionsCompleted is async)
+    const updatedCompleted = [...new Set([...sessionsCompleted, lastCompletedMiniSession])].sort((a, b) => a - b);
+
     const nextSession = (lastCompletedMiniSession + 1) as 1 | 2 | 3;
     if (nextSession <= 3) {
       setCurrentMiniSession(nextSession);
       setCurrentStepInMini(0);
+      setSessionsCompleted(updatedCompleted);
       setShowMiniComplete(false);
       setLastCompletedMiniSession(null);
-      // (sessionStorage saved via saveMeditationProgress below)
-      saveMeditationProgress({ currentMiniSession: nextSession, currentStep: 0, sessionsCompleted, dayCompleted });
+      saveMeditationProgress({ currentMiniSession: nextSession, currentStep: 0, sessionsCompleted: updatedCompleted, dayCompleted });
     } else {
       // All done! Go to dashboard
       router.push("/dashboard");
@@ -666,13 +670,19 @@ function MeditatePageContent() {
 
   // === Handle "Come Back Later" ===
   const handleComeBackLater = async () => {
+    // Rebuild correct sessionsCompleted (React state is stale — setSessionsCompleted is async)
+    const updatedCompleted = lastCompletedMiniSession && !sessionsCompleted.includes(lastCompletedMiniSession)
+      ? [...sessionsCompleted, lastCompletedMiniSession].sort((a, b) => a - b)
+      : sessionsCompleted;
+
     const nextMini = lastCompletedMiniSession ? Math.min(lastCompletedMiniSession + 1, 3) as 1 | 2 | 3 : currentMiniSession;
     const nextStep = lastCompletedMiniSession ? 0 as 0 | 1 : currentStepInMini;
 
     setShowMiniComplete(false);
     setLastCompletedMiniSession(null);
+    setSessionsCompleted(updatedCompleted);
     // Save next state (advance to next mini-session)
-    await saveMeditationProgress({ currentMiniSession: nextMini, currentStep: nextStep, sessionsCompleted, dayCompleted });
+    await saveMeditationProgress({ currentMiniSession: nextMini, currentStep: nextStep, sessionsCompleted: updatedCompleted, dayCompleted });
     // Redirect to dashboard
     router.push("/dashboard");
   };
@@ -1582,7 +1592,9 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
               )}
 
               {/* Single CTA button */}
-              <button onClick={() => router.push("/dashboard")} className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-xl shadow-lg transition-all text-sm">
+              <button onClick={() => { 
+                try { router.push("/dashboard"); } catch { window.location.href = "/dashboard"; }
+              }} className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-xl shadow-lg transition-all active:scale-[0.98] text-sm">
                 Terminer et retourner au tableau de bord
               </button>
             </motion.div>
