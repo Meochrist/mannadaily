@@ -534,12 +534,8 @@ function MeditatePageContent() {
           answers.step5_jesus.trim().length >= 10 ||
           answers.step5_summary.trim().length >= 10
         );
-      case 6: // Prayer & Proclamation (mini 3, step 1)
-        return (
-          answers.step6_situation.trim().length >= 10 ||
-          answers.step6_transform.trim().length >= 10 ||
-          answers.step6_decision.trim().length >= 10
-        );
+      case 6: // Prayer & Proclamation (mini 3, step 1) — read-only, no user input
+        return true;
       default:
         return true;
     }
