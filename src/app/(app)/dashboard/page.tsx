@@ -35,6 +35,7 @@ export default async function DashboardPage() {
   let currentStreak = 0;
   let dayProgress = false;
   let inactivityDays = 0;
+  let sessionsCompletedToday = 0;
   let meditationProgressData: unknown = null;
 
   if (userId) {
@@ -67,6 +68,7 @@ export default async function DashboardPage() {
         if (mp.lastActivityDate === todayStr) {
           meditationProgressData = mp;
           const sessions = Array.isArray(mp.sessionsCompleted) ? mp.sessionsCompleted as number[] : [];
+          sessionsCompletedToday = sessions.length;
           dayProgress = sessions.length > 0;
         }
       }
@@ -84,6 +86,7 @@ export default async function DashboardPage() {
             streakCount={currentStreak}
             dayProgress={dayProgress}
             inactivityDays={inactivityDays}
+            sessionsCompletedToday={sessionsCompletedToday}
             className="max-w-none w-full"
             mood={getMascotState(meditationProgressData as MeditationProgress | null).mood}
           />

@@ -7,7 +7,9 @@ export type MannySituation =
   | "session_complete"
   | "first_visit"
   | "loading"
-  | "evening";
+  | "evening"
+  | "partial_progress"
+  | "day_complete";
 
 const messagesMap: Record<MannySituation, string[]> = {
   welcome: [
@@ -72,6 +74,20 @@ const messagesMap: Record<MannySituation, string[]> = {
     "Avant de dormir, laisse Dieu parler à ton cœur",
     "La méditation du soir scelle ta journée en Sa présence",
     "Noé te souhaite une bonne nuit dans la Parole 🌙",
+  ],
+  partial_progress: [
+    "Bien joué [name] ! Continue, chaque mini-session compte ! 🔥",
+    "Tu es sur la bonne voie [name] ! Encore un effort pour compléter ta journée. 💪",
+    "Ta série de [X] jours brille déjà — ne t'arrête pas en si bon chemin !",
+    "Déjà bien avancé [name] ! La Parole transforme, persévère. 📖",
+    "Continue comme ça [name] — Dieu honore ta fidélité, étape par étape.",
+  ],
+  day_complete: [
+    "Journée COMPLÈTE [name] ! 🎉 Tu as médité comme Josué 1:8, jour et nuit !",
+    "Wow [name] ! Tes 3 mini-sessions sont faites. Quel champion de la foi ! 🏆",
+    "Mission accomplie [name] ! Ta série de [X] jours continue de briller. 🔥",
+    "Gloire à Dieu [name] ! Une journée entière passée dans Sa présence. Quel exemple !",
+    "Tu es un vrai guerrier de la Parole [name] ! 3/3 aujourd'hui — impressionnant ! ⚔️",
   ],
 };
 

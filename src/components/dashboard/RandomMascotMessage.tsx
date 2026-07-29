@@ -12,6 +12,7 @@ interface RandomMascotMessageProps {
   streakCount: number;
   dayProgress: boolean;
   inactivityDays: number;
+  sessionsCompletedToday?: number;
   className?: string;
   mood?: MannyMood;
 }
@@ -33,6 +34,7 @@ export default function RandomMascotMessage({
   streakCount,
   dayProgress,
   inactivityDays,
+  sessionsCompletedToday = 0,
   className,
   mood: moodProp,
 }: RandomMascotMessageProps) {
@@ -111,8 +113,27 @@ export default function RandomMascotMessage({
     ];
     const randomMascot = mascots[Math.floor(Math.random() * mascots.length)];
 
-    // 2. Choix de la situation basé sur la progression réelle
-    const situation: MannySituation = dayProgress ? "welcome" : "first_visit";
+    // 2. Déterminer la situation selon la progression réelle
+    // Priorité : données API > prop serveur
+    const apiSessions = progress?.sessionsCompleted;
+    const completed = Array.isArray(apiSessions) ? apiSessions.length : sessionsCompletedToday;
+
+    let situation: MannySituation;
+    const isStreakDanger = streakCount > 0 && inactivityDays >= 1;
+    const isStreakMilestone = streakCount > 0 && [7, 30, 50, 100, 200, 365].includes(streakCount) && inactivityDays === 0;
+
+    if (isStreakMilestone) {
+      situation = "streak_milestone";
+    } else if (isStreakDanger) {
+      situation = "streak_danger";
+    } else if (completed >= 3) {
+      situation = "day_complete";
+    } else if (completed >= 1) {
+      situation = "partial_progress";
+    } else {
+      situation = "first_visit";
+    }
+
     const rawMessage = getMannyMessage(situation, userName, streakCount);
 
     // 4. Signature spécifique pour identifier le personnage qui parle
