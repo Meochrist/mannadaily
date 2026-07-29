@@ -738,6 +738,20 @@ function MeditatePageContent() {
     setError("");
 
     try {
+      // Ensure mini-session 3 is marked as completed and XP claimed
+      const finalCompleted = [...new Set([...sessionsCompleted, 3])].sort((a, b) => a - b);
+      if (!sessionsCompleted.includes(3)) {
+        setSessionsCompleted(finalCompleted);
+        setDayCompleted(true);
+        await saveMeditationProgress({
+          currentMiniSession: 3,
+          currentStep: 1,
+          sessionsCompleted: finalCompleted,
+          dayCompleted: true,
+          claimXPForSession: 3,
+        });
+      }
+
       // Generate prayer & summary if not already done
       if (!prayerContent && dailyVerse) {
         await fetchPersonalizedContent(dailyVerse);
