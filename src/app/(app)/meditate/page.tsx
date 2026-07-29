@@ -739,18 +739,17 @@ function MeditatePageContent() {
 
     try {
       // Ensure mini-session 3 is marked as completed and XP claimed
-      const finalCompleted = [...new Set([...sessionsCompleted, 3])].sort((a, b) => a - b);
-      if (!sessionsCompleted.includes(3)) {
-        setSessionsCompleted(finalCompleted);
-        setDayCompleted(true);
-        await saveMeditationProgress({
-          currentMiniSession: 3,
-          currentStep: 1,
-          sessionsCompleted: finalCompleted,
-          dayCompleted: true,
-          claimXPForSession: 3,
-        });
-      }
+      // Use [1,2,3] directly — if we're at mini 3 step 2, minis 1 & 2 are necessarily done
+      const finalCompleted: number[] = [1, 2, 3];
+      setSessionsCompleted(finalCompleted);
+      setDayCompleted(true);
+      await saveMeditationProgress({
+        currentMiniSession: 3,
+        currentStep: 1,
+        sessionsCompleted: finalCompleted,
+        dayCompleted: true,
+        claimXPForSession: 3,
+      });
 
       // Generate prayer & summary if not already done
       if (!prayerContent && dailyVerse) {

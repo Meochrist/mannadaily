@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import { BookOpen } from "lucide-react";
 import StreakCounter from "@/components/gamification/StreakCounter";
 import XPBar from "@/components/gamification/XPBar";
@@ -35,6 +36,7 @@ const defaultBadges = [
 ];
 
 export default function DashboardSidebar() {
+  const pathname = usePathname();
   const [status, setStatus] = useState<UserStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -64,7 +66,11 @@ export default function DashboardSidebar() {
     return () => clearInterval(interval);
   }, [fetchStatus]);
 
-  // Rafraîchir quand l'utilisateur revient sur l'onglet (focus)
+  // Rafraîchir quand l'utilisateur revient sur l'onglet (focus) ou navigue vers /dashboard
+  useEffect(() => {
+    queueMicrotask(() => fetchStatus());
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const onFocus = () => fetchStatus();
     window.addEventListener("focus", onFocus);
