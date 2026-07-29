@@ -740,9 +740,9 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
 [MINI-SESSION 1 — VERSET & CONTEXTE]
 - Qui parle dans ce passage ?
   ${answers.step2_who || "Non renseigné"}
-- À qui s'adresse ce message ?
+- Qui sont les destinataires de ce passage ?
   ${answers.step2_whom || "Non renseigné"}
-- Que se passait-il juste avant ce verset ?
+- Que se passe-t-il dans les versets juste avant ce passage ?
   ${answers.step2_before || "Non renseigné"}
 
 [MINI-SESSION 2 — OBSERVATION & INTERPRÉTATION]
@@ -1219,7 +1219,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
               </div>
 
               <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Que se passait-il juste avant ce verset ?</label>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Que se passe-t-il dans les versets juste avant ce passage ?</label>
                 <div className="relative">
                   <textarea rows={2} value={answers.step2_before}
                     onChange={(e) => setAnswers({ ...answers, step2_before: e.target.value })}
@@ -1267,11 +1267,11 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
             </div>
 
             <div className="space-y-3">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Qui sont les destinataires de ce passage ?</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quel message principal observes-tu dans ce verset ?</label>
               <div className="relative">
                 <textarea rows={2} value={answers.step3_dest}
                   onChange={(e) => setAnswers({ ...answers, step3_dest: e.target.value })}
-                  placeholder="Peuple d'Israël, une église, un individu ?"
+                  placeholder="Quelle vérité ou quel enseignement clé se dégage de ces mots ?"
                   className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
                 <SpeechMicButton value={answers.step3_dest}
                   onChange={(val) => setAnswers({ ...answers, step3_dest: val })} />
@@ -1545,7 +1545,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                 </h3>
                 <div className="space-y-2 text-xs">
                   <div className="bg-slate-50 rounded-lg p-2.5">
-                    <span className="font-bold text-slate-400 text-[10px] uppercase">Époque / Destinataires</span>
+                    <span className="font-bold text-slate-400 text-[10px] uppercase">Époque / Message principal</span>
                     <p className="text-slate-700 font-medium mt-0.5">{answers.step3_epoch || answers.step3_dest || "Non renseigné"}</p>
                   </div>
                   <div className="bg-slate-50 rounded-lg p-2.5">
@@ -1883,7 +1883,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                 )}
                 {answers.step3_dest && (
                   <div className="bg-slate-50 rounded-lg p-2">
-                    <span className="font-bold text-slate-500 text-[9px] uppercase">Destinataires</span>
+                    <span className="font-bold text-slate-500 text-[9px] uppercase">Message principal</span>
                     <p className="text-slate-700 font-medium mt-0.5 line-clamp-2">{answers.step3_dest}</p>
                   </div>
                 )}
