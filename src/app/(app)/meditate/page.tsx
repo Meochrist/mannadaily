@@ -2047,37 +2047,54 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                         <Loader2 className="w-4 h-4 animate-spin" />
                         <span>Chargement du contexte...</span>
                       </div>
-                    ) : contextData ? (
+                    ) : (
                       <div className="space-y-3 text-xs">
-                        <div>
-                          <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest block">📜 Contexte historique</span>
-                          <p className="text-indigo-100 leading-relaxed mt-1">{contextData.historicalContext}</p>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3 pt-2 border-t border-indigo-900/50">
-                          <div>
-                            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-wider block">Auteur</span>
-                            <p className="text-indigo-200 font-semibold mt-0.5">{contextData.author}</p>
-                          </div>
-                          <div>
-                            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-wider block">Période</span>
-                            <p className="text-indigo-200 font-semibold mt-0.5">{contextData.period}</p>
-                          </div>
-                        </div>
-                        <div>
-                          <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest block">🎭 Coutumes & culture</span>
-                          <p className="text-indigo-100 leading-relaxed mt-1">{contextData.culturalNotes}</p>
-                        </div>
-                        {contextData.keyEvents && contextData.keyEvents !== "—" && (
-                          <div>
-                            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest block">⚡ Événements clés</span>
-                            <p className="text-indigo-100 leading-relaxed mt-1">{contextData.keyEvents}</p>
+                        {/* Priority 1: AI-generated verse-specific historical context */}
+                        {historicalContext && (
+                          <div className="bg-indigo-950/60 rounded-xl p-3 border border-indigo-800/40">
+                            <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest block mb-1.5">
+                              🎯 Contexte de CE verset
+                            </span>
+                            <p className="text-indigo-100 leading-relaxed">{historicalContext}</p>
                           </div>
                         )}
+
+                        {/* Priority 2: Static book-level context (always below) */}
+                        {contextData ? (
+                          <>
+                            {!historicalContext && (
+                              <div>
+                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest block">📜 Contexte historique</span>
+                                <p className="text-indigo-100 leading-relaxed mt-1">{contextData.historicalContext}</p>
+                              </div>
+                            )}
+                            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-indigo-900/50">
+                              <div>
+                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-wider block">Auteur</span>
+                                <p className="text-indigo-200 font-semibold mt-0.5">{contextData.author}</p>
+                              </div>
+                              <div>
+                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-wider block">Période</span>
+                                <p className="text-indigo-200 font-semibold mt-0.5">{contextData.period}</p>
+                              </div>
+                            </div>
+                            <div>
+                              <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest block">🎭 Coutumes & culture</span>
+                              <p className="text-indigo-100 leading-relaxed mt-1">{contextData.culturalNotes}</p>
+                            </div>
+                            {contextData.keyEvents && contextData.keyEvents !== "—" && (
+                              <div>
+                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest block">⚡ Événements clés</span>
+                                <p className="text-indigo-100 leading-relaxed mt-1">{contextData.keyEvents}</p>
+                              </div>
+                            )}
+                          </>
+                        ) : !historicalContext ? (
+                          <p className="text-center text-xs text-indigo-300 py-3">
+                            Contexte non disponible pour ce passage.
+                          </p>
+                        ) : null}
                       </div>
-                    ) : (
-                      <p className="text-center text-xs text-indigo-300 py-3">
-                        Contexte non disponible pour ce passage.
-                      </p>
                     )}
                   </div>
                 )}
