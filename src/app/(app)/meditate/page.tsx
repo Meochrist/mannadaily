@@ -324,8 +324,8 @@ function MeditatePageContent() {
     if (periodParam === "morning" || periodParam === "evening") {
       p = periodParam;
     } else {
-      const utcHour = new Date().getUTCHours();
-      p = utcHour < 14 ? "morning" : "evening";
+      const localHour = new Date().getHours();
+      p = localHour < 17 ? "morning" : "evening";
     }
     queueMicrotask(() => setPeriod(p));
 
@@ -1039,11 +1039,21 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
   const periodEmoji = period === "morning" ? "🌅" : "🌙";
   const periodTitle = period === "morning" ? "Méditation du matin" : "Méditation du soir";
 
-  const completionMessage = period === "morning"
-    ? "🌅 Ta méditation du matin est complète !\nReviens ce soir pour compléter ta journée spirituelle."
-    : morningDoneAlready
-      ? "🌙 Journée spirituelle COMPLÈTE !\nTu as médité jour et nuit comme Josué 1:8 !"
-      : "🌙 Méditation du soir complète !\nN'oublie pas ta méditation du matin demain !";
+  const completionMessage = useMemo(() => {
+    const allThreeDone = sessionsCompleted.length >= 3;
+    if (allThreeDone) {
+      return period === "morning"
+        ? "🌅 Tes 3 mini-sessions du matin sont terminées !\nLa Parole se médite jour et nuit — tu peux revenir ce soir pour une nouvelle méditation."
+        : morningDoneAlready
+          ? "🌙 Journée spirituelle COMPLÈTE !\nTu as médité jour et nuit comme Josué 1:8 — quel champion !"
+          : "🌙 Tes 3 mini-sessions sont terminées !\nN'oublie pas de revenir demain matin pour continuer à grandir.";
+    }
+    return period === "morning"
+      ? "🌅 Continue sur ta lancée !\nTermine les 3 mini-sessions pour débloquer ta prière du jour."
+      : morningDoneAlready
+        ? "🌙 Termine tes mini-sessions du soir\npour compléter ta journée spirituelle."
+        : "🌙 Continue, tu progresses bien !\nChaque mini-session te rapproche de Dieu.";
+  }, [period, morningDoneAlready, sessionsCompleted]);
 
   // === Determine if we should show the study bar ===
   const stepNum = computeStepNumber();
