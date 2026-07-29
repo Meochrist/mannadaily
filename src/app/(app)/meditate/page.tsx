@@ -580,10 +580,12 @@ function MeditatePageContent() {
   };
 
   // === Fetch prayer content (mini 3, step 1) ===
-  const fetchPersonalizedContent = async (verseObj: DailyVerseType) => {
-    setLoading(true);
-    setError("");
-    setLoadingMessage(getMannyMessage("loading", userName, streakCount));
+  const fetchPersonalizedContent = async (verseObj: DailyVerseType, showLoading = true) => {
+    if (showLoading) {
+      setLoading(true);
+      setError("");
+      setLoadingMessage(getMannyMessage("loading", userName, streakCount));
+    }
 
     try {
       const prayerPromise = fetch("/api/meditation/generate", {
@@ -617,7 +619,7 @@ function MeditatePageContent() {
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erreur inconnue");
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -667,9 +669,9 @@ function MeditatePageContent() {
           setHistoricalContext(cached);
         }
       }
-      // If moving to prayer step (mini 3, step 1)
+      // If moving to prayer step (mini 3, step 1) — launch in background, don't block navigation
       if (currentMiniSession === 3 && currentStepInMini === 0 && !prayerContent) {
-        await fetchPersonalizedContent(dailyVerse);
+        fetchPersonalizedContent(dailyVerse, false);
       }
     }
   };
