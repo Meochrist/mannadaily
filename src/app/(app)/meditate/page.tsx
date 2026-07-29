@@ -118,7 +118,7 @@ const MINI_SESSIONS = [
 const STEP_LABELS: Record<number, [string, string]> = {
   1: ["🙏 Prière d'ouverture", "📖 Contexte biblique"],
   2: ["🔎 OIA+ — Observation", "🧠 Méditation & Réflexion"],
-  3: ["✍️ Application", "🙌 Prière & Proclamation"],
+  3: ["✍️ Application", "➕ Décision & Engagement"],
 };
 
 // Emojis for mini-session summary cards
@@ -537,8 +537,12 @@ function MeditatePageContent() {
           answers.step6_transform.trim().length >= 10 ||
           answers.step6_decision.trim().length >= 10
         );
-      case 6: // Prayer & Proclamation (mini 3, step 1) — read-only, no user input
-        return true;
+      case 6: // Application personnelle (mini 3, step 1) — décision & engagement
+        return (
+          answers.step6_situation.trim().length >= 10 ||
+          answers.step6_transform.trim().length >= 10 ||
+          answers.step6_decision.trim().length >= 10
+        );
       default:
         return true;
     }
@@ -732,6 +736,11 @@ function MeditatePageContent() {
     setError("");
 
     try {
+      // Generate prayer & summary if not already done
+      if (!prayerContent && dailyVerse) {
+        await fetchPersonalizedContent(dailyVerse);
+      }
+
       const formattedNotes = `=== JOURNAL DE MÉDITATION OIA+ ===
 
 [VERS DU JOUR]
@@ -1407,49 +1416,6 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                   onChange={(val) => setAnswers({ ...answers, step5_summary: val })} />
               </div>
             </div>
-
-            {/* Séparateur : passage à l'application personnelle */}
-            <div className="pt-2 border-t border-orange-200/60">
-              <p className="text-xs font-extrabold text-orange-600 uppercase tracking-wider mb-3 text-center">
-                ➕ Application personnelle
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Comment ce verset parle-t-il directement à ta situation aujourd&apos;hui ?</label>
-              <div className="relative">
-                <textarea rows={2} value={answers.step6_situation}
-                  onChange={(e) => setAnswers({ ...answers, step6_situation: e.target.value })}
-                  placeholder="Quel domaine de ta vie est concerné : travail, famille, santé, foi ?"
-                  className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition" />
-                <SpeechMicButton value={answers.step6_situation}
-                  onChange={(val) => setAnswers({ ...answers, step6_situation: val })} />
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Qu&apos;est-ce que Dieu veut transformer dans ta vie à travers ce texte ?</label>
-              <div className="relative">
-                <textarea rows={2} value={answers.step6_transform}
-                  onChange={(e) => setAnswers({ ...answers, step6_transform: e.target.value })}
-                  placeholder="Un comportement, une attitude, une croyance, une habitude ?"
-                  className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition" />
-                <SpeechMicButton value={answers.step6_transform}
-                  onChange={(val) => setAnswers({ ...answers, step6_transform: val })} />
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quelle décision concrète vas-tu prendre aujourd&apos;hui ?</label>
-              <div className="relative">
-                <textarea rows={2} value={answers.step6_decision}
-                  onChange={(e) => setAnswers({ ...answers, step6_decision: e.target.value })}
-                  placeholder="Une action précise, un engagement, une parole à dire, un pardon à accorder..."
-                  className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition" />
-                <SpeechMicButton value={answers.step6_decision}
-                  onChange={(val) => setAnswers({ ...answers, step6_decision: val })} />
-              </div>
-            </div>
           </div>
 
           {renderMascotSuggestion()}
@@ -1458,7 +1424,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
     }
 
     if (currentMiniSession === 3 && currentStepInMini === 1) {
-      // Step 6: Prayer & Celebration
+      // Step 6: Application personnelle (+) puis Prière
       return dailyVerse && (
         <motion.div
           key="step7"
@@ -1469,29 +1435,51 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
         >
           {!sessionResult ? (
             <>
-              <div className="w-full flex justify-center mb-4">
-                <MascotMessage mascot="manny" mood="praying" message={completionMessage} size={150} />
+              <div className="text-center space-y-2 mb-2 w-full">
+                <span className="text-xs font-extrabold uppercase tracking-widest text-orange-600 bg-orange-50 px-3 py-1 rounded-full">➕ Application personnelle</span>
+                <h2 className="text-2xl font-black text-slate-800 tracking-tight">Décision & Engagement</h2>
+                <p className="text-slate-400 font-semibold text-xs max-w-sm mx-auto">Dieu te parle — comment vas-tu répondre concrètement ?</p>
               </div>
 
-              {summaryContent && (
-                <div className="w-full bg-indigo-950 text-indigo-50 p-8 rounded-3xl border border-indigo-900 shadow-lg relative overflow-hidden flex flex-col space-y-4">
-                  <div className="flex items-center gap-2 border-b border-indigo-900/60 pb-3 text-amber-400">
-                    <Sparkles className="w-4.5 h-4.5 text-amber-400 fill-amber-400/10" />
-                    <span className="font-black text-xs uppercase tracking-wider text-amber-400">Ce que Dieu t&apos;a dit aujourd&apos;hui</span>
+              <div className="w-full space-y-4">
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Comment ce verset parle-t-il directement à ta situation aujourd&apos;hui ?</label>
+                  <div className="relative">
+                    <textarea rows={2} value={answers.step6_situation}
+                      onChange={(e) => setAnswers({ ...answers, step6_situation: e.target.value })}
+                      placeholder="Quel domaine de ta vie est concerné : travail, famille, santé, foi ?"
+                      className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition" />
+                    <SpeechMicButton value={answers.step6_situation}
+                      onChange={(val) => setAnswers({ ...answers, step6_situation: val })} />
                   </div>
-                  <p className="text-indigo-100 font-bold leading-relaxed text-base text-justify whitespace-pre-line">{summaryContent}</p>
                 </div>
-              )}
 
-              <div className="w-full bg-white p-8 rounded-3xl border border-indigo-100 shadow-lg relative overflow-hidden flex flex-col space-y-4">
-                <div className="flex items-center gap-2 border-b pb-3 text-indigo-700">
-                  <Heart className="w-4.5 h-4.5 text-indigo-500 fill-indigo-500" />
-                  <span className="font-bold text-xs uppercase tracking-wider">Parole de prière</span>
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Qu&apos;est-ce que Dieu veut transformer dans ta vie à travers ce texte ?</label>
+                  <div className="relative">
+                    <textarea rows={2} value={answers.step6_transform}
+                      onChange={(e) => setAnswers({ ...answers, step6_transform: e.target.value })}
+                      placeholder="Un comportement, une attitude, une croyance, une habitude ?"
+                      className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition" />
+                    <SpeechMicButton value={answers.step6_transform}
+                      onChange={(val) => setAnswers({ ...answers, step6_transform: val })} />
+                  </div>
                 </div>
-                <p className="text-slate-700 font-medium leading-relaxed italic text-base whitespace-pre-line text-justify">
-                  « {prayerContent} »
-                </p>
+
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quelle décision concrète vas-tu prendre aujourd&apos;hui ?</label>
+                  <div className="relative">
+                    <textarea rows={2} value={answers.step6_decision}
+                      onChange={(e) => setAnswers({ ...answers, step6_decision: e.target.value })}
+                      placeholder="Une action précise, un engagement, une parole à dire, un pardon à accorder..."
+                      className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition" />
+                    <SpeechMicButton value={answers.step6_decision}
+                      onChange={(val) => setAnswers({ ...answers, step6_decision: val })} />
+                  </div>
+                </div>
               </div>
+
+              {renderMascotSuggestion()}
             </>
           ) : (
             /* Session validated — Full summary */
