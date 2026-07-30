@@ -96,6 +96,92 @@ const BOOK_CONTEXT: Record<string, {
       6: "Daniel dans la fosse aux lions — Dieu ferme la gueule des lions.",
     }
   },
+  "Proverbes": {
+    author: "Salomon (majorité), Agur, Lemuel",
+    period: "~970-700 av. J.-C.",
+    historicalContext: "Recueil de maximes de sagesse compilé sous la monarchie israélite. Les proverbes étaient destinés à former les jeunes à une vie sage, craignant Dieu, dans le cadre de l'alliance.",
+    culturalNotes: "La sagesse en Israël était pratique : gérer sa maison, ses affaires, ses relations. Le parallélisme antithétique (contraste) est la figure de style dominante. La 'femme vertueuse' de Proverbes 31 est un modèle d'excellence.",
+    keyEvents: "Règne de Salomon, Compilation par les gens d'Ézéchias.",
+    chapters: {
+      1: "Introduction — la crainte de l'Éternel est le commencement de la sagesse.",
+      3: "Confie-toi en l'Éternel de tout ton cœur, ne t'appuie pas sur ta sagesse.",
+      31: "La femme vertueuse — éloge alphabétique de la femme qui craint l'Éternel.",
+    }
+  },
+  "Ecclésiaste": {
+    author: "Salomon (traditionnellement) / Qohéleth",
+    period: "~935 av. J.-C.",
+    historicalContext: "Méditation philosophique sur le sens de la vie par un roi vieillissant. 'Vanité des vanités' reflète une quête existentielle universelle dans une culture où la sagesse humaine montre ses limites.",
+    culturalNotes: "Qohéleth (l'Ecclésiaste) observe la vie 'sous le soleil' — sans perspective céleste. Le livre oscille entre pessimisme et foi. La conclusion : crains Dieu et garde ses commandements.",
+    keyEvents: "Règne de Salomon, Quête du sens de la vie.",
+  },
+  "Job": {
+    author: "Anonyme (peut-être Job, Moïse ou Élihu)",
+    period: "~2000-500 av. J.-C. (patriarcal)",
+    historicalContext: "L'histoire de Job, homme intègre d'Ous (région d'Édom), confronté à une souffrance extrême. Le livre explore la question de la justice divine face au mal et à la souffrance innocente.",
+    culturalNotes: "Les amis de Job représentent la sagesse conventionnelle de l'époque : la souffrance serait toujours la conséquence du péché. Le livre est un chef-d'œuvre poétique avec un prologue et épilogue en prose.",
+    keyEvents: "Épreuves de Job, Discours des amis, Théophanie finale.",
+  },
+  "Deutéronome": {
+    author: "Moïse (traditionnellement)",
+    period: "~1400 av. J.-C.",
+    historicalContext: "Dernier discours de Moïse aux portes de Canaan. Israël est sur le point d'entrer dans la Terre Promise. Le livre rappelle l'alliance et la Loi, avec bénédictions et malédictions.",
+    culturalNotes: "Deutéronome signifie 'seconde loi'. Le Shema Israël (Deut. 6:4) est la confession de foi fondamentale du judaïsme. Le livre suit le modèle des traités de vassalité hittites.",
+    keyEvents: "Discours d'adieu de Moïse, Renouvellement de l'alliance, Mort de Moïse.",
+    chapters: {
+      6: "Shema Israël — Écoute Israël, l'Éternel notre Dieu est le seul Éternel.",
+      28: "Bénédictions et malédictions de l'alliance.",
+    }
+  },
+  "Josué": {
+    author: "Josué (traditionnellement)",
+    period: "~1400-1375 av. J.-C.",
+    historicalContext: "Conquête et partage de Canaan sous Josué. Après 40 ans dans le désert, Israël traverse le Jourdain. Les cités-États cananéennes tombent une à une.",
+    culturalNotes: "La guerre sainte (hérem) était une pratique de l'époque où tout était consacré à Dieu. Jéricho est la plus ancienne ville fortifiée connue. Rahab laprostituée est sauvée par sa foi.",
+    keyEvents: "Traversée du Jourdain, Chute de Jéricho, Conquête et partage du pays.",
+  },
+  "Juges": {
+    author: "Samuel (traditionnellement)",
+    period: "~1375-1050 av. J.-C.",
+    historicalContext: "Période obscure entre Josué et les rois. Israël oscille entre idolâtrie, oppression par des peuples voisins, repentance et délivrance par des juges temporaires.",
+    culturalNotes: "Le cycle répété : péché → oppression → repentance → délivrance. 'Chacun faisait ce qui lui semblait bon' résume l'anarchie spirituelle de cette époque.",
+    keyEvents: "Cycle des Juges, Victoires de Débora/Barak, Gédéon, Samson.",
+  },
+  "Ruth": {
+    author: "Samuel (traditionnellement)",
+    period: "~1150 av. J.-C.",
+    historicalContext: "Pendant le temps des Juges, une famille de Bethléhem émigre à Moab à cause d'une famine. L'histoire de loyauté de Ruth la Moabite envers sa belle-mère Naomi illustre la rédemption.",
+    culturalNotes: "Le droit du rachat (goël) permettait à un parent de racheter la terre et d'épouser la veuve pour perpétuer le nom du défunt. Boaz incarne le goël.",
+    keyEvents: "Loyauté de Ruth, Rachat par Boaz, Généalogie de David.",
+  },
+  "1 Samuel": {
+    author: "Samuel, Nathan, Gad",
+    period: "~1050-1010 av. J.-C.",
+    historicalContext: "Transition d'Israël des Juges à la monarchie. Naissance de Samuel, premier roi Saül, onction de David. Les Philistins sont la menace principale.",
+    culturalNotes: "L'Arche de l'Alliance était le trône visible de Dieu. Le prophète Samuel est le dernier des Juges et établit l'onction royale. David et Goliath est l'un des récits les plus célèbres de la Bible.",
+    keyEvents: "Naissance de Samuel, Règne de Saül, David et Goliath, Fuite de David.",
+  },
+  "2 Samuel": {
+    author: "Nathan, Gad",
+    period: "~1010-970 av. J.-C.",
+    historicalContext: "Règne de David sur Juda puis tout Israël. Conquête de Jérusalem, transfert de l'Arche, alliance davidique. Puis chute : adultère avec Bath-Schéba, révolte d'Absalom.",
+    culturalNotes: "Jérusalem devient la capitale politique et religieuse. L'alliance davidique promet un trône éternel à la descendance de David — annonce messianique.",
+    keyEvents: "Règne de David, Péché avec Bath-Schéba, Révolte d'Absalom.",
+  },
+  "1 Rois": {
+    author: "Jérémie (traditionnellement)",
+    period: "~970-853 av. J.-C.",
+    historicalContext: "Succession de David par Salomon, construction du Temple, puis division du royaume. Élie le prophète affronte Achab et Jézabel.",
+    culturalNotes: "Le Temple de Salomon, merveille architecturale, devient le centre du culte. La division du royaume (Israël au nord, Juda au sud) marque le début du déclin.",
+    keyEvents: "Règne de Salomon, Construction du Temple, Division du royaume, Ministère d'Élie.",
+  },
+  "2 Rois": {
+    author: "Jérémie (traditionnellement)",
+    period: "~853-586 av. J.-C.",
+    historicalContext: "Suite du déclin : les deux royaumes tombent. Israël (nord) est détruit par l'Assyrie en 722. Juda (sud) tombe face à Babylone en 586. Élisée succède à Élie.",
+    culturalNotes: "Les réformes d'Ézéchias et de Josias retardent le jugement. La découverte du livre de la Loi sous Josias est un moment clé.",
+    keyEvents: "Ministère d'Élisée, Chute de Samarie, Réforme de Josias, Destruction de Jérusalem.",
+  },
   "Matthieu": {
     author: "Matthieu (Lévi), apôtre",
     period: "~60-80 ap. J.-C.",
