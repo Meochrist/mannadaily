@@ -120,7 +120,8 @@ export async function POST(req: Request) {
     if (shouldAward) {
       const action = claim === 1 ? "meditation_mini_1" : claim === 2 ? "meditation_mini_2" : "meditation_mini_3";
       xpResult = await awardXP(userId, action);
-      if (claim === 3) streak = await updateStreak(userId);
+      // Update streak on every claim — updateStreak has built-in same-day dedup
+      streak = await updateStreak(userId);
     }
 
     return NextResponse.json({ success: true, alreadyClaimed: false, progress: updatedUser.meditationProgress, xpResult, streak });
