@@ -14,6 +14,20 @@ type BookContext = {
 
 const typedContext = BOOK_CONTEXT as Record<string, BookContext>;
 
+// Lazy-load verse-level contexts (générés par le script, fichier optionnel)
+let verseContexts: Record<string, string> | null = null;
+async function loadVerseContexts(): Promise<Record<string, string>> {
+  if (verseContexts) return verseContexts;
+  try {
+    const mod = await import("@/data/verse-contexts.json");
+    verseContexts = mod.default || mod;
+    return verseContexts!;
+  } catch {
+    verseContexts = {};
+    return verseContexts;
+  }
+}
+
 async function generateAIContext(book: string, chapter: string | null): Promise<{
   author: string; period: string; historicalContext: string; culturalNotes: string; keyEvents: string;
 } | null> {
@@ -65,13 +79,34 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const book = searchParams.get("book");
     const chapter = searchParams.get("chapter");
+    const verse = searchParams.get("verse");
     const forceIA = searchParams.get("forceIA") === "true";
 
     if (!book) {
       return NextResponse.json({ error: "Le paramètre 'book' est requis" }, { status: 400 });
     }
 
-    // 1. Static context (fast, always available for all 66 books)
+    // 0. Verse-specific context (généré par le script, priorité absolue)
+    if (verse && chapter) {
+      const vc = await loadVerseContexts();
+      const ref = `${book} ${chapter}:${verse}`;
+      if (vc[ref]) {
+        const staticCtx = typedContext[book];
+        return NextResponse.json({
+          book,
+          chapter,
+          verse,
+          author: staticCtx?.author || "—",
+          period: staticCtx?.period || "—",
+          historicalContext: vc[ref],
+          culturalNotes: staticCtx?.culturalNotes || "—",
+          keyEvents: staticCtx?.keyEvents || "—",
+          source: "verse",
+        });
+      }
+    }
+
+    // 1. Static context (book level, always available for all 66 books)
     const staticContext = typedContext[book];
     if (staticContext && !forceIA) {
       const chapterNote = (chapter && staticContext.chapters?.[chapter])
@@ -85,6 +120,7 @@ export async function GET(req: Request) {
       return NextResponse.json({
         book,
         chapter: chapter || null,
+        verse: verse || null,
         author: staticContext.author,
         period: staticContext.period,
         historicalContext: enrichedContext,
@@ -95,13 +131,13 @@ export async function GET(req: Request) {
       });
     }
 
-    // 2. AI fallback for forced or JSON mismatch
+    // 2. AI fallback
     const aiContext = await generateAIContext(book, chapter);
     if (aiContext) {
       return NextResponse.json({ book, chapter: chapter || null, ...aiContext, source: "ai" });
     }
 
-    // 3. Ultimate fallback (ne devrait plus arriver avec 66 livres)
+    // 3. Ultimate fallback
     return NextResponse.json({
       book,
       chapter: chapter || null,

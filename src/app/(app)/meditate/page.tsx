@@ -281,14 +281,15 @@ function MeditatePageContent() {
   // Load historical/cultural context for the current verse (defined early to avoid access-before-declaration)
   const loadContext = useCallback(async () => {
     if (!dailyVerse) return;
-    const refParts = dailyVerse.reference.match(/^(.+?)\s+(\d+):/);
+    const refParts = dailyVerse.reference.match(/^(.+?)\s+(\d+):(\d+)/);
     if (!refParts) return;
     const book = refParts[1];
     const chapter = refParts[2];
+    const verse = refParts[3];
     
     setLoadingContext(true);
     try {
-      const res = await fetch(`/api/bible/context?book=${encodeURIComponent(book)}&chapter=${chapter}`);
+      const res = await fetch(`/api/bible/context?book=${encodeURIComponent(book)}&chapter=${chapter}&verse=${verse}`);
       if (res.ok) {
         const data = await res.json();
         setContextData(data);
