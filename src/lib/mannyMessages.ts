@@ -9,7 +9,8 @@ export type MannySituation =
   | "loading"
   | "evening"
   | "partial_progress"
-  | "day_complete";
+  | "day_complete"
+  | "streak_saved";
 
 const messagesMap: Record<MannySituation, string[]> = {
   welcome: [
@@ -88,6 +89,13 @@ const messagesMap: Record<MannySituation, string[]> = {
     "Mission accomplie [name] ! Ta série de [X] jours continue de briller. 🔥",
     "Gloire à Dieu [name] ! Une journée entière passée dans Sa présence. Quel exemple !",
     "Tu es un vrai guerrier de la Parole [name] ! 3/3 aujourd'hui — impressionnant ! ⚔️",
+  ],
+  streak_saved: [
+    "Ouf ! Tu viens de sauver ta série [name] ! Juste à temps. Continue comme ça ! 🔥",
+    "Tu l'as fait [name] ! Ta série de [X] jours est sauvegardée. Quel soulagement ! 😅",
+    "J'ai eu peur pour ta série [name]... mais tu es revenu ! Ne t'arrête plus ! 💪",
+    "Mission sauvetage réussie [name] ! Ta flamme brûle encore pour [X] jours. 🔥",
+    "On a eu chaud [name] ! Mais ta série tient bon. Dieu veille sur toi ! ✨",
   ],
 };
 

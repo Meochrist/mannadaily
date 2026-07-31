@@ -124,8 +124,10 @@ export default function RandomMascotMessage({
 
     if (isStreakMilestone) {
       situation = "streak_milestone";
-    } else if (isStreakDanger) {
+    } else if (isStreakDanger && completed === 0) {
       situation = "streak_danger";
+    } else if (isStreakDanger && completed >= 1) {
+      situation = "streak_saved"; // Était en danger, vient de sauver sa série
     } else if (completed >= 3) {
       situation = "day_complete";
     } else if (completed >= 1) {
@@ -177,7 +179,7 @@ export default function RandomMascotMessage({
       setMessage(`${prefix}${rawMessage}`);
       setMounted(true);
     });
-  }, [userName, streakCount]);
+  }, [userName, streakCount, progress, inactivityDays, dayProgress, sessionsCompletedToday]);
 
   // Rendu de secours pendant le SSR pour éviter les décalages d'hydratation
   if (!mounted) {
