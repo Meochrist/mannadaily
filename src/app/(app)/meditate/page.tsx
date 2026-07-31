@@ -773,7 +773,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
 [MINI-SESSION 2 — OBSERVATION & INTERPRÉTATION]
 - Quels sont les personnages ou acteurs mentionnés ?
   ${answers.step4_actors || "Non renseigné"}
-- Quels mots ou expressions se répètent dans ce verset ?
+- Mot clé insistant dans ce verset ?
   ${answers.step4_repeats || "Non renseigné"}
 - Quel est le fait ou l'action principale décrite ?
   ${answers.step4_action || "Non renseigné"}
@@ -1351,11 +1351,11 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
             </div>
 
             <div className="space-y-3">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quels mots ou expressions se répètent dans ce verset ?</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Quel mot ou expression clé est insistant(e) dans ce verset ?</label>
               <div className="relative">
                 <textarea rows={2} value={answers.step4_repeats}
                   onChange={(e) => setAnswers({ ...answers, step4_repeats: e.target.value })}
-                  placeholder="Y a-t-il des termes insistants (ex: force, loi, cœur, aimer) ?"
+                  placeholder="Quel est le mot qui porte le sens profond du verset ? (ex: foi, grâce, alliance, paix...)"
                   className="w-full p-3 pr-10 bg-slate-50 border border-slate-200/80 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" />
                 <SpeechMicButton value={answers.step4_repeats}
                   onChange={(val) => setAnswers({ ...answers, step4_repeats: val })} />
@@ -1561,7 +1561,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                     <p className="text-slate-700 font-medium mt-0.5">{answers.step4_actors || "Non renseigné"}</p>
                   </div>
                   <div className="bg-slate-50 rounded-lg p-2.5">
-                    <span className="font-bold text-slate-400 text-[10px] uppercase">Répétitions / Action</span>
+                    <span className="font-bold text-slate-400 text-[10px] uppercase">Mot clé / Action</span>
                     <p className="text-slate-700 font-medium mt-0.5">{answers.step4_repeats || answers.step4_action || "Non renseigné"}</p>
                   </div>
                 </div>
@@ -1911,7 +1911,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
                 )}
                 {answers.step4_repeats && (
                   <div className="bg-slate-50 rounded-lg p-2 sm:col-span-2">
-                    <span className="font-bold text-slate-500 text-[9px] uppercase">Répétitions</span>
+                    <span className="font-bold text-slate-500 text-[9px] uppercase">Mot clé</span>
                     <p className="text-slate-700 font-medium mt-0.5 line-clamp-2">{answers.step4_repeats}</p>
                   </div>
                 )}
