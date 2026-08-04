@@ -739,8 +739,9 @@ function MeditatePageContent() {
     setError("");
 
     try {
-      // Ensure mini-session 3 is marked as completed and XP claimed
+      // Ensure mini-session 3 is marked as completed
       // Use [1,2,3] directly — if we're at mini 3 step 2, minis 1 & 2 are necessarily done
+      // Don't send claimXPForSession — XP already claimed per mini-session via handleNextStep
       const finalCompleted: number[] = [1, 2, 3];
       setSessionsCompleted(finalCompleted);
       setDayCompleted(true);
@@ -749,7 +750,6 @@ function MeditatePageContent() {
         currentStep: 1,
         sessionsCompleted: finalCompleted,
         dayCompleted: true,
-        claimXPForSession: 3,
       });
 
       // Generate prayer & summary if not already done

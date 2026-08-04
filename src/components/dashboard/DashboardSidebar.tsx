@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { BookOpen } from "lucide-react";
 import StreakCounter from "@/components/gamification/StreakCounter";
 import XPBar from "@/components/gamification/XPBar";
+import { getXPProgress } from "@/lib/xp-utils";
 import LingotsCounter from "@/components/gamification/LingotsCounter";
 import BadgeCard from "@/components/gamification/BadgeCard";
 import PushOptIn from "@/components/notifications/PushOptIn";
@@ -150,7 +151,7 @@ export default function DashboardSidebar() {
       <StreakCounter currentStreak={status.currentStreak} longestStreak={status.longestStreak} />
 
       {/* 5. XP */}
-      <XPBar currentXP={status.totalXP} levelName={status.levelName} progressPercent={0} />
+      <XPBar currentXP={status.totalXP} levelName={status.levelName} progressPercent={getXPProgress(status.totalXP)} />
 
       {/* 6. LINGOTS */}
       <LingotsCounter initialLingots={0} initialFreezes={status.freezesAvailable} />

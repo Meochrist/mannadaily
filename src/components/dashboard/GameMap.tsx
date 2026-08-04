@@ -519,7 +519,7 @@ export default function GameMap({ currentXP, userName, dailyVerse }: GameMapProp
                         {/* Liens vers l'action */}
                         <div className="w-full border-t border-slate-100 pt-2 flex flex-col gap-2">
                           <Link
-                            href={`/meditate?text=${encodeURIComponent(verse.text)}&reference=${encodeURIComponent(verse.reference)}&theme=${encodeURIComponent(verse.theme)}&pathId=${activePathId}&level=${level}`}
+                            href={`/meditate?text=${encodeURIComponent(verse.text)}&reference=${encodeURIComponent(verse.reference)}&theme=${encodeURIComponent(verse.theme)}&pathId=${activePathId}&level=${level}&fresh=true`}
                             className="flex items-center justify-center gap-1.5 w-full py-2 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 font-black text-[11px] rounded-xl shadow-sm hover:from-amber-300 hover:to-amber-400 transition-all active:scale-[0.98]"
                           >
                             <Play className="w-3 h-3 fill-slate-900" />

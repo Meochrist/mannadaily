@@ -1,6 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    resolveAlias: {
+      // Prevent Node.js built-in modules from leaking into client bundles
+      dns: {},
+      fs: {},
+      net: {},
+      tls: {},
+      "util/types": {},
+    },
+  },
   async headers() {
     return [
       {

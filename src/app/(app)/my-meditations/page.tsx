@@ -355,7 +355,7 @@ export default function MyMeditationsPage() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       className="bg-white dark:bg-slate-800/70 border border-slate-100 dark:border-slate-700 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-700 transition-all group cursor-pointer"
-                      onClick={() => router.push(`/meditate?sessionId=${session.id}`)}
+                      onClick={() => router.push(`/meditate/view?sessionId=${session.id}`)}
                     >
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="flex items-center gap-2 flex-wrap">
