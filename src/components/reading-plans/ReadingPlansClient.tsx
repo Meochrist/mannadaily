@@ -251,7 +251,7 @@ export default function ReadingPlansClient({
           <span className="text-[10px] bg-indigo-50 text-indigo-700 font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
             Compagnon Manny
           </span>
-          <h2 className="text-lg font-black text-slate-850">
+          <h2 className="text-lg font-black text-slate-800">
             {activePlan 
               ? `« Bravo ! Tu es au jour ${activeEnrollment?.currentDay} de ton plan de lecture. »`
               : "« Choisis un plan pour te nourrir chaque jour de la Parole de Dieu. La régularité fortifie la foi ! »"
@@ -286,14 +286,14 @@ export default function ReadingPlansClient({
                 <Link
                   key={reading.id}
                   href={`/bible?book=${encodeURIComponent(reading.book)}&chapter=${reading.chapter}`}
-                  className="bg-white border border-slate-150 rounded-2xl p-4 flex items-center justify-between hover:border-indigo-300 hover:shadow-md transition-all duration-300 group cursor-pointer"
+                  className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between hover:border-indigo-300 hover:shadow-md transition-all duration-300 group cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                       <BookOpen className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="text-xs font-black text-slate-800 group-hover:text-indigo-650 transition-colors">
+                      <span className="text-xs font-black text-slate-800 group-hover:text-indigo-600 transition-colors">
                         {reading.book} {reading.chapter}
                       </span>
                       <span className="block text-[10px] text-slate-400">
@@ -324,7 +324,7 @@ export default function ReadingPlansClient({
             <button
               onClick={() => handleCompleteDay(activePlan.id, activeEnrollment.currentDay)}
               disabled={updatingProgressDay === activeEnrollment.currentDay}
-              className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold px-6 py-3 rounded-2xl text-xs transition-all hover:scale-103 shadow-md flex items-center justify-center gap-2 disabled:bg-slate-350 cursor-pointer"
+              className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold px-6 py-3 rounded-2xl text-xs transition-all hover:scale-105 shadow-md flex items-center justify-center gap-2 disabled:bg-slate-300 cursor-pointer"
             >
               {updatingProgressDay === activeEnrollment.currentDay ? (
                 <>
@@ -376,7 +376,7 @@ export default function ReadingPlansClient({
                 key={plan.id}
                 className={cn(
                   "bg-white border rounded-3xl p-6 transition-all duration-300 flex flex-col justify-between gap-5 relative overflow-hidden",
-                  isEnrolled ? "border-indigo-150 shadow-sm" : "border-slate-100 hover:border-slate-200 hover:shadow-md"
+                  isEnrolled ? "border-indigo-200 shadow-sm" : "border-slate-100 hover:border-slate-200 hover:shadow-md"
                 )}
               >
                 {/* Ribbon active / completed */}
@@ -449,7 +449,7 @@ export default function ReadingPlansClient({
                       <button
                         onClick={() => handleEnroll(plan.id)}
                         disabled={enrollingPlanId === plan.id}
-                        className="bg-indigo-650 hover:bg-indigo-700 text-white font-extrabold px-5 py-2.5 rounded-xl text-xs transition shadow-sm hover:scale-102 cursor-pointer flex items-center gap-1.5"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold px-5 py-2.5 rounded-xl text-xs transition shadow-sm hover:scale-105 cursor-pointer flex items-center gap-1.5"
                       >
                         {enrollingPlanId === plan.id ? (
                           <>
@@ -474,7 +474,7 @@ export default function ReadingPlansClient({
       {/* 4. Notification Preferences */}
       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 space-y-6">
         <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
-          <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-650">
+          <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
             <Bell className="w-5 h-5" />
           </div>
           <div>
@@ -502,7 +502,7 @@ export default function ReadingPlansClient({
               disabled={savingPreferences}
               className={cn(
                 "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
-                readingReminders ? "bg-indigo-650" : "bg-slate-200"
+                readingReminders ? "bg-indigo-600" : "bg-slate-200"
               )}
             >
               <span

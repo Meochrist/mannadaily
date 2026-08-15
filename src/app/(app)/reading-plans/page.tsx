@@ -53,7 +53,7 @@ export default async function ReadingPlansPage() {
   return (
     <div className="flex flex-col h-full space-y-6 max-w-7xl mx-auto p-4">
       {/* Page Title & Navigation Banner */}
-      <div className="bg-gradient-to-r from-indigo-700 via-indigo-850 to-indigo-950 text-white rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div className="bg-gradient-to-r from-indigo-700 via-indigo-800 to-indigo-950 text-white rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="space-y-1 text-center sm:text-left">
           <h1 className="text-2xl md:text-3xl font-extrabold flex items-center gap-2 justify-center sm:justify-start">
             <Calendar className="w-8 h-8 text-indigo-300 animate-pulse" />
