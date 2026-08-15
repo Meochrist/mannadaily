@@ -1941,8 +1941,8 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
       {showStudyBar && dailyVerse && (
         <div className="sticky top-0 z-30 w-full bg-indigo-950 text-white rounded-3xl p-4 md:p-5 shadow-lg border border-indigo-900/60 flex flex-col gap-3 mb-4">
           <div className="flex justify-between items-start gap-4">
-            <div className="space-y-1">
-              <blockquote className="text-xs md:text-sm font-semibold leading-relaxed line-clamp-3 italic text-indigo-100">
+            <div className="space-y-1.5 min-w-0">
+              <blockquote className="text-sm md:text-base font-bold leading-relaxed italic text-white">
                 « {dailyVerse.text} »
               </blockquote>
               <span className="block text-[10px] font-black text-indigo-300 uppercase tracking-widest">
