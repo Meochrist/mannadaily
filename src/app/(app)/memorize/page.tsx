@@ -228,7 +228,7 @@ export default function MemorizePage() {
             
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-black px-5 py-3 rounded-2xl text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-sm hover:scale-102"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-black px-5 py-3 rounded-2xl text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-sm hover:scale-105"
             >
               <Plus className="w-4 h-4" /> Ajouter un verset
             </button>
@@ -245,7 +245,7 @@ export default function MemorizePage() {
               
               {/* Lancement de session */}
               <div className="md:col-span-2 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex flex-col justify-between min-h-[260px] relative overflow-hidden">
-                <div className="absolute right-0 top-0 w-32 h-32 bg-indigo-550/5 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute right-0 top-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
                 
                 <div className="space-y-4">
                   <span className="text-[9px] font-black bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full uppercase tracking-wider">
@@ -253,7 +253,7 @@ export default function MemorizePage() {
                   </span>
                   
                   <div className="space-y-1">
-                    <h2 className="text-xl font-black text-slate-850">
+                    <h2 className="text-xl font-black text-slate-800">
                       {memorizations.length > 0 
                         ? `${memorizations.length} verset(s) à réviser aujourd'hui`
                         : "Aucune révision requise aujourd'hui 🎉"}
@@ -269,11 +269,11 @@ export default function MemorizePage() {
                 <div className="pt-6 border-t border-slate-50 mt-4 flex items-center justify-between">
                   <div className="flex gap-4 text-xs font-bold text-slate-400">
                     <span className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4 text-slate-350" />
+                      <Calendar className="w-4 h-4 text-slate-400" />
                       {memorizations.length} à réviser
                     </span>
                     <span className="flex items-center gap-1">
-                      <CheckCircle className="w-4 h-4 text-slate-350" />
+                      <CheckCircle className="w-4 h-4 text-slate-400" />
                       {mastered.length} maîtrisés
                     </span>
                   </div>
@@ -281,7 +281,7 @@ export default function MemorizePage() {
                   <button
                     onClick={startSession}
                     disabled={memorizations.length === 0}
-                    className="bg-indigo-650 hover:bg-indigo-700 disabled:bg-slate-150 disabled:text-slate-400 text-white font-black px-6 py-3.5 rounded-2xl text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer hover:scale-102"
+                    className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-black px-6 py-3.5 rounded-2xl text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer hover:scale-105"
                   >
                     Commencer la révision
                     <ArrowRight className="w-4 h-4" />
@@ -370,7 +370,7 @@ export default function MemorizePage() {
                   <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center shadow-sm">
                     <BookOpen className="w-6 h-6" />
                   </div>
-                  <span className="text-[10px] font-bold text-slate-450 uppercase tracking-widest">Référence</span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Référence</span>
                   <h3 className="text-2xl font-black text-slate-800 tracking-tight">
                     {sessionCards[currentIndex].reference}
                   </h3>
@@ -424,7 +424,7 @@ export default function MemorizePage() {
                       key={btn.quality}
                       onClick={() => handleRateCard(btn.quality)}
                       className={cn(
-                        "border rounded-2xl p-3 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all duration-300 hover:scale-103 shadow-sm",
+                        "border rounded-2xl p-3 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all duration-300 hover:scale-105 shadow-sm",
                         btn.color
                       )}
                     >
@@ -452,7 +452,7 @@ export default function MemorizePage() {
             <span className="text-[10px] bg-emerald-100 text-emerald-800 font-black px-3 py-1 rounded-full uppercase tracking-wider">
               Session terminée !
             </span>
-            <h2 className="text-xl font-black text-slate-850 tracking-tight mt-3">
+            <h2 className="text-xl font-black text-slate-800 tracking-tight mt-3">
               Excellent travail de mémorisation !
             </h2>
             <p className="text-xs text-slate-500 font-medium leading-relaxed max-w-xs mx-auto">
@@ -474,13 +474,13 @@ export default function MemorizePage() {
 
             <div className="text-center space-y-1">
               <span className="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">XP gagné</span>
-              <span className="text-base font-black text-indigo-650 block">+{sessionXpEarned} XP</span>
+              <span className="text-base font-black text-indigo-600 block">+{sessionXpEarned} XP</span>
             </div>
           </div>
 
           <button
             onClick={() => setScreen(1)}
-            className="w-full bg-indigo-650 hover:bg-indigo-700 text-white font-black py-3.5 rounded-2xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3.5 rounded-2xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
           >
             <RotateCcw className="w-4 h-4" />
             Retour à la mémorisation
@@ -499,7 +499,7 @@ export default function MemorizePage() {
             {/* Bouton de fermeture */}
             <button 
               onClick={() => setIsModalOpen(false)}
-              className="absolute right-4 top-4 text-slate-400 hover:text-slate-650"
+              className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
             >
               <X className="w-5 h-5" />
             </button>
@@ -514,7 +514,7 @@ export default function MemorizePage() {
 
               <form onSubmit={handleAddVerse} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label htmlFor="ref" className="text-[10px] font-bold text-slate-450 uppercase tracking-wide">
+                  <label htmlFor="ref" className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
                     Référence biblique
                   </label>
                   <input
@@ -529,7 +529,7 @@ export default function MemorizePage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="text" className="text-[10px] font-bold text-slate-450 uppercase tracking-wide">
+                  <label htmlFor="text" className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
                     Texte du verset
                   </label>
                   <textarea
@@ -554,7 +554,7 @@ export default function MemorizePage() {
                   <button
                     type="submit"
                     disabled={adding}
-                    className="flex-1 bg-indigo-650 hover:bg-indigo-700 disabled:bg-indigo-150 text-white font-black py-3.5 rounded-2xl text-xs uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-200 text-white font-black py-3.5 rounded-2xl text-xs uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
                   >
                     {adding ? (
                       <>
