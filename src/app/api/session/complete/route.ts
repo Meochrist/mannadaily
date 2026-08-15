@@ -15,6 +15,14 @@ function getActivityDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
+// Détermine la période (matin/midi/soir) depuis l'heure locale
+function getPeriodFromHour(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "morning";
+  if (hour < 17) return "midday";
+  return "evening";
+}
+
 function isUniqueConstraintError(error: unknown) {
   return typeof error === "object" && error !== null && "code" in error && error.code === "P2002";
 }
@@ -42,9 +50,10 @@ export async function POST(req: Request) {
     if (typeof type !== "string" || !ALLOWED_TYPES.has(type)) {
       return NextResponse.json({ error: "Invalid or missing session type" }, { status: 400 });
     }
-    if (typeof period !== "string" || !ALLOWED_PERIODS.has(period)) {
-      return NextResponse.json({ error: "Invalid period" }, { status: 400 });
-    }
+    // period est optionnel : pour les activités sans notion de période (proclamation),
+    // on le déduit de l'heure courante.
+    const resolvedPeriod =
+      typeof period === "string" && ALLOWED_PERIODS.has(period) ? period : getPeriodFromHour();
     if (notes !== undefined && notes !== null && (typeof notes !== "string" || notes.length > MAX_NOTES_LENGTH)) {
       return NextResponse.json({ error: "Notes are too long" }, { status: 400 });
     }
@@ -57,7 +66,7 @@ export async function POST(req: Request) {
         data: {
           userId,
           type,
-          period,
+          period: resolvedPeriod,
           activityDate,
           xpEarned: 15,
           duration: 120,
@@ -67,6 +76,7 @@ export async function POST(req: Request) {
     } catch (error) {
       if (isUniqueConstraintError(error)) {
         const progress = await db.userProgress.findUnique({ where: { userId } });
+        const currentStreak = (await db.streak.findUnique({ where: { userId }, select: { currentStreak: true } }))?.currentStreak ?? 0;
         return NextResponse.json({
           success: true,
           alreadyCompleted: true,
@@ -74,6 +84,14 @@ export async function POST(req: Request) {
           morningDone: progress?.lastSessionDate === activityDate && progress.morningSessionToday,
           middayDone: progress?.lastSessionDate === activityDate && progress.middaySessionToday,
           eveningDone: progress?.lastSessionDate === activityDate && progress.eveningSessionToday,
+          xpEarned: 0,
+          bonusXP: 0,
+          newXP: progress?.totalXP ?? 0,
+          leveledUp: false,
+          newLevel: progress?.level ?? "Semence",
+          levelName: progress?.level ?? "Semence",
+          streak: currentStreak,
+          newBadges: [],
         });
       }
       throw error;
@@ -129,9 +147,9 @@ export async function POST(req: Request) {
     const wasEveningDone = sameDay && progress.eveningSessionToday;
     const wasDayComplete = wasMorningDone && wasMiddayDone && wasEveningDone;
 
-    const morningDone = period === "morning" || wasMorningDone;
-    const middayDone = period === "midday" || wasMiddayDone;
-    const eveningDone = period === "evening" || wasEveningDone;
+    const morningDone = resolvedPeriod === "morning" || wasMorningDone;
+    const middayDone = resolvedPeriod === "midday" || wasMiddayDone;
+    const eveningDone = resolvedPeriod === "evening" || wasEveningDone;
     const dayComplete = morningDone && middayDone && eveningDone;
     const dayJustCompleted = dayComplete && !wasDayComplete;
 
@@ -158,7 +176,7 @@ export async function POST(req: Request) {
     }
 
     await addXPToLeague(userId, 15 + bonusXP);
-    trackEvent(userId, "session_completed", { type, period, xpEarned: 15 + bonusXP, dayComplete });
+    trackEvent(userId, "session_completed", { type, period: resolvedPeriod, xpEarned: 15 + bonusXP, dayComplete });
     const newBadges = await checkAndAwardBadges(userId);
 
     return NextResponse.json({

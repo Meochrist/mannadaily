@@ -22,7 +22,7 @@ import * as sounds from "@/lib/sounds";
 
 const DEFAULT_PROCLAMATION_VERSES = [
   {
-    text: "Par ses meurtrissures, nous sommes guéris.",
+    text: "Par ses meurtrissures, je suis guéri.",
     reference: "Ésaïe 53:5",
   },
   {
@@ -34,11 +34,11 @@ const DEFAULT_PROCLAMATION_VERSES = [
     reference: "Psaumes 23:1",
   },
   {
-    text: "Car je connais les projets que j'ai formés sur vous, projets de paix.",
+    text: "Car l'Éternel a pour moi des projets de paix et non de malheur.",
     reference: "Jérémie 29:11",
   },
   {
-    text: "Que la paix de Dieu, qui surpasse toute intelligence, garde vos cœurs.",
+    text: "Que la paix de Dieu, qui surpasse toute intelligence, garde mon cœur.",
     reference: "Philippiens 4:7",
   },
 ];
@@ -301,7 +301,7 @@ export default function ProclaimPage() {
                 <div className="space-y-3">
                   {verses.map((verse, idx) => (
                     <div key={idx} className="flex gap-3 items-start p-3 hover:bg-slate-50 rounded-xl transition">
-                      <span className="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-650 flex items-center justify-center font-extrabold text-xs flex-shrink-0">
+                      <span className="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-extrabold text-xs flex-shrink-0">
                         {idx + 1}
                       </span>
                       <div>
@@ -394,7 +394,7 @@ export default function ProclaimPage() {
                     "flex items-center gap-3 px-6 py-3.5 rounded-2xl font-bold transition shadow-md",
                     isListening 
                       ? "bg-purple-600 hover:bg-purple-700 text-white animate-pulse" 
-                      : "bg-indigo-900/80 hover:bg-indigo-850 text-indigo-200 border border-indigo-800"
+                      : "bg-indigo-900/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-800"
                   )}
                 >
                   {isListening ? (
@@ -429,7 +429,7 @@ export default function ProclaimPage() {
                   className={cn(
                     "flex items-center gap-2 px-8 py-3.5 font-extrabold rounded-xl transition-all shadow-lg text-sm",
                     canGoNext 
-                      ? "bg-purple-500 text-white hover:bg-purple-650 cursor-pointer" 
+                      ? "bg-purple-500 text-white hover:bg-purple-600 cursor-pointer" 
                       : "bg-indigo-900/50 text-indigo-400 cursor-not-allowed border border-indigo-800/20"
                   )}
                 >
@@ -527,7 +527,7 @@ export default function ProclaimPage() {
 
               <button
                 onClick={() => router.push("/dashboard")}
-                className="px-8 py-4 bg-indigo-650 text-white font-extrabold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                className="px-8 py-4 bg-indigo-600 text-white font-extrabold rounded-xl shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0"
               >
                 Retour au tableau de bord
               </button>
@@ -544,12 +544,12 @@ export default function ProclaimPage() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-150 flex flex-col items-center text-center space-y-6"
+              className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-200 flex flex-col items-center text-center space-y-6"
             >
               <Manny mood="sad" size={175} />
               
               <div className="space-y-2 text-slate-800">
-                <h3 className="text-xl font-black text-slate-850">
+                <h3 className="text-xl font-black text-slate-800">
                   Ne pars pas déjà ! 🙏
                 </h3>
                 <p className="text-slate-500 font-medium text-sm leading-relaxed">
