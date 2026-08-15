@@ -89,33 +89,33 @@ const otBooks = [
 ];
 
 const ntBooks = [
-  { file: "61-Mt-morphgnt.txt", num: 40 },
-  { file: "62-Mk-morphgnt.txt", num: 41 },
-  { file: "63-Lk-morphgnt.txt", num: 42 },
-  { file: "64-Jn-morphgnt.txt", num: 43 },
-  { file: "65-Ac-morphgnt.txt", num: 44 },
-  { file: "66-Ro-morphgnt.txt", num: 45 },
-  { file: "67-1Co-morphgnt.txt", num: 46 },
-  { file: "68-2Co-morphgnt.txt", num: 47 },
-  { file: "69-Ga-morphgnt.txt", num: 48 },
-  { file: "70-Eph-morphgnt.txt", num: 49 },
-  { file: "71-Php-morphgnt.txt", num: 50 },
-  { file: "72-Col-morphgnt.txt", num: 51 },
-  { file: "73-1Th-morphgnt.txt", num: 52 },
-  { file: "74-2Th-morphgnt.txt", num: 53 },
-  { file: "75-1Ti-morphgnt.txt", num: 54 },
-  { file: "76-2Ti-morphgnt.txt", num: 55 },
-  { file: "77-Tit-morphgnt.txt", num: 56 },
-  { file: "78-Phm-morphgnt.txt", num: 57 },
-  { file: "79-Heb-morphgnt.txt", num: 58 },
-  { file: "80-Jas-morphgnt.txt", num: 59 },
-  { file: "81-1Pe-morphgnt.txt", num: 60 },
-  { file: "82-2Pe-morphgnt.txt", num: 61 },
-  { file: "83-1Jn-morphgnt.txt", num: 62 },
-  { file: "84-2Jn-morphgnt.txt", num: 63 },
-  { file: "85-3Jn-morphgnt.txt", num: 64 },
-  { file: "86-Jud-morphgnt.txt", num: 65 },
-  { file: "87-Re-morphgnt.txt", num: 66 }
+  { file: "MT.txt", num: 40 },
+  { file: "MR.txt", num: 41 },
+  { file: "LU.txt", num: 42 },
+  { file: "JOH.txt", num: 43 },
+  { file: "AC.txt", num: 44 },
+  { file: "RO.txt", num: 45 },
+  { file: "1CO.txt", num: 46 },
+  { file: "2CO.txt", num: 47 },
+  { file: "GA.txt", num: 48 },
+  { file: "EPH.txt", num: 49 },
+  { file: "PHP.txt", num: 50 },
+  { file: "COL.txt", num: 51 },
+  { file: "1TH.txt", num: 52 },
+  { file: "2TH.txt", num: 53 },
+  { file: "1TI.txt", num: 54 },
+  { file: "2TI.txt", num: 55 },
+  { file: "TIT.txt", num: 56 },
+  { file: "PHM.txt", num: 57 },
+  { file: "HEB.txt", num: 58 },
+  { file: "JAS.txt", num: 59 },
+  { file: "1PE.txt", num: 60 },
+  { file: "2PE.txt", num: 61 },
+  { file: "1JO.txt", num: 62 },
+  { file: "2JO.txt", num: 63 },
+  { file: "3JO.txt", num: 64 },
+  { file: "JUDE.txt", num: 65 },
+  { file: "RE.txt", num: 66 }
 ];
 
 // --- UTILS DE TRANSLITTERATION GRECQUE ---
@@ -341,6 +341,20 @@ function parseAttributes(attrStr: string): Record<string, string> {
 }
 
 async function main() {
+  const forceNT = process.argv.includes("--force-nt") || process.argv.includes("--force");
+  const forceAT = process.argv.includes("--force-at") || process.argv.includes("--force");
+
+  if (forceNT) {
+    console.log("🗑️  --force-nt : purge de la table GreekWord (Nouveau Testament)...");
+    const deleted = await prisma.greekWord.deleteMany({});
+    console.log(`   ${deleted.count} mots grecs supprimés.\n`);
+  }
+  if (forceAT) {
+    console.log("🗑️  --force-at : purge de la table HebrewWord (Ancien Testament)...");
+    const deleted = await prisma.hebrewWord.deleteMany({});
+    console.log(`   ${deleted.count} mots hébreux supprimés.\n`);
+  }
+
   console.log("=== Début du Seed Morphologique Complet (Hébreu + Grec) ===\n");
 
   let totalOtMots = 0;
@@ -351,11 +365,13 @@ async function main() {
   for (const book of otBooks) {
     // Éviter le re-seed s'il y a déjà des données pour ce livre
     const existingCount = await prisma.hebrewWord.count({ where: { book: book.num } });
-    if (existingCount > 0) {
+    if (existingCount > 0 && !forceAT) {
       console.log(`[AT] ⏩ Livre ${book.file} (${book.num}) déjà présent en base (${existingCount} mots). Saut.`);
       totalOtMots += existingCount;
       otBooksSeeded++;
       continue;
+    } else if (existingCount > 0 && forceAT) {
+      await prisma.hebrewWord.deleteMany({ where: { book: book.num } });
     }
 
     const url = `https://raw.githubusercontent.com/openscriptures/morphhb/master/wlc/${book.file}`;
@@ -453,14 +469,16 @@ async function main() {
   for (const book of ntBooks) {
     // Éviter le re-seed s'il y a déjà des données pour ce livre
     const existingCount = await prisma.greekWord.count({ where: { book: book.num } });
-    if (existingCount > 0) {
+    if (existingCount > 0 && !forceNT) {
       console.log(`[NT] ⏩ Livre ${book.file} (${book.num}) déjà présent en base (${existingCount} mots). Saut.`);
       totalNtMots += existingCount;
       ntBooksSeeded++;
       continue;
+    } else if (existingCount > 0 && forceNT) {
+      await prisma.greekWord.deleteMany({ where: { book: book.num } });
     }
 
-    const url = `https://raw.githubusercontent.com/morphgnt/sblgnt/master/${book.file}`;
+    const url = `https://raw.githubusercontent.com/morphgnt/tischendorf-data/master/word-per-line/2.8/Unicode/${book.file}`;
     console.log(`[NT] Téléchargement de : ${book.file} (${book.num}/66)...`);
 
     let txtData: string;
@@ -474,31 +492,36 @@ async function main() {
 
     try {
       const greekWords: any[] = [];
-      const lines = txtData.split(/\r?\n/);
-      let lastRef = "";
-      let wordPosition = 1;
+      const lines = txtData.split("\n");
       let wordCount = 0;
 
-      for (const line of lines) {
-        const trimmed = line.trim();
+      for (const rawLine of lines) {
+        const trimmed = rawLine.trim();
         if (!trimmed) continue;
 
         const parts = trimmed.split(/\s+/);
-        if (parts.length < 7) continue;
+        if (parts.length < 8) continue;
 
-        const ref = parts[0];
-        if (ref !== lastRef) {
-          wordPosition = 1;
-          lastRef = ref;
-        }
+        // Format Tischendorf : "MT 1:1.1 C Βίβλος Βίβλος N-NSF 976 βίβλος ! βίβλος"
+        // parts[0]=livre, parts[1]=chapitre:verset.position, parts[2]=majuscule, parts[3]=texte grec,
+        // parts[4]=normalisé, parts[5]=parsing (ex: N-NSF), parts[6]=Strong, parts[7]=lemma, parts[9]=translittération
+        const refMatch = parts[1].match(/^(\d+):(\d+)\.(\d+)$/);
+        if (!refMatch) continue;
 
-        const chapter = parseInt(ref.substring(2, 4), 10);
-        const verse = parseInt(ref.substring(4, 6), 10);
-        const pos = parts[1];
-        const parseCode = parts[2];
+        const chapter = parseInt(refMatch[1], 10);
+        const verse = parseInt(refMatch[2], 10);
+        const wordPosition = parseInt(refMatch[3], 10);
+
         const text = parts[3];
-        const lemma = parts[6];
+        const parseCode = parts[5];
+        const strongNum = parts[6];
+        const lemma = parts[7];
 
+        // Numéro Strong grec avec préfixe G
+        const strongNumber = strongNum && !isNaN(parseInt(strongNum, 10)) ? `G${strongNum}` : null;
+
+        // Extraire le POS (2 premiers caractères) pour le décodeur morphologique
+        const pos = parseCode && parseCode.length >= 2 ? parseCode.substring(0, 2) : "";
         const morphologyDesc = decodeGreekMorphology(pos, parseCode);
         const translitteration = transliterateGreek(text);
 
@@ -509,14 +532,13 @@ async function main() {
           wordPosition: wordPosition,
           originalText: text,
           transliteration: translitteration,
-          strongNumber: null,
+          strongNumber,
           root: lemma || null,
           morphology: parseCode || null,
           morphologyDesc: morphologyDesc || null,
           gloss: null
         });
 
-        wordPosition++;
         wordCount++;
       }
 
