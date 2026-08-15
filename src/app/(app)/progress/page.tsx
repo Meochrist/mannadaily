@@ -386,7 +386,7 @@ export default async function ProgressPage() {
 
           <div className="bg-slate-50/60 p-5 rounded-2xl border border-slate-100 text-center space-y-2">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Expérience Totale</span>
-            <span className="text-4xl font-black text-indigo-650 block">{data.progress.totalXP} XP</span>
+            <span className="text-4xl font-black text-indigo-600 block">{data.progress.totalXP} XP</span>
             <p className="text-xs text-slate-400 font-semibold">Cumul des pas de foi accomplis</p>
           </div>
         </div>

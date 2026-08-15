@@ -200,7 +200,7 @@ export default async function ProfilePage() {
       {/* SECTION 1 : EN-TÊTE DU PROFIL */}
       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 sm:p-8 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
         {/* Background Decorative Accent */}
-        <div className="absolute right-0 top-0 w-24 h-24 bg-indigo-550/5 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute right-0 top-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none" />
 
         <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left z-10">
           {/* Avatar */}
@@ -218,7 +218,7 @@ export default async function ProfilePage() {
 
           {/* User metadata */}
           <div className="space-y-1.5">
-            <h1 className="text-xl sm:text-2xl font-black text-slate-850 tracking-tight flex items-center gap-2 justify-center sm:justify-start">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2 justify-center sm:justify-start">
               {user.name || "Utilisateur"}
             </h1>
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-xs text-slate-500 font-medium">
@@ -246,7 +246,7 @@ export default async function ProfilePage() {
           <div className="w-20 h-20 relative flex items-center justify-center">
             <MascotComponent mood="happy" size={80} />
           </div>
-          <span className="text-[10px] text-indigo-650 font-black uppercase tracking-wider block">
+          <span className="text-[10px] text-indigo-600 font-black uppercase tracking-wider block">
             Compagnon favori
           </span>
           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
@@ -370,7 +370,7 @@ export default async function ProfilePage() {
                       </div>
                     </div>
                     
-                    <p className="text-xs text-slate-650 leading-relaxed font-semibold">
+                    <p className="text-xs text-slate-600 leading-relaxed font-semibold">
                       {note.content}
                     </p>
 
