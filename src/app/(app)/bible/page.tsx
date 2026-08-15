@@ -340,7 +340,7 @@ export default function BiblePage() {
   // Fetch morphology when selectedVerse or activeTab changes
   useEffect(() => {
     async function fetchMorphology() {
-      if (!selectedVerse || activeTab !== "morphology") {
+      if (!selectedVerse || (activeTab !== "morphology" && activeTab !== "strong")) {
         setMorphologyWords([]);
         return;
       }
@@ -665,16 +665,37 @@ export default function BiblePage() {
 
   const activeVerseChat = selectedVerse ? chatHistories[selectedVerse.id] || [] : [];
 
-  // Détermine le numéro Strong MVP : Hébreu pour AT (livres 1-39), Grec pour NT (40-66)
-  const getStrongNumber = (bookNumber: number, wordIndex: number): string => {
-    if (bookNumber <= 39) {
-      return `H${wordIndex + 1}`;
-    } else {
-      return `G${wordIndex + 1}`;
+  // Détermine le numéro Strong réel en interrogeant la morphologie (HebrewWord/GreekWord)
+  const resolveStrongNumber = async (verse: Verse, wordIndex: number): Promise<{ strongNumber: string; originalText: string; gloss: string } | null> => {
+    let bookNum = verse.bookNumber;
+    if (!bookNum || bookNum === 0) {
+      const bookIdx = books.findIndex(b => b.name === verse.book);
+      bookNum = bookIdx !== -1 ? bookIdx + 1 : 0;
     }
+    if (!bookNum || bookNum === 0) return null;
+
+    const language = bookNum <= 39 ? "hebrew" : "greek";
+    try {
+      const res = await fetch(`/api/bible/morphology?book=${bookNum}&chapter=${verse.chapter}&verse=${verse.verse}&language=${language}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      const words = (data.words || []) as { wordPosition: number; strongNumber?: string | null; originalText?: string; gloss?: string | null }[];
+      const target = words.find((w) => w.wordPosition === wordIndex + 1);
+      if (target?.strongNumber) {
+        return { strongNumber: target.strongNumber, originalText: target.originalText || "", gloss: target.gloss || "" };
+      }
+      // Fallback : premier mot ayant un strongNumber (au cas où l'index diverge)
+      const firstWithStrong = words.find((w) => w.strongNumber);
+      if (firstWithStrong?.strongNumber) {
+        return { strongNumber: firstWithStrong.strongNumber, originalText: firstWithStrong.originalText || "", gloss: firstWithStrong.gloss || "" };
+      }
+    } catch {
+      return null;
+    }
+    return null;
   };
 
-  // Clic sur un mot du verset → affiche popover Strong
+  // Clic sur un mot du verset → affiche popover Strong (avec le vrai numéro)
   const handleWordClick = async (
     e: React.MouseEvent<HTMLSpanElement>,
     word: string,
@@ -682,21 +703,30 @@ export default function BiblePage() {
     verse: Verse
   ) => {
     e.stopPropagation();
-    const strongNumber = getStrongNumber(verse.bookNumber, wordIndex);
     const rect = (e.target as HTMLElement).getBoundingClientRect();
     const containerRect = containerRef.current?.getBoundingClientRect() || { left: 0, top: 0 };
 
     setWordPopover({
       word,
-      strongNumber,
+      strongNumber: "",
       entry: null,
       loading: true,
       x: rect.left - containerRect.left,
       y: rect.bottom - containerRect.top + 6,
     });
 
+    // 1. Résoudre le vrai numéro Strong via la morphologie
+    const resolved = await resolveStrongNumber(verse, wordIndex);
+    if (!resolved) {
+      setWordPopover(prev => prev ? { ...prev, loading: false, strongNumber: "" } : null);
+      return;
+    }
+
+    setWordPopover(prev => prev ? { ...prev, strongNumber: resolved.strongNumber } : null);
+
+    // 2. Récupérer la définition Strong
     try {
-      const res = await fetch(`/api/bible/strong/${strongNumber}`);
+      const res = await fetch(`/api/bible/strong/${resolved.strongNumber}`);
       if (res.ok) {
         const data: StrongEntry = await res.json();
         setWordPopover(prev => prev ? { ...prev, entry: data, loading: false } : null);
@@ -763,7 +793,7 @@ export default function BiblePage() {
   };
 
   return (
-    <div className="flex flex-col h-full space-y-4 max-w-7xl mx-auto" ref={containerRef}>
+    <div className="relative flex flex-col h-full space-y-4 max-w-7xl mx-auto" ref={containerRef}>
       {/* Top Banner with statistics / information */}
       <div className="bg-gradient-to-r from-indigo-700 via-indigo-800 to-indigo-900 text-white rounded-3xl p-6 shadow-xl flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="space-y-1 text-center md:text-left">
@@ -1003,7 +1033,7 @@ export default function BiblePage() {
                             handleWordClick(e, word, wi, v);
                           }}
                           className="cursor-pointer hover:text-indigo-600 hover:bg-indigo-50 rounded px-0.5 transition-colors duration-150"
-                          title={`Cliquer pour voir Strong ${v.bookNumber <= 39 ? 'H' : 'G'}${wi + 1}`}
+                          title="Cliquer pour voir la définition Strong (grec/hébreu)"
                         >
                           {word}{' '}
                         </span>
@@ -1688,23 +1718,29 @@ export default function BiblePage() {
                       {selectedVerse ? (
                         <div className="space-y-2 mt-2">
                           <p className="text-[10px] text-slate-400 max-w-[200px] leading-relaxed">
-                            Cliquez sur un mot ci-dessous pour ce verset ({selectedVerse.book} {selectedVerse.chapter}:{selectedVerse.verse}) :
+                            Mots originaux de {selectedVerse.book} {selectedVerse.chapter}:{selectedVerse.verse} :
                           </p>
                           <div className="flex flex-wrap gap-1.5 justify-center max-h-36 overflow-y-auto p-1.5 bg-slate-50 border border-slate-100 rounded-xl">
-                             {selectedVerse.text.split(/\s+/).map((word, idx) => {
-                               const cleanWord = word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-                               if (!cleanWord.trim()) return null;
-                               const strongNum = getStrongNumber(selectedVerse.bookNumber || 1, idx);
-                               return (
-                                 <button
-                                   key={idx}
-                                   onClick={() => { setStrongSearch(strongNum); fetchStrongManual(strongNum); }}
-                                   className="text-[10px] font-black bg-white border border-indigo-150 text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition cursor-pointer"
-                                 >
-                                   {cleanWord} ({strongNum})
-                                 </button>
-                               );
-                             })}
+                            {morphologyWords.length > 0 ? (
+                              morphologyWords.map((mw, idx) => (
+                                <button
+                                  key={idx}
+                                  onClick={() => {
+                                    if (mw.strongNumber) {
+                                      setStrongSearch(mw.strongNumber);
+                                      fetchStrongManual(mw.strongNumber);
+                                    }
+                                  }}
+                                  disabled={!mw.strongNumber}
+                                  className="text-[10px] font-black bg-white border border-indigo-150 text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                                  title={mw.strongNumber || "Pas de numéro Strong"}
+                                >
+                                  {mw.originalText || mw.transliteration || "…"} {mw.strongNumber ? `(${mw.strongNumber})` : ""}
+                                </button>
+                              ))
+                            ) : (
+                              <p className="text-[10px] text-slate-400 py-2">Chargement des mots originaux…</p>
+                            )}
                           </div>
                         </div>
                       ) : (
@@ -1730,7 +1766,7 @@ export default function BiblePage() {
                 )}
               </div>
             )}
- 
+
             {/* REFERENCES TAB */}
             {activeTab === "references" && (
               <div className="flex-1 flex flex-col overflow-hidden">
