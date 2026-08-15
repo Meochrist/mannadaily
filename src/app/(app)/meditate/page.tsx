@@ -137,6 +137,8 @@ const defaultProgress: MeditationProgress = {
 };
 
 import { verses } from "@/lib/verses";
+import { getThemeVerses, getThemeProgress, advanceThemeProgress } from "@/lib/themeVerses";
+import { THEMES } from "@/types";
 
 // === Helper to get today's date string ===
 function getTodayStr(): string {
@@ -393,6 +395,23 @@ function MeditatePageContent() {
         };
       } catch {
         // Fallback to daily verse if URL params are malformed
+        verse = getDailyVerse();
+      }
+    } else if (themeParam) {
+      // Parcours thématique : verset selon la progression du thème (reprise possible)
+      const themeSlug = decodeURIComponent(themeParam);
+      const themeVerses = getThemeVerses(themeSlug);
+      const progress = getThemeProgress(themeSlug);
+      const idx = Math.min(progress.currentIndex, Math.max(0, themeVerses.length - 1));
+      const themeVerse = themeVerses[idx];
+      const themeName = THEMES.find((t) => t.slug === themeSlug)?.name || themeSlug;
+      if (themeVerse) {
+        verse = {
+          text: themeVerse.text,
+          reference: themeVerse.reference,
+          theme: themeName,
+        };
+      } else {
         verse = getDailyVerse();
       }
     } else {
@@ -825,6 +844,19 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
         }
       } catch (err) {
         console.error("Failed to update local path progress:", err);
+      }
+
+      // Avancer la progression du parcours thématique (thème sans text/book)
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const themeParam = urlParams.get("theme");
+        const textParam = urlParams.get("text");
+        const bookParam = urlParams.get("book");
+        if (themeParam && !textParam && !bookParam) {
+          advanceThemeProgress(decodeURIComponent(themeParam));
+        }
+      } catch (err) {
+        console.error("Failed to advance theme progress:", err);
       }
 
       if (data.leveledUp) {
