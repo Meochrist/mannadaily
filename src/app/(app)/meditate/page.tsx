@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense, useCallback, useMemo } from "react";
+import React, { useState, useEffect, Suspense, useCallback, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Manny from "@/components/mascot/Manny";
@@ -314,6 +314,10 @@ function MeditatePageContent() {
   }, [currentMiniSession, currentStepInMini, dailyVerse, contextData, loadContext]);
 
   // === Load verse and user data ===
+  // Clé des paramètres de verset : évite de recharger (et donc de changer) le verset
+  // quand searchParams change de référence pendant le parcours (Suspense/re-render).
+  const verseKeyRef = useRef<string>("");
+
   useEffect(() => {
     const textParam = searchParams.get("text");
     const refParam = searchParams.get("reference");
@@ -322,6 +326,13 @@ function MeditatePageContent() {
     const bookParam = searchParams.get("book");
     const chapterParam = searchParams.get("chapter");
     const verseParam = searchParams.get("verse");
+
+    const verseKey = [textParam, refParam, themeParam, bookParam, chapterParam, verseParam, periodParam].join("|");
+    if (verseKey === verseKeyRef.current && verseKeyRef.current !== "") {
+      // Verset déjà chargé pour ces paramètres — ne pas le recharger.
+      return;
+    }
+    verseKeyRef.current = verseKey;
 
     let p: "morning" | "evening" = "morning";
     if (periodParam === "morning" || periodParam === "evening") {
