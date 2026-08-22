@@ -7,17 +7,16 @@ import { cn } from "@/lib/utils";
 import { 
   LayoutDashboard, 
   BookOpen, 
-  
-  Trophy,
+  BookMarked,
   Sparkles,
-  
   User,
-  
 } from "lucide-react";
 
 export default function BottomNav() {
   const pathname = usePathname();
 
+  // Navigation publique uniquement (les fonctionnalités admin sont accessibles
+  // via la sidebar desktop pour les comptes autorisés).
   const navItems = [
     {
       label: "Dashboard",
@@ -35,9 +34,9 @@ export default function BottomNav() {
       icon: BookOpen,
     },
     {
-      label: "Ligue",
-      href: "/leaderboard",
-      icon: Trophy,
+      label: "Mes médit.",
+      href: "/my-meditations",
+      icon: BookMarked,
     },
     {
       label: "Profil",
@@ -59,7 +58,7 @@ export default function BottomNav() {
             className={cn(
               "flex flex-col items-center justify-center flex-1 py-1 rounded-xl transition-all duration-300",
               isActive 
-                ? "text-indigo-650 dark:text-indigo-400 font-extrabold scale-105" 
+                ? "text-indigo-600 dark:text-indigo-400 font-extrabold scale-105" 
                 : "text-slate-400 dark:text-slate-500 font-medium hover:text-slate-600 dark:hover:text-slate-300"
             )}
           >

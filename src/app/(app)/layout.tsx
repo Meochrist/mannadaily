@@ -3,6 +3,8 @@ import Link from "next/link";
 import TopBar from "@/components/layout/TopBar";
 import BottomNav from "@/components/layout/BottomNav";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
+import { auth } from "@/lib/auth";
+import { isAdminEmail } from "@/lib/features";
 import { 
   LayoutDashboard, 
   BookOpen, 
@@ -18,7 +20,32 @@ import {
   BookMarked
 } from "lucide-react";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
+  const isAdmin = isAdminEmail(session?.user?.email);
+
+  // Navigation publique (visible par tous)
+  const publicNav = [
+    { href: "/dashboard", label: "Tableau de bord", Icon: LayoutDashboard },
+    { href: "/meditate", label: "Méditation du jour", Icon: Sparkles },
+    { href: "/my-meditations", label: "Mes Méditations", Icon: BookMarked },
+    { href: "/bible", label: "La Sainte Bible", Icon: BookOpen },
+  ];
+
+  // Navigation admin uniquement (cachée en production)
+  const adminNav = [
+    { href: "/reading-plans", label: "Plans de lecture", Icon: Calendar },
+    { href: "/proclaim", label: "Proclamations", Icon: Volume2 },
+    { href: "/themes", label: "Thèmes", Icon: Grid },
+    { href: "/leaderboard", label: "Ligue hebdomadaire", Icon: Trophy },
+    { href: "/progress", label: "Mon Progrès", Icon: Award },
+    { href: "/memorize", label: "Mémoriser", Icon: Brain },
+    { href: "/shop", label: "Boutique Céleste", Icon: ShoppingBag },
+  ];
+
+  const linkClass =
+    "flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition";
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col md:flex-row">
       {/* Sidebar - Visible uniquement sur Desktop (md:flex) */}
@@ -40,101 +67,34 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
           {/* Navigation */}
           <nav className="space-y-1">
-            <Link 
-              href="/dashboard" 
-              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
-            >
-              <LayoutDashboard className="w-5 h-5 text-indigo-300" />
-              Tableau de bord
-            </Link>
-            
-            <Link 
-              href="/meditate" 
-              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
-            >
-              <Sparkles className="w-5 h-5 text-indigo-300" />
-              Méditation du jour
-            </Link>
+            {publicNav.map(({ href, label, Icon }) => (
+              <Link key={href} href={href} className={linkClass}>
+                <Icon className="w-5 h-5 text-indigo-300" />
+                {label}
+              </Link>
+            ))}
 
-            <Link 
-              href="/my-meditations" 
-              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
-            >
-              <BookMarked className="w-5 h-5 text-indigo-300" />
-              Mes Méditations
-            </Link>
-
-            <Link 
-              href="/bible" 
-              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
-            >
-              <BookOpen className="w-5 h-5 text-indigo-300" />
-              La Sainte Bible
-            </Link>
-
-            <Link 
-              href="/reading-plans" 
-              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
-            >
-              <Calendar className="w-5 h-5 text-indigo-300" />
-              Plans de lecture
-            </Link>
-
-            <Link 
-              href="/proclaim" 
-              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
-            >
-              <Volume2 className="w-5 h-5 text-indigo-300" />
-              Proclamations
-            </Link>
-            
-            <Link 
-              href="/themes" 
-              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
-            >
-              <Grid className="w-5 h-5 text-indigo-300" />
-              Thèmes
-            </Link>
-
-            <Link 
-              href="/leaderboard" 
-              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
-            >
-              <Trophy className="w-5 h-5 text-indigo-300" />
-              Ligue hebdomadaire
-            </Link>
-
-            <Link 
-              href="/progress" 
-              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
-            >
-              <Award className="w-5 h-5 text-indigo-300" />
-              Mon Progrès
-            </Link>
-
-            <Link 
-              href="/memorize" 
-              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
-            >
-              <Brain className="w-5 h-5 text-indigo-300" />
-              Mémoriser
-            </Link>
-
-            <Link 
-              href="/shop" 
-              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
-            >
-              <ShoppingBag className="w-5 h-5 text-indigo-300" />
-              Boutique Céleste
-            </Link>
-
-            <Link 
-              href="/profile" 
-              className="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-indigo-800/60 text-indigo-100 hover:text-white font-semibold transition"
-            >
+            <Link href="/profile" className={linkClass}>
               <User className="w-5 h-5 text-indigo-300" />
               Profil
             </Link>
+
+            {/* Section admin — invisible pour les utilisateurs */}
+            {isAdmin && (
+              <>
+                <div className="pt-4 mt-2 border-t border-indigo-800">
+                  <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest px-4 block mb-2">
+                    🔒 Admin (bientôt public)
+                  </span>
+                </div>
+                {adminNav.map(({ href, label, Icon }) => (
+                  <Link key={href} href={href} className={linkClass}>
+                    <Icon className="w-5 h-5 text-amber-300/70" />
+                    {label}
+                  </Link>
+                ))}
+              </>
+            )}
           </nav>
         </div>
 

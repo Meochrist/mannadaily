@@ -12,6 +12,8 @@ interface GameMapProps {
   currentXP: number;
   userName: string;
   dailyVerse: { text: string; reference: string; theme: string };
+  /** Affiche les fonctionnalités non encore publiques (proclamation) */
+  isAdmin?: boolean;
 }
 
 // --- COMPOSANTS DE DÉCORS VECTORIELS FLAT ---
@@ -72,7 +74,7 @@ const DECORS = [
   { type: "tree", x: 140, y: 120 }
 ];
 
-export default function GameMap({ currentXP, userName, dailyVerse }: GameMapProps) {
+export default function GameMap({ currentXP, userName, dailyVerse, isAdmin = false }: GameMapProps) {
   const [mounted, setMounted] = useState(false);
   const [activePathId, setActivePathId] = useState("foi");
   const [pathProgress, setPathProgress] = useState<Record<string, number>>({});
@@ -525,13 +527,15 @@ export default function GameMap({ currentXP, userName, dailyVerse }: GameMapProp
                             <Play className="w-3 h-3 fill-slate-900" />
                             Méditer (+15 XP)
                           </Link>
-                          <Link
-                            href={`/proclaim?text=${encodeURIComponent(verse.text)}&reference=${encodeURIComponent(verse.reference)}&theme=${encodeURIComponent(verse.theme)}&pathId=${activePathId}&level=${level}`}
-                            className="flex items-center justify-center gap-1.5 w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[11px] rounded-xl transition-all active:scale-[0.98]"
-                          >
-                            <BookOpen className="w-3 h-3" />
-                            Proclamer (+20 XP)
-                          </Link>
+                          {isAdmin && (
+                            <Link
+                              href={`/proclaim?text=${encodeURIComponent(verse.text)}&reference=${encodeURIComponent(verse.reference)}&theme=${encodeURIComponent(verse.theme)}&pathId=${activePathId}&level=${level}`}
+                              className="flex items-center justify-center gap-1.5 w-full py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[11px] rounded-xl transition-all active:scale-[0.98]"
+                            >
+                              <BookOpen className="w-3 h-3" />
+                              Proclamer (+20 XP)
+                            </Link>
+                          )}
                         </div>
                       </motion.div>
                     )}

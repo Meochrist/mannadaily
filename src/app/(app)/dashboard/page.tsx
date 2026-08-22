@@ -6,6 +6,7 @@ import { getMascotState, type MeditationProgress } from "@/lib/mascots";
 import RandomMascotMessage from "@/components/dashboard/RandomMascotMessage";
 import GameMap from "@/components/dashboard/GameMap";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
+import { isAdminEmail } from "@/lib/features";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -96,6 +97,7 @@ export default async function DashboardPage() {
           currentXP={totalXP} 
           userName={userName} 
           dailyVerse={dailyVerse} 
+          isAdmin={isAdminEmail(session?.user?.email)}
         />
       </div>
 
