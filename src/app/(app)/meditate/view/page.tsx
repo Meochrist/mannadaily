@@ -109,9 +109,12 @@ function ViewSessionContent() {
               <span className="text-xs font-black uppercase tracking-wider">Verset médité</span>
             </div>
             {(() => {
-              const refMatch = session.notes.match(/\[VERS DU JOUR\]\s*\n([^\n]+)/);
-              const textMatch = session.notes.match(/: "([^"]+)"/);
-              const themeMatch = session.notes.match(/Thème\s*:\s*([^\n]+)/);
+              // Format : [VERS DU JOUR]\nJean 3:16 : "texte du verset" (Thème : Amour)
+              const blockMatch = session.notes.match(/\[VERS DU JOUR\]\s*\n([^\n]+)/);
+              const block = blockMatch ? blockMatch[1].trim() : "";
+              const refMatch = block.match(/^(.+?)\s*:\s*"/);
+              const textMatch = block.match(/"([^"]+)"/);
+              const themeMatch = block.match(/Thème\s*:\s*([^)\n]+)/);
               return (
                 <>
                   {refMatch && (
@@ -129,6 +132,11 @@ function ViewSessionContent() {
                       Thème : {themeMatch[1].trim()}
                     </span>
                   )}
+                  {!refMatch && !textMatch && block && (
+                    <blockquote className="text-lg font-black text-slate-800 italic">
+                      {block}
+                    </blockquote>
+                  )}
                 </>
               );
             })()}
@@ -136,45 +144,84 @@ function ViewSessionContent() {
 
           {/* Mini-sessions */}
           {["MINI-SESSION 1", "MINI-SESSION 2", "MINI-SESSION 3"].map((section) => {
-            const regex = new RegExp(`\\[${section}[^\\]]*\\]([\\s\\S]*?)(?=\\[|$)`, "g");
+            const regex = new RegExp(`\\[${section}[^\\]]*\\]([\\s\\S]*?)(?=\\n\\[|$)`, "g");
             const match = regex.exec(session.notes!);
             if (!match) return null;
-            const lines = match[1].split("\n").filter((l) => l.trim() && l.startsWith("- "));
-            if (lines.length === 0) return null;
+
+            // Format des notes :
+            //   - Question ?
+            //     Réponse (ligne suivante, indentée)
+            const rawLines = match[1].split("\n");
+            const entries: { question: string; answer: string }[] = [];
+
+            for (let i = 0; i < rawLines.length; i++) {
+              const line = rawLines[i];
+              if (!line.trimStart().startsWith("- ")) continue;
+
+              const question = line.trimStart().replace(/^-\s*/, "").trim();
+
+              // La réponse est sur les lignes suivantes, jusqu'à la prochaine question
+              const answerParts: string[] = [];
+              for (let j = i + 1; j < rawLines.length; j++) {
+                const next = rawLines[j];
+                if (next.trimStart().startsWith("- ")) break;
+                if (next.startsWith("[")) break;
+                if (next.trim()) answerParts.push(next.trim());
+              }
+
+              const answer = answerParts.join(" ").trim();
+              // Ne garder que les questions réellement renseignées
+              if (answer && answer !== "Non renseigné") {
+                entries.push({ question, answer });
+              }
+            }
+
+            if (entries.length === 0) return null;
 
             return (
               <div key={section} className="bg-slate-50 rounded-2xl p-5 space-y-3">
                 <h3 className="text-xs font-black text-indigo-600 uppercase tracking-widest">
                   {section.replace("MINI-SESSION", "Mini-session")}
                 </h3>
-                {lines.map((line, i) => {
-                  const [label, ...rest] = line.replace("- ", "").split(": ");
-                  return (
-                    <div key={i} className="bg-white rounded-lg p-3">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase">{label}</span>
-                      <p className="text-sm text-slate-700 font-medium mt-0.5">{rest.join(": ") || "Non renseigné"}</p>
-                    </div>
-                  );
-                })}
+                {entries.map((entry, i) => (
+                  <div key={i} className="bg-white rounded-lg p-3">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">{entry.question}</span>
+                    <p className="text-sm text-slate-700 font-medium mt-0.5 whitespace-pre-line">{entry.answer}</p>
+                  </div>
+                ))}
               </div>
             );
           })}
 
           {/* Prayer */}
           {(() => {
-            const prayerMatch = session.notes!.match(/\[PRIÈRE REÇUE\]\s*\n"([^"]+)"/);
-            return prayerMatch ? (
+            // Format : [PRIÈRE REÇUE]\n"contenu de la prière"
+            const prayerMatch = session.notes!.match(/\[PRIÈRE REÇUE\]\s*\n"?([\s\S]+?)"?\s*$/);
+            const prayer = prayerMatch ? prayerMatch[1].trim() : "";
+            return prayer ? (
               <div className="bg-purple-50/60 border border-purple-100/50 rounded-2xl p-5">
                 <h3 className="text-xs font-black text-purple-600 uppercase tracking-widest mb-2 flex items-center gap-2">
                   <Heart className="w-3.5 h-3.5 fill-purple-500 text-purple-500" />
                   Prière reçue
                 </h3>
-                <p className="text-sm text-slate-700 font-medium italic leading-relaxed">
-                  « {prayerMatch[1]} »
+                <p className="text-sm text-slate-700 font-medium italic leading-relaxed whitespace-pre-line">
+                  « {prayer} »
                 </p>
               </div>
             ) : null;
           })()}
+
+          {/* Fallback : notes brutes si le parsing structuré n'a rien donné */}
+          {!/\[MINI-SESSION/.test(session.notes) && (
+            <div className="bg-slate-50 rounded-2xl p-5">
+              <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
+                Notes de la session
+              </h3>
+              <p className="text-sm text-slate-700 font-medium whitespace-pre-line leading-relaxed">
+                {session.notes}
+              </p>
+            </div>
+          )}
         </div>
       ) : (
         <div className="bg-white rounded-3xl border border-slate-100 shadow-lg p-8 text-center">
