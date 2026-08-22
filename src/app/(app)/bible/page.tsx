@@ -1273,15 +1273,15 @@ export default function BiblePage() {
 
         {/* COLUMN 3: NOTES & AI (25% -> 3 cols) */}
         <div className="lg:col-span-3 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col overflow-hidden h-[75vh] lg:h-full">
-          {/* Double Tabs */}
-          <div className="flex border-b border-slate-100 bg-slate-50/50 p-1 flex-wrap md:flex-nowrap">
+          {/* Double Tabs — scrollable horizontalement pour accéder aux 6 onglets */}
+          <div className="flex border-b border-slate-100 bg-slate-50/50 p-1 gap-1 overflow-x-auto flex-nowrap flex-shrink-0 scrollbar-thin scrollbar-thumb-slate-300 [scrollbar-width:thin]">
             <button
               onClick={() => {
                 setActiveTab("notes");
                 sounds.playXPGain();
               }}
               className={cn(
-                "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
+                "flex-shrink-0 px-3 py-2.5 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 whitespace-nowrap",
                 activeTab === "notes"
                   ? "bg-white text-indigo-700 shadow-sm border border-slate-100"
                   : "text-slate-400 hover:text-slate-600"
@@ -1296,7 +1296,7 @@ export default function BiblePage() {
                 sounds.playXPGain();
               }}
               className={cn(
-                "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
+                "flex-shrink-0 px-3 py-2.5 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 whitespace-nowrap",
                 activeTab === "ai"
                   ? "bg-white text-indigo-700 shadow-sm border border-slate-100"
                   : "text-slate-400 hover:text-slate-600"
@@ -1311,7 +1311,7 @@ export default function BiblePage() {
                 sounds.playXPGain();
               }}
               className={cn(
-                "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
+                "flex-shrink-0 px-3 py-2.5 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 whitespace-nowrap",
                 activeTab === "strong"
                   ? "bg-white text-indigo-700 shadow-sm border border-slate-100"
                   : "text-slate-400 hover:text-slate-600"
@@ -1326,7 +1326,7 @@ export default function BiblePage() {
                 sounds.playXPGain();
               }}
               className={cn(
-                "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
+                "flex-shrink-0 px-3 py-2.5 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 whitespace-nowrap",
                 activeTab === "references"
                   ? "bg-white text-indigo-700 shadow-sm border border-slate-100"
                   : "text-slate-400 hover:text-slate-600"
@@ -1341,7 +1341,7 @@ export default function BiblePage() {
                 sounds.playXPGain();
               }}
               className={cn(
-                "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
+                "flex-shrink-0 px-3 py-2.5 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 whitespace-nowrap",
                 activeTab === "morphology"
                   ? "bg-white text-indigo-700 shadow-sm border border-slate-100"
                   : "text-slate-400 hover:text-slate-600"
@@ -1356,7 +1356,7 @@ export default function BiblePage() {
                 sounds.playXPGain();
               }}
               className={cn(
-                "flex-1 py-2 md:py-3 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 min-w-[70px]",
+                "flex-shrink-0 px-3 py-2.5 text-[10px] md:text-xs font-black rounded-2xl transition flex items-center justify-center gap-1 whitespace-nowrap",
                 activeTab === "commentary"
                   ? "bg-white text-indigo-700 shadow-sm border border-slate-100"
                   : "text-slate-400 hover:text-slate-600"
@@ -1406,7 +1406,7 @@ export default function BiblePage() {
                             value={currentNoteText}
                             onChange={(e) => setCurrentNoteText(e.target.value)}
                             placeholder="Écrivez vos pensées, prières ou révélations sur ce verset ici..."
-                            className="w-full min-h-[160px] border border-slate-200 rounded-2xl p-3.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-400/80 focus:border-transparent pb-10"
+                            className="w-full min-h-[160px] border border-slate-200 rounded-2xl p-3.5 text-xs font-medium bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/80 focus:border-transparent pb-10"
                           />
                           <SpeechMicButton
                             value={currentNoteText}
@@ -1509,6 +1509,13 @@ export default function BiblePage() {
                         </button>
                       </div>
 
+                      {/* Rappel du texte du verset */}
+                      <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex-shrink-0">
+                        <p className="text-[11px] text-slate-600 italic leading-relaxed line-clamp-3">
+                          &quot;{selectedVerse.text}&quot;
+                        </p>
+                      </div>
+
                       {/* Messages History */}
                       <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 py-1">
                         {activeVerseChat.length === 0 ? (
@@ -1577,7 +1584,7 @@ export default function BiblePage() {
                           onChange={(e) => setAiQuestion(e.target.value)}
                           placeholder="Posez votre question..."
                           disabled={aiLoading}
-                          className="w-full border border-slate-200 rounded-xl py-2.5 pl-3.5 pr-10 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-400/80 focus:border-transparent disabled:bg-slate-50"
+                          className="w-full border border-slate-200 rounded-xl py-2.5 pl-3.5 pr-10 text-xs font-medium bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/80 focus:border-transparent disabled:bg-slate-50"
                         />
                         <button
                           type="button"
@@ -1633,6 +1640,49 @@ export default function BiblePage() {
             {/* STRONG TAB */}
             {activeTab === "strong" && (
               <div className="flex-1 flex flex-col space-y-4 overflow-y-auto">
+                {/* Rappel du verset sélectionné — toujours visible */}
+                {selectedVerse && (
+                  <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3 space-y-2 flex-shrink-0">
+                    <span className="text-[10px] font-black text-amber-700 block">
+                      {selectedVerse.book} {selectedVerse.chapter}:{selectedVerse.verse}
+                    </span>
+                    <p className="text-[11px] text-slate-700 italic leading-relaxed">
+                      &quot;{selectedVerse.text}&quot;
+                    </p>
+
+                    {/* Mots originaux cliquables — toujours accessibles */}
+                    <div className="pt-2 border-t border-slate-200/60 space-y-1.5">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider block">
+                        Mots originaux (cliquer pour la définition)
+                      </span>
+                      <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto">
+                        {morphologyWords.length > 0 ? (
+                          morphologyWords.map((mw, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => {
+                                if (mw.strongNumber) {
+                                  setStrongSearch(mw.strongNumber);
+                                  fetchStrongManual(mw.strongNumber);
+                                }
+                              }}
+                              disabled={!mw.strongNumber}
+                              className="text-[10px] font-black bg-white border border-indigo-200 text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                              title={mw.strongNumber || "Pas de numéro Strong"}
+                            >
+                              {mw.originalText || mw.transliteration || "…"} {mw.strongNumber ? `(${mw.strongNumber})` : ""}
+                            </button>
+                          ))
+                        ) : (
+                          <p className="text-[10px] text-slate-400 py-1">
+                            {loadingMorphology ? "Chargement des mots originaux…" : "Morphologie non disponible pour ce verset."}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Search field */}
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">
@@ -1647,7 +1697,7 @@ export default function BiblePage() {
                         value={strongSearch}
                         onChange={(e) => setStrongSearch(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && fetchStrongManual(strongSearch)}
-                        className="w-full pl-9 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300 font-mono font-bold"
+                        className="w-full pl-9 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 font-mono font-bold"
                       />
                     </div>
                     <button
@@ -1710,60 +1760,28 @@ export default function BiblePage() {
                   </motion.div>
                 )}
 
-                {!strongResult && !strongError && !strongLoading && (
+                {!strongResult && !strongError && !strongLoading && !selectedVerse && (
                   <div className="flex flex-col items-center justify-center text-center py-6 space-y-3">
                     <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
                       <Hash className="w-6 h-6 text-indigo-400" />
                     </div>
                     <div>
                       <p className="text-xs font-bold text-slate-600">Concordance Strong</p>
-                      {selectedVerse ? (
-                        <div className="space-y-2 mt-2">
-                          <p className="text-[10px] text-slate-400 max-w-[200px] leading-relaxed">
-                            Mots originaux de {selectedVerse.book} {selectedVerse.chapter}:{selectedVerse.verse} :
-                          </p>
-                          <div className="flex flex-wrap gap-1.5 justify-center max-h-36 overflow-y-auto p-1.5 bg-slate-50 border border-slate-100 rounded-xl">
-                            {morphologyWords.length > 0 ? (
-                              morphologyWords.map((mw, idx) => (
-                                <button
-                                  key={idx}
-                                  onClick={() => {
-                                    if (mw.strongNumber) {
-                                      setStrongSearch(mw.strongNumber);
-                                      fetchStrongManual(mw.strongNumber);
-                                    }
-                                  }}
-                                  disabled={!mw.strongNumber}
-                                  className="text-[10px] font-black bg-white border border-indigo-200 text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                                  title={mw.strongNumber || "Pas de numéro Strong"}
-                                >
-                                  {mw.originalText || mw.transliteration || "…"} {mw.strongNumber ? `(${mw.strongNumber})` : ""}
-                                </button>
-                              ))
-                            ) : (
-                              <p className="text-[10px] text-slate-400 py-2">Chargement des mots originaux…</p>
-                            )}
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="text-[10px] text-slate-400 mt-1 max-w-[200px] leading-relaxed">
-                          Entrez un numéro Strong (ex: H430 = Elohim, G3056 = Logos) ou cliquez sur un mot dans un verset.
-                        </p>
-                      )}
+                      <p className="text-[10px] text-slate-400 mt-1 max-w-[200px] leading-relaxed">
+                        Entrez un numéro Strong (ex: H430 = Elohim, G3056 = Logos) ou cliquez sur un mot dans un verset.
+                      </p>
                     </div>
-                    {!selectedVerse && (
-                      <div className="flex flex-wrap gap-1.5 justify-center">
-                        {["H430", "H3068", "G3056", "G26", "G5547"].map(num => (
-                          <button
-                            key={num}
-                            onClick={() => { setStrongSearch(num); fetchStrongManual(num); }}
-                            className="text-[10px] font-black bg-white border border-indigo-100 text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition cursor-pointer"
-                          >
-                            {num}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                    <div className="flex flex-wrap gap-1.5 justify-center">
+                      {["H430", "H3068", "G3056", "G26", "G5547"].map(num => (
+                        <button
+                          key={num}
+                          onClick={() => { setStrongSearch(num); fetchStrongManual(num); }}
+                          className="text-[10px] font-black bg-white border border-indigo-100 text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition cursor-pointer"
+                        >
+                          {num}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
