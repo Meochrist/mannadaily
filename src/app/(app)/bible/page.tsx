@@ -488,10 +488,10 @@ export default function BiblePage() {
       });
 
       if (res.ok) {
-        // Update local state
+        // Update local state — on garde le verset sélectionné (notes/IA restent actives)
         setVerses(prev => prev.map(v => v.id === selectedVerse.id ? { ...v, highlightColor: color } : v));
+        setSelectedVerse(prev => prev ? { ...prev, highlightColor: color } : null);
         setContextMenuPosition(null);
-        setSelectedVerse(null);
       }
     } catch (err) {
       console.error("Error highlighting verse:", err);
@@ -507,10 +507,10 @@ export default function BiblePage() {
       });
 
       if (res.ok) {
-        // Update local state
+        // Update local state — on garde le verset sélectionné
         setVerses(prev => prev.map(v => v.id === selectedVerse.id ? { ...v, highlightColor: null } : v));
+        setSelectedVerse(prev => prev ? { ...prev, highlightColor: null } : null);
         setContextMenuPosition(null);
-        setSelectedVerse(null);
       }
     } catch (err) {
       console.error("Error deleting highlight:", err);
@@ -702,7 +702,6 @@ export default function BiblePage() {
     wordIndex: number,
     verse: Verse
   ) => {
-    e.stopPropagation();
     const rect = (e.target as HTMLElement).getBoundingClientRect();
     const containerRect = containerRef.current?.getBoundingClientRect() || { left: 0, top: 0 };
 
@@ -842,10 +841,10 @@ export default function BiblePage() {
       </div>
 
       {/* Main Grid: 3 columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-270px)] min-h-[500px]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:h-[calc(100vh-270px)] lg:min-h-[500px]">
         
         {/* COLUMN 1: NAVIGATION (visible on desktop) */}
-        <div className="hidden md:flex md:col-span-3 w-[220px] min-w-[220px] bg-white rounded-3xl border border-slate-100 shadow-sm p-4 flex-col overflow-hidden h-full">
+        <div className="hidden lg:flex lg:col-span-3 bg-white rounded-3xl border border-slate-100 shadow-sm p-4 flex-col overflow-hidden h-full">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100 mb-3 flex-shrink-0">
             <List className="w-5 h-5 text-indigo-600" />
             <h2 className="font-extrabold text-slate-800 text-sm">Livres & Chapitres</h2>
@@ -916,7 +915,7 @@ export default function BiblePage() {
                       className={cn(
                         "w-full text-left px-3 py-2 rounded text-xs font-extrabold transition flex items-center justify-between cursor-pointer",
                         selectedBook === book.name
-                          ? "bg-emerald-650 text-white shadow-sm"
+                          ? "bg-emerald-600 text-white shadow-sm"
                           : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
                       )}
                     >
@@ -933,7 +932,7 @@ export default function BiblePage() {
         </div>
 
         {/* COLUMN 2: READER (55% -> 6 cols) */}
-        <div className="lg:col-span-6 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col overflow-hidden h-full">
+        <div className="lg:col-span-6 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col overflow-hidden h-[70vh] lg:h-full">
           {/* Header of Reader */}
           <div className="bg-slate-50 border-b border-slate-100 p-4 flex justify-between items-center">
             <div className="flex items-center gap-2.5">
@@ -1001,7 +1000,7 @@ export default function BiblePage() {
               </div>
             ) : verses.length === 0 ? (
               <div className="flex flex-col justify-center items-center text-center h-full p-4 space-y-4">
-                <Info className="w-12 h-12 text-slate-350" />
+                <Info className="w-12 h-12 text-slate-400" />
                 <div>
                   <h3 className="font-bold text-slate-700">Aucun verset disponible</h3>
                   <p className="text-xs text-slate-500 max-w-sm">
@@ -1029,11 +1028,13 @@ export default function BiblePage() {
                         <span
                           key={wi}
                           onClick={(e) => {
-                            e.stopPropagation();
+                            // Sélectionner le verset (notes / IA / réf. / morpho)
+                            // ET ouvrir le popover Strong du mot cliqué.
+                            handleVerseClick(e, v);
                             handleWordClick(e, word, wi, v);
                           }}
                           className="cursor-pointer hover:text-indigo-600 hover:bg-indigo-50 rounded px-0.5 transition-colors duration-150"
-                          title="Cliquer pour voir la définition Strong (grec/hébreu)"
+                          title="Cliquer pour sélectionner le verset et voir la définition Strong"
                         >
                           {word}{' '}
                         </span>
@@ -1159,8 +1160,9 @@ export default function BiblePage() {
                   <div 
                     className="fixed inset-0 z-40" 
                     onClick={() => {
+                      // Fermer le menu sans désélectionner le verset :
+                      // notes / IA / Strong doivent rester actifs.
                       setContextMenuPosition(null);
-                      setSelectedVerse(null);
                     }} 
                   />
                   <motion.div
@@ -1198,7 +1200,7 @@ export default function BiblePage() {
                       <div className="flex justify-between items-center gap-1 bg-slate-50 p-1.5 rounded-xl">
                         <button
                           onClick={() => handleHighlight("yellow")}
-                          className="w-7 h-7 rounded-full bg-yellow-350 hover:scale-110 shadow-sm transition border border-yellow-400"
+                          className="w-7 h-7 rounded-full bg-yellow-300 hover:scale-110 shadow-sm transition border border-yellow-400"
                           title="Surligner en jaune"
                         />
                         <button
@@ -1213,13 +1215,13 @@ export default function BiblePage() {
                         />
                         <button
                           onClick={() => handleHighlight("pink")}
-                          className="w-7 h-7 rounded-full bg-rose-450 hover:scale-110 shadow-sm transition border border-rose-500"
+                          className="w-7 h-7 rounded-full bg-rose-400 hover:scale-110 shadow-sm transition border border-rose-500"
                           title="Surligner en rose"
                         />
                         {selectedVerse.highlightColor && (
                           <button
                             onClick={handleDeleteHighlight}
-                            className="w-7 h-7 rounded-full bg-white hover:bg-rose-50 border border-slate-250 flex items-center justify-center hover:text-rose-600 transition"
+                            className="w-7 h-7 rounded-full bg-white hover:bg-rose-50 border border-slate-300 flex items-center justify-center hover:text-rose-600 transition"
                             title="Supprimer le surlignage"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -1270,7 +1272,7 @@ export default function BiblePage() {
         </div>
 
         {/* COLUMN 3: NOTES & AI (25% -> 3 cols) */}
-        <div className="lg:col-span-3 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col overflow-hidden h-full">
+        <div className="lg:col-span-3 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col overflow-hidden h-[75vh] lg:h-full">
           {/* Double Tabs */}
           <div className="flex border-b border-slate-100 bg-slate-50/50 p-1 flex-wrap md:flex-nowrap">
             <button
@@ -1732,7 +1734,7 @@ export default function BiblePage() {
                                     }
                                   }}
                                   disabled={!mw.strongNumber}
-                                  className="text-[10px] font-black bg-white border border-indigo-150 text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                                  className="text-[10px] font-black bg-white border border-indigo-200 text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                                   title={mw.strongNumber || "Pas de numéro Strong"}
                                 >
                                   {mw.originalText || mw.transliteration || "…"} {mw.strongNumber ? `(${mw.strongNumber})` : ""}
@@ -2003,7 +2005,7 @@ export default function BiblePage() {
                   </div>
                 ) : loadingCommentaries ? (
                   <div className="flex-1 flex flex-col justify-center items-center gap-2">
-                    <Loader2 className="w-8 h-8 text-blue-650 animate-spin" />
+                    <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
                     <span className="text-xs font-bold text-slate-500">Recherche des commentaires...</span>
                   </div>
                 ) : commentaries.length === 0 ? (
@@ -2146,7 +2148,7 @@ export default function BiblePage() {
               <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4 flex-shrink-0">
                 <div className="flex items-center gap-2">
                   <List className="w-5 h-5 text-indigo-600" />
-                  <span className="font-black text-slate-850 text-base">Livres & Chapitres</span>
+                  <span className="font-black text-slate-800 text-base">Livres & Chapitres</span>
                 </div>
                 <button
                   onClick={() => setDrawerOpen(false)}
