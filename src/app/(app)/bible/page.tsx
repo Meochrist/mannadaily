@@ -794,7 +794,7 @@ export default function BiblePage() {
   return (
     <div className="relative flex flex-col h-full space-y-4 max-w-7xl mx-auto" ref={containerRef}>
       {/* Top Banner with statistics / information */}
-      <div className="bg-gradient-to-r from-indigo-700 via-indigo-800 to-indigo-900 text-white rounded-3xl p-6 shadow-xl flex flex-col md:flex-row justify-between items-center gap-4">
+      <div className="flex-shrink-0 bg-gradient-to-r from-indigo-700 via-indigo-800 to-indigo-900 text-white rounded-3xl p-6 shadow-xl flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="space-y-1 text-center md:text-left">
           <h1 className="text-2xl md:text-3xl font-extrabold flex items-center gap-2 justify-center md:justify-start">
             <BookOpen className="w-8 h-8 text-indigo-300 animate-pulse" />
@@ -841,7 +841,7 @@ export default function BiblePage() {
       </div>
 
       {/* Main Grid: 3 columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:h-[calc(100vh-270px)] lg:min-h-[500px]">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0">
         
         {/* COLUMN 1: NAVIGATION (visible on desktop) */}
         <div className="hidden lg:flex lg:col-span-3 bg-white rounded-3xl border border-slate-100 shadow-sm p-4 flex-col overflow-hidden h-full">
@@ -1069,25 +1069,20 @@ export default function BiblePage() {
               </div>
             )}
 
-            {/* Strong Word Popover */}
+            {/* Strong Word Popover — pas de backdrop fixed (bloque le scroll) */}
             <AnimatePresence>
               {wordPopover && (
-                <>
-                  <div
-                    className="fixed inset-0 z-30"
-                    onClick={() => setWordPopover(null)}
-                  />
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9, y: -4 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: -4 }}
-                    style={{
-                      position: "absolute",
-                      left: Math.max(0, wordPopover.x),
-                      top: wordPopover.y,
-                    }}
-                    className="z-40 bg-white border border-indigo-100 shadow-2xl rounded-2xl p-4 w-72 max-w-xs"
-                  >
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: -4 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: -4 }}
+                  style={{
+                    position: "absolute",
+                    left: Math.max(0, wordPopover.x),
+                    top: wordPopover.y,
+                  }}
+                  className="z-40 bg-white border border-indigo-100 shadow-2xl rounded-2xl p-4 w-72 max-w-xs"
+                >
                     {/* Header */}
                     <div className="flex justify-between items-start mb-3">
                       <div>
@@ -1149,22 +1144,12 @@ export default function BiblePage() {
                       <p className="text-xs text-slate-400">Entrée Strong non trouvée pour {wordPopover.strongNumber}</p>
                     )}
                   </motion.div>
-                </>
-              )}
+                )}
             </AnimatePresence>
 
-            {/* Context Menu / Tooltip Flottant */}
+            {/* Context Menu / Tooltip Flottant — pas de backdrop fixed (bloque le scroll) */}
             <AnimatePresence>
               {contextMenuPosition && selectedVerse && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-40" 
-                    onClick={() => {
-                      // Fermer le menu sans désélectionner le verset :
-                      // notes / IA / Strong doivent rester actifs.
-                      setContextMenuPosition(null);
-                    }} 
-                  />
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1265,8 +1250,7 @@ export default function BiblePage() {
                       </button>
                     </div>
                   </motion.div>
-                </>
-              )}
+                )}
             </AnimatePresence>
           </div>
         </div>
