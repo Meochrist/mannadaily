@@ -175,6 +175,10 @@ export default function BiblePage() {
   const [strongResult, setStrongResult] = useState<StrongEntry | null>(null);
   const [strongLoading, setStrongLoading] = useState<boolean>(false);
   const [strongError, setStrongError] = useState<string>("");
+  // Recherche Strong par mot (l'utilisateur ne connaît pas les codes H430/G3056)
+  type StrongSearchResult = { id: string; number: string; language: string; lemma?: string | null; transliteration?: string | null; definition?: string | null; kjvUsage?: string | null };
+  const [strongResults, setStrongResults] = useState<StrongSearchResult[]>([]);
+  const [strongSearching, setStrongSearching] = useState<boolean>(false);
 
   // Cross references state
   const [crossRefs, setCrossRefs] = useState<{id: string; text: string; refLabel?: string; toBook?: string | number; toChapter?: number; toVerse?: number; votes?: number}[]>([]);
@@ -754,6 +758,56 @@ export default function BiblePage() {
       setStrongLoading(false);
     }
   }, []);
+
+  /**
+   * Recherche Strong intelligente : accepte un MOT ("amour", "lumière",
+   * "elohim") aussi bien qu'un code (H430). L'utilisateur n'a plus besoin
+   * de connaître les numéros.
+   */
+  const searchStrongByWord = useCallback(async (query: string) => {
+    const raw = query.trim();
+    if (raw.length < 2) {
+      setStrongError("Tapez au moins 2 caractères.");
+      setStrongResults([]);
+      setStrongResult(null);
+      return;
+    }
+
+    // Code Strong direct → affichage détaillé immédiat
+    const asCode = raw.toUpperCase().replace(/^([HG])0+(\d+)$/, "$1$2");
+    if (/^[HG]\d+$/.test(asCode)) {
+      setStrongResults([]);
+      await fetchStrongManual(asCode);
+      return;
+    }
+
+    setStrongSearching(true);
+    setStrongError("");
+    setStrongResult(null);
+    setStrongResults([]);
+    try {
+      const res = await fetch(`/api/bible/strong/search?q=${encodeURIComponent(raw)}`);
+      if (res.ok) {
+        const data = await res.json();
+        const results = (data.results || []) as StrongSearchResult[];
+        if (results.length === 0) {
+          setStrongError(`Aucun mot original trouvé pour « ${raw} ». Essayez un autre terme (ex : amour, lumière, paix).`);
+        } else if (results.length === 1) {
+          // Un seul résultat → l'ouvrir directement avec tous ses détails
+          await fetchStrongManual(results[0].number);
+        } else {
+          setStrongResults(results);
+        }
+      } else {
+        const err = await res.json().catch(() => ({}));
+        setStrongError(err.error || "Erreur lors de la recherche.");
+      }
+    } catch {
+      setStrongError("Erreur lors de la recherche.");
+    } finally {
+      setStrongSearching(false);
+    }
+  }, [fetchStrongManual]);
 
   // Générer un commentaire via l&apos;IA
   const handleGenerateCommentary = async () => {
@@ -1538,72 +1592,144 @@ export default function BiblePage() {
                       &quot;{selectedVerse.text}&quot;
                     </p>
 
-                    {/* Mots originaux cliquables — toujours accessibles */}
+                    {/* Mots du verset cliquables — on affiche le mot FRANÇAIS,
+                        pas le code Strong (l'utilisateur ne connaît pas H430/G3056) */}
                     <div className="pt-2 border-t border-slate-200/60 space-y-1.5">
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider block">
-                        Mots originaux (cliquer pour la définition)
+                        Touchez un mot pour voir son sens original
                       </span>
-                      <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto">
-                        {morphologyWords.length > 0 ? (
-                          morphologyWords.map((mw, idx) => (
+                      <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
+                        {selectedVerse.text.split(/\s+/).map((word, idx) => {
+                          const clean = word.replace(/[.,;:!?«»"'()]/g, "");
+                          if (!clean) return null;
+                          const morph = morphologyWords[idx];
+                          const hasStrong = Boolean(morph?.strongNumber);
+                          return (
                             <button
                               key={idx}
-                              onClick={() => {
-                                if (mw.strongNumber) {
-                                  setStrongSearch(mw.strongNumber);
-                                  fetchStrongManual(mw.strongNumber);
+                              onClick={async () => {
+                                if (morph?.strongNumber) {
+                                  setStrongSearch(clean);
+                                  setStrongResults([]);
+                                  await fetchStrongManual(morph.strongNumber);
+                                } else {
+                                  setStrongSearch(clean);
+                                  await searchStrongByWord(clean);
                                 }
                               }}
-                              disabled={!mw.strongNumber}
-                              className="text-[10px] font-black bg-white border border-indigo-200 text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                              title={mw.strongNumber || "Pas de numéro Strong"}
+                              className={cn(
+                                "text-[11px] font-bold px-2 py-1 rounded-lg transition cursor-pointer border",
+                                hasStrong
+                                  ? "bg-white border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                                  : "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100"
+                              )}
+                              title={
+                                morph?.originalText
+                                  ? `${morph.originalText}${morph.transliteration ? ` (${morph.transliteration})` : ""}`
+                                  : `Rechercher « ${clean} »`
+                              }
                             >
-                              {mw.originalText || mw.transliteration || "…"} {mw.strongNumber ? `(${mw.strongNumber})` : ""}
+                              {clean}
                             </button>
-                          ))
-                        ) : (
-                          <p className="text-[10px] text-slate-400 py-1">
-                            {loadingMorphology ? "Chargement des mots originaux…" : "Morphologie non disponible pour ce verset."}
-                          </p>
-                        )}
+                          );
+                        })}
                       </div>
+                      {loadingMorphology && (
+                        <p className="text-[10px] text-slate-400">Chargement de l&apos;hébreu/grec…</p>
+                      )}
                     </div>
                   </div>
                 )}
 
-                {/* Search field */}
+                {/* Search field — accepte un MOT ou un code Strong */}
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">
-                    Recherche Concordance Strong
+                    Rechercher un mot
                   </label>
                   <div className="flex gap-2">
                     <div className="relative flex-1">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                       <input
                         type="text"
-                        placeholder="H430, G3056..."
+                        placeholder="amour, lumière, paix, grâce…"
                         value={strongSearch}
                         onChange={(e) => setStrongSearch(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && fetchStrongManual(strongSearch)}
-                        className="w-full pl-9 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 font-mono font-bold"
+                        onKeyDown={(e) => e.key === "Enter" && searchStrongByWord(strongSearch)}
+                        className="w-full pl-9 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 font-semibold"
                       />
                     </div>
                     <button
-                      onClick={() => fetchStrongManual(strongSearch)}
-                      disabled={strongLoading || !strongSearch}
+                      onClick={() => searchStrongByWord(strongSearch)}
+                      disabled={strongLoading || strongSearching || !strongSearch}
                       className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl transition disabled:opacity-40"
                     >
-                      {strongLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "OK"}
+                      {strongLoading || strongSearching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "OK"}
                     </button>
                   </div>
                   <p className="text-[10px] text-slate-400">
-                    Hébreu (H1–H8674) · Grec (G1–G5523) · Appuyez sur Entrée
+                    Tapez un mot en français, ou un code Strong si vous le connaissez (H430, G3056)
                   </p>
+
+                  {/* Suggestions de mots courants */}
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {["amour", "lumière", "paix", "grâce", "foi", "esprit"].map((w) => (
+                      <button
+                        key={w}
+                        onClick={() => {
+                          setStrongSearch(w);
+                          searchStrongByWord(w);
+                        }}
+                        className="text-[10px] font-bold bg-indigo-50 border border-indigo-100 text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-100 transition cursor-pointer"
+                      >
+                        {w}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {strongError && (
                   <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-xs text-red-600 font-medium">
                     {strongError}
+                  </div>
+                )}
+
+                {/* Liste de résultats quand plusieurs mots originaux correspondent */}
+                {strongResults.length > 0 && (
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">
+                      {strongResults.length} mots originaux trouvés — choisissez
+                    </span>
+                    <div className="space-y-1.5 max-h-72 overflow-y-auto pr-1">
+                      {strongResults.map((r) => (
+                        <button
+                          key={r.id}
+                          onClick={() => {
+                            setStrongResults([]);
+                            fetchStrongManual(r.number);
+                          }}
+                          className="w-full text-left bg-white border border-slate-200 rounded-xl p-2.5 hover:border-indigo-300 hover:bg-indigo-50/40 transition cursor-pointer"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm font-black text-slate-800">
+                              {r.lemma || r.transliteration || r.number}
+                            </span>
+                            <span className="text-[9px] font-black bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full flex-shrink-0">
+                              {r.language === "hebrew" ? "Hébreu" : "Grec"}
+                            </span>
+                          </div>
+                          {r.transliteration && r.lemma && (
+                            <span className="text-[10px] font-bold text-indigo-500 block">
+                              {r.transliteration}
+                            </span>
+                          )}
+                          {r.definition && (
+                            <p className="text-[10px] text-slate-500 leading-relaxed mt-0.5 line-clamp-2">
+                              {r.definition}
+                            </p>
+                          )}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -1648,25 +1774,30 @@ export default function BiblePage() {
                   </motion.div>
                 )}
 
-                {!strongResult && !strongError && !strongLoading && !selectedVerse && (
+                {!strongResult && !strongError && !strongLoading && !strongSearching && strongResults.length === 0 && !selectedVerse && (
                   <div className="flex flex-col items-center justify-center text-center py-6 space-y-3">
                     <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
                       <Hash className="w-6 h-6 text-indigo-400" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-slate-600">Concordance Strong</p>
-                      <p className="text-[10px] text-slate-400 mt-1 max-w-[200px] leading-relaxed">
-                        Entrez un numéro Strong (ex: H430 = Elohim, G3056 = Logos) ou cliquez sur un mot dans un verset.
+                      <p className="text-xs font-bold text-slate-600">Sens original des mots</p>
+                      <p className="text-[10px] text-slate-400 mt-1 max-w-[210px] leading-relaxed">
+                        Touchez un verset dans le texte, puis un de ses mots pour découvrir son sens en hébreu ou en grec.
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-1.5 justify-center">
-                      {["H430", "H3068", "G3056", "G26", "G5547"].map(num => (
+                      {[
+                        { word: "amour", label: "amour" },
+                        { word: "lumière", label: "lumière" },
+                        { word: "paix", label: "paix" },
+                        { word: "grâce", label: "grâce" },
+                      ].map(({ word, label }) => (
                         <button
-                          key={num}
-                          onClick={() => { setStrongSearch(num); fetchStrongManual(num); }}
-                          className="text-[10px] font-black bg-white border border-indigo-100 text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition cursor-pointer"
+                          key={word}
+                          onClick={() => { setStrongSearch(word); searchStrongByWord(word); }}
+                          className="text-[10px] font-bold bg-white border border-indigo-100 text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition cursor-pointer"
                         >
-                          {num}
+                          {label}
                         </button>
                       ))}
                     </div>
