@@ -293,6 +293,10 @@ model StrongEntry {
   pronunciation   String?
   definition      String?  @db.Text
   kjvUsage        String?  @db.Text
+  // Traductions françaises générées par IA puis mises en cache (une seule fois)
+  definitionFr    String?  @db.Text
+  kjvUsageFr      String?  @db.Text
+  translatedAt    DateTime?
   createdAt       DateTime @default(now())
 
   @@index([language])

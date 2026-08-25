@@ -55,10 +55,16 @@ export async function GET(request: Request) {
       { definition: { contains: term, mode: "insensitive" as const } },
     ]);
 
+    // Chercher aussi dans les traductions françaises déjà en cache
+    const frConditions = [
+      { definitionFr: { contains: rawQuery, mode: "insensitive" as const } },
+      { kjvUsageFr: { contains: rawQuery, mode: "insensitive" as const } },
+    ];
+
     const results = await db.strongEntry.findMany({
       where: {
         ...languageFilter,
-        OR: orConditions,
+        OR: [...orConditions, ...frConditions],
       },
       take: 60,
       orderBy: { number: "asc" },
@@ -86,6 +92,14 @@ export async function GET(request: Request) {
 
       // Bonus si le terme principal apparaît en tête de l'usage KJV
       if (primary && usage.startsWith(primary)) score += 8;
+
+      // Bonus fort si la traduction française contient littéralement la requête
+      const usageFr = (entry.kjvUsageFr || "").toLowerCase();
+      const definitionFr = (entry.definitionFr || "").toLowerCase();
+      const q = rawQuery.toLowerCase();
+      if (usageFr.includes(q)) score += 20;
+      if (definitionFr.includes(q)) score += 10;
+
       // Malus pour les définitions très longues (souvent des correspondances fortuites)
       if (definition.length > 400) score -= 2;
 

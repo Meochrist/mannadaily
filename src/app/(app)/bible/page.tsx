@@ -87,6 +87,9 @@ interface StrongEntry {
   pronunciation: string | null;
   definition: string | null;
   kjvUsage: string | null;
+  // Traductions françaises (générées par IA et mises en cache côté serveur)
+  definitionFr?: string | null;
+  kjvUsageFr?: string | null;
 }
 
 interface WordPopover {
@@ -176,7 +179,7 @@ export default function BiblePage() {
   const [strongLoading, setStrongLoading] = useState<boolean>(false);
   const [strongError, setStrongError] = useState<string>("");
   // Recherche Strong par mot (l'utilisateur ne connaît pas les codes H430/G3056)
-  type StrongSearchResult = { id: string; number: string; language: string; lemma?: string | null; transliteration?: string | null; definition?: string | null; kjvUsage?: string | null };
+  type StrongSearchResult = { id: string; number: string; language: string; lemma?: string | null; transliteration?: string | null; definition?: string | null; kjvUsage?: string | null; definitionFr?: string | null; kjvUsageFr?: string | null };
   const [strongResults, setStrongResults] = useState<StrongSearchResult[]>([]);
   const [strongSearching, setStrongSearching] = useState<boolean>(false);
 
@@ -1184,10 +1187,10 @@ export default function BiblePage() {
                         {wordPopover.entry.transliteration && (
                           <div className="text-xs font-bold text-indigo-600">{wordPopover.entry.transliteration}</div>
                         )}
-                        {wordPopover.entry.definition && (
+                        {(wordPopover.entry.definitionFr || wordPopover.entry.definition) && (
                           <p className="text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-2">
-                            {wordPopover.entry.definition.substring(0, 200)}
-                            {wordPopover.entry.definition.length > 200 ? '...' : ''}
+                            {(wordPopover.entry.definitionFr || wordPopover.entry.definition || "").substring(0, 220)}
+                            {(wordPopover.entry.definitionFr || wordPopover.entry.definition || "").length > 220 ? '...' : ''}
                           </p>
                         )}
                         <button
@@ -1722,9 +1725,9 @@ export default function BiblePage() {
                               {r.transliteration}
                             </span>
                           )}
-                          {r.definition && (
+                          {(r.definitionFr || r.definition) && (
                             <p className="text-[10px] text-slate-500 leading-relaxed mt-0.5 line-clamp-2">
-                              {r.definition}
+                              {r.definitionFr || r.definition}
                             </p>
                           )}
                         </button>
@@ -1759,16 +1762,33 @@ export default function BiblePage() {
                     {strongResult.transliteration && (
                       <div className="text-sm font-bold text-indigo-600">{strongResult.transliteration}</div>
                     )}
-                    {strongResult.definition && (
+                    {(strongResult.definitionFr || strongResult.definition) && (
                       <div className="border-t border-indigo-100 pt-3 space-y-1">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Définition</span>
-                        <p className="text-xs text-slate-700 leading-relaxed">{strongResult.definition}</p>
+                        <p className="text-xs text-slate-700 leading-relaxed">
+                          {strongResult.definitionFr || strongResult.definition}
+                        </p>
+                        {/* Version originale anglaise, repliée en petit */}
+                        {strongResult.definitionFr && strongResult.definition && (
+                          <details className="pt-1">
+                            <summary className="text-[9px] font-bold text-slate-400 cursor-pointer hover:text-slate-600">
+                              Voir la définition anglaise d&apos;origine
+                            </summary>
+                            <p className="text-[10px] text-slate-400 leading-relaxed mt-1 italic">
+                              {strongResult.definition}
+                            </p>
+                          </details>
+                        )}
                       </div>
                     )}
-                    {strongResult.kjvUsage && (
+                    {(strongResult.kjvUsageFr || strongResult.kjvUsage) && (
                       <div className="border-t border-indigo-100 pt-3 space-y-1">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Traductions KJV</span>
-                        <p className="text-xs text-slate-600 italic">{strongResult.kjvUsage}</p>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                          {strongResult.kjvUsageFr ? "Traduit par" : "Traductions KJV"}
+                        </span>
+                        <p className="text-xs text-slate-600 italic">
+                          {strongResult.kjvUsageFr || strongResult.kjvUsage}
+                        </p>
                       </div>
                     )}
                   </motion.div>

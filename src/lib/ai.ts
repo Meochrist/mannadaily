@@ -349,4 +349,64 @@ Style : Matthew Henry, bienveillant, profond, spirituel et pastoral. Pas de titr
   }
 }
 
+/**
+ * Traduit en français une entrée de la concordance Strong (définition + usage).
+ * Les données source sont en anglais ; le résultat est mis en cache en base
+ * pour ne traduire chaque numéro Strong qu'une seule fois.
+ */
+export async function translateStrongEntry(
+  strongNumber: string,
+  lemma: string | null,
+  transliteration: string | null,
+  definition: string | null,
+  kjvUsage: string | null
+): Promise<{ definitionFr: string; kjvUsageFr: string }> {
+  if (isBuildTime()) {
+    return { definitionFr: "Définition factice (build).", kjvUsageFr: "usage factice" };
+  }
+
+  const prompt = `Tu es lexicographe biblique. Traduis en FRANÇAIS cette entrée de la concordance Strong.
+
+Numéro : ${strongNumber}
+Mot original : ${lemma || "?"}${transliteration ? ` (${transliteration})` : ""}
+Définition (anglais) : ${definition || "—"}
+Usage dans les traductions (anglais) : ${kjvUsage || "—"}
+
+Réponds EXACTEMENT dans ce format, sans autre texte :
+DEFINITION: <la définition traduite en français, claire et fidèle, 1 à 3 phrases>
+USAGE: <les mots français correspondants, séparés par des virgules, 3 à 10 termes>
+
+Règles : français naturel, vocabulaire biblique courant, garde les nuances du terme original, n'invente rien.`;
+
+  const parse = (raw: string) => {
+    const defMatch = raw.match(/DEFINITION\s*:\s*([\s\S]*?)(?=\nUSAGE\s*:|$)/i);
+    const useMatch = raw.match(/USAGE\s*:\s*([\s\S]*)$/i);
+    return {
+      definitionFr: (defMatch?.[1] || "").trim(),
+      kjvUsageFr: (useMatch?.[1] || "").trim(),
+    };
+  };
+
+  try {
+    const raw = await callGemini(prompt, "gemini-2.5-flash");
+    const parsed = parse(raw);
+    if (parsed.definitionFr) return parsed;
+    throw new Error("Gemini: format de réponse inattendu");
+  } catch (err: unknown) {
+    console.warn("Gemini failed for Strong translation. Trying Groq...", err);
+    try {
+      const raw = await callGroq(prompt, "llama-3.3-70b-versatile");
+      const parsed = parse(raw);
+      if (parsed.definitionFr) return parsed;
+      throw new Error("Groq: format de réponse inattendu");
+    } catch (groqErr: unknown) {
+      console.warn("Groq failed for Strong translation. Trying GitHub...", groqErr);
+      const raw = await callGitHub(prompt, "gpt-4o");
+      const parsed = parse(raw);
+      if (parsed.definitionFr) return parsed;
+      throw new Error("Unable to translate Strong entry. All AI providers failed.");
+    }
+  }
+}
+
 
