@@ -2,7 +2,6 @@ import React from "react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getDailyVerse } from "@/lib/verses";
-import { getMascotState, type MeditationProgress } from "@/lib/mascots";
 import RandomMascotMessage from "@/components/dashboard/RandomMascotMessage";
 import GameMap from "@/components/dashboard/GameMap";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
@@ -37,7 +36,7 @@ export default async function DashboardPage() {
   let dayProgress = false;
   let inactivityDays = 0;
   let sessionsCompletedToday = 0;
-  let meditationProgressData: unknown = null;
+  let dayCompletedToday = false;
 
   if (userId) {
     try {
@@ -67,10 +66,12 @@ export default async function DashboardPage() {
         const mp = userWithMedProgress.meditationProgress as Record<string, unknown>;
         const todayStr = new Date().toISOString().split("T")[0];
         if (mp.lastActivityDate === todayStr) {
-          meditationProgressData = mp;
           const sessions = Array.isArray(mp.sessionsCompleted) ? mp.sessionsCompleted as number[] : [];
           sessionsCompletedToday = sessions.length;
-          dayProgress = sessions.length > 0;
+          // dayProgress = objectif du jour ATTEINT (3 mini-sessions), pas seulement « a commencé ».
+          // Avant, 1 session suffisait à le passer à true : la mascotte célébrait trop tôt.
+          dayCompletedToday = Boolean(mp.dayCompleted) || sessions.length >= 3;
+          dayProgress = dayCompletedToday;
         }
       }
     } catch (error) {
@@ -85,11 +86,10 @@ export default async function DashboardPage() {
           <RandomMascotMessage
             userName={userName}
             streakCount={currentStreak}
-            dayProgress={dayProgress}
+            dayProgress={dayCompletedToday}
             inactivityDays={inactivityDays}
             sessionsCompletedToday={sessionsCompletedToday}
             className="max-w-none w-full"
-            mood={getMascotState(meditationProgressData as MeditationProgress | null).mood}
           />
         </div>
         

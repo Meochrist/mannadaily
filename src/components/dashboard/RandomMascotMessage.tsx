@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import MascotMessage from "../mascot/MascotMessage";
 import { useCharacterState } from "@/hooks/useCharacterState";
-import { getMannyMessage, MannySituation } from "@/lib/mannyMessages";
-import { getMascotState, MeditationProgress } from "@/lib/mascots";
+import { resolveMascotState, moodToVisual } from "@/lib/mascotState";
+import { MeditationProgress } from "@/lib/mascots";
 import { MannyMood } from "@/types";
 
 interface RandomMascotMessageProps {
@@ -29,8 +29,21 @@ type MascotType =
   | "abraham"
   | "david";
 
+const MASCOT_PREFIX: Record<MascotType, string> = {
+  manny: "📖 Manny : ",
+  samson: "💪 Samson : ",
+  esther: "👑 Esther : ",
+  gedeon: "🛡️ Gédéon : ",
+  noe: "🕊️ Noé : ",
+  paul: "✉️ Paul : ",
+  pierre: "🔑 Pierre : ",
+  moise: "📜 Moïse : ",
+  abraham: "✨ Abraham : ",
+  david: "🎵 David : ",
+};
+
 export default function RandomMascotMessage({
-  userName,
+  userName: _userName,
   streakCount,
   dayProgress,
   inactivityDays,
@@ -38,141 +51,54 @@ export default function RandomMascotMessage({
   className,
   mood: moodProp,
 }: RandomMascotMessageProps) {
-  const [mascot, setMascot] = useState<MascotType>("manny");
-  const [message, setMessage] = useState<string>("");
+  // Choix aléatoire du personnage AU MONTAGE UNIQUEMENT — pas de setState dans
+  // un useEffect (cascading renders). On ne le recalcule jamais ensuite pour éviter
+  // qu'il change à chaque rafraîchissement de la progression.
+  const [mascot] = useState<MascotType>(() => {
+    const mascots = Object.keys(MASCOT_PREFIX) as MascotType[];
+    return mascots[Math.floor(Math.random() * mascots.length)];
+  });
   const [mounted, setMounted] = useState(false);
   const [progress, setProgress] = useState<MeditationProgress | null>(null);
-  const [currentSituation, setCurrentSituation] = useState<MannySituation>("first_visit");
 
-  // Fetch progress from API if no mood provided
+  // La progression fraîche de l'API prime sur la valeur rendue côté serveur :
+  // sans ça, le tableau de bord gardait un état obsolète après une méditation.
+  // Le state `mounted` est levé après le premier fetch pour éviter un flash visuel.
   useEffect(() => {
-    if (moodProp) return;
     fetch("/api/meditate/progress")
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (data?.progress) {
-          setProgress(data.progress);
-        }
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.progress) setProgress(data.progress);
       })
-      .catch(err => console.warn("Failed to fetch progress:", err));
-  }, [moodProp]);
+      .catch((err) => console.warn("Failed to fetch progress:", err))
+      .finally(() => setMounted(true));
+  }, []);
 
-  // Calculate mood
-  const computedMood: MannyMood | undefined = moodProp || (progress ? getMascotState(progress).mood : undefined);
-
-  // Character state hook
-  const { pose: envPose, expression: envExpression, outfit, mascotState } = useCharacterState({
+  // Tenue seulement (météo/saison) — la pose vient du mood, pas de la météo.
+  const { outfit, mascotState: envState } = useCharacterState({
     currentStreak: streakCount,
     sessionsTotal: 0,
     inactivityDays,
     dayProgress,
   });
 
-  // Determine message + situation
-  useEffect(() => {
-    const mascots: MascotType[] = [
-      "manny", "samson", "esther", "gedeon", "noe",
-      "paul", "pierre", "moise", "abraham", "david",
-    ];
-    const randomMascot = mascots[Math.floor(Math.random() * mascots.length)];
+  // === UNE SEULE SOURCE DE VÉRITÉ ===
+  // mood + pose + expression + message sortent du même calcul : ils ne
+  // peuvent plus se contredire (message joyeux sur un visage neutre, etc.).
+  const apiSessions = progress?.sessionsCompleted;
+  const completedToday = Array.isArray(apiSessions) ? apiSessions.length : sessionsCompletedToday;
 
-    // Priority: API data > server prop
-    const apiSessions = progress?.sessionsCompleted;
-    const completed = Array.isArray(apiSessions) ? apiSessions.length : sessionsCompletedToday;
+  const state = resolveMascotState({
+    sessionsCompletedToday: completedToday,
+    dayCompleted: progress?.dayCompleted ?? dayProgress,
+    streakCount,
+    inactivityDays,
+  });
 
-    let situation: MannySituation;
-    const isStreakDanger = streakCount > 0 && inactivityDays >= 1;
-    const isStreakMilestone = streakCount > 0 && [7, 30, 50, 100, 200, 365].includes(streakCount) && inactivityDays === 0;
-
-    if (isStreakMilestone) {
-      situation = "streak_milestone";
-    } else if (isStreakDanger && completed === 0) {
-      situation = "streak_danger";
-    } else if (isStreakDanger && completed >= 1) {
-      situation = "streak_saved";
-    } else if (completed >= 3) {
-      situation = "day_complete";
-    } else if (completed >= 1) {
-      situation = "partial_progress";
-    } else {
-      situation = "first_visit";
-    }
-
-    const rawMessage = getMannyMessage(situation, userName, streakCount);
-
-    let prefix = "";
-    switch (randomMascot) {
-      case "samson": prefix = "💪 Samson : "; break;
-      case "esther": prefix = "👑 Esther : "; break;
-      case "gedeon": prefix = "🛡️ Gédéon : "; break;
-      case "noe": prefix = "🕊️ Noé : "; break;
-      case "paul": prefix = "✉️ Paul : "; break;
-      case "pierre": prefix = "🔑 Pierre : "; break;
-      case "moise": prefix = "📜 Moïse : "; break;
-      case "abraham": prefix = "✨ Abraham : "; break;
-      case "david": prefix = "🎵 David : "; break;
-      default: prefix = "📖 Manny : "; break;
-    }
-
-    queueMicrotask(() => {
-      setMascot(randomMascot);
-      setMessage(`${prefix}${rawMessage}`);
-      setMounted(true);
-      setCurrentSituation(situation);
-    });
-  }, [userName, streakCount, progress, inactivityDays, dayProgress, sessionsCompletedToday]);
-
-  // Pose/expression: mood first, then situation fallback
-  let pose: "idle" | "jumping" | "sad" | "running" = envPose;
-  let expression: "neutral" | "happy" | "sweating" | "crying" = envExpression;
-
-  if (computedMood) {
-    switch (computedMood) {
-      case "excited":
-      case "celebrating":
-      case "encouraging":
-        pose = "jumping";
-        expression = "happy";
-        break;
-      case "sleeping":
-      case "praying":
-      case "thinking":
-        pose = "idle";
-        expression = "neutral";
-        break;
-      case "sad":
-        pose = "sad";
-        expression = "crying";
-        break;
-      case "happy":
-      default:
-        pose = "idle";
-        expression = "happy";
-        break;
-    }
-  } else {
-    // Fallback: use situation to determine pose/expression
-    switch (currentSituation) {
-      case "day_complete":
-      case "streak_milestone":
-        pose = "jumping";
-        expression = "happy";
-        break;
-      case "streak_saved":
-      case "partial_progress":
-        pose = "idle";
-        expression = "happy";
-        break;
-      case "streak_danger":
-        pose = "sad";
-        expression = "crying";
-        break;
-      default:
-        pose = "idle";
-        expression = "happy";
-        break;
-    }
-  }
+  // Un mood explicitement fourni (rendu serveur) ne pilote que le visuel,
+  // le message reste celui du calcul unifié pour rester cohérent.
+  const effectiveMood = moodProp ?? state.mood;
+  const visual = moodProp ? moodToVisual(moodProp) : { pose: state.pose, expression: state.expression };
 
   if (!mounted) {
     return <div className={`h-32 w-full max-w-xl bg-slate-50/20 rounded-2xl animate-pulse ${className}`} />;
@@ -181,11 +107,12 @@ export default function RandomMascotMessage({
   return (
     <MascotMessage
       mascot={mascot}
-      pose={pose}
-      expression={expression}
+      mood={effectiveMood}
+      pose={visual.pose}
+      expression={visual.expression}
       outfit={outfit}
-      state={mascotState}
-      message={message}
+      state={envState}
+      message={`${MASCOT_PREFIX[mascot]}${state.message}`}
       size={150}
       className={className}
     />

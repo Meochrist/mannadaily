@@ -3,6 +3,7 @@
 import React from "react";
 import CharacterRenderer from "./CharacterRenderer";
 import { useCharacterState } from "@/hooks/useCharacterState";
+import { moodToVisual } from "@/lib/mascotState";
 import { MannyMood } from "@/types";
 
 interface MannyProps {
@@ -12,7 +13,9 @@ interface MannyProps {
 }
 
 export default function Manny({ mood, size = 170, className = "" }: MannyProps) {
-  // Récupérer l'état d'environnement (pour l'outfit)
+  // Récupérer l'état d'environnement uniquement pour la tenue (météo/saison).
+  // La pose et l'expression NE dépendent que du mood — sinon la mascotte
+  // affichait un visage neutre pendant que le message la disait joyeuse.
   const { outfit } = useCharacterState({
     currentStreak: 0,
     sessionsTotal: 0,
@@ -20,33 +23,8 @@ export default function Manny({ mood, size = 170, className = "" }: MannyProps) 
     dayProgress: false,
   });
 
-  // Associer le mood à la pose et à l'expression correspondantes
-  let pose: "idle" | "jumping" | "sad" | "running" = "idle";
-  let expression: "neutral" | "happy" | "sweating" | "crying" = "happy";
-
-  switch (mood) {
-    case "excited":
-    case "celebrating":
-    case "encouraging":
-      pose = "jumping";
-      expression = "happy";
-      break;
-    case "sleeping":
-    case "praying":
-    case "thinking":
-      pose = "idle";
-      expression = "neutral";
-      break;
-    case "sad":
-      pose = "sad";
-      expression = "crying";
-      break;
-    case "happy":
-    default:
-      pose = "idle";
-      expression = "happy";
-      break;
-  }
+  // Table unique mood → pose/expression (src/lib/mascotState.ts)
+  const { pose, expression } = moodToVisual(mood);
 
   return (
     <CharacterRenderer

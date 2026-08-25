@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Manny from "@/components/mascot/Manny";
 import MascotMessage from "@/components/mascot/MascotMessage";
 import { MannyMood } from "@/types";
-import { getMascotState } from "@/lib/mascots";
+import { resolveMascotState } from "@/lib/mascotState";
 import { saveMeditationProgress, loadFromSessionStorage, loadFromAPI, type ProgressState } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 import { 
@@ -1091,15 +1091,17 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
     );
   };
 
-  // === Compute mascot mood based on current progress + time of day ===
+  // === État de la mascotte — source unique de vérité (src/lib/mascotState.ts) ===
+  // isMeditatingNow : l'utilisateur est engagé dans une méditation au-delà du 1er écran,
+  // ou il en démarre une nouvelle alors que sa journée est déjà complète (session bonus).
   const mascotState = useMemo(
-    () => getMascotState({
-      currentMiniSession,
-      currentStep: currentStepInMini,
-      sessionsCompleted,
-      lastActivityDate: getTodayStr(),
-      dayCompleted,
-    }),
+    () =>
+      resolveMascotState({
+        sessionsCompletedToday: sessionsCompleted.length,
+        dayCompleted,
+        isMeditatingNow:
+          currentMiniSession > 1 || currentStepInMini > 0 || sessionsCompleted.length >= 3,
+      }),
     [currentMiniSession, currentStepInMini, sessionsCompleted, dayCompleted]
   );
 
