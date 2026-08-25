@@ -7,7 +7,15 @@ import { MannyMood } from "@/types";
 // Forçons le dynamic en cas d'utilisation dans des routes dynamiques
 export const dynamic = "force-dynamic";
 
-async function callGemini(prompt: string, modelName: string = "gemini-2.5-flash"): Promise<string> {
+/**
+ * Modèles par défaut — source unique de vérité.
+ * Groq retire régulièrement ses modèles (llama-3.3-70b-versatile a été
+ * supprimé) : ne mettre à jour qu'ici en cas de 404 model_not_found.
+ */
+const GROQ_MODEL = "openai/gpt-oss-120b";
+const GEMINI_MODEL = "gemini-2.5-flash";
+
+async function callGemini(prompt: string, modelName: string = GEMINI_MODEL): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY is not defined");
   
@@ -19,7 +27,7 @@ async function callGemini(prompt: string, modelName: string = "gemini-2.5-flash"
   return text.trim();
 }
 
-async function callGroq(prompt: string, modelName: string = "llama-3.3-70b-versatile"): Promise<string> {
+async function callGroq(prompt: string, modelName: string = GROQ_MODEL): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) throw new Error("GROQ_API_KEY is not defined");
   
@@ -36,10 +44,11 @@ async function callGroq(prompt: string, modelName: string = "llama-3.3-70b-versa
 async function callGitHub(prompt: string, modelName: string = "gpt-4o"): Promise<string> {
   const apiKey = process.env.GITHUB_TOKEN;
   if (!apiKey) throw new Error("GITHUB_TOKEN is not defined");
-  
+
   const openai = new OpenAI({
     apiKey,
-    baseURL: "https://models.inference.ai.azure.com",
+    // L'ancien endpoint models.inference.ai.azure.com n'existe plus (DNS ENOTFOUND).
+    baseURL: "https://models.github.ai/inference",
   });
   const response = await openai.chat.completions.create({
     messages: [{ role: "user", content: prompt }],
@@ -99,7 +108,7 @@ Prose fluide sans titres ni numéros.`;
   } catch (err: unknown) {
     console.warn("Gemini failed. Attempting fallback with Groq...", err);
     try {
-      return await callGroq(prompt, "llama-3.3-70b-versatile");
+      return await callGroq(prompt);
     } catch (groqErr: unknown) {
       console.warn("Groq failed. Attempting fallback with GitHub Models...", groqErr);
       try {
@@ -135,7 +144,7 @@ Style : très chaleureux, court, bienveillant, et fraternel. Pas de titres ni de
   } catch (err: unknown) {
     console.warn("Gemini failed for Manny message. Attempting Groq...", err);
     try {
-      return await callGroq(prompt, "llama-3.3-70b-versatile");
+      return await callGroq(prompt);
     } catch (groqErr: unknown) {
       console.warn("Groq failed for Manny message. Attempting GitHub Models...", groqErr);
       try {
@@ -222,7 +231,7 @@ Génère un résumé PERSONNEL en 3-4 phrases de ce que DIEU lui a dit à traver
   } catch (err: unknown) {
     console.warn("Gemini failed for summary. Trying Groq...", err);
     try {
-      return await callGroq(prompt, "llama-3.3-70b-versatile");
+      return await callGroq(prompt);
     } catch (groqErr: unknown) {
       console.warn("Groq failed for summary. Trying GitHub...", groqErr);
       try {
@@ -268,7 +277,7 @@ Génère une prière PERSONNELLE de 4-6 phrases basée UNIQUEMENT sur ce qu'il a
   } catch (err: unknown) {
     console.warn("Gemini failed for personalized prayer. Trying Groq...", err);
     try {
-      return await callGroq(prompt, "llama-3.3-70b-versatile");
+      return await callGroq(prompt);
     } catch (groqErr: unknown) {
       console.warn("Groq failed for personalized prayer. Trying GitHub...", groqErr);
       try {
@@ -302,7 +311,7 @@ Réponds en 3-4 phrases en français, de façon simple, profonde et pratique. Ne
   } catch (err: unknown) {
     console.warn("Gemini failed for Bible chat. Trying Groq...", err);
     try {
-      return await callGroq(prompt, "llama-3.3-70b-versatile");
+      return await callGroq(prompt);
     } catch (groqErr: unknown) {
       console.warn("Groq failed for Bible chat. Trying GitHub...", groqErr);
       try {
@@ -336,7 +345,7 @@ Style : Matthew Henry, bienveillant, profond, spirituel et pastoral. Pas de titr
   } catch (err: unknown) {
     console.warn("Gemini failed for commentary. Trying Groq...", err);
     try {
-      return await callGroq(prompt, "llama-3.3-70b-versatile");
+      return await callGroq(prompt);
     } catch (groqErr: unknown) {
       console.warn("Groq failed for commentary. Trying GitHub...", groqErr);
       try {
@@ -395,7 +404,7 @@ Règles : français naturel, vocabulaire biblique courant, garde les nuances du 
   } catch (err: unknown) {
     console.warn("Gemini failed for Strong translation. Trying Groq...", err);
     try {
-      const raw = await callGroq(prompt, "llama-3.3-70b-versatile");
+      const raw = await callGroq(prompt);
       const parsed = parse(raw);
       if (parsed.definitionFr) return parsed;
       throw new Error("Groq: format de réponse inattendu");

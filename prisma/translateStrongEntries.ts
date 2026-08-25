@@ -70,48 +70,71 @@ Règles : français naturel, vocabulaire biblique courant, garde les nuances du 
     };
   };
 
-  // 1. Gemini
+  // 1. Gemini — avec retry sur rate limit (429)
   const geminiKey = process.env.GEMINI_API_KEY;
   if (geminiKey) {
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+          }
+        );
+
+        if (res.status === 429 || res.status === 503) {
+          // Quota atteint → attendre puis réessayer
+          await new Promise((r) => setTimeout(r, 2500 * (attempt + 1)));
+          continue;
         }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        const parsed = parse(text);
-        if (parsed.definitionFr) return parsed;
+
+        if (res.ok) {
+          const data = await res.json();
+          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          const parsed = parse(text);
+          if (parsed.definitionFr) return parsed;
+        }
+        break;
+      } catch {
+        await new Promise((r) => setTimeout(r, 1200));
       }
-    } catch {
-      // on tente Groq
     }
   }
 
-  // 2. Groq en secours
+  // 2. Groq en secours — avec retry
   const groqKey = process.env.GROQ_API_KEY;
   if (groqKey) {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${groqKey}`,
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [{ role: "user", content: prompt }],
-      }),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const text = data?.choices?.[0]?.message?.content || "";
-      const parsed = parse(text);
-      if (parsed.definitionFr) return parsed;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${groqKey}`,
+          },
+          body: JSON.stringify({
+            model: "openai/gpt-oss-120b",
+            messages: [{ role: "user", content: prompt }],
+          }),
+        });
+
+        if (res.status === 429 || res.status === 503) {
+          await new Promise((r) => setTimeout(r, 2500 * (attempt + 1)));
+          continue;
+        }
+
+        if (res.ok) {
+          const data = await res.json();
+          const text = data?.choices?.[0]?.message?.content || "";
+          const parsed = parse(text);
+          if (parsed.definitionFr) return parsed;
+        }
+        break;
+      } catch {
+        await new Promise((r) => setTimeout(r, 1200));
+      }
     }
   }
 
@@ -138,36 +161,49 @@ async function main() {
   let ok = 0;
   let failed = 0;
 
-  for (const [idx, entry] of pending.entries()) {
-    try {
-      const { definitionFr, kjvUsageFr } = await translateEntry(
-        entry.number,
-        entry.lemma,
-        entry.transliteration,
-        entry.definition,
-        entry.kjvUsage
-      );
+  // Concurrence modérée : au-delà, les quotas Gemini/Groq renvoient 429.
+  const CONCURRENCY = 3;
 
-      await prisma.strongEntry.update({
-        where: { id: entry.id },
-        data: {
-          definitionFr,
-          kjvUsageFr: kjvUsageFr || null,
-          translatedAt: new Date(),
-        },
-      });
+  for (let i = 0; i < pending.length; i += CONCURRENCY) {
+    const batch = pending.slice(i, i + CONCURRENCY);
 
-      ok++;
-      if ((idx + 1) % 10 === 0 || idx === 0) {
-        console.log(`[${idx + 1}/${pending.length}] ${entry.number} ✓ ${definitionFr.substring(0, 60)}…`);
+    const settled = await Promise.allSettled(
+      batch.map(async (entry) => {
+        const { definitionFr, kjvUsageFr } = await translateEntry(
+          entry.number,
+          entry.lemma,
+          entry.transliteration,
+          entry.definition,
+          entry.kjvUsage
+        );
+
+        await prisma.strongEntry.update({
+          where: { id: entry.id },
+          data: {
+            definitionFr,
+            kjvUsageFr: kjvUsageFr || null,
+            translatedAt: new Date(),
+          },
+        });
+
+        return { number: entry.number, definitionFr };
+      })
+    );
+
+    for (const [j, result] of settled.entries()) {
+      if (result.status === "fulfilled") {
+        ok++;
+      } else {
+        failed++;
+        console.error(`[ERR] ${batch[j].number} : ${result.reason?.message || result.reason}`);
       }
-    } catch (err: unknown) {
-      failed++;
-      console.error(`[ERR] ${entry.number} : ${err instanceof Error ? err.message : err}`);
     }
 
-    // Respecter les quotas des fournisseurs IA
-    await new Promise((r) => setTimeout(r, 900));
+    const done = Math.min(i + CONCURRENCY, pending.length);
+    console.log(`[${done}/${pending.length}] traduits: ${ok} · échecs: ${failed}`);
+
+    // Petite pause entre les lots pour ménager les quotas
+    await new Promise((r) => setTimeout(r, 300));
   }
 
   console.log(`\n=== RÉSUMÉ ===`);
