@@ -232,8 +232,6 @@ function MeditatePageContent() {
   useEffect(() => {
     async function loadProgress() {
       const fresh = searchParams.get("fresh") === "true";
-      if (fresh) { setProgressLoaded(true); return; }
-
       const today = getTodayStr();
 
       // Helpers
@@ -247,6 +245,27 @@ function MeditatePageContent() {
         setProgressLoaded(true);
         return true;
       };
+
+      // fresh=true : nouveau VERSET (méditation bonus ou depuis la carte).
+      // On repart à la mini-session 1 avec des réponses vierges, MAIS on conserve
+      // les mini-sessions déjà accomplies aujourd'hui : sinon la mascotte et le
+      // tableau de bord repartaient de zéro et l'acquis du jour semblait effacé.
+      if (fresh) {
+        const local = loadFromSessionStorage();
+        const sameDayLocal = local && local.lastActivityDate === today ? local : null;
+        const source = sameDayLocal ?? (await loadFromAPI());
+        const sameDay = source && source.lastActivityDate === today ? source : null;
+
+        if (sameDay) {
+          const done = Array.isArray(sameDay.sessionsCompleted) ? sameDay.sessionsCompleted : [];
+          setSessionsCompleted(done);
+        }
+        setCurrentMiniSession(1);
+        setCurrentStepInMini(0);
+        setDayCompleted(false);
+        setProgressLoaded(true);
+        return;
+      }
 
       // 1. sessionStorage
       const local = loadFromSessionStorage();

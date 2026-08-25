@@ -34,6 +34,37 @@ export interface MascotProgressInput {
   inactivityDays?: number;
 }
 
+/**
+ * Créneau horaire attendu pour chaque mini-session.
+ * L'escalade suit le RYTHME des mini-sessions, pas seulement l'heure :
+ * avoir fait la mini 1 le matin est une réussite — la mascotte reste
+ * contente et encourage jusqu'à ce que le créneau de la mini 2 passe
+ * sans nouvelle méditation. Alors seulement elle s'inquiète.
+ */
+const MINI_SESSION_DEADLINES: Record<number, TimeOfDay[]> = {
+  // La mini 1 est attendue le matin ; passé midi sans rien, on s'inquiète.
+  1: ["morning"],
+  // La mini 2 est attendue jusqu'à l'après-midi.
+  2: ["morning", "midday", "afternoon"],
+  // La mini 3 est attendue avant la nuit.
+  3: ["morning", "midday", "afternoon", "evening"],
+};
+
+const TIME_ORDER: TimeOfDay[] = ["morning", "midday", "afternoon", "evening", "night"];
+
+/**
+ * Le créneau de la PROCHAINE mini-session est-il dépassé ?
+ * Ex. 1 session faite et il est 16 h (afternoon) → le créneau de la mini 2
+ * (jusqu'à afternoon) court encore : la mascotte encourage.
+ * Le soir venu, il est dépassé : elle s'inquiète.
+ */
+function isNextSessionOverdue(sessionsDone: number, timeOfDay: TimeOfDay): boolean {
+  const next = sessionsDone + 1;
+  const allowed = MINI_SESSION_DEADLINES[next];
+  if (!allowed) return false;
+  return TIME_ORDER.indexOf(timeOfDay) > TIME_ORDER.indexOf(allowed[allowed.length - 1]);
+}
+
 export interface MascotState {
   mood: MascotMood;
   pose: MascotPose;
@@ -50,6 +81,7 @@ export type MascotSituation =
   | "bonus_session"
   | "meditating"
   | "partial_progress"
+  | "partial_overdue"
   | "streak_danger"
   | "streak_saved"
   | "streak_milestone"
@@ -107,13 +139,14 @@ export function moodToVisual(mood: MascotMood): {
  * Règle : le ton du message correspond TOUJOURS à l'expression du visage.
  */
 const MESSAGES: Record<MascotSituation, Partial<Record<TimeOfDay, string>> & { default: string }> = {
+  // Journée COMPLÈTE : champion de la foi, embrasé pour le Seigneur.
   day_complete: {
-    morning: "☀️ Journée complète dès le matin ! Quelle belle discipline.",
-    midday: "🎉 Tes 3 méditations sont faites. Le Seigneur est avec toi !",
-    afternoon: "✅ Journée spirituelle accomplie. Bravo !",
-    evening: "🌙 Tu as tout accompli aujourd'hui. Que la Parole t'accompagne cette nuit.",
-    night: "💤 Journée bénie et complète. Repose-toi dans Sa paix.",
-    default: "🎉 Tes 3 méditations sont accomplies. Gloire à Dieu !",
+    morning: "🔥 Les 3 mini-sessions dès le matin ! Tu es un champion de la foi, embrasé pour le Seigneur !",
+    midday: "🏆 Journée spirituelle COMPLÈTE ! Champion de la foi, le Seigneur est avec toi !",
+    afternoon: "🔥 3 mini-sessions accomplies ! Tu es embrasé pour le Seigneur !",
+    evening: "🏆 Journée complète, champion de la foi ! Que la Parole t'accompagne cette nuit.",
+    night: "🔥 Journée bénie et complète. Tu t'endors en champion de la foi.",
+    default: "🏆 Tes 3 mini-sessions sont accomplies. Champion de la foi, gloire à Dieu !",
   },
   bonus_session: {
     morning: "🤩 Déjà tout accompli et tu en veux encore ? Quelle soif de la Parole !",
@@ -126,13 +159,22 @@ const MESSAGES: Record<MascotSituation, Partial<Record<TimeOfDay, string>> & { d
   meditating: {
     default: "🤔 Continue ta réflexion, la Parole t'éclaire.",
   },
+  // DANS le créneau : la mascotte est CONTENTE et encourage.
   partial_progress: {
-    morning: "😊 Bon début de journée ! Encore 2 mini-sessions et c'est gagné.",
-    midday: "🙂 Tu es sur la bonne voie. Ne t'arrête pas maintenant !",
-    afternoon: "👍 Belle progression ! Termine avant que la journée s'achève.",
-    evening: "😟 Tu as commencé mais pas fini... Le jour se termine, achève ta méditation !",
-    night: "😰 Minuit approche et ta journée n'est pas complète. Vite, termine !",
-    default: "😊 Tu progresses bien, continue !",
+    morning: "😊 Bravo pour cette mini-session ! Tu as bien commencé ta journée.",
+    midday: "🙂 Belle avancée ! Continue, la prochaine mini-session t'attend.",
+    afternoon: "👍 Tu progresses bien ! Encore un effort pour compléter ta journée.",
+    evening: "💪 Tu avances bien. Termine ta journée spirituelle avant la nuit !",
+    night: "🌛 Belle avancée aujourd'hui. Termine si tu peux encore !",
+    default: "😊 Bravo pour cette mini-session ! Continue.",
+  },
+  // Créneau DÉPASSÉ : la mascotte s'inquiète, la culpabilité amicale s'installe.
+  partial_overdue: {
+    midday: "😟 Ta prochaine mini-session devait être faite... Ne t'arrête pas en chemin !",
+    afternoon: "😥 Le créneau de ta prochaine mini-session est passé. Reviens méditer !",
+    evening: "😢 Tu as bien commencé mais tu t'es arrêté... Ne laisse pas ta journée inachevée !",
+    night: "😭 Minuit approche et ta journée reste incomplète. Il te reste si peu de temps...",
+    default: "😟 Tu t'es arrêté en chemin. Reviens compléter ta journée !",
   },
   streak_milestone: {
     default: "🏆 Quel palier ! Ta constance est un témoignage.",
@@ -238,12 +280,28 @@ export function resolveMascotState(
     return build("thinking", "meditating", "Méditation en cours");
   }
 
-  // 7. Progression partielle : content en journée, préoccupé le soir
-  //    (la journée n'est pas finie et il reste des mini-sessions).
+  // 7. Progression partielle (1 ou 2 mini-sessions) — l'escalade suit le RYTHME
+  //    des mini-sessions, pas seulement l'heure :
+  //    • dans le créneau de la prochaine → CONTENTE, elle encourage
+  //    • créneau dépassé sans revenir    → elle s'inquiète, puis devient triste
   if (sessionsCompletedToday >= 1) {
-    const mood: MascotMood =
-      timeOfDay === "evening" || timeOfDay === "night" ? "thinking" : "happy";
-    return build(mood, "partial_progress", `${sessionsCompletedToday} session(s) faite(s) aujourd'hui`);
+    const overdue = isNextSessionOverdue(sessionsCompletedToday, timeOfDay);
+
+    if (!overdue) {
+      return build(
+        "happy",
+        "partial_progress",
+        `${sessionsCompletedToday}/3 mini-session(s), dans le créneau de la suivante (${timeOfDay})`
+      );
+    }
+
+    // Créneau dépassé : inquiétude qui s'aggrave jusqu'aux larmes la nuit.
+    const mood: MascotMood = timeOfDay === "night" ? "sad" : "thinking";
+    return build(
+      mood,
+      "partial_overdue",
+      `${sessionsCompletedToday}/3 mini-session(s), créneau de la suivante dépassé (${timeOfDay})`
+    );
   }
 
   // 8. Rien commencé — ESCALADE PSYCHOLOGIQUE (cœur du modèle Duolingo) :
