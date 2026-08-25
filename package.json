@@ -18,6 +18,7 @@
     "fix:placeholder-verses": "npx ts-node --project tsconfig.json prisma/fixPlaceholderVerses.ts",
     "diagnose:placeholders": "npx ts-node --project tsconfig.json prisma/diagnosePlaceholders.ts",
     "remove:ghost-verses": "npx ts-node --project tsconfig.json prisma/removeGhostVerses.ts",
+    "translate:strong": "npx ts-node --project tsconfig.json prisma/translateStrongEntries.ts",
     "seed:commentary": "npx ts-node --project tsconfig.json prisma/seedCommentary.ts",
     "seed:reading-plans": "npx ts-node --project tsconfig.json prisma/seedReadingPlans.ts",
     "generate:verse-contexts": "npx ts-node --project tsconfig.json scripts/generate-verse-contexts.ts"
