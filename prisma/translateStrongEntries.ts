@@ -37,12 +37,91 @@ loadEnv();
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
 
+/**
+ * Traduction autonome (pas d'import de src/lib/ai : la résolution ESM/TS
+ * diffère entre Next et ts-node). Appelle Gemini puis Groq en secours.
+ */
+async function translateEntry(
+  number: string,
+  lemma: string | null,
+  transliteration: string | null,
+  definition: string | null,
+  kjvUsage: string | null
+): Promise<{ definitionFr: string; kjvUsageFr: string }> {
+  const prompt = `Tu es lexicographe biblique. Traduis en FRANÇAIS cette entrée de la concordance Strong.
+
+Numéro : ${number}
+Mot original : ${lemma || "?"}${transliteration ? ` (${transliteration})` : ""}
+Définition (anglais) : ${definition || "—"}
+Usage dans les traductions (anglais) : ${kjvUsage || "—"}
+
+Réponds EXACTEMENT dans ce format, sans autre texte :
+DEFINITION: <la définition traduite en français, claire et fidèle, 1 à 3 phrases>
+USAGE: <les mots français correspondants, séparés par des virgules, 3 à 10 termes>
+
+Règles : français naturel, vocabulaire biblique courant, garde les nuances du terme original, n'invente rien.`;
+
+  const parse = (raw: string) => {
+    const d = raw.match(/DEFINITION\s*:\s*([\s\S]*?)(?=\nUSAGE\s*:|$)/i);
+    const u = raw.match(/USAGE\s*:\s*([\s\S]*)$/i);
+    return {
+      definitionFr: (d?.[1] || "").trim(),
+      kjvUsageFr: (u?.[1] || "").trim(),
+    };
+  };
+
+  // 1. Gemini
+  const geminiKey = process.env.GEMINI_API_KEY;
+  if (geminiKey) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const parsed = parse(text);
+        if (parsed.definitionFr) return parsed;
+      }
+    } catch {
+      // on tente Groq
+    }
+  }
+
+  // 2. Groq en secours
+  const groqKey = process.env.GROQ_API_KEY;
+  if (groqKey) {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${groqKey}`,
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const text = data?.choices?.[0]?.message?.content || "";
+      const parsed = parse(text);
+      if (parsed.definitionFr) return parsed;
+    }
+  }
+
+  throw new Error("Aucun fournisseur IA disponible ou format inattendu");
+}
+
 async function main() {
   const all = process.argv.includes("--all");
   const limitArg = process.argv.find((a) => a.startsWith("--limit="));
   const limit = all ? undefined : limitArg ? parseInt(limitArg.split("=")[1], 10) : 300;
-
-  const { translateStrongEntry } = await import("../src/lib/ai");
 
   const pending = await prisma.strongEntry.findMany({
     where: { definitionFr: null, definition: { not: null } },
@@ -61,7 +140,7 @@ async function main() {
 
   for (const [idx, entry] of pending.entries()) {
     try {
-      const { definitionFr, kjvUsageFr } = await translateStrongEntry(
+      const { definitionFr, kjvUsageFr } = await translateEntry(
         entry.number,
         entry.lemma,
         entry.transliteration,
