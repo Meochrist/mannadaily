@@ -97,7 +97,14 @@ export function moodToVisual(mood: MascotMood): {
 
 /**
  * Messages par situation × moment de la journée.
- * Le ton suit TOUJOURS l'humeur : jamais de larmes sur un message de félicitations.
+ *
+ * ESCALADE PSYCHOLOGIQUE (modèle Duolingo) — c'est le cœur du mécanisme :
+ * le matin la mascotte est amicale, à midi elle insiste, l'après-midi elle
+ * s'inquiète, le soir elle est triste, la nuit elle est dramatique.
+ * La culpabilité amicale est VOULUE : voir Manny triste doit donner envie
+ * de « réparer » la situation en méditant.
+ *
+ * Règle : le ton du message correspond TOUJOURS à l'expression du visage.
  */
 const MESSAGES: Record<MascotSituation, Partial<Record<TimeOfDay, string>> & { default: string }> = {
   day_complete: {
@@ -120,11 +127,11 @@ const MESSAGES: Record<MascotSituation, Partial<Record<TimeOfDay, string>> & { d
     default: "🤔 Continue ta réflexion, la Parole t'éclaire.",
   },
   partial_progress: {
-    morning: "😊 Bon début de journée ! Continue sur cette lancée.",
-    midday: "🙂 Tu es sur la bonne voie. Encore un effort !",
-    afternoon: "👍 Belle progression ! Tu y es presque.",
-    evening: "💪 Tu avances bien. Termine avant la nuit.",
-    night: "🌛 Belle avancée aujourd'hui. Demain sera un autre jour.",
+    morning: "😊 Bon début de journée ! Encore 2 mini-sessions et c'est gagné.",
+    midday: "🙂 Tu es sur la bonne voie. Ne t'arrête pas maintenant !",
+    afternoon: "👍 Belle progression ! Termine avant que la journée s'achève.",
+    evening: "😟 Tu as commencé mais pas fini... Le jour se termine, achève ta méditation !",
+    night: "😰 Minuit approche et ta journée n'est pas complète. Vite, termine !",
     default: "😊 Tu progresses bien, continue !",
   },
   streak_milestone: {
@@ -133,20 +140,22 @@ const MESSAGES: Record<MascotSituation, Partial<Record<TimeOfDay, string>> & { d
   streak_saved: {
     default: "😌 Ouf ! Ta série est sauvée. Bien joué d'être revenu !",
   },
+  // ESCALADE MAXIMALE : une série active en jeu = le levier le plus fort.
   streak_danger: {
     morning: "⏰ Ta série est en jeu aujourd'hui. Une méditation et elle est sauvée !",
-    midday: "🕐 Il est midi et ta série est menacée. Prends 10 minutes pour la Parole !",
-    afternoon: "⚠️ L'après-midi avance et ta série est en danger. Ne la laisse pas se briser !",
-    evening: "😢 Le soir tombe et ta série va se briser... Il te reste un peu de temps !",
-    night: "😥 Il est très tard et ta série est en péril. Une courte méditation suffit !",
-    default: "⏰ Ta série est en danger. Une méditation et elle est sauvée !",
+    midday: "😟 Il est midi et ta série est menacée. Ne gâche pas tous ces jours d'efforts !",
+    afternoon: "😢 L'après-midi avance et ta série va se briser. Je m'inquiète pour toi...",
+    evening: "😭 Le soir tombe et ta série va DISPARAÎTRE à minuit ! Tous tes efforts perdus...",
+    night: "💔 Minuit approche. Ta série va se briser et ça me brise le cœur. Il te reste peu de temps !",
+    default: "😢 Ta série est en danger. Une méditation et elle est sauvée !",
   },
+  // ESCALADE PROGRESSIVE : amical → insistant → inquiet → triste → dramatique.
   not_started: {
     morning: "🌅 Bonjour ! Commençons cette journée avec la Parole de Dieu.",
-    midday: "🕐 Il est midi. Prends 10 minutes pour te nourrir de la Parole !",
-    afternoon: "☀️ L'après-midi avance. N'oublie pas ta méditation du jour !",
-    evening: "🌇 Le soir tombe. Prends un moment pour te recentrer sur la Parole.",
-    night: "🌙 Il est tard, mais il n'est jamais trop tard pour Sa Parole.",
+    midday: "🕐 Il est déjà midi et tu n'as pas encore médité... Prends 10 minutes pour la Parole !",
+    afternoon: "😟 L'après-midi avance et la Parole t'attend toujours. Ne laisse pas passer ce jour...",
+    evening: "😢 Le soir tombe et tu n'as pas médité aujourd'hui. Les méditations ne se font pas toutes seules...",
+    night: "😭 La journée s'achève et la Parole est restée fermée. Il te reste quelques minutes avant minuit !",
     default: "📖 Prêt à méditer la Parole aujourd'hui ?",
   },
 };
@@ -164,13 +173,15 @@ function pickMessage(situation: MascotSituation, timeOfDay: TimeOfDay): string {
  *  2. journée complète — 3 sessions ou dayCompleted                     → celebrating
  *  3. palier de série — streak à 7/30/50/100/200/365 sans inactivité    → celebrating
  *  4. série sauvée    — inactivité mais au moins 1 session aujourd'hui  → happy
- *  5. série en danger — inactivité et 0 session aujourd'hui             → sad
+ *  5. série en danger — inactivité et 0 session : escalade horaire      → sad
  *  6. méditation en cours                                              → thinking
- *  7. progression partielle — 1 ou 2 sessions                          → happy
- *  8. rien commencé — humeur selon l'heure, JAMAIS triste sans raison   → happy/encouraging
+ *  7. progression partielle — 1 ou 2 sessions : escalade le soir        → happy/thinking
+ *  8. rien commencé — ESCALADE : amical le matin → triste le soir       → happy→sad
  *
- * Règle d'or : l'humeur et le message viennent du MÊME calcul, donc ils
- * ne peuvent plus se contredire.
+ * Règle d'or : l'humeur et le message viennent du MÊME calcul, donc le
+ * visage correspond toujours au texte. La mascotte DOIT être triste quand
+ * l'utilisateur néglige sa méditation — c'est le levier de la culpabilité
+ * amicale (modèle Duolingo), pas un bug.
  */
 export function resolveMascotState(
   input: MascotProgressInput,
@@ -195,7 +206,7 @@ export function resolveMascotState(
   const isComplete = dayCompleted || sessionsCompletedToday >= 3;
 
   // 1. Session bonus : la journée est bouclée et l'utilisateur en redemande.
-  //    C'était LE bug : la mascotte pleurait au lieu de féliciter.
+  //    Corrige le bug d'origine : la mascotte pleurait au lieu de féliciter.
   if (isComplete && isMeditatingNow) {
     return build("excited", "bonus_session", "Journée complète et une méditation supplémentaire en cours");
   }
@@ -215,9 +226,11 @@ export function resolveMascotState(
     return build("happy", "streak_saved", "Série menacée mais au moins une session aujourd'hui");
   }
 
-  // 5. Série en danger : c'est le SEUL cas où la mascotte est triste.
+  // 5. Série en danger — le levier le plus fort : la peur de perdre sa série.
+  //    Escalade : inquiet le matin → triste dès midi (les efforts accumulés sont en jeu).
   if (streakCount > 0 && inactivityDays >= 1 && sessionsCompletedToday === 0) {
-    return build("sad", "streak_danger", "Série active mais aucune session aujourd'hui");
+    const mood: MascotMood = timeOfDay === "morning" ? "encouraging" : "sad";
+    return build(mood, "streak_danger", `Série de ${streakCount} jours en danger, aucune session aujourd'hui`);
   }
 
   // 6. Méditation en cours, aucune session encore validée.
@@ -225,15 +238,28 @@ export function resolveMascotState(
     return build("thinking", "meditating", "Méditation en cours");
   }
 
-  // 7. Progression partielle.
+  // 7. Progression partielle : content en journée, préoccupé le soir
+  //    (la journée n'est pas finie et il reste des mini-sessions).
   if (sessionsCompletedToday >= 1) {
-    return build("happy", "partial_progress", `${sessionsCompletedToday} session(s) faite(s) aujourd'hui`);
+    const mood: MascotMood =
+      timeOfDay === "evening" || timeOfDay === "night" ? "thinking" : "happy";
+    return build(mood, "partial_progress", `${sessionsCompletedToday} session(s) faite(s) aujourd'hui`);
   }
 
-  // 8. Rien commencé : l'heure module l'INSISTANCE, jamais la tristesse.
-  //    Auparavant l'après-midi et le soir renvoyaient "sad" → larmes injustifiées.
-  const mood: MascotMood =
-    timeOfDay === "night" ? "sleeping" : timeOfDay === "morning" ? "happy" : "encouraging";
+  // 8. Rien commencé — ESCALADE PSYCHOLOGIQUE (cœur du modèle Duolingo) :
+  //    matin  : amical      (happy)
+  //    midi   : insistant   (encouraging)
+  //    a-midi : inquiet     (thinking)
+  //    soir   : TRISTE      (sad — larmes, culpabilité amicale)
+  //    nuit   : dramatique  (sad — dernière chance avant minuit)
+  const notStartedMood: MascotMood =
+    timeOfDay === "morning"
+      ? "happy"
+      : timeOfDay === "midday"
+      ? "encouraging"
+      : timeOfDay === "afternoon"
+      ? "thinking"
+      : "sad";
 
-  return build(mood, "not_started", `Aucune session, moment de la journée : ${timeOfDay}`);
+  return build(notStartedMood, "not_started", `Aucune session, moment de la journée : ${timeOfDay}`);
 }
