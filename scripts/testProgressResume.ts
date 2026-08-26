@@ -1,3 +1,4 @@
+export {}; // module isolé — évite les collisions de portée globale entre scripts
 /**
  * Test de bout en bout de la PERSISTANCE de la progression OIA+.
  *

@@ -1824,6 +1824,22 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
     );
   }
 
+  // === Écran d'attente tant que la progression n'est pas restaurée ===
+  // Sans ce garde, la page s'affichait d'abord avec l'état initial
+  // (« Mini-session 1/3 · Étape 1/2 ») pendant la lecture de localStorage et de
+  // l'API, puis basculait sur la vraie position. Ce flash donnait l'impression
+  // que la progression était perdue et qu'on repartait du début.
+  if (!progressLoaded) {
+    return (
+      <div className="w-full max-w-4xl mx-auto rounded-3xl p-6 md:p-10 min-h-[85vh] flex flex-col items-center justify-center gap-4">
+        <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+        <p className="text-sm font-bold text-slate-500">
+          Reprise de ta méditation...
+        </p>
+      </div>
+    );
+  }
+
   // === Special screen : Day already completed ===
   if (isDayDone && !sessionResult) {
     const freshUrl = "/meditate?fresh=true";
