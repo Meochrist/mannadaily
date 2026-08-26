@@ -7,7 +7,7 @@ import Manny from "@/components/mascot/Manny";
 import MascotMessage from "@/components/mascot/MascotMessage";
 import { MannyMood } from "@/types";
 import { resolveMascotState } from "@/lib/mascotState";
-import { saveMeditationProgress, loadFromSessionStorage, loadFromAPI, type ProgressState } from "@/lib/progress";
+import { saveMeditationProgress, loadFromSessionStorage, loadFromAPI, saveAnswers, clearLocalProgress, type ProgressState } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 import { 
   BookOpen, 
@@ -246,20 +246,32 @@ function MeditatePageContent() {
         return true;
       };
 
-      // fresh=true : nouveau VERSET (méditation bonus ou depuis la carte).
-      // On repart à la mini-session 1 avec des réponses vierges, MAIS on conserve
-      // les mini-sessions déjà accomplies aujourd'hui : sinon la mascotte et le
-      // tableau de bord repartaient de zéro et l'acquis du jour semblait effacé.
-      if (fresh) {
-        const local = loadFromSessionStorage();
-        const sameDayLocal = local && local.lastActivityDate === today ? local : null;
-        const source = sameDayLocal ?? (await loadFromAPI());
-        const sameDay = source && source.lastActivityDate === today ? source : null;
+      // fresh=true : demande de NOUVEAU verset. Mais attention — ce paramètre
+      // est présent sur tous les liens de la carte : s'il remettait toujours la
+      // progression à 1, revenir continuer sa journée repartait de zéro.
+      // On ne réinitialise donc que si un verset explicite est fourni dans l'URL
+      // (text/book/theme/pathId) OU si la journée est déjà complète (session bonus).
+      const hasExplicitVerse = Boolean(
+        searchParams.get("text") ||
+        searchParams.get("book") ||
+        searchParams.get("theme") ||
+        searchParams.get("pathId")
+      );
 
-        if (sameDay) {
-          const done = Array.isArray(sameDay.sessionsCompleted) ? sameDay.sessionsCompleted : [];
-          setSessionsCompleted(done);
-        }
+      // État du jour, quel que soit le chemin d'entrée.
+      const local = loadFromSessionStorage();
+      const sameDayLocal = local && local.lastActivityDate === today ? local : null;
+      const stored = sameDayLocal ?? (await loadFromAPI());
+      const sameDay = stored && stored.lastActivityDate === today ? stored : null;
+      const doneToday = sameDay && Array.isArray(sameDay.sessionsCompleted)
+        ? sameDay.sessionsCompleted
+        : [];
+      const dayIsComplete = Boolean(sameDay?.dayCompleted) || doneToday.length >= 3;
+
+      if (fresh && (hasExplicitVerse || dayIsComplete)) {
+        // Nouveau verset volontaire : réponses vierges, mais on CONSERVE les
+        // mini-sessions déjà accomplies aujourd'hui (acquis du jour + mascotte).
+        setSessionsCompleted(doneToday);
         setCurrentMiniSession(1);
         setCurrentStepInMini(0);
         setDayCompleted(false);
@@ -267,13 +279,8 @@ function MeditatePageContent() {
         return;
       }
 
-      // 1. sessionStorage
-      const local = loadFromSessionStorage();
-      if (local && local.lastActivityDate === today && restore(local as MeditationProgress & { answers?: Answers })) return;
-
-      // 2. API
-      const remote = await loadFromAPI();
-      if (remote && restore(remote as MeditationProgress & { answers?: Answers })) return;
+      // Reprise normale : on restaure exactement où l'utilisateur s'est arrêté.
+      if (sameDay && restore(sameDay as MeditationProgress & { answers?: Answers })) return;
 
       setProgressLoaded(true);
     }
@@ -286,17 +293,10 @@ function MeditatePageContent() {
     saveMeditationProgress({ currentMiniSession, currentStep: currentStepInMini, sessionsCompleted, dayCompleted });
   }, [currentMiniSession, currentStepInMini, sessionsCompleted, dayCompleted, progressLoaded]);
 
-  // === Auto-save answers to sessionStorage ===
+  // === Auto-save answers ===
   useEffect(() => {
     if (!progressLoaded || typeof window === "undefined") return;
-    const saved = sessionStorage.getItem("manna_meditate_progress");
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        data.answers = answers;
-        sessionStorage.setItem("manna_meditate_progress", JSON.stringify(data));
-      } catch { /* ignore */ }
-    }
+    saveAnswers(answers);
   }, [answers, progressLoaded]);
 
   // Load historical/cultural context for the current verse (defined early to avoid access-before-declaration)
@@ -941,7 +941,7 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
       step5_author: "", step5_jesus: "", step5_summary: "",
       step6_situation: "", step6_transform: "", step6_decision: "",
     });
-    sessionStorage.removeItem("manna_meditate_progress");
+    clearLocalProgress();
   };
 
   // === Helpers for Bible study (Task #D) ===

@@ -26,8 +26,11 @@ function normalizeProgress(input: Record<string, unknown>, activityDate: string)
   const currentMiniSession = typeof input.currentMiniSession === "number" && [1, 2, 3].includes(input.currentMiniSession)
     ? input.currentMiniSession
     : Math.min(3, sessionsCompleted.length + 1);
+  // currentStep vaut 0 ou 1 dans le flux OIA+ (2 écrans par mini-session).
+  // Le borner à 7 laissait passer des valeurs impossibles ; on garde
+  // fidèlement l'étape en cours pour pouvoir reprendre au bon endroit.
   const currentStep = typeof input.currentStep === "number" && Number.isInteger(input.currentStep)
-    ? Math.max(0, Math.min(7, input.currentStep))
+    ? Math.max(0, Math.min(1, input.currentStep))
     : 0;
 
   return {

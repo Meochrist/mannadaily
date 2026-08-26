@@ -15,12 +15,37 @@ function getTodayStr(): string {
 }
 
 /**
- * Save meditation progress to sessionStorage (client-side).
+ * Clé de stockage de la progression du jour.
+ *
+ * IMPORTANT : on utilise localStorage et NON sessionStorage.
+ * sessionStorage est effacé dès que l'onglet est fermé — l'utilisateur qui
+ * commençait une mini-session le matin et revenait l'après-midi repartait
+ * de zéro. localStorage survit à la fermeture ; la date du jour stockée
+ * dans lastActivityDate assure quand même la remise à zéro quotidienne.
+ */
+const STORAGE_KEY = "manna_meditate_progress";
+
+/** Lecture brute, en tolérant l'ancien emplacement (sessionStorage). */
+function readRaw(): string | null {
+  if (typeof window === "undefined") return null;
+  const fromLocal = localStorage.getItem(STORAGE_KEY);
+  if (fromLocal) return fromLocal;
+  // Migration douce : on récupère une progression laissée par l'ancienne version.
+  const legacy = sessionStorage.getItem(STORAGE_KEY);
+  if (legacy) {
+    localStorage.setItem(STORAGE_KEY, legacy);
+    return legacy;
+  }
+  return null;
+}
+
+/**
+ * Save meditation progress to localStorage (client-side).
  */
 export function saveToSessionStorage(state: ProgressState): void {
   if (typeof window === "undefined") return;
   const today = getTodayStr();
-  const existing = sessionStorage.getItem("manna_meditate_progress");
+  const existing = readRaw();
   let answers = undefined;
   if (existing) {
     try {
@@ -36,7 +61,7 @@ export function saveToSessionStorage(state: ProgressState): void {
     dayCompleted: state.dayCompleted,
     answers,
   };
-  sessionStorage.setItem("manna_meditate_progress", JSON.stringify(progress));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
 }
 
 /**
@@ -73,13 +98,13 @@ export async function saveMeditationProgress(state: ProgressState): Promise<void
 }
 
 /**
- * Load meditation progress from sessionStorage (client-side only).
+ * Load meditation progress from localStorage (client-side only).
  * Returns null if not found or if the saved progress is from a different day.
  */
 export function loadFromSessionStorage(): (MeditationProgress & { answers?: unknown }) | null {
   if (typeof window === "undefined") return null;
   const today = getTodayStr();
-  const saved = sessionStorage.getItem("manna_meditate_progress");
+  const saved = readRaw();
   if (!saved) return null;
   try {
     const parsed = JSON.parse(saved);
@@ -88,6 +113,25 @@ export function loadFromSessionStorage(): (MeditationProgress & { answers?: unkn
   } catch {
     return null;
   }
+}
+
+/** Efface la progression locale du jour (nouveau verset / journée terminée). */
+export function clearLocalProgress(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(STORAGE_KEY);
+  sessionStorage.removeItem(STORAGE_KEY);
+}
+
+/** Met à jour uniquement les réponses, en conservant la progression. */
+export function saveAnswers(answers: unknown): void {
+  if (typeof window === "undefined") return;
+  const saved = readRaw();
+  if (!saved) return;
+  try {
+    const data = JSON.parse(saved);
+    data.answers = answers;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch { /* ignore */ }
 }
 
 /**
