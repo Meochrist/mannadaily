@@ -64,8 +64,18 @@ export default async function DashboardPage() {
 
       if (userWithMedProgress?.meditationProgress) {
         const mp = userWithMedProgress.meditationProgress as Record<string, unknown>;
-        const todayStr = new Date().toISOString().split("T")[0];
-        if (mp.lastActivityDate === todayStr) {
+        // Rendu SERVEUR : le fuseau du visiteur est inconnu ici (pas d'en-tête
+        // client disponible dans un composant serveur). Vercel tourne en UTC,
+        // donc pour un utilisateur en UTC+1..+14 la date UTC peut être « hier ».
+        // On accepte donc la veille et le lendemain en UTC : le composant client
+        // (RandomMascotMessage) recalcule ensuite avec la vraie date locale.
+        const now = new Date();
+        const acceptable = new Set(
+          [-1, 0, 1].map((delta) =>
+            new Date(now.getTime() + delta * 86_400_000).toISOString().split("T")[0]
+          )
+        );
+        if (typeof mp.lastActivityDate === "string" && acceptable.has(mp.lastActivityDate)) {
           const sessions = Array.isArray(mp.sessionsCompleted) ? mp.sessionsCompleted as number[] : [];
           sessionsCompletedToday = sessions.length;
           // dayProgress = objectif du jour ATTEINT (3 mini-sessions), pas seulement « a commencé ».

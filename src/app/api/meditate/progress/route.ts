@@ -1,11 +1,15 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { awardXP, updateStreak } from "@/lib/gamification";
+import { dateStrForOffset, offsetFromHeaders } from "@/lib/localDate";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const today = () => new Date().toISOString().slice(0, 10);
+// La journée est calculée dans le fuseau de l'utilisateur, PAS en UTC :
+// sur Vercel (serveur UTC) un utilisateur en UTC+1 voyait sa progression
+// traitée comme « celle d'hier » et remise à zéro après avoir médité.
+const todayFor = (headers: Headers) => dateStrForOffset(offsetFromHeaders(headers));
 const emptyProgress = (date: string) => ({
   currentMiniSession: 1,
   currentStep: 0,
@@ -52,22 +56,24 @@ function normalizeProgress(input: Record<string, unknown>, activityDate: string)
   };
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const activityDate = today();
+    const activityDate = todayFor(req.headers);
     const user = await db.user.findUnique({ where: { id: userId }, select: { meditationProgress: true } });
     if (!user || !isProgress(user.meditationProgress)) {
       return NextResponse.json({ progress: emptyProgress(activityDate) });
     }
 
     if (user.meditationProgress.lastActivityDate !== activityDate) {
-      const reset = emptyProgress(activityDate);
-      await db.user.update({ where: { id: userId }, data: { meditationProgress: reset } });
-      return NextResponse.json({ progress: reset });
+      // Progression d'un autre jour : on renvoie une journée vierge SANS écrire
+      // en base. Un GET ne doit jamais détruire des données — si le fuseau est
+      // mal transmis (en-tête absent), l'écriture effaçait la progression du
+      // jour de façon irréversible. Le prochain POST écrasera de lui-même.
+      return NextResponse.json({ progress: emptyProgress(activityDate) });
     }
 
     return NextResponse.json({ progress: normalizeProgress(user.meditationProgress, activityDate) });
@@ -91,7 +97,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing progress object" }, { status: 400 });
     }
 
-    const activityDate = today();
+    const activityDate = todayFor(req.headers);
     const requested = normalizeProgress(body.progress, activityDate);
     const claim = body.claimXPForSession;
     if (claim !== undefined && (!Number.isInteger(claim) || claim < 1 || claim > 3)) {

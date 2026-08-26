@@ -7,6 +7,7 @@ import Manny from "@/components/mascot/Manny";
 import MascotMessage from "@/components/mascot/MascotMessage";
 import { MannyMood } from "@/types";
 import { resolveMascotState } from "@/lib/mascotState";
+import { localDateStr } from "@/lib/localDate";
 import { saveMeditationProgress, loadFromSessionStorage, loadFromAPI, saveAnswers, clearLocalProgress, type ProgressState } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 import { 
@@ -141,8 +142,9 @@ import { getThemeVerses, getThemeProgress, advanceThemeProgress } from "@/lib/th
 import { THEMES } from "@/types";
 
 // === Helper to get today's date string ===
+// Date LOCALE de l'utilisateur (pas UTC) — source unique : src/lib/localDate.ts
 function getTodayStr(): string {
-  return new Date().toISOString().split("T")[0];
+  return localDateStr();
 }
 
 function MeditatePageContent() {

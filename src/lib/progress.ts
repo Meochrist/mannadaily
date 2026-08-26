@@ -1,6 +1,7 @@
 "use client";
 
 import type { MeditationProgress } from "@/lib/mascots";
+import { localDateStr, tzHeaders } from "@/lib/localDate";
 
 export interface ProgressState {
   currentMiniSession: 1 | 2 | 3;
@@ -10,8 +11,9 @@ export interface ProgressState {
   claimXPForSession?: 1 | 2 | 3;
 }
 
+// Date LOCALE de l'utilisateur (pas UTC) : voir src/lib/localDate.ts.
 function getTodayStr(): string {
-  return new Date().toISOString().split("T")[0];
+  return localDateStr();
 }
 
 /**
@@ -71,7 +73,7 @@ export async function saveToAPI(state: ProgressState): Promise<void> {
   try {
     await fetch("/api/meditate/progress", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...tzHeaders() },
       body: JSON.stringify({
         progress: {
           currentMiniSession: state.currentMiniSession,
@@ -140,7 +142,7 @@ export function saveAnswers(answers: unknown): void {
  */
 export async function loadFromAPI(): Promise<(MeditationProgress & { answers?: unknown }) | null> {
   try {
-    const res = await fetch("/api/meditate/progress");
+    const res = await fetch("/api/meditate/progress", { headers: tzHeaders() });
     if (!res.ok) return null;
     const data = await res.json();
     const today = getTodayStr();
