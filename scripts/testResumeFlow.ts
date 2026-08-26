@@ -74,10 +74,6 @@ function loadProgress(urlParams: Record<string, string>): LoadResult {
   const fresh = urlParams.fresh === "true";
   const today = TODAY;
 
-  const hasExplicitVerse = Boolean(
-    urlParams.text || urlParams.book || urlParams.theme || urlParams.pathId
-  );
-
   const local = loadFromLocal();
   const sameDayLocal = local && local.lastActivityDate === today ? local : null;
   const stored = sameDayLocal ?? apiGet();
@@ -85,8 +81,15 @@ function loadProgress(urlParams: Record<string, string>): LoadResult {
   const doneToday = sameDay && Array.isArray(sameDay.sessionsCompleted) ? sameDay.sessionsCompleted : [];
   const dayIsComplete = Boolean(sameDay?.dayCompleted) || doneToday.length >= 3;
 
-  if (fresh && (hasExplicitVerse || dayIsComplete)) {
-    return { miniSession: 1, step: 0, sessions: doneToday, isDayDone: false, path: "RESET (fresh + verset explicite)" };
+  const dayInProgress =
+    !dayIsComplete &&
+    Boolean(sameDay) &&
+    (doneToday.length > 0 ||
+      (sameDay!.currentMiniSession ?? 1) > 1 ||
+      (sameDay!.currentStep ?? 0) > 0);
+
+  if (fresh && !dayInProgress) {
+    return { miniSession: 1, step: 0, sessions: doneToday, isDayDone: false, path: "RESET (fresh, journee non entamee)" };
   }
 
   if (sameDay) {
@@ -136,10 +139,30 @@ const scenarios: Scenario[] = [
     expectMini: 2, expectStep: 1,
   },
   {
-    label: "Lien de la CARTE (text+pathId+fresh=true) — reset attendu, sessions conservees",
+    label: "BUG SIGNALE : lien CARTE (fresh=true) avec mini 1 DEJA finie -> doit REPRENDRE",
     db: inProgressMini2, local: null,
     url: { text: "Autre", pathId: "foi", level: "3", fresh: "true" },
+    expectMini: 2, expectStep: 1,
+  },
+  {
+    label: "Lien CARTE (fresh=true) journee NON entamee -> reset legitime",
+    db: null, local: null,
+    url: { text: "Autre", pathId: "foi", level: "3", fresh: "true" },
     expectMini: 1, expectStep: 0,
+  },
+  {
+    label: "Lien CARTE (fresh=true) journee COMPLETE -> nouveau verset bonus",
+    db: { currentMiniSession: 3, currentStep: 1, sessionsCompleted: [1, 2, 3], lastActivityDate: TODAY, dayCompleted: true },
+    local: null,
+    url: { text: "Autre", pathId: "foi", level: "3", fresh: "true" },
+    expectMini: 1, expectStep: 0,
+  },
+  {
+    label: "Lien CARTE (fresh=true) mini 1 entamee (ecran 2) mais rien valide -> REPRENDRE",
+    db: { currentMiniSession: 1, currentStep: 1, sessionsCompleted: [], lastActivityDate: TODAY, dayCompleted: false },
+    local: null,
+    url: { text: "Autre", pathId: "foi", fresh: "true" },
+    expectMini: 1, expectStep: 1,
   },
   {
     label: "Etat corrompu en base (mini 1 alors que [1,2] validees)",

@@ -246,17 +246,15 @@ function MeditatePageContent() {
         return true;
       };
 
-      // fresh=true : demande de NOUVEAU verset. Mais attention — ce paramètre
-      // est présent sur tous les liens de la carte : s'il remettait toujours la
-      // progression à 1, revenir continuer sa journée repartait de zéro.
-      // On ne réinitialise donc que si un verset explicite est fourni dans l'URL
-      // (text/book/theme/pathId) OU si la journée est déjà complète (session bonus).
-      const hasExplicitVerse = Boolean(
-        searchParams.get("text") ||
-        searchParams.get("book") ||
-        searchParams.get("theme") ||
-        searchParams.get("pathId")
-      );
+      // fresh=true : demande de NOUVEAU verset (liens de la carte, méditation
+      // personnelle). Attention : cela ne doit JAMAIS écraser une journée OIA+
+      // déjà entamée. Cliquer « Méditer » depuis la carte alors qu'on a fini la
+      // mini-session 1 renvoyait au tout début de la journée.
+      //
+      // Règle : on ne réinitialise que si la journée n'est PAS en cours, c.-à-d.
+      //   • aucune mini-session validée ET aucune mini-session commencée, ou
+      //   • la journée est déjà complète (méditation bonus légitime).
+      // Sinon on reprend là où l'utilisateur s'était arrêté.
 
       // État du jour, quel que soit le chemin d'entrée.
       const local = loadFromSessionStorage();
@@ -268,8 +266,17 @@ function MeditatePageContent() {
         : [];
       const dayIsComplete = Boolean(sameDay?.dayCompleted) || doneToday.length >= 3;
 
-      if (fresh && (hasExplicitVerse || dayIsComplete)) {
-        // Nouveau verset volontaire : réponses vierges, mais on CONSERVE les
+      // Journée en cours = au moins une mini validée, ou une mini entamée
+      // (position au-delà du tout premier écran).
+      const dayInProgress =
+        !dayIsComplete &&
+        Boolean(sameDay) &&
+        (doneToday.length > 0 ||
+          (sameDay!.currentMiniSession ?? 1) > 1 ||
+          (sameDay!.currentStep ?? 0) > 0);
+
+      if (fresh && !dayInProgress) {
+        // Nouveau verset légitime : réponses vierges, mais on CONSERVE les
         // mini-sessions déjà accomplies aujourd'hui (acquis du jour + mascotte).
         setSessionsCompleted(doneToday);
         setCurrentMiniSession(1);
