@@ -684,23 +684,41 @@ function MeditatePageContent() {
 
     if (isLastStepInMini) {
       // Mini-session is complete!
-      const newCompleted = [...sessionsCompleted, currentMiniSession];
+      const newCompleted = [...new Set([...sessionsCompleted, currentMiniSession])].sort((a, b) => a - b);
       setSessionsCompleted(newCompleted);
 
       // Mark mini-session as done
       const xpReward = XP_REWARDS[currentMiniSession];
-      
+
+      // La mini-session qui vient d'être terminée ne doit PAS rester la position
+      // courante : si l'utilisateur quitte ici sans cliquer « Continuer », la base
+      // gardait « mini 1 / étape 1 » avec [1,2] déjà validées, et la reprise le
+      // renvoyait au tout début. On enregistre donc directement la position
+      // SUIVANTE (début de la mini d'après, ou fin de journée).
+      const isLastMini = currentMiniSession === 3;
+      const nextMini = (isLastMini ? 3 : currentMiniSession + 1) as 1 | 2 | 3;
+      const nextStep = (isLastMini ? 1 : 0) as 0 | 1;
+
       // Save to API with XP
-      await saveMeditationProgress({ currentMiniSession, currentStep: currentStepInMini, sessionsCompleted: newCompleted, dayCompleted, claimXPForSession: currentMiniSession });
-      // (sessionStorage saved via saveMeditationProgress above)
+      await saveMeditationProgress({
+        currentMiniSession: nextMini,
+        currentStep: nextStep,
+        sessionsCompleted: newCompleted,
+        dayCompleted: isLastMini ? true : dayCompleted,
+        claimXPForSession: currentMiniSession,
+      });
 
       // Show completion modal
       setLastCompletedMiniSession(currentMiniSession);
       setShowMiniComplete(true);
 
       // If this was the 3rd mini-session, mark day as completed
-      if (currentMiniSession === 3) {
+      if (isLastMini) {
         setDayCompleted(true);
+      } else {
+        // Aligne l'état React sur ce qui vient d'être persisté.
+        setCurrentMiniSession(nextMini);
+        setCurrentStepInMini(nextStep);
       }
     } else {
       // Move to next step in same mini-session

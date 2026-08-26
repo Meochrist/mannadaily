@@ -20,14 +20,17 @@ function normalizeProgress(input: Record<string, unknown>, activityDate: string)
       )
     ),
   ].sort((a, b) => a - b);
-  const currentMiniSession =
-    typeof input.currentMiniSession === "number" && [1, 2, 3].includes(input.currentMiniSession)
-      ? input.currentMiniSession
-      : Math.min(3, sessionsCompleted.length + 1);
-  const currentStep =
+  const rawStep =
     typeof input.currentStep === "number" && Number.isInteger(input.currentStep)
       ? Math.max(0, Math.min(1, input.currentStep))
       : 0;
+  const minMiniSession = Math.min(3, sessionsCompleted.length + 1);
+  const rawMini =
+    typeof input.currentMiniSession === "number" && [1, 2, 3].includes(input.currentMiniSession)
+      ? input.currentMiniSession
+      : minMiniSession;
+  const currentMiniSession = Math.max(rawMini, minMiniSession);
+  const currentStep = currentMiniSession === rawMini ? rawStep : 0;
 
   return {
     currentMiniSession,
@@ -71,6 +74,16 @@ const cases: Case[] = [
     label: "Journee complete",
     saved: { currentMiniSession: 3, currentStep: 1, sessionsCompleted: [1, 2, 3], lastActivityDate: TODAY, dayCompleted: true },
     expect: { currentMiniSession: 3, currentStep: 1, sessionsCompleted: [1, 2, 3], dayCompleted: true },
+  },
+  {
+    label: "CAS REEL EN BASE : mini 1 alors que [1,2] validees -> corrige en mini 3",
+    saved: { currentMiniSession: 1, currentStep: 1, sessionsCompleted: [1, 2], lastActivityDate: TODAY, dayCompleted: false },
+    expect: { currentMiniSession: 3, currentStep: 0, sessionsCompleted: [1, 2], dayCompleted: false },
+  },
+  {
+    label: "Mini 1 terminee sans clic Continuer -> position = mini 2",
+    saved: { currentMiniSession: 2, currentStep: 0, sessionsCompleted: [1], lastActivityDate: TODAY, dayCompleted: false },
+    expect: { currentMiniSession: 2, currentStep: 0, sessionsCompleted: [1], dayCompleted: false },
   },
   {
     label: "Valeur currentStep aberrante (5) ramenee dans les bornes",

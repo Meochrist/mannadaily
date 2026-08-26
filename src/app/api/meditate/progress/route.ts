@@ -23,15 +23,25 @@ function normalizeProgress(input: Record<string, unknown>, activityDate: string)
   const sessionsCompleted = [...new Set(rawSessions.filter((value): value is number =>
     typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= 3
   ))].sort((a, b) => a - b);
-  const currentMiniSession = typeof input.currentMiniSession === "number" && [1, 2, 3].includes(input.currentMiniSession)
-    ? input.currentMiniSession
-    : Math.min(3, sessionsCompleted.length + 1);
   // currentStep vaut 0 ou 1 dans le flux OIA+ (2 écrans par mini-session).
   // Le borner à 7 laissait passer des valeurs impossibles ; on garde
   // fidèlement l'étape en cours pour pouvoir reprendre au bon endroit.
-  const currentStep = typeof input.currentStep === "number" && Number.isInteger(input.currentStep)
+  const rawStep = typeof input.currentStep === "number" && Number.isInteger(input.currentStep)
     ? Math.max(0, Math.min(1, input.currentStep))
     : 0;
+
+  // GARDE-FOU : la position courante ne peut pas être ANTÉRIEURE aux
+  // mini-sessions déjà validées. Un état incohérent (« mini 1 » alors que
+  // [1,2] sont faites) renvoyait l'utilisateur au tout début de sa journée.
+  // La position minimale légitime est donc « première mini non validée ».
+  const minMiniSession = Math.min(3, sessionsCompleted.length + 1);
+  const rawMini = typeof input.currentMiniSession === "number" && [1, 2, 3].includes(input.currentMiniSession)
+    ? input.currentMiniSession
+    : minMiniSession;
+  const currentMiniSession = Math.max(rawMini, minMiniSession);
+  // Si le garde-fou a fait avancer la position, on repart au 1er écran
+  // de cette mini-session plutôt que d'hériter d'une étape sans rapport.
+  const currentStep = currentMiniSession === rawMini ? rawStep : 0;
 
   return {
     currentMiniSession,
