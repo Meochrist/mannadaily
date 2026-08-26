@@ -6,6 +6,7 @@ export type MannyMood =
   | "celebrating"
   | "sleeping"
   | "praying"
+  | "worried"
   | "sad";
 
 export interface LevelConfig {

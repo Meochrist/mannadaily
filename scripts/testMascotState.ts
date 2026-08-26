@@ -78,10 +78,10 @@ const cases: Case[] = [
     expectSituation: "partial_progress",
   },
   {
-    label: "1/3 le SOIR : S'INQUIETE (creneau mini 2 depasse)",
+    label: "1/3 le SOIR : S'INQUIETE, visage en sueur (creneau mini 2 depasse)",
     input: { sessionsCompletedToday: 1, dayCompleted: false },
     time: "evening",
-    expectMood: "thinking",
+    expectMood: "worried",
     expectCrying: false,
     expectSituation: "partial_overdue",
   },
@@ -143,10 +143,10 @@ const cases: Case[] = [
     expectCrying: false,
   },
   {
-    label: "0/3 l'APRES-MIDI : inquiet",
+    label: "0/3 l'APRES-MIDI : inquiet, visage en sueur",
     input: { sessionsCompletedToday: 0, dayCompleted: false },
     time: "afternoon",
-    expectMood: "thinking",
+    expectMood: "worried",
     expectCrying: false,
   },
   {

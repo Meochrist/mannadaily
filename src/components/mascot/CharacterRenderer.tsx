@@ -67,43 +67,51 @@ export default function CharacterRenderer({
   // Détecter si Rive est activé pour ce personnage et qu'on ne souhaite pas de fallback immédiat
   const isRiveEnabled = RIVE_ENABLED_CHARACTERS.includes(charId) && !useFallback;
 
-  // 1. Si un état sémantique Duolingo est fourni, il surcharge les poses/expressions/tenues
+  // 1. L'état sémantique (météo / nuit / série critique) module la TENUE et,
+  //    pour les états forts, la pose. Mais il ne doit JAMAIS écraser une
+  //    expression émotionnelle explicitement demandée : c'est ce qui rendait
+  //    la mascotte impassible alors que le message était triste ou joyeux.
   let finalPose = pose;
   let finalExpression = expression;
   let finalOutfit = outfit;
   const finalState = state || "DEFAULT";
 
+  // Une expression/pose explicite (différente du défaut) exprime l'émotion
+  // calculée par resolveMascotState : elle est prioritaire.
+  const hasExplicitExpression = expression !== "neutral";
+  const hasExplicitPose = pose !== "idle";
+
   if (state) {
     switch (state) {
       case "SPORT":
-        finalPose = "running";
-        finalExpression = "happy";
+        if (!hasExplicitPose) finalPose = "running";
+        if (!hasExplicitExpression) finalExpression = "happy";
         finalOutfit = "default";
         break;
       case "WEATHER_HOT":
-        finalPose = "idle";
-        finalExpression = "sweating";
+        if (!hasExplicitPose) finalPose = "idle";
+        if (!hasExplicitExpression) finalExpression = "sweating";
         finalOutfit = "beach";
         break;
       case "WEATHER_COLD":
-        finalPose = "idle";
-        finalExpression = "neutral";
+        if (!hasExplicitPose) finalPose = "idle";
+        if (!hasExplicitExpression) finalExpression = "neutral";
         finalOutfit = "winter";
         break;
       case "NIGHT_MODE":
-        finalPose = "idle";
-        finalExpression = "neutral";
+        if (!hasExplicitPose) finalPose = "idle";
+        if (!hasExplicitExpression) finalExpression = "neutral";
         finalOutfit = "winter"; // Pyjama/tenue chaude pour la nuit
         break;
       case "CRITICAL_STREAK":
+        // Série critique : l'urgence émotionnelle prime toujours.
         finalPose = "sad";
         finalExpression = "crying";
         finalOutfit = "default";
         break;
       case "DEFAULT":
       default:
-        finalPose = "idle";
-        finalExpression = "neutral";
+        // Aucun état particulier : on garde la pose et l'expression demandées.
         finalOutfit = "default";
         break;
     }

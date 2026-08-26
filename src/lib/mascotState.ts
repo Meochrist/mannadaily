@@ -103,23 +103,43 @@ export function getTimeOfDay(date: Date = new Date()): TimeOfDay {
  * Table UNIQUE mood → pose/expression.
  * Ne jamais dupliquer ce mapping ailleurs.
  */
+/**
+ * Traduit une humeur en pose + expression du personnage RENDU.
+ *
+ * C'est la seule table de correspondance : le visage dessiné doit refléter
+ * l'emoji du message. Les 4 expressions disponibles en base (fichiers SVG
+ * expression_*.svg de chaque personnage) sont exploitées :
+ *   happy    → sourire      (😊 🎉 🔥 🏆 🤩)
+ *   neutral  → impassible   (😐 état de repos / réflexion)
+ *   sweating → embarras     (😟 😥 😰 inquiétude, gêne, urgence)
+ *   crying   → larmes       (😢 😭 💔 tristesse, culpabilité)
+ */
 export function moodToVisual(mood: MascotMood): {
   pose: MascotPose;
   expression: MascotExpression;
 } {
   switch (mood) {
+    // Joie explosive : le personnage saute, visage rayonnant.
     case "celebrating":
     case "excited":
       return { pose: "jumping", expression: "happy" };
+    // Encouragement dynamique : il court, visage souriant.
     case "encouraging":
       return { pose: "running", expression: "happy" };
+    // Content : debout, souriant.
     case "happy":
       return { pose: "idle", expression: "happy" };
+    // Inquiétude / gêne : posture affaissée, visage en sueur.
+    // C'est l'état « 😟 » — avant il rendait un visage neutre impassible.
+    case "worried":
+      return { pose: "sad", expression: "sweating" };
+    // Réflexion : debout, visage neutre.
     case "thinking":
     case "praying":
       return { pose: "idle", expression: "neutral" };
     case "sleeping":
       return { pose: "idle", expression: "neutral" };
+    // Tristesse : posture affaissée, larmes.
     case "sad":
       return { pose: "sad", expression: "crying" };
     default:
@@ -168,11 +188,11 @@ const MESSAGES: Record<MascotSituation, Partial<Record<TimeOfDay, string>> & { d
     night: "🌛 Belle avancée aujourd'hui. Termine si tu peux encore !",
     default: "😊 Bravo pour cette mini-session ! Continue.",
   },
-  // Créneau DÉPASSÉ : la mascotte s'inquiète, la culpabilité amicale s'installe.
+  // Créneau DÉPASSÉ : la mascotte s'inquiète (visage en sueur), puis pleure la nuit.
   partial_overdue: {
     midday: "😟 Ta prochaine mini-session devait être faite... Ne t'arrête pas en chemin !",
     afternoon: "😥 Le créneau de ta prochaine mini-session est passé. Reviens méditer !",
-    evening: "😢 Tu as bien commencé mais tu t'es arrêté... Ne laisse pas ta journée inachevée !",
+    evening: "😰 Tu as bien commencé mais tu t'es arrêté... Ne laisse pas ta journée inachevée !",
     night: "😭 Minuit approche et ta journée reste incomplète. Il te reste si peu de temps...",
     default: "😟 Tu t'es arrêté en chemin. Reviens compléter ta journée !",
   },
@@ -183,9 +203,11 @@ const MESSAGES: Record<MascotSituation, Partial<Record<TimeOfDay, string>> & { d
     default: "😌 Ouf ! Ta série est sauvée. Bien joué d'être revenu !",
   },
   // ESCALADE MAXIMALE : une série active en jeu = le levier le plus fort.
+  // Emojis alignés sur le visage dessiné : ⏰ (alerte, sourire volontaire)
+  // puis 😢/😭/💔 dès que la mascotte pleure réellement.
   streak_danger: {
     morning: "⏰ Ta série est en jeu aujourd'hui. Une méditation et elle est sauvée !",
-    midday: "😟 Il est midi et ta série est menacée. Ne gâche pas tous ces jours d'efforts !",
+    midday: "😢 Il est midi et ta série est menacée. Ne gâche pas tous ces jours d'efforts !",
     afternoon: "😢 L'après-midi avance et ta série va se briser. Je m'inquiète pour toi...",
     evening: "😭 Le soir tombe et ta série va DISPARAÎTRE à minuit ! Tous tes efforts perdus...",
     night: "💔 Minuit approche. Ta série va se briser et ça me brise le cœur. Il te reste peu de temps !",
@@ -295,8 +317,9 @@ export function resolveMascotState(
       );
     }
 
-    // Créneau dépassé : inquiétude qui s'aggrave jusqu'aux larmes la nuit.
-    const mood: MascotMood = timeOfDay === "night" ? "sad" : "thinking";
+    // Créneau dépassé : inquiétude visible (visage en sueur, posture affaissée)
+    // qui devient des larmes la nuit. Le visage suit l'emoji du message.
+    const mood: MascotMood = timeOfDay === "night" ? "sad" : "worried";
     return build(
       mood,
       "partial_overdue",
@@ -304,19 +327,20 @@ export function resolveMascotState(
     );
   }
 
-  // 8. Rien commencé — ESCALADE PSYCHOLOGIQUE (cœur du modèle Duolingo) :
-  //    matin  : amical      (happy)
-  //    midi   : insistant   (encouraging)
-  //    a-midi : inquiet     (thinking)
-  //    soir   : TRISTE      (sad — larmes, culpabilité amicale)
-  //    nuit   : dramatique  (sad — dernière chance avant minuit)
+  // 8. Rien commencé — ESCALADE PSYCHOLOGIQUE (cœur du modèle Duolingo).
+  //    Le VISAGE DESSINÉ suit l'emoji du message à chaque palier :
+  //    matin  🌅 amical      → happy    (sourire)
+  //    midi   🕐 insistant   → encouraging (court, sourire)
+  //    a-midi 😟 inquiet     → worried  (sueur, posture affaissée)
+  //    soir   😢 triste      → sad      (larmes)
+  //    nuit   😭 dramatique  → sad      (larmes)
   const notStartedMood: MascotMood =
     timeOfDay === "morning"
       ? "happy"
       : timeOfDay === "midday"
       ? "encouraging"
       : timeOfDay === "afternoon"
-      ? "thinking"
+      ? "worried"
       : "sad";
 
   return build(notStartedMood, "not_started", `Aucune session, moment de la journée : ${timeOfDay}`);

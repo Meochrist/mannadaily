@@ -74,8 +74,10 @@ export default function RandomMascotMessage({
       .finally(() => setMounted(true));
   }, []);
 
-  // Tenue seulement (météo/saison) — la pose vient du mood, pas de la météo.
-  const { outfit, mascotState: envState } = useCharacterState({
+    // Tenue seulement (météo/saison). On n'utilise PAS mascotState ici : il
+    // écrasait l'expression émotionnelle (DEFAULT forçait un visage neutre,
+    // CRITICAL_STREAK forçait des larmes) et désynchronisait visage/message.
+    const { outfit } = useCharacterState({
     currentStreak: streakCount,
     sessionsTotal: 0,
     inactivityDays,
@@ -111,7 +113,6 @@ export default function RandomMascotMessage({
       pose={visual.pose}
       expression={visual.expression}
       outfit={outfit}
-      state={envState}
       message={`${MASCOT_PREFIX[mascot]}${state.message}`}
       size={150}
       className={className}
