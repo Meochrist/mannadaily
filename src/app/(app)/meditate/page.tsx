@@ -7,7 +7,7 @@ import Manny from "@/components/mascot/Manny";
 import MascotMessage from "@/components/mascot/MascotMessage";
 import { MannyMood } from "@/types";
 import { resolveMascotState } from "@/lib/mascotState";
-import { localDateStr } from "@/lib/localDate";
+import { localDateStr, tzHeaders } from "@/lib/localDate";
 import { saveMeditationProgress, loadFromSessionStorage, loadFromAPI, saveAnswers, clearLocalProgress, type ProgressState } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 import { 
@@ -157,6 +157,7 @@ function MeditatePageContent() {
   const [sessionsCompleted, setSessionsCompleted] = useState<number[]>([]);
   const [dayCompleted, setDayCompleted] = useState(false);
   const [isDayDone, setIsDayDone] = useState(false); // journée déjà complète → écran spécial
+  const [isBonusSession, setIsBonusSession] = useState(false); // session bonus après journée complète
   const [progressLoaded, setProgressLoaded] = useState(false);
 
   // UI states
@@ -243,6 +244,8 @@ function MeditatePageContent() {
         setCurrentStepInMini(p.currentStep);
         setSessionsCompleted(p.sessionsCompleted);
         setDayCompleted(p.dayCompleted);
+        // Détection session bonus : journée déjà accomplie + utilisateur actif
+        setIsBonusSession(Boolean(p.dayCompleted) || (Array.isArray(p.sessionsCompleted) && p.sessionsCompleted.length >= 3));
         if (p.answers) setAnswers(p.answers);
         setProgressLoaded(true);
         return true;
@@ -283,7 +286,11 @@ function MeditatePageContent() {
         setSessionsCompleted(doneToday);
         setCurrentMiniSession(1);
         setCurrentStepInMini(0);
-        setDayCompleted(false);
+        // Journée déjà complète + fresh = session bonus : on garde dayCompleted
+        // pour que la mascotte affiche "Tu as déjà tout accompli et tu reviens
+        // encore !" au lieu de "Bonjour, commençons cette journée".
+        setIsBonusSession(dayIsComplete);
+        setDayCompleted(dayIsComplete);
         setProgressLoaded(true);
         return;
       }
@@ -489,7 +496,14 @@ function MeditatePageContent() {
         setMorningDoneAlready(morningDoneVal);
 
         const situation = p === "morning" ? "first_visit" : "evening";
-        setWelcomeMessage(getMannyMessage(situation, name, streak));
+        // Détecter si la journée est déjà complète → message de session bonus
+        fetch("/api/meditate/progress", { headers: tzHeaders() })
+          .then((r) => r.json())
+          .then((d) => {
+            const done = d.progress?.sessionsCompleted?.length >= 3 || d.progress?.dayCompleted;
+            setWelcomeMessage(getMannyMessage(done ? "bonus_session" : situation, name, streak));
+          })
+          .catch(() => setWelcomeMessage(getMannyMessage(situation, name, streak)));
       })
       .catch((err) => {
         console.warn("Failed to fetch user progress:", err);
@@ -1140,16 +1154,16 @@ ${dailyVerse?.reference} : "${dailyVerse?.text}" (Thème : ${dailyVerse?.theme})
   // === État de la mascotte — source unique de vérité (src/lib/mascotState.ts) ===
   // isMeditatingNow : l'utilisateur est engagé dans une méditation au-delà du 1er écran,
   // ou il en démarre une nouvelle alors que sa journée est déjà complète (session bonus).
-  const mascotState = useMemo(
-    () =>
-      resolveMascotState({
-        sessionsCompletedToday: sessionsCompleted.length,
-        dayCompleted,
-        isMeditatingNow:
-          currentMiniSession > 1 || currentStepInMini > 0 || sessionsCompleted.length >= 3,
-      }),
-    [currentMiniSession, currentStepInMini, sessionsCompleted, dayCompleted]
-  );
+  const mascotState = useMemo(() => {
+    const isBonus = isBonusSession || (sessionsCompleted.length >= 3 && (currentMiniSession > 1 || currentStepInMini > 0));
+    return resolveMascotState({
+      sessionsCompletedToday: sessionsCompleted.length,
+      dayCompleted,
+      isMeditatingNow:
+        currentMiniSession > 1 || currentStepInMini > 0 || sessionsCompleted.length >= 3,
+      isBonusSession: isBonus,
+    });
+  }, [currentMiniSession, currentStepInMini, sessionsCompleted, dayCompleted, isBonusSession]);
 
   // === Messages ===
   const periodEmoji = period === "morning" ? "🌅" : "🌙";

@@ -32,6 +32,8 @@ export interface MascotProgressInput {
   streakCount?: number;
   /** Jours d'inactivité depuis la dernière méditation. */
   inactivityDays?: number;
+  /** Session bonus : l'utilisateur a déjà fini sa journée et remédite. */
+  isBonusSession?: boolean;
 }
 
 /**
@@ -257,6 +259,7 @@ export function resolveMascotState(
     isMeditatingNow = false,
     streakCount = 0,
     inactivityDays = 0,
+    isBonusSession = false,
   } = input;
 
   const build = (mood: MascotMood, situation: MascotSituation, reason: string): MascotState => ({
@@ -270,7 +273,11 @@ export function resolveMascotState(
   const isComplete = dayCompleted || sessionsCompletedToday >= 3;
 
   // 1. Session bonus : la journée est bouclée et l'utilisateur en redemande.
-  //    Corrige le bug d'origine : la mascotte pleurait au lieu de féliciter.
+  if (isBonusSession && isMeditatingNow) {
+    return build("excited", "bonus_session", "Journée complète et une méditation supplémentaire en cours");
+  }
+
+  // 1bis. Session bonus (détection automatique) : journée complète + nouvelle méditation.
   if (isComplete && isMeditatingNow) {
     return build("excited", "bonus_session", "Journée complète et une méditation supplémentaire en cours");
   }

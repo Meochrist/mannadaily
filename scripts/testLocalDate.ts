@@ -46,6 +46,36 @@ const cases: Case[] = [
     expected: "2026-08-27",
   },
   {
+    label: "France (UTC+1) le 27 a 01h00 local = 00h00 UTC le 27",
+    utc: "2026-08-27T00:00:00Z",
+    offsetMin: -60,
+    expected: "2026-08-27",
+  },
+  {
+    label: "France ete (UTC+2) le 27 a 01h00 local = 23h00 UTC le 26",
+    utc: "2026-08-26T23:00:00Z",
+    offsetMin: -120,
+    expected: "2026-08-27",
+  },
+  {
+    label: "Inde (UTC+5:30) le 27 a 05h00 local = 23h30 UTC le 26",
+    utc: "2026-08-26T23:30:00Z",
+    offsetMin: -330,
+    expected: "2026-08-27",
+  },
+  {
+    label: "Nouvelle-Zelande (UTC+12) le 27 a 12h00 local = 00h00 UTC",
+    utc: "2026-08-27T00:00:00Z",
+    offsetMin: -720,
+    expected: "2026-08-27",
+  },
+  {
+    label: "Hawaii (UTC-10) le 26 a 14h00 local = 00h00 UTC le 27",
+    utc: "2026-08-27T00:00:00Z",
+    offsetMin: 600,
+    expected: "2026-08-26",
+  },
+  {
     label: "En-tete absent -> repli UTC",
     utc: "2026-08-26T23:30:00Z",
     offsetMin: null,

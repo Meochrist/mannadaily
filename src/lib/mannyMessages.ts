@@ -6,6 +6,7 @@ export type MannySituation =
   | "streak_milestone"
   | "session_complete"
   | "first_visit"
+  | "bonus_session"
   | "loading"
   | "evening"
   | "partial_progress"
@@ -54,6 +55,13 @@ const messagesMap: Record<MannySituation, string[]> = {
     "C'est fait ! La Parole a été semée dans ton cœur aujourd'hui. 🌾",
     "Gloire à Dieu pour ce moment de qualité passé ensemble. Sois béni [name] !",
     "Session validée avec succès ! Continue d'ancrer ces vérités dans ta vie.",
+  ],
+  bonus_session: [
+    "🎉 Tu as déjà tout accompli aujourd'hui et tu reviens encore ? Quelle soif de la Parole !",
+    "🌟 Tes 3 sessions étaient faites et tu reviens méditer. Le Seigneur voit ton cœur !",
+    "🔥 Tu es un champion de la foi ! Tu dépasses ton objectif du jour, quelle fidélité !",
+    "💪 La Parole est ton pain quotidien — tu ne t'en lasses jamais, quelle inspiration !",
+    "✨ Tu as déjà médité aujourd'hui et tu reviens ? C'est la soif de Dieu qui t'anime.",
   ],
   first_visit: [
     "Ravi de te revoir aujourd'hui, [name] ! C'est le moment idéal pour méditer.",
