@@ -9,6 +9,8 @@ export interface ProgressState {
   sessionsCompleted: number[];
   dayCompleted: boolean;
   claimXPForSession?: 1 | 2 | 3;
+  /** Référence du verset en cours de méditation (ex: "Jean 3:16"). */
+  verseReference?: string;
 }
 
 // Date LOCALE de l'utilisateur (pas UTC) : voir src/lib/localDate.ts.
@@ -61,6 +63,7 @@ export function saveToSessionStorage(state: ProgressState): void {
     sessionsCompleted: state.sessionsCompleted,
     lastActivityDate: today,
     dayCompleted: state.dayCompleted,
+    verseReference: state.verseReference,
     answers,
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
@@ -81,6 +84,7 @@ export async function saveToAPI(state: ProgressState): Promise<void> {
           sessionsCompleted: state.sessionsCompleted,
           lastActivityDate: getTodayStr(),
           dayCompleted: state.dayCompleted,
+          verseReference: state.verseReference,
         },
         claimXPForSession: state.claimXPForSession,
       }),

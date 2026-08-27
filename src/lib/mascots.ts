@@ -16,6 +16,8 @@ export interface MeditationProgress {
   sessionsCompleted: number[];
   lastActivityDate: string;
   dayCompleted: boolean;
+  /** Référence du verset en cours de méditation (ex: "Jean 3:16"). */
+  verseReference?: string;
 }
 
 /**

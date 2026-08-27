@@ -271,6 +271,25 @@ function MeditatePageContent() {
         : [];
       const dayIsComplete = Boolean(sameDay?.dayCompleted) || doneToday.length >= 3;
 
+      // Le verset demandé dans l'URL (book+chapter+verse OU text+reference+theme OU theme)
+      // est celui que l'utilisateur veut méditer MAINTENANT.
+      const requestedVerseRef = (() => {
+        const textParam = searchParams.get("text");
+        const refParam = searchParams.get("reference");
+        if (textParam && refParam) return decodeURIComponent(refParam);
+        const bookParam = searchParams.get("book");
+        const chapterParam = searchParams.get("chapter");
+        const verseParam = searchParams.get("verse");
+        if (bookParam && chapterParam && verseParam) return `${decodeURIComponent(bookParam)} ${chapterParam}:${verseParam}`;
+        // Parcours thématique : pas de verset fixe, on conserve la progression
+        return null; // null = "pas de contrainte de verset explicite"
+      })();
+
+      // Changement de verset détecté : l'utilisateur a choisi un verset différent
+      // (ex: verset personnalisé depuis le tableau de bord). On réinitialise la
+      // progression pour ce nouveau verset, sans toucher aux autres.
+      const verseChanged = requestedVerseRef !== null && sameDay?.verseReference && sameDay.verseReference !== requestedVerseRef;
+
       // Journée en cours = au moins une mini validée, ou une mini entamée
       // (position au-delà du tout premier écran).
       const dayInProgress =
@@ -280,17 +299,23 @@ function MeditatePageContent() {
           (sameDay!.currentMiniSession ?? 1) > 1 ||
           (sameDay!.currentStep ?? 0) > 0);
 
-      if (fresh && !dayInProgress) {
+      if ((fresh && !dayInProgress) || verseChanged) {
         // Nouveau verset légitime : réponses vierges, mais on CONSERVE les
         // mini-sessions déjà accomplies aujourd'hui (acquis du jour + mascotte).
-        setSessionsCompleted(doneToday);
+        // SAUF si le verset a changé : dans ce cas, on réinitialise tout pour
+        // le nouveau verset (le tableau de bord affichera 0/3 pour ce verset).
+        if (verseChanged) {
+          setSessionsCompleted([]);
+        } else {
+          setSessionsCompleted(doneToday);
+        }
         setCurrentMiniSession(1);
         setCurrentStepInMini(0);
         // Journée déjà complète + fresh = session bonus : on garde dayCompleted
         // pour que la mascotte affiche "Tu as déjà tout accompli et tu reviens
         // encore !" au lieu de "Bonjour, commençons cette journée".
         setIsBonusSession(dayIsComplete);
-        setDayCompleted(dayIsComplete);
+        setDayCompleted(dayIsComplete && !verseChanged);
         setProgressLoaded(true);
         return;
       }
@@ -306,8 +331,8 @@ function MeditatePageContent() {
   // === Auto-save progress on state change ===
   useEffect(() => {
     if (!progressLoaded) return;
-    saveMeditationProgress({ currentMiniSession, currentStep: currentStepInMini, sessionsCompleted, dayCompleted });
-  }, [currentMiniSession, currentStepInMini, sessionsCompleted, dayCompleted, progressLoaded]);
+    saveMeditationProgress({ currentMiniSession, currentStep: currentStepInMini, sessionsCompleted, dayCompleted, verseReference: dailyVerse?.reference });
+  }, [currentMiniSession, currentStepInMini, sessionsCompleted, dayCompleted, progressLoaded, dailyVerse]);
 
   // === Auto-save answers ===
   useEffect(() => {

@@ -53,6 +53,7 @@ function normalizeProgress(input: Record<string, unknown>, activityDate: string)
     sessionsCompleted,
     lastActivityDate: activityDate,
     dayCompleted: sessionsCompleted.length === 3,
+    verseReference: typeof input.verseReference === "string" ? input.verseReference : undefined,
   };
 }
 
