@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getDailyVerse } from "@/lib/verses";
-import { getMascotState } from "@/lib/mascots";
+import { resolveMascotState } from "@/lib/mascotState";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -63,7 +63,10 @@ export async function GET(req: Request) {
     }
 
     // Calculer l'humeur de la mascotte
-    const mascotState = getMascotState(meditationProgress as any);
+    const mascotState = resolveMascotState({
+      sessionsCompletedToday: sessionsCompleted,
+      dayCompleted,
+    });
 
     // Déterminer la mascotte selon l'heure
     const hour = new Date().getHours();

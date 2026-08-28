@@ -300,22 +300,13 @@ function MeditatePageContent() {
           (sameDay!.currentStep ?? 0) > 0);
 
       if ((fresh && !dayInProgress) || verseChanged) {
-        // Nouveau verset légitime : réponses vierges, mais on CONSERVE les
-        // mini-sessions déjà accomplies aujourd'hui (acquis du jour + mascotte).
-        // SAUF si le verset a changé : dans ce cas, on réinitialise tout pour
-        // le nouveau verset (le tableau de bord affichera 0/3 pour ce verset).
-        if (verseChanged) {
-          setSessionsCompleted([]);
-        } else {
-          setSessionsCompleted(doneToday);
-        }
+        // Changement de verset : on réinitialise la méditation en cours,
+        // MAIS on garde dayCompleted — la journée est complète indépendamment du verset.
+        setSessionsCompleted(verseChanged ? [] : doneToday);
         setCurrentMiniSession(1);
         setCurrentStepInMini(0);
-        // Journée déjà complète + fresh = session bonus : on garde dayCompleted
-        // pour que la mascotte affiche "Tu as déjà tout accompli et tu reviens
-        // encore !" au lieu de "Bonjour, commençons cette journée".
         setIsBonusSession(dayIsComplete);
-        setDayCompleted(dayIsComplete && !verseChanged);
+        // On ne réinitialise PAS dayCompleted — il reste tel quel
         setProgressLoaded(true);
         return;
       }

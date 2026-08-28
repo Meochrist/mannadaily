@@ -95,6 +95,9 @@ export default function RandomMascotMessage({
     dayCompleted: progress?.dayCompleted ?? dayProgress,
     streakCount,
     inactivityDays,
+    // isMeditatingNow : l'utilisateur a fait ses 3 sessions et est actif
+    // aujourd'hui → la mascotte doit afficher le message de session bonus.
+    isMeditatingNow: completedToday >= 3,
   });
 
   // Un mood explicitement fourni (rendu serveur) ne pilote que le visuel,

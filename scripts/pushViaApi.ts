@@ -61,13 +61,26 @@ async function main() {
   console.log(`Authentifié comme : ${me.login}`);
 
   // Fichiers modifiés dans le dernier commit
-  const changed = execSync("git diff --name-only origin/main..HEAD", { encoding: "utf-8" })
+  const changedRaw = execSync("git diff --name-status origin/main..HEAD", { encoding: "utf-8" })
     .split("\n")
     .map((s) => s.trim())
     .filter(Boolean);
 
-  console.log(`${changed.length} fichier(s) à pousser :`);
-  changed.forEach((f) => console.log("  -", f));
+  const changed: string[] = [];
+  const deleted: string[] = [];
+  for (const line of changedRaw) {
+    const [status, ...pathParts] = line.split("\t");
+    const filePath = pathParts.join("\t");
+    if (status === "D") {
+      deleted.push(filePath);
+    } else {
+      changed.push(filePath);
+    }
+  }
+
+  console.log(`${changed.length} fichier(s) modifié(s), ${deleted.length} supprimé(s) :`);
+  changed.forEach((f) => console.log("  M", f));
+  deleted.forEach((f) => console.log("  D", f));
 
   const commitMessage = execSync("git log -1 --pretty=%s", { encoding: "utf-8" }).trim();
   console.log(`\nMessage : ${commitMessage}\n`);
@@ -79,7 +92,7 @@ async function main() {
   const baseTreeSha = baseCommit.tree.sha;
 
   // Créer un blob par fichier modifié
-  const treeEntries: { path: string; mode: string; type: string; sha: string }[] = [];
+  const treeEntries: { path: string; mode: string; type: string; sha: string | null }[] = [];
   for (const file of changed) {
     const content = fs.readFileSync(path.resolve(process.cwd(), file), "utf-8");
     const blob = await api(`/repos/${OWNER}/${REPO}/git/blobs`, {
@@ -88,6 +101,11 @@ async function main() {
     });
     treeEntries.push({ path: file, mode: "100644", type: "blob", sha: blob.sha });
     console.log(`  blob créé : ${file}`);
+  }
+  // Fichiers supprimés : sha null pour les retirer de l'arbre
+  for (const file of deleted) {
+    treeEntries.push({ path: file, mode: "100644", type: "blob", sha: null });
+    console.log(`  suppression : ${file}`);
   }
 
   // Nouvel arbre + commit
