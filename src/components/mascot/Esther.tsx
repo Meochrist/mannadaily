@@ -6,7 +6,7 @@ import { useCharacterState } from "@/hooks/useCharacterState";
 import { MannyMood } from "@/types";
 
 interface EstherProps {
-  mood: MannyMood;
+  mood: string;
   size?: number;
   className?: string;
 }

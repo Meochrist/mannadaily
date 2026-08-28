@@ -7,7 +7,7 @@ import { moodToVisual } from "@/lib/mascotState";
 import { MannyMood } from "@/types";
 
 interface MannyProps {
-  mood: MannyMood;
+  mood: string;
   size?: number;
   className?: string;
 }
@@ -24,7 +24,7 @@ export default function Manny({ mood, size = 170, className = "" }: MannyProps) 
   });
 
   // Table unique mood → pose/expression (src/lib/mascotState.ts)
-  const { pose, expression } = moodToVisual(mood);
+  const { pose, expression } = moodToVisual(mood as MannyMood);
 
   return (
     <CharacterRenderer

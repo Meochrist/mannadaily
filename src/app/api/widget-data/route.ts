@@ -41,21 +41,25 @@ export async function GET(req: Request) {
 
     const verse = getDailyVerse();
 
-    // Récupérer la progression unifiée
+    // Récupérer la progression unifiée + timezone
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { meditationProgress: true },
+      select: { meditationProgress: true, timezoneOffset: true },
     });
 
-    const today = new Date().toISOString().split("T")[0];
-    let meditationProgress = null;
+    // Heure locale de l'utilisateur
+    const nowUTC = new Date();
+    const nowLocal = new Date(nowUTC.getTime() + (user?.timezoneOffset ?? 0) * 60000);
+    const hourLocal = nowLocal.getUTCHours();
+    const minuteLocal = nowLocal.getUTCMinutes();
+    const todayLocal = nowLocal.toISOString().split("T")[0];
+
     let sessionsCompleted = 0;
     let dayCompleted = false;
 
     if (user?.meditationProgress && isProgress(user.meditationProgress)) {
       const mp = user.meditationProgress;
-      if (mp.lastActivityDate === today) {
-        meditationProgress = mp;
+      if (mp.lastActivityDate === todayLocal) {
         const sessions = Array.isArray(mp.sessionsCompleted) ? mp.sessionsCompleted : [];
         sessionsCompleted = sessions.length;
         dayCompleted = mp.dayCompleted === true || sessionsCompleted === 3;
@@ -66,14 +70,17 @@ export async function GET(req: Request) {
     const mascotState = resolveMascotState({
       sessionsCompletedToday: sessionsCompleted,
       dayCompleted,
+      streakCount: streak?.currentStreak ?? 0,
+      inactivityDays: 0,
+      isMeditatingNow: sessionsCompleted >= 3,
     });
 
-    // Déterminer la mascotte selon l'heure
-    const hour = new Date().getHours();
+    // Déterminer la mascotte selon l'heure locale
     let widgetMascot = "abraham";
-    if (hour >= 11 && hour < 14) widgetMascot = "gedeon";
-    else if (hour >= 14 && hour < 18) widgetMascot = "esther";
-    else if (hour >= 18 || hour < 5) widgetMascot = "noe";
+    if (hourLocal >= 11 && hourLocal < 14) widgetMascot = "gedeon";
+    else if (hourLocal >= 14 && hourLocal < 18) widgetMascot = "esther";
+    else if (hourLocal >= 18 && hourLocal < 22) widgetMascot = "noe";
+    else widgetMascot = hourLocal % 2 === 0 ? "manny" : "samson";
 
     return NextResponse.json({
       streak: {
@@ -86,6 +93,8 @@ export async function GET(req: Request) {
       mascot: widgetMascot,
       mood: mascotState.mood,
       message: mascotState.message,
+      hour: hourLocal,
+      minute: minuteLocal,
     });
   } catch (error: unknown) {
     console.error("Error in widget data API:", error);

@@ -6,6 +6,7 @@ export interface NotificationMessage {
 }
 
 export const NOTIFICATION_MESSAGES: Record<string, NotificationMessage[]> = {
+  // === MATIN (5h-11h) — Amical, encourageant ===
   morning: [
     {
       mascot: "manny",
@@ -56,6 +57,8 @@ export const NOTIFICATION_MESSAGES: Record<string, NotificationMessage[]> = {
       emoji: "👸",
     },
   ],
+
+  // === MIDI (11h-14h) — Inquiet, pressant ===
   midday: [
     {
       mascot: "manny",
@@ -106,70 +109,320 @@ export const NOTIFICATION_MESSAGES: Record<string, NotificationMessage[]> = {
       emoji: "🆘",
     },
   ],
+
+  // === APRÈS-MIDI (14h-18h) — Triste, déçu ===
+  afternoon: [
+    {
+      mascot: "manny",
+      title: "Je t'attends depuis ce matin... 😢",
+      body: "[name], la Parole est là, prête à te parler. Mais toi, tu es où ? Je commence à m'inquiéter.",
+      emoji: "😢",
+    },
+    {
+      mascot: "samson",
+      title: "TON STREAK FOND COMME NEIGE ❄️",
+      body: "Chaque heure sans méditation est un jour de perdu. Tu laisses la victoire t'échapper, [name] !",
+      emoji: "💔",
+    },
+    {
+      mascot: "esther",
+      title: "Une reine ne traîne pas... 👑",
+      body: "L'après-midi avance et ton trône est vide. La cour céleste te regarde. Fais ton apparition, [name].",
+      emoji: "⏰",
+    },
+    {
+      mascot: "gedeon",
+      title: "LA PRESSION MONTE ! 😤",
+      body: "Tu n'es pas protégé ! L'ennemi rit dans son coin parce qu'il sait que tu n'as pas médité. Ne lui donne pas cette joie !",
+      emoji: "😤",
+    },
+    {
+      mascot: "noe",
+      title: "Le ciel s'assombrit... ⛈️",
+      body: "Les nuages s'accumulent au-dessus de ta tête. Tu as l'abri de la Parole mais tu restes dehors sous la pluie.",
+      emoji: "⛈️",
+    },
+    {
+      mascot: "manny",
+      title: "Un petit effort, s'il te plaît ? 🥺",
+      body: "Je ne demande pas grand-chose. Juste 10 minutes avec Dieu. Tu peux bien ça pour moi, [name] ?",
+      emoji: "🙏",
+    },
+    {
+      mascot: "samson",
+      title: "TU ME DÉÇOIS. 😠",
+      body: "Je croyais en toi. Je croyais que tu étais un guerrier. Mais tu laisses le temps passer sans rien faire.",
+      emoji: "😠",
+    },
+    {
+      mascot: "esther",
+      title: "L'heure tourne... ⏳",
+      body: "Chaque minute sans méditation est une minute volée à ta destinée. Lève-toi, [name], et viens prier.",
+      emoji: "⏳",
+    },
+  ],
+
+  // === SOIR (18h-22h) — Désespéré, paniqué ===
   evening: [
     {
       mascot: "manny",
-      title: "Ta journée n'est pas complète... 🌙",
-      body: "Ta journée n'est pas complète, [name]... La méditation du soir t'attend 🌙",
+      title: "Ton cœur est lourd ce soir... 😭",
+      body: "Le soir tombe et tu n'as pas médité. Je ne suis pas en colère, [name]... je suis triste. Viens te réconforter dans la Parole.",
+      emoji: "😭",
+    },
+    {
+      mascot: "samson",
+      title: "C'EST LA HONTE ! 💀",
+      body: "UNE JOURNÉE SANS MÉDITER. Zéro. Nada. Tu as gaspillé 24 heures. Tu vas te coucher vide, [name] !",
+      emoji: "💀",
+    },
+    {
+      mascot: "esther",
+      title: "Une journée gâchée... 🎭",
+      body: "Tu as eu 24 heures pour glorifier Dieu et tu n'as pas trouvé 10 minutes. Quel gâchis, [name].",
+      emoji: "🎭",
+    },
+    {
+      mascot: "gedeon",
+      title: "JE STRESSE POUR TOI ! 😱",
+      body: "MINUIT APPROCHE ! Tu vas te coucher sans la Parole ! Comment vas-tu dormir ?! MÉDITE MAINTENANT !",
+      emoji: "😱",
+    },
+    {
+      mascot: "noe",
+      title: "Le déluge est là... 🌊",
+      body: "Tu as ignoré l'arche toute la journée. L'eau monte. Il reste peu de temps. Monte à bord, [name] !",
+      emoji: "🌊",
+    },
+    {
+      mascot: "manny",
+      title: "Il n'est pas trop tard... 🌙",
+      body: "Même à cette heure, Dieu t'attend. Un seul verset. Une seule prière. C'est tout ce qu'il te faut.",
       emoji: "🌙",
     },
     {
       mascot: "samson",
-      title: "DEMI-JOURNÉE SPIRITUELLE SEULEMENT. 🏋️‍♂️",
-      body: "DEMI-JOURNÉE SPIRITUELLE SEULEMENT. Le soir compte aussi. Va méditer !",
-      emoji: "🔥",
-    },
-    {
-      mascot: "gedeon",
-      title: "OH NON ! Tu n'as fait que la moitié ! 😱",
-      body: "OH NON ! Tu n'as fait que la moitié ! Sans la méditation du soir tu vas dormir avec la moitié de la Parole seulement !",
-      emoji: "😱",
+      title: "DERNIER APPEL ! 🚨",
+      body: "AVANT MINUIT. C'EST TOI OU LE STREAK ZÉRO. Choisis ton camp, [name] !",
+      emoji: "🚨",
     },
     {
       mascot: "esther",
-      title: "Une reine finit sa journée dans Sa Parole. 👑",
-      body: "Une reine finit sa journée dans Sa Parole. Ta méditation du soir t'attend.",
-      emoji: "✨",
-    },
-    {
-      mascot: "noe",
-      title: "100 ans avant le déluge... 🚢",
-      body: "J'ai médité matin ET soir pendant 100 ans avant le déluge. Tu peux bien le faire ce soir.",
-      emoji: "⚓",
+      title: "Le crépuscule de ta série... 🌆",
+      body: "Ton streak de [X] jours va mourir ce soir si tu n'agis pas. Ne laisse pas la nuit emporter tes efforts.",
+      emoji: "🌆",
     },
   ],
+
+  // === URGENT (22h+) — Paniqué, menaçant ===
   urgent: [
     {
       mascot: "manny",
-      title: "Ton streak est en danger ! 😭",
-      body: "Ton streak va expirer dans quelques heures car ta journée spirituelle n'est pas complète. S'il te plaît, [name], ne laisse pas tes efforts s'effacer...",
-      emoji: "💔",
+      title: "IL RESTE 2 HEURES ! 😭",
+      body: "Ton streak va EXPIRER ! [name], ne laisse pas tes efforts s'effacer... MÉDITE MAINTENANT !",
+      emoji: "⏰",
     },
     {
       mascot: "samson",
-      title: "JOURNÉE INCOMPLÈTE ! STREAK EN DANGER ! 🚨",
-      body: "IL RESTE MOINS DE 3 HEURES ! Tu as fait le matin mais pas le soir ! Secoue-toi et complète ta journée !",
+      title: "CATASTROPHE IMMINENTE ! 💥",
+      body: "TON STREAK DE [X] JOURS VA SE BRISER ! TU AS MOINS DE 2 HEURES ! LÈVE-TOI ET MÉDITE !",
       emoji: "💥",
     },
     {
       mascot: "esther",
-      title: "Dévotion royale incomplète 💅",
-      body: "Laisser ta journée spirituelle à moitié faite et perdre ton streak de [X] jours ? Quel manque de standing. Complète ta méditation du soir.",
+      title: "MINUIT APPROCHE ! 👑",
+      body: "La cour céleste te regarde. Ta série de [X] jours va s'éteindre. Agis en reine, [name] !",
       emoji: "👑",
     },
     {
       mascot: "gedeon",
-      title: "C'EST LA CATASTROPHE !!! 😱",
-      body: "MINUIT APPROCHE ! Ton streak va être BRISÉ si tu ne fais pas ta méditation du soir ! Je stresse pour toi !",
+      title: "C'EST LA FIN !!! 😱",
+      body: "PLUS QU'UNE HEURE ! TON STREAK EST CONDAMNÉ ! SI TU NE MÉDITES PAS, TOUT EST PERDU !",
       emoji: "🔥",
     },
     {
       mascot: "noe",
-      title: "Journée spirituelle incomplète 📢",
-      body: "La rampe de l'arche se ferme à minuit. Ta journée n'est pas complète et ton streak coule. Médite ce soir !",
-      emoji: "🌧️",
+      title: "LA PORTE SE FERME ! 🚢",
+      body: "LA RAMPE DE L'ARCHE SE FERME À MINUIT ! MONTE À BORD OU NOIE DANS TES REGRETS !",
+      emoji: "🚢",
+    },
+    {
+      mascot: "manny",
+      title: "Je crois en toi... 🥺",
+      body: "Même dans la panique, je crois que tu peux le faire. Un dernier effort, [name]. Pour toi. Pour Dieu.",
+      emoji: "🥺",
+    },
+    {
+      mascot: "samson",
+      title: "PAS MAINTENANT ! PAS COMME ÇA ! 😤",
+      body: "TU NE PEUX PAS PERDRE MAINTENANT ! PAS APRÈS [X] JOURS ! BATS-TOI JUSQU'AU BOUT !",
+      emoji: "😤",
+    },
+    {
+      mascot: "esther",
+      title: "Le trône s'effondre... 💔",
+      body: "Ton règne de [X] jours touche à sa fin. Ne laisse pas la nuit détruire ton héritage, [name].",
+      emoji: "💔",
     },
   ],
+
+  // === 1 JOUR SANS MÉDITER — Encouragement ===
+  missed_1_day: [
+    {
+      mascot: "manny",
+      title: "Tu m'as manqué hier... 🥺",
+      body: "Cela fait 1 jour que je ne t'ai pas vu, [name]. Ce n'est pas grave, on recommence ensemble aujourd'hui ?",
+      emoji: "😢",
+    },
+    {
+      mascot: "samson",
+      title: "UN JOUR DE PERDU ! 🥊",
+      body: "1 jour sans méditation. Tu as glissé, [name]. Mais un guerrier ne reste pas au sol. Relève-toi !",
+      emoji: "🥊",
+    },
+    {
+      mascot: "esther",
+      title: "Une journée d'absence 👑",
+      body: "Tu as manqué hier, [name]. Un oubli, ça arrive. Mais aujourd'hui, tu peux rattraper ça.",
+      emoji: "👑",
+    },
+    {
+      mascot: "gedeon",
+      title: "J'AI EU PEUR POUR TOI ! 😰",
+      body: "Hier tu n'es pas venu ! J'ai cru que tu avais abandonné ! S'il te plaît, reviens aujourd'hui !",
+      emoji: "😰",
+    },
+    {
+      mascot: "noe",
+      title: "L'arche a navigué sans toi 🚢",
+      body: "1 jour sans toi. Le courant continue. Mais tu peux remonter à bord, [name].",
+      emoji: "🚢",
+    },
+    {
+      mascot: "manny",
+      title: "Dieu t'attend les bras ouverts 🤗",
+      body: "Hier est passé, [name]. Aujourd'hui est un nouveau commencement. Viens méditer avec moi.",
+      emoji: "🤗",
+    },
+    {
+      mascot: "samson",
+      title: "ON RECOMMENCE ! 💪",
+      body: "1 jour de perdu ? Ce n'est rien. On repart de plus fort aujourd'hui. Montre-moi ce que tu vaux !",
+      emoji: "💪",
+    },
+    {
+      mascot: "esther",
+      title: "Une nouvelle chance ✨",
+      body: "Hier tu as manqué, mais aujourd'hui tu as une nouvelle occasion. Saisis-la, [name].",
+      emoji: "✨",
+    },
+  ],
+
+  // === 2 JOURS SANS MÉDITER — Inquiet ===
+  missed_2_days: [
+    {
+      mascot: "manny",
+      title: "Ça fait 2 jours... 😟",
+      body: "Deux jours sans te voir, [name]. Je commence à m'inquiéter. Est-ce que tu vas bien ?",
+      emoji: "😟",
+    },
+    {
+      mascot: "samson",
+      title: "DEUX JOURS SANS RIEN ! 😠",
+      body: "48 HEURES SANS MÉDITER. Tu relâches tout, [name] ! Ton streak est en danger !",
+      emoji: "😠",
+    },
+    {
+      mascot: "esther",
+      title: "Une absence prolongée 💅",
+      body: "2 jours sans apparaître à la cour ? Les autres membres parlent. Reviens, [name].",
+      emoji: "💅",
+    },
+    {
+      mascot: "gedeon",
+      title: "POURQUOI TU AS DISPARU ?! 😭",
+      body: "DEUX JOURS ! J'AI PANIQUÉ ! Tu es parti sans dire au revoir ! Reviens, je t'en prie !",
+      emoji: "😭",
+    },
+    {
+      mascot: "noe",
+      title: "Le courant t'éloigne... 🌊",
+      body: "2 jours sans toi. Le courant spirituel t'éloigne du port. Reviens avant d'être trop loin.",
+      emoji: "🌊",
+    },
+    {
+      mascot: "manny",
+      title: "Je crois en toi malgré tout 🌱",
+      body: "Même si tu as raté 2 jours, [name], je crois que tu peux recommencer. Un pas à la fois.",
+      emoji: "🌱",
+    },
+    {
+      mascot: "samson",
+      title: "CE N'EST PAS FINI ! 🔥",
+      body: "2 jours de perdus ? Tu peux encore rattraper ! Mais ne attends pas un 3ème jour !",
+      emoji: "🔥",
+    },
+    {
+      mascot: "esther",
+      title: "Le trône se refroidit... ❄️",
+      body: "2 jours d'absence et ton trône se refroidit. Viens le réchauffer, [name].",
+      emoji: "❄️",
+    },
+  ],
+
+  // === 3+ JOURS SANS MÉDITER — Panique totale ===
+  missed_3_plus_days: [
+    {
+      mascot: "manny",
+      title: "Ça fait 3 jours que tu n'es pas venu... 😭",
+      body: "Je t'attends, [name]. Chaque jour sans toi est un jour où la Parole te manque. Reviens.",
+      emoji: "😭",
+    },
+    {
+      mascot: "samson",
+      title: "TROIS JOURS ! TON STREAK EST MORT ! 💀",
+      body: "3 JOURS SANS MÉDITER. TON STREAK EST ZÉRO. TU AS TOUT DÉTRUIT. RECOMMENCE MAINTENANT !",
+      emoji: "💀",
+    },
+    {
+      mascot: "esther",
+      title: "Le royaume t'a oublié... 👑",
+      body: "3 jours d'absence. La cour a tourné la page. Veux-tu reconquérir ton trône, [name] ?",
+      emoji: "👑",
+    },
+    {
+      mascot: "gedeon",
+      title: "J'AI PERDU ESPOIR... 😢",
+      body: "3 jours sans toi. Je ne sais plus quoi faire. Reviens, [name]. S'il te plaît.",
+      emoji: "😢",
+    },
+    {
+      mascot: "noe",
+      title: "L'arche a coulé... 🌊",
+      body: "3 jours sans toi. L'arche a sombré. Mais tu peux en construire une nouvelle, [name].",
+      emoji: "🌊",
+    },
+    {
+      mascot: "manny",
+      title: "Même dans la panique, je crois en toi 🥺",
+      body: "Tu as raté 3 jours, [name]. Mais je crois que tu peux recommencer. Un verset. Une prière. C'est tout.",
+      emoji: "🥺",
+    },
+    {
+      mascot: "samson",
+      title: "IL EST TEMPS DE SE BATTRE ! ⚔️",
+      body: "3 JOURS DE PERDUS. ASSEZ. C'est l'heure de reprendre le combat. Viens regagner ton XP !",
+      emoji: "⚔️",
+    },
+    {
+      mascot: "esther",
+      title: "La couronne est par terre... 💎",
+      body: "3 jours d'absence et ta couronne est tombée. Relève-la, [name]. Elle t'appartient encore.",
+      emoji: "💎",
+    },
+  ],
+
+  // === STREAK BRISÉ — Choc, déception ===
   streak_broken: [
     {
       mascot: "manny",
@@ -220,6 +473,60 @@ export const NOTIFICATION_MESSAGES: Record<string, NotificationMessage[]> = {
       emoji: "💅",
     },
   ],
+
+  // === COMEBACK — Retour après absence ===
+  comeback: [
+    {
+      mascot: "manny",
+      title: "TU ES DE RETOUR ! 🎉",
+      body: "Je t'ai tellement manqué, [name] ! Bienvenue parmi nous. La Parole est heureuse de te revoir !",
+      emoji: "🎉",
+    },
+    {
+      mascot: "samson",
+      title: "LE GUERRIER EST DE RETOUR ! ⚡",
+      body: "ENFIN ! Tu as disparu mais tu es revenu. C'est l'esprit d'un vrai champion. Continue comme ça !",
+      emoji: "⚡",
+    },
+    {
+      mascot: "esther",
+      title: "Le retour de la reine 👑",
+      body: "Tu as pris le temps de revenir, [name]. C'est la marque des grands. Bienvenue à la cour !",
+      emoji: "👑",
+    },
+    {
+      mascot: "gedeon",
+      title: "JE SUIS SOULAGÉ ! 😭",
+      body: "TU ES LÀ ! J'avais tellement peur que tu ne reviennes plus ! Merci d'être là, [name] !",
+      emoji: "😭",
+    },
+    {
+      mascot: "noe",
+      title: "L'arche a retrouvé son capitaine 🚢",
+      body: "Tu es de retour, [name]. L'arche reprend sa route. Ensemble, naviguons vers Dieu !",
+      emoji: "🚢",
+    },
+    {
+      mascot: "manny",
+      title: "Toujours là pour toi 🌱",
+      body: "Peu importe ton absence, Dieu t'attend les bras ouverts. Faisons un pas vers Lui ensemble aujourd'hui.",
+      emoji: "🕊️",
+    },
+    {
+      mascot: "samson",
+      title: "FINI LES VACANCES ! 🔥",
+      body: "Tu as séché mais tu es revenu. Viens compenser cette perte d'XP avec une session intensive !",
+      emoji: "🏋️‍♂️",
+    },
+    {
+      mascot: "esther",
+      title: "Le retour de l'enfant prodige ✨",
+      body: "Il est temps de reprendre de bonnes manières, [name]. Laisse de côté tes distractions et viens méditer.",
+      emoji: "👸",
+    },
+  ],
+
+  // === MILESTONES ===
   streak_milestone_7: [
     {
       mascot: "manny",
@@ -270,6 +577,7 @@ export const NOTIFICATION_MESSAGES: Record<string, NotificationMessage[]> = {
       emoji: "👸",
     },
   ],
+
   streak_milestone_30: [
     {
       mascot: "manny",
@@ -320,6 +628,7 @@ export const NOTIFICATION_MESSAGES: Record<string, NotificationMessage[]> = {
       emoji: "✨",
     },
   ],
+
   level_up: [
     {
       mascot: "manny",
@@ -370,6 +679,7 @@ export const NOTIFICATION_MESSAGES: Record<string, NotificationMessage[]> = {
       emoji: "🕯️",
     },
   ],
+
   badge_earned: [
     {
       mascot: "manny",
@@ -420,56 +730,7 @@ export const NOTIFICATION_MESSAGES: Record<string, NotificationMessage[]> = {
       emoji: "🕊️",
     },
   ],
-  comeback: [
-    {
-      mascot: "manny",
-      title: "Tu m'as manqué... 🥺",
-      body: "Cela fait 2 jours que je ne t'ai pas vu, [name]. L'application est un peu vide sans toi. Viens méditer avec moi.",
-      emoji: "😢",
-    },
-    {
-      mascot: "samson",
-      title: "RETOUR AU BERCAIL ! 🥊",
-      body: "2 jours sans entraînement ? Tu relâches tes muscles spirituels ! Reconnecte-toi et montre-moi que tu n'es pas ramolli !",
-      emoji: "💥",
-    },
-    {
-      mascot: "esther",
-      title: "Une absence remarquée 💅",
-      body: "Déserter la cour pendant 48 heures ? Quelle désinvolture, [name]. Ton trône t'attend, daigne y faire ton apparition.",
-      emoji: "👑",
-    },
-    {
-      mascot: "gedeon",
-      title: "J'AI CRU QUE TU AVAIS ABANDONNÉ ! 😭",
-      body: "Plus de 2 jours sans nouvelles ! J'ai paniqué ! S'il te plaît, dis-moi que tu vas bien et viens lire un verset !",
-      emoji: "🆘",
-    },
-    {
-      mascot: "noe",
-      title: "Où étais-tu passé ? 🌊",
-      body: "L'arche a continué sa route sans toi pendant 2 jours. Reviens à bord avant que le courant ne t'éloigne trop.",
-      emoji: "🚢",
-    },
-    {
-      mascot: "manny",
-      title: "Toujours là pour toi 🌱",
-      body: "Peu importe ton absence, Dieu t'attend les bras ouverts. Faisons un pas vers Lui ensemble aujourd'hui.",
-      emoji: "🕊️",
-    },
-    {
-      mascot: "samson",
-      title: "FINI LES VACANCES ! 🔥",
-      body: "Tu as séché 2 jours de méditation ! Viens compenser cette perte d'XP avec une session intensive immédiate !",
-      emoji: "🏋️‍♂️",
-    },
-    {
-      mascot: "esther",
-      title: "Le retour de l'enfant prodige ✨",
-      body: "Il est temps de reprendre de bonnes manières, [name]. Laisse de côté tes distractions mondaines et viens méditer.",
-      emoji: "👸",
-    },
-  ],
+
   reading_plan_reminder: [
     {
       mascot: "noe",
@@ -502,6 +763,7 @@ export const NOTIFICATION_MESSAGES: Record<string, NotificationMessage[]> = {
       emoji: "😱",
     },
   ],
+
   reading_plan_milestone: [
     {
       mascot: "manny",
@@ -534,6 +796,7 @@ export const NOTIFICATION_MESSAGES: Record<string, NotificationMessage[]> = {
       emoji: "🎉",
     },
   ],
+
   reading_plan_complete: [
     {
       mascot: "manny",
@@ -600,16 +863,43 @@ const PERSONALIZED_MESSAGES: Record<string, { title: string; body: string; emoji
   "noe_2": { title: "🕊️ Presque arrivé !", body: "[name], une dernière mini-session et tu pourras te reposer en paix. Dieu veille.", emoji: "🕊️" },
   "noe_3": { title: "🌙✨ Paix complète", body: "🎉 [name], ta journée est complète ! Repose-toi en paix, Dieu veille sur toi.", emoji: "🌙✨" },
   "noe_streak": { title: "🌊 L'arche s'éloigne !", body: "[name], ton streak de [X] jours va couler ! Sauve-le avant qu'il ne soit trop tard !", emoji: "🌊🔥" },
+
+  // === MANNY — Urgent (22h+) — Paniqué ===
+  "manny_urgent_0": { title: "⏰ IL RESTE 2 HEURES !", body: "[name], ton streak va EXPIRER ! MÉDITE MAINTENANT !", emoji: "⏰" },
+  "manny_urgent_1": { title: "😭 Je crois en toi...", body: "Même dans la panique, je crois que tu peux le faire. Un dernier effort, [name].", emoji: "🥺" },
+  "manny_urgent_streak": { title: "💔 Ton streak va mourir !", body: "[name], ta série de [X] jours va s'éteindre ! SAUVE-LA !", emoji: "💔" },
+
+  // === SAMSON — Urgent (22h+) — En colère ===
+  "samson_urgent_0": { title: "💥 CATASTROPHE IMMINENTE !", body: "TON STREAK DE [X] JOURS VA SE BRISER ! LÈVE-TOI ET MÉDITE !", emoji: "💥" },
+  "samson_urgent_1": { title: "😤 PAS MAINTENANT !", body: "TU NE PEUX PAS PERDRE MAINTENANT ! PAS APRÈS [X] JOURS ! BATS-TOI !", emoji: "😤" },
+  "samson_urgent_streak": { title: "💀 STREAK EN DANGER !", body: "IL RESTE MOINS DE 3 HEURES ! COMPLÈTE TA JOURNÉE !", emoji: "💀" },
+
+  // === GÉDÉON — Urgent (22h+) — Paniqué ===
+  "gedeon_urgent_0": { title: "😱 C'EST LA FIN !!!", body: "PLUS QU'UNE HEURE ! TON STREAK EST CONDAMNÉ ! MÉDITE OU TOUT EST PERDU !", emoji: "😱" },
+  "gedeon_urgent_1": { title: "🔥 MINUIT APPROCHE !", body: "J'AI PEUR POUR TOI ! TA SÉRIE DE [X] JOURS VA MOURIR CE SOIR !", emoji: "🔥" },
+  "gedeon_urgent_streak": { title: "🚨 URGENCE MAXIMALE !", body: "SI TU NE MÉDITES PAS DANS L'HEURE, TON STREAK EST MORT !", emoji: "🚨" },
+
+  // === ESTHER — Urgent (22h+) — Désespéré ===
+  "esther_urgent_0": { title: "👑 MINUIT APPROCHE !", body: "La cour céleste te regarde. Ta série de [X] jours va s'éteindre. Agis, [name] !", emoji: "👑" },
+  "esther_urgent_1": { title: "💔 Le trône s'effondre...", body: "Ton règne de [X] jours touche à sa fin. Ne laisse pas la nuit détruire ton héritage.", emoji: "💔" },
+  "esther_urgent_streak": { title: "🌆 Le crépuscule de ta série", body: "Ton streak va mourir ce soir si tu n'agis pas. Ne laisse pas la nuit emporter tes efforts.", emoji: "🌆" },
+
+  // === NOÉ — Urgent (22h+) — Sage paniqué ===
+  "noe_urgent_0": { title: "🚢 LA PORTE SE FERME !", body: "LA RAMPE DE L'ARCHE SE FERME À MINUIT ! MONTE À BORD OU NOIE DANS TES REGRETS !", emoji: "🚢" },
+  "noe_urgent_1": { title: "🌊 Le déluge est là...", body: "Tu as ignoré l'arche toute la journée. L'eau monte. Il reste peu de temps.", emoji: "🌊" },
+  "noe_urgent_streak": { title: "⏳ L'heure est grave", body: "Ton streak de [X] jours va couler. Sauve-le avant qu'il ne soit trop tard !", emoji: "⏳" },
 };
 
 /**
  * Maps the hour of day to a mascot personality.
  */
-function getMascotForHour(hour: number): "abraham" | "gedeon" | "esther" | "noe" {
+function getMascotForHour(hour: number): "abraham" | "gedeon" | "esther" | "noe" | "manny" | "samson" {
   if (hour >= 5 && hour < 11) return "abraham";
   if (hour >= 11 && hour < 14) return "gedeon";
   if (hour >= 14 && hour < 18) return "esther";
-  return "noe";
+  if (hour >= 18 && hour < 22) return "noe";
+  // Urgent (22h+) : rotation entre manny et samson
+  return hour % 2 === 0 ? "manny" : "samson";
 }
 
 export function getRandomNotification(

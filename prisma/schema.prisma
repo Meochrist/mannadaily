@@ -31,6 +31,7 @@ model User {
   readingProgress     ReadingPlanProgress[]
   notificationTime    String?                 @default("19:00")
   readingReminders    Boolean                 @default(true)
+  timezoneOffset      Int?                    // Offset en minutes depuis UTC (ex: -60 pour UTC+1 Bénin, 240 pour UTC-4 New York)
   onboardingCompleted Boolean                 @default(false)
   favoriteMascot      String?
   memorizations       VerseMemorization[]

@@ -6,7 +6,7 @@ import { useCharacterState } from "@/hooks/useCharacterState";
 import { MannyMood } from "@/types";
 
 interface NoeProps {
-  mood: MannyMood;
+  mood: string;
   size?: number;
   className?: string;
 }
