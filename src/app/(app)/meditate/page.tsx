@@ -307,17 +307,37 @@ function MeditatePageContent() {
         setCurrentStepInMini(0);
         setIsBonusSession(dayIsComplete);
         // On ne réinitialise PAS dayCompleted — il reste tel quel
+        // Initialisation immédiate du welcomeMessage pour éviter un flash
+        if (dayIsComplete) {
+          setWelcomeMessage(getMannyMessage("bonus_session", userName, streakCount));
+        } else {
+          const situation = period === "morning" ? "first_visit" : "evening";
+          setWelcomeMessage(getMannyMessage(situation, userName, streakCount));
+        }
         setProgressLoaded(true);
         return;
       }
 
-      // Reprise normale : on restaure exactement où l'utilisateur s'est arrêté.
+      // Reprise normale : on restaure exactement où l'utilisateur s'était arrêté.
       if (sameDay && restore(sameDay as MeditationProgress & { answers?: Answers })) return;
 
       setProgressLoaded(true);
     }
     loadProgress();
   }, []);
+
+  // === Fetch welcome message (session bonus ou first_visit) ===
+  useEffect(() => {
+    if (!progressLoaded) return;
+    const situation = period === "morning" ? "first_visit" : "evening";
+    fetch("/api/meditate/progress", { headers: tzHeaders() })
+      .then((r) => r.json())
+      .then((d) => {
+        const done = d.progress?.sessionsCompleted?.length >= 3 || d.progress?.dayCompleted;
+        setWelcomeMessage(getMannyMessage(done ? "bonus_session" : situation, userName, streakCount));
+      })
+      .catch(() => setWelcomeMessage(getMannyMessage(situation, userName, streakCount)));
+  }, [progressLoaded, period, userName, streakCount]);
 
   // === Auto-save progress on state change ===
   useEffect(() => {
@@ -511,20 +531,11 @@ function MeditatePageContent() {
         const morningDoneVal = isToday ? !!data.progress?.morningSessionToday : false;
         setMorningDoneAlready(morningDoneVal);
 
-        const situation = p === "morning" ? "first_visit" : "evening";
-        // Détecter si la journée est déjà complète → message de session bonus
-        fetch("/api/meditate/progress", { headers: tzHeaders() })
-          .then((r) => r.json())
-          .then((d) => {
-            const done = d.progress?.sessionsCompleted?.length >= 3 || d.progress?.dayCompleted;
-            setWelcomeMessage(getMannyMessage(done ? "bonus_session" : situation, name, streak));
-          })
-          .catch(() => setWelcomeMessage(getMannyMessage(situation, name, streak)));
+        // Le welcomeMessage est défini plus tard par le fetch /api/meditate/progress
+        // On ne le définit pas ici pour éviter un flash de message inapproprié
       })
       .catch((err) => {
         console.warn("Failed to fetch user progress:", err);
-        const situation = p === "morning" ? "first_visit" : "evening";
-        setWelcomeMessage(getMannyMessage(situation, "Ami", 0));
         setMorningDoneAlready(false);
       });
   }, [searchParams]);
