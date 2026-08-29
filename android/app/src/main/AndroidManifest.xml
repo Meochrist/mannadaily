@@ -31,6 +31,7 @@
 
         </activity>
 
+        <!-- Widget Android natif -->
         <receiver
             android:name=".MannaWidgetProvider"
             android:exported="true"
@@ -42,9 +43,20 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/manna_widget_info" />
         </receiver>
+
+        <!-- Firebase Messaging Service -->
+        <service
+            android:name=".MannaFirebaseService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
     </application>
 
     <!-- Permissions -->
-
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 </manifest>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "REMPLACEZ_PAR_VOTRE_PROJECT_NUMBER",
+    "project_id": "mannadaily-app",
+    "storage_bucket": "mannadaily-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "REMPLACEZ_PAR_VOTRE_APP_ID",
+        "android_client_info": {
+          "package_name": "com.mannadaily.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "REMPLACEZ_PAR_VOTRE_API_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

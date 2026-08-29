@@ -37,6 +37,35 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+self.addEventListener('push', (event) => {
+  const DEFAULT_VAPID = 'BLpSCooHMRuGAdAHosGkpf9bHTCGypv9ztU2U3Hi5cT-7vroONP901ur8MVIRXJfA6aVQKwEnvZepxe1F8aP-yo';
+  
+  let payload = {};
+  try {
+    payload = event.data ? event.data.json() : {};
+  } catch {
+    payload = { title: 'MannaDaily', body: event.data?.text() || '' };
+  }
+
+  const title = payload.title || 'MannaDaily 📖';
+  const options = {
+    body: payload.body || 'Nouvelle notification de MannaDaily',
+    icon: '/icons/icon-192.png',
+    badge: '/icons/icon-192.png',
+    vibrate: [200, 100, 200],
+    data: payload.data || {},
+    actions: payload.actions || [],
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url || '/dashboard';
+  event.waitUntil(clients.openWindow(url));
+});
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
