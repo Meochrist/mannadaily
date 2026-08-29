@@ -8,10 +8,11 @@ import XPBar from "@/components/gamification/XPBar";
 import { getXPProgress } from "@/lib/xp-utils";
 import LingotsCounter from "@/components/gamification/LingotsCounter";
 import BadgeCard from "@/components/gamification/BadgeCard";
-import PushOptIn from "@/components/notifications/PushOptIn";
+import PushManager from "@/components/notifications/PushManager";
 import VerseSelector from "@/components/dashboard/VerseSelector";
 
 interface UserStatus {
+  userId?: string;
   userName: string;
   dailyVerse: { text: string; reference: string; theme: string };
   currentStreak: number;
@@ -172,7 +173,8 @@ export default function DashboardSidebar() {
       </div>
 
       {/* 8. PUSH NOTIFICATIONS */}
-      <PushOptIn vapidPublicKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ""} />
+      {status?.userId && <PushManager userId={status.userId} />}
+      {!status?.userId && <PushManager />}
     </div>
   );
 }

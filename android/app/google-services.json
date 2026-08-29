@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "REMPLACEZ_PAR_VOTRE_PROJECT_NUMBER",
-    "project_id": "mannadaily-app",
-    "storage_bucket": "mannadaily-app.appspot.com"
+    "project_number": "767630557552",
+    "project_id": "mannadayli",
+    "storage_bucket": "mannadayli.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "REMPLACEZ_PAR_VOTRE_APP_ID",
+        "mobilesdk_app_id": "1:767630557552:android:dc47b74c68f9d0396fcfb5",
         "android_client_info": {
           "package_name": "com.mannadaily.app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "REMPLACEZ_PAR_VOTRE_API_KEY"
+          "current_key": "AIzaSyD4m8PTcWqytlPGs2mnxg1ACo0SmM3-P7g"
         }
       ],
       "services": {
