@@ -44,10 +44,10 @@ class MannaWidgetProvider : AppWidgetProvider() {
         if (isSmallFormat) {
             views.setTextViewText(R.id.widgetSmallStreak, "🔥 0 jours")
             views.setTextViewText(R.id.widgetSmallMessage, "Ouvre l'app pour synchroniser.")
-            views.setTextViewText(R.id.widgetSmallMood, "😐")
+            views.setImageViewResource(R.id.widgetMannyIcon, R.drawable.manny_neutral)
         } else {
             views.setTextViewText(R.id.widgetStreak, "Jours 🔥 --")
-            views.setTextViewText(R.id.widgetMannyMood, "😐")
+            views.setImageViewResource(R.id.widgetMannyIcon, R.drawable.manny_neutral)
             views.setTextViewText(R.id.widgetMessage, "Ouvre l'app pour synchroniser.")
             views.setTextViewText(R.id.widgetVerse, "")
             views.setInt(R.id.widgetContainer, "setBackgroundColor", Color.parseColor("#4F46E5"))
@@ -92,8 +92,12 @@ class MannaWidgetProvider : AppWidgetProvider() {
 
                     val streak = json.optJSONObject("streak")
                     val currentStreak = streak?.optInt("currentStreak", 0) ?: 0
+                    val sessionsCompleted = json.optInt("sessionsCompleted", 0)
+                    val dayCompleted = json.optBoolean("dayCompleted", false)
                     val mood = json.optString("mood", "neutral")
                     val message = json.optString("message", "")
+                    val verse = json.optString("verse", "")
+                    val hour = json.optInt("hour", 12)
 
                     // Couleur selon humeur
                     val bgColor = when (mood) {
@@ -104,36 +108,36 @@ class MannaWidgetProvider : AppWidgetProvider() {
                         "crying", "scared" -> Color.parseColor("#EF4444")
                         "panicked" -> Color.parseColor("#DC2626")
                         "angry" -> Color.parseColor("#B91C1C")
+                        "worried" -> Color.parseColor("#F97316")
                         else -> Color.parseColor("#4F46E5")
                     }
 
-                    // Emoji selon humeur
-                    val emoji = when (mood) {
-                        "happy" -> "😊"
-                        "excited" -> "🎉"
-                        "encouraging" -> "💪"
-                        "thinking" -> "🤔"
-                        "celebrating" -> "🏆"
-                        "sad" -> "😢"
-                        "crying" -> "😭"
-                        "scared" -> "😨"
-                        "panicked" -> "😱"
-                        "angry" -> "😤"
-                        "disappointed" -> "😞"
-                        "praying" -> "🙏"
-                        else -> "😐"
+                    // Ressource drawable Manny selon humeur
+                    val mannyDrawable = when (mood) {
+                        "happy" -> R.drawable.manny_happy
+                        "excited" -> R.drawable.manny_excited
+                        "celebrating" -> R.drawable.manny_celebrating
+                        "encouraging" -> R.drawable.manny_encouraging
+                        "thinking" -> R.drawable.manny_thinking
+                        "praying" -> R.drawable.manny_praying
+                        "worried" -> R.drawable.manny_worried
+                        "sad" -> R.drawable.manny_sad
+                        "disappointed" -> R.drawable.manny_disappointed
+                        "crying" -> R.drawable.manny_crying
+                        "scared" -> R.drawable.manny_scared
+                        "panicked" -> R.drawable.manny_panicked
+                        "angry" -> R.drawable.manny_angry
+                        "sleeping" -> R.drawable.manny_sleeping
+                        else -> R.drawable.manny_neutral
                     }
 
                     if (isSmallFormat) {
                         views.setTextViewText(R.id.widgetSmallStreak, "🔥 $currentStreak jours")
                         views.setTextViewText(R.id.widgetSmallMessage, message)
-                        views.setTextViewText(R.id.widgetSmallMood, emoji)
+                        views.setImageViewResource(R.id.widgetMannyIcon, mannyDrawable)
                     } else {
-                        val sessionsCompleted = json.optInt("sessionsCompleted", 0)
-                        val verse = json.optString("verse", "")
-
                         views.setTextViewText(R.id.widgetStreak, "🔥 $currentStreak jours")
-                        views.setTextViewText(R.id.widgetMannyMood, emoji)
+                        views.setImageViewResource(R.id.widgetMannyIcon, mannyDrawable)
                         views.setTextViewText(R.id.widgetMessage, message)
                         views.setTextViewText(R.id.widgetVerse, if (verse.length > 80) verse.substring(0, 80) + "..." else verse)
                         views.setInt(R.id.widgetContainer, "setBackgroundColor", bgColor)
@@ -150,10 +154,10 @@ class MannaWidgetProvider : AppWidgetProvider() {
                     if (isSmallFormat) {
                         views.setTextViewText(R.id.widgetSmallStreak, "Connecte-toi")
                         views.setTextViewText(R.id.widgetSmallMessage, "Ouvre l'app.")
-                        views.setTextViewText(R.id.widgetSmallMood, "🙁")
+                        views.setImageViewResource(R.id.widgetMannyIcon, R.drawable.manny_sad)
                     } else {
                         views.setTextViewText(R.id.widgetStreak, "Connecte-toi")
-                        views.setTextViewText(R.id.widgetMannyMood, "🙁")
+                        views.setImageViewResource(R.id.widgetMannyIcon, R.drawable.manny_sad)
                         views.setTextViewText(R.id.widgetMessage, "Ouvre l'app pour synchroniser.")
                     }
                 }
@@ -162,10 +166,10 @@ class MannaWidgetProvider : AppWidgetProvider() {
                 if (isSmallFormat) {
                     views.setTextViewText(R.id.widgetSmallStreak, "Erreur réseau")
                     views.setTextViewText(R.id.widgetSmallMessage, "Vérifie ta connexion.")
-                    views.setTextViewText(R.id.widgetSmallMood, "😕")
+                    views.setImageViewResource(R.id.widgetMannyIcon, R.drawable.manny_worried)
                 } else {
                     views.setTextViewText(R.id.widgetStreak, "Erreur réseau")
-                    views.setTextViewText(R.id.widgetMannyMood, "😕")
+                    views.setImageViewResource(R.id.widgetMannyIcon, R.drawable.manny_worried)
                     views.setTextViewText(R.id.widgetMessage, "Vérifie ta connexion.")
                 }
             }

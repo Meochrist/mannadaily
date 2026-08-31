@@ -9,7 +9,7 @@
     android:clipToPadding="false"
     android:clipChildren="false">
 
-    <!-- En-tête : streak + emoji -->
+    <!-- En-tête : streak + mascotte Manny -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -27,12 +27,12 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/widgetMannyMood"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="😐"
-            android:textSize="28sp"
+        <ImageView
+            android:id="@+id/widgetMannyIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/manny_neutral"
+            android:contentDescription="MannaDaily mascot"
             android:layout_marginStart="8dp" />
     </LinearLayout>
 

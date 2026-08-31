@@ -10,13 +10,13 @@
     android:clipToPadding="false"
     android:clipChildren="false">
 
-    <!-- Icône M -->
+    <!-- Mascotte Manny dynamique -->
     <ImageView
-        android:id="@+id/widgetSmallIcon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@mipmap/ic_launcher_foreground"
-        android:contentDescription="MannaDaily"
+        android:id="@+id/widgetMannyIcon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/manny_neutral"
+        android:contentDescription="MannaDaily mascot"
         android:layout_marginEnd="10dp" />
 
     <!-- Texte : streak + message -->
@@ -48,14 +48,5 @@
             android:maxLines="1"
             android:ellipsize="end" />
     </LinearLayout>
-
-    <!-- Emoji mascotte -->
-    <TextView
-        android:id="@+id/widgetSmallMood"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="😐"
-        android:textSize="24sp"
-        android:layout_marginStart="8dp" />
 
 </LinearLayout>
