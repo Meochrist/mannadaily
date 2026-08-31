@@ -29,14 +29,29 @@ class MannaWidgetProvider : AppWidgetProvider() {
     }
 
     private fun updateWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-        val views = RemoteViews(context.packageName, R.layout.widget_manna)
-        
+        // Déterminer le layout selon la taille du widget
+        val appWidgetOptions = appWidgetManager.getAppWidgetOptions(appWidgetId)
+        val minWidth = appWidgetOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0)
+        val minHeight = appWidgetOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0)
+
+        // Petit format (2x1) si hauteur < 100dp, sinon grand format
+        val isSmallFormat = minHeight < 100
+        val layoutId = if (isSmallFormat) R.layout.widget_manna_small else R.layout.widget_manna
+
+        val views = RemoteViews(context.packageName, layoutId)
+
         // Données par défaut
-        views.setTextViewText(R.id.widgetStreak, "Jours 🔥 --")
-        views.setTextViewText(R.id.widgetMannyMood, "😐")
-        views.setTextViewText(R.id.widgetMessage, "Ouvre l'app pour synchroniser.")
-        views.setTextViewText(R.id.widgetVerse, "")
-        views.setInt(R.id.widgetContainer, "setBackgroundColor", Color.parseColor("#4F46E5"))
+        if (isSmallFormat) {
+            views.setTextViewText(R.id.widgetSmallStreak, "🔥 0 jours")
+            views.setTextViewText(R.id.widgetSmallMessage, "Ouvre l'app pour synchroniser.")
+            views.setTextViewText(R.id.widgetSmallMood, "😐")
+        } else {
+            views.setTextViewText(R.id.widgetStreak, "Jours 🔥 --")
+            views.setTextViewText(R.id.widgetMannyMood, "😐")
+            views.setTextViewText(R.id.widgetMessage, "Ouvre l'app pour synchroniser.")
+            views.setTextViewText(R.id.widgetVerse, "")
+            views.setInt(R.id.widgetContainer, "setBackgroundColor", Color.parseColor("#4F46E5"))
+        }
 
         // Intent pour ouvrir l'app
         val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://mannadaily.vercel.app/meditate"))
@@ -47,15 +62,21 @@ class MannaWidgetProvider : AppWidgetProvider() {
             flags = flags or PendingIntent.FLAG_IMMUTABLE
         }
         val pendingIntent = PendingIntent.getActivity(context, 0, intent, flags)
-        views.setOnClickPendingIntent(R.id.widgetMeditateButton, pendingIntent)
+
+        if (isSmallFormat) {
+            views.setOnClickPendingIntent(R.id.widgetSmallContainer, pendingIntent)
+        } else {
+            views.setOnClickPendingIntent(R.id.widgetMeditateButton, pendingIntent)
+        }
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
-        fetchData(context, appWidgetManager, appWidgetId)
+        fetchData(context, appWidgetManager, appWidgetId, isSmallFormat)
     }
 
-    private fun fetchData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+    private fun fetchData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, isSmallFormat: Boolean) {
         Thread {
-            val views = RemoteViews(context.packageName, R.layout.widget_manna)
+            val layoutId = if (isSmallFormat) R.layout.widget_manna_small else R.layout.widget_manna
+            val views = RemoteViews(context.packageName, layoutId)
             try {
                 val url = URL(WIDGET_URL)
                 val connection = url.openConnection() as HttpURLConnection
@@ -68,15 +89,11 @@ class MannaWidgetProvider : AppWidgetProvider() {
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     val response = readStream(connection.inputStream)
                     val json = JSONObject(response)
-                    
+
                     val streak = json.optJSONObject("streak")
                     val currentStreak = streak?.optInt("currentStreak", 0) ?: 0
-                    val sessionsCompleted = json.optInt("sessionsCompleted", 0)
-                    val dayCompleted = json.optBoolean("dayCompleted", false)
                     val mood = json.optString("mood", "neutral")
                     val message = json.optString("message", "")
-                    val verse = json.optString("verse", "")
-                    val hour = json.optInt("hour", 12)
 
                     // Couleur selon humeur
                     val bgColor = when (mood) {
@@ -107,29 +124,50 @@ class MannaWidgetProvider : AppWidgetProvider() {
                         else -> "😐"
                     }
 
-                    views.setTextViewText(R.id.widgetStreak, "🔥 $currentStreak jours")
-                    views.setTextViewText(R.id.widgetMannyMood, emoji)
-                    views.setTextViewText(R.id.widgetMessage, message)
-                    views.setTextViewText(R.id.widgetVerse, if (verse.length > 80) verse.substring(0, 80) + "..." else verse)
-                    views.setInt(R.id.widgetContainer, "setBackgroundColor", bgColor)
-
-                    // Bouton rouge si urgence
-                    val btnColor = if (mood == "panicked" || mood == "angry" || mood == "scared") {
-                        Color.parseColor("#DC2626")
+                    if (isSmallFormat) {
+                        views.setTextViewText(R.id.widgetSmallStreak, "🔥 $currentStreak jours")
+                        views.setTextViewText(R.id.widgetSmallMessage, message)
+                        views.setTextViewText(R.id.widgetSmallMood, emoji)
                     } else {
-                        Color.parseColor("#FFFFFF")
+                        val sessionsCompleted = json.optInt("sessionsCompleted", 0)
+                        val verse = json.optString("verse", "")
+
+                        views.setTextViewText(R.id.widgetStreak, "🔥 $currentStreak jours")
+                        views.setTextViewText(R.id.widgetMannyMood, emoji)
+                        views.setTextViewText(R.id.widgetMessage, message)
+                        views.setTextViewText(R.id.widgetVerse, if (verse.length > 80) verse.substring(0, 80) + "..." else verse)
+                        views.setInt(R.id.widgetContainer, "setBackgroundColor", bgColor)
+
+                        // Bouton rouge si urgence
+                        val btnColor = if (mood == "panicked" || mood == "angry" || mood == "scared") {
+                            Color.parseColor("#DC2626")
+                        } else {
+                            Color.parseColor("#FFFFFF")
+                        }
+                        views.setInt(R.id.widgetMeditateButton, "setBackgroundColor", btnColor)
                     }
-                    views.setInt(R.id.widgetMeditateButton, "setBackgroundColor", btnColor)
                 } else if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                    views.setTextViewText(R.id.widgetStreak, "Connecte-toi")
-                    views.setTextViewText(R.id.widgetMannyMood, "🙁")
-                    views.setTextViewText(R.id.widgetMessage, "Ouvre l'app pour synchroniser.")
+                    if (isSmallFormat) {
+                        views.setTextViewText(R.id.widgetSmallStreak, "Connecte-toi")
+                        views.setTextViewText(R.id.widgetSmallMessage, "Ouvre l'app.")
+                        views.setTextViewText(R.id.widgetSmallMood, "🙁")
+                    } else {
+                        views.setTextViewText(R.id.widgetStreak, "Connecte-toi")
+                        views.setTextViewText(R.id.widgetMannyMood, "🙁")
+                        views.setTextViewText(R.id.widgetMessage, "Ouvre l'app pour synchroniser.")
+                    }
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "Fetch error", e)
-                views.setTextViewText(R.id.widgetStreak, "Erreur réseau")
-                views.setTextViewText(R.id.widgetMannyMood, "😕")
-                views.setTextViewText(R.id.widgetMessage, "Vérifie ta connexion.")
+                if (isSmallFormat) {
+                    views.setTextViewText(R.id.widgetSmallStreak, "Erreur réseau")
+                    views.setTextViewText(R.id.widgetSmallMessage, "Vérifie ta connexion.")
+                    views.setTextViewText(R.id.widgetSmallMood, "😕")
+                } else {
+                    views.setTextViewText(R.id.widgetStreak, "Erreur réseau")
+                    views.setTextViewText(R.id.widgetMannyMood, "😕")
+                    views.setTextViewText(R.id.widgetMessage, "Vérifie ta connexion.")
+                }
             }
 
             val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://mannadaily.vercel.app/meditate"))
@@ -140,7 +178,12 @@ class MannaWidgetProvider : AppWidgetProvider() {
                 flags = flags or PendingIntent.FLAG_IMMUTABLE
             }
             val pendingIntent = PendingIntent.getActivity(context, 0, intent, flags)
-            views.setOnClickPendingIntent(R.id.widgetMeditateButton, pendingIntent)
+
+            if (isSmallFormat) {
+                views.setOnClickPendingIntent(R.id.widgetSmallContainer, pendingIntent)
+            } else {
+                views.setOnClickPendingIntent(R.id.widgetMeditateButton, pendingIntent)
+            }
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }.start()
