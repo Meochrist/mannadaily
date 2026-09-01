@@ -150,16 +150,6 @@ class MannaWidgetProvider : AppWidgetProvider() {
                         }
                         views.setInt(R.id.widgetMeditateButton, "setBackgroundColor", btnColor)
                     }
-                } else if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                    if (isSmallFormat) {
-                        views.setTextViewText(R.id.widgetSmallStreak, "Connecte-toi")
-                        views.setTextViewText(R.id.widgetSmallMessage, "Ouvre l'app.")
-                        views.setImageViewResource(R.id.widgetMannyIcon, R.drawable.manny_sad)
-                    } else {
-                        views.setTextViewText(R.id.widgetStreak, "Connecte-toi")
-                        views.setImageViewResource(R.id.widgetMannyIcon, R.drawable.manny_sad)
-                        views.setTextViewText(R.id.widgetMessage, "Ouvre l'app pour synchroniser.")
-                    }
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "Fetch error", e)

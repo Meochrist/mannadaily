@@ -5,21 +5,21 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:padding="12dp"
+    android:padding="6dp"
     android:background="@drawable/widget_small_background"
     android:clipToPadding="false"
     android:clipChildren="false">
 
-    <!-- Mascotte Manny dynamique -->
+    <!-- Mascotte Manny compacte (20dp) -->
     <ImageView
         android:id="@+id/widgetMannyIcon"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:src="@drawable/manny_neutral"
         android:contentDescription="MannaDaily mascot"
-        android:layout_marginEnd="10dp" />
+        android:layout_marginEnd="6dp" />
 
-    <!-- Texte : streak + message -->
+    <!-- Streak + Message -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -31,9 +31,9 @@
             android:id="@+id/widgetSmallStreak"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="🔥 0 jours"
+            android:text="🔥 0"
             android:textColor="#FFFFFF"
-            android:textSize="14sp"
+            android:textSize="11sp"
             android:textStyle="bold"
             android:maxLines="1"
             android:ellipsize="end" />
@@ -42,11 +42,12 @@
             android:id="@+id/widgetSmallMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ouvre l'app pour synchroniser."
+            android:text="Bonjour ! Prêt ?"
             android:textColor="#E0E7FF"
-            android:textSize="11sp"
-            android:maxLines="1"
-            android:ellipsize="end" />
+            android:textSize="9sp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:lineSpacingExtra="-2dp" />
     </LinearLayout>
 
 </LinearLayout>
