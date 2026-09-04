@@ -6,12 +6,10 @@ const ROOT = process.cwd();
 const MANNY_DIR = path.join(ROOT, 'public', 'assets', 'characters', 'manny');
 const OUT_DIR = path.join(ROOT, 'android', 'app', 'src', 'main', 'res', 'drawable');
 
-// Ensure output directory exists
 if (!fs.existsSync(OUT_DIR)) {
   fs.mkdirSync(OUT_DIR, { recursive: true });
 }
 
-// Map mood → which pose SVG to use (Manny is "unified" = pose contains full character with expression baked in)
 const MOOD_MAP = {
   happy: 'pose_idle',
   excited: 'pose_jumping',
@@ -33,51 +31,52 @@ const MOOD_MAP = {
 const moods = [...new Set(Object.keys(MOOD_MAP))];
 const uniquePoses = [...new Set(Object.values(MOOD_MAP))];
 
-console.log(`🎨 Generating Manny mascot PNGs for widget`);
-console.log(`   Moods: ${moods.length}`);
-console.log(`   Unique poses: ${uniquePoses.join(', ')}`);
+console.log(' Génération Manny avec padding 50%');
 
-async function convertSvgToPng(svgName, size) {
+async function convertSvgToPng(svgName, size, scale) {
   const svgPath = path.join(MANNY_DIR, `${svgName}.svg`);
-  if (!fs.existsSync(svgPath)) {
-    console.error(`   Missing: ${svgName}.svg`);
-    return null;
-  }
+  if (!fs.existsSync(svgPath)) return null;
   const svgBuffer = fs.readFileSync(svgPath);
+  const innerSize = Math.round(size * scale);
   return sharp(svgBuffer)
-    .resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .resize(innerSize, innerSize, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .extend({
+      top: Math.round((size - innerSize) / 2),
+      bottom: Math.round((size - innerSize) / 2),
+      left: Math.round((size - innerSize) / 2),
+      right: Math.round((size - innerSize) / 2),
+      background: { r: 0, g: 0, b: 0, alpha: 0 }
+    })
     .png()
     .toBuffer();
 }
 
 async function main() {
-  const size = 192; // Large enough for widget icon
-  
-  // Step 1: Convert each unique pose to PNG
+  const size = 192;
+  const scale = 0.50;
   const poseCache = {};
-  
+
   for (const pose of uniquePoses) {
-    const pngBuffer = await convertSvgToPng(pose, size);
+    const pngBuffer = await convertSvgToPng(pose, size, scale);
     if (pngBuffer) {
       poseCache[pose] = pngBuffer;
-      console.log(`   ${pose} (${size}x${size})`);
+      console.log(`   ${pose}`);
     }
   }
 
-  // Step 2: For each mood, write the corresponding pose PNG as manny_{mood}.png
   let copied = 0;
   for (const mood of moods) {
     const pose = MOOD_MAP[mood];
     const pngBuffer = poseCache[pose];
     if (!pngBuffer) continue;
     
-    const outPath = path.join(OUT_DIR, `manny_${mood}.png`);
+    // Nouveau nom avec version pour forcer le rafraîchissement
+    const outPath = path.join(OUT_DIR, `mascotte_${mood}.png`);
     fs.writeFileSync(outPath, pngBuffer);
     copied++;
   }
 
-  console.log(`\n Generated ${copied} mood PNGs in android/app/src/main/res/drawable/`);
-  console.log(`   Moods: ${moods.join(', ')}`);
+  console.log(`\n ${copied} PNGs générés (mascotte_*.png)`);
 }
 
 main().catch(err => {

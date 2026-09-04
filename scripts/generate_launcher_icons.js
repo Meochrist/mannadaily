@@ -32,7 +32,7 @@ async function main() {
   }
   const svgBuffer = fs.readFileSync(svgPath);
 
-  console.log('🎨 Génération icônes launcher Manny...');
+  console.log(' Génération icônes launcher Manny (50% du canvas)...');
 
   for (const [density, size] of Object.entries(SIZES)) {
     const dir = path.join(MIPMAP_DIR, `mipmap-${density}`);
@@ -40,7 +40,14 @@ async function main() {
 
     // ic_launcher.png = mascotte sur fond transparent (adaptive icon background)
     const launcherPng = await sharp(svgBuffer)
-      .resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .resize(Math.round(size * 0.5), Math.round(size * 0.5), { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .extend({
+        top: Math.round(size * 0.25),
+        bottom: Math.round(size * 0.25),
+        left: Math.round(size * 0.25),
+        right: Math.round(size * 0.25),
+        background: { r: 0, g: 0, b: 0, alpha: 0 }
+      })
       .png()
       .toBuffer();
     fs.writeFileSync(path.join(dir, 'ic_launcher.png'), launcherPng);
@@ -48,7 +55,14 @@ async function main() {
     // ic_launcher_foreground.png = mascotte plus grande (pour adaptive icon)
     const fgSize = FG_SIZES[density];
     const fgPng = await sharp(svgBuffer)
-      .resize(fgSize, fgSize, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .resize(Math.round(fgSize * 0.5), Math.round(fgSize * 0.5), { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .extend({
+        top: Math.round(fgSize * 0.25),
+        bottom: Math.round(fgSize * 0.25),
+        left: Math.round(fgSize * 0.25),
+        right: Math.round(fgSize * 0.25),
+        background: { r: 0, g: 0, b: 0, alpha: 0 }
+      })
       .png()
       .toBuffer();
     fs.writeFileSync(path.join(dir, 'ic_launcher_foreground.png'), fgPng);
@@ -59,7 +73,7 @@ async function main() {
     console.log(`   ${density}: launcher=${size}px, foreground=${fgSize}px`);
   }
 
-  console.log('\n✅ ICônes launcher Manny générées');
+  console.log('\n ICônes launcher Manny générées (50% du canvas)');
 }
 
 main().catch(err => {

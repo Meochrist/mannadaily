@@ -10,12 +10,12 @@
     android:clipToPadding="false"
     android:clipChildren="false">
 
-    <!-- Mascotte Manny compacte (16dp) -->
+    <!-- Mascotte Manny compacte (24dp) -->
     <ImageView
         android:id="@+id/widgetMannyIcon"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:src="@drawable/manny_neutral"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/mascotte_neutral"
         android:contentDescription="MannaDaily mascot"
         android:layout_marginEnd="6dp"
         android:scaleType="fitCenter"

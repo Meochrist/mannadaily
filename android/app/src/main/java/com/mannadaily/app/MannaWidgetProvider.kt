@@ -44,10 +44,10 @@ class MannaWidgetProvider : AppWidgetProvider() {
         if (isSmallFormat) {
             views.setTextViewText(R.id.widgetSmallStreak, "🔥 0 jours")
             views.setTextViewText(R.id.widgetSmallMessage, "Ouvre l'app pour synchroniser.")
-            views.setImageViewResource(R.id.widgetMannyIcon, R.drawable.manny_neutral)
+            views.setImageViewResource(R.id.widgetMannyIcon, R.drawable.mascotte_neutral)
         } else {
             views.setTextViewText(R.id.widgetStreak, "Jours 🔥 --")
-            views.setImageViewResource(R.id.widgetMannyIcon, R.drawable.manny_neutral)
+            views.setImageViewResource(R.id.widgetMannyIcon, R.drawable.mascotte_neutral)
             views.setTextViewText(R.id.widgetMessage, "Ouvre l'app pour synchroniser.")
             views.setTextViewText(R.id.widgetVerse, "")
             views.setInt(R.id.widgetContainer, "setBackgroundColor", Color.parseColor("#4F46E5"))
@@ -114,21 +114,21 @@ class MannaWidgetProvider : AppWidgetProvider() {
 
                     // Ressource drawable Manny selon humeur
                     val mannyDrawable = when (mood) {
-                        "happy" -> R.drawable.manny_happy
-                        "excited" -> R.drawable.manny_excited
-                        "celebrating" -> R.drawable.manny_celebrating
-                        "encouraging" -> R.drawable.manny_encouraging
-                        "thinking" -> R.drawable.manny_thinking
-                        "praying" -> R.drawable.manny_praying
-                        "worried" -> R.drawable.manny_worried
-                        "sad" -> R.drawable.manny_sad
-                        "disappointed" -> R.drawable.manny_disappointed
-                        "crying" -> R.drawable.manny_crying
-                        "scared" -> R.drawable.manny_scared
-                        "panicked" -> R.drawable.manny_panicked
-                        "angry" -> R.drawable.manny_angry
-                        "sleeping" -> R.drawable.manny_sleeping
-                        else -> R.drawable.manny_neutral
+                        "happy" -> R.drawable.mascotte_happy
+                        "excited" -> R.drawable.mascotte_excited
+                        "celebrating" -> R.drawable.mascotte_celebrating
+                        "encouraging" -> R.drawable.mascotte_encouraging
+                        "thinking" -> R.drawable.mascotte_thinking
+                        "praying" -> R.drawable.mascotte_praying
+                        "worried" -> R.drawable.mascotte_worried
+                        "sad" -> R.drawable.mascotte_sad
+                        "disappointed" -> R.drawable.mascotte_disappointed
+                        "crying" -> R.drawable.mascotte_crying
+                        "scared" -> R.drawable.mascotte_scared
+                        "panicked" -> R.drawable.mascotte_panicked
+                        "angry" -> R.drawable.mascotte_angry
+                        "sleeping" -> R.drawable.mascotte_sleeping
+                        else -> R.drawable.mascotte_neutral
                     }
 
                     if (isSmallFormat) {
@@ -156,10 +156,10 @@ class MannaWidgetProvider : AppWidgetProvider() {
                 if (isSmallFormat) {
                     views.setTextViewText(R.id.widgetSmallStreak, "Erreur réseau")
                     views.setTextViewText(R.id.widgetSmallMessage, "Vérifie ta connexion.")
-                    views.setImageViewResource(R.id.widgetMannyIcon, R.drawable.manny_worried)
+                    views.setImageViewResource(R.id.widgetMannyIcon, R.drawable.mascotte_worried)
                 } else {
                     views.setTextViewText(R.id.widgetStreak, "Erreur réseau")
-                    views.setImageViewResource(R.id.widgetMannyIcon, R.drawable.manny_worried)
+                    views.setImageViewResource(R.id.widgetMannyIcon, R.drawable.mascotte_worried)
                     views.setTextViewText(R.id.widgetMessage, "Vérifie ta connexion.")
                 }
             }
