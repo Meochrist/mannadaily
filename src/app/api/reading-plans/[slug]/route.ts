@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
-
-export const dynamic = "force-dynamic";
+import { query, queryOne } from "@/server/sql";
 
 export async function GET(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
@@ -19,23 +17,21 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
       userId = decoded.userId;
     }
 
-    const db = initServerDb();
-
-    const plan = db.prepare("SELECT * FROM reading_plans WHERE slug = ?").get(slug);
+    const plan = queryOne<any>("SELECT * FROM reading_plans WHERE slug = ?", [slug]);
 
     if (!plan) {
       return NextResponse.json({ error: "Reading plan not found" }, { status: 404 });
     }
 
-    const days = db.prepare("SELECT * FROM reading_plan_days WHERE planId = ? ORDER BY dayNumber ASC").all(plan.id);
+    const days = query<any>("SELECT * FROM reading_plan_days WHERE planId = ? ORDER BY dayNumber ASC", [plan.id]);
 
     const daysWithReadings = days.map((day: any) => {
-      const readings = db.prepare("SELECT * FROM reading_plan_readings WHERE dayId = ? ORDER BY id ASC").all(day.id);
+      const readings = query<any>("SELECT * FROM reading_plan_readings WHERE dayId = ? ORDER BY id ASC", [day.id]);
       return { ...day, readings };
     });
 
     const enrollment = userId 
-      ? db.prepare("SELECT * FROM reading_plan_enrollments WHERE userId = ? AND planId = ?").get(userId, plan.id)
+      ? queryOne<any>("SELECT * FROM reading_plan_enrollments WHERE userId = ? AND planId = ?", [userId, plan.id])
       : null;
 
     return NextResponse.json({ plan: { ...plan, days: daysWithReadings, enrollment } });

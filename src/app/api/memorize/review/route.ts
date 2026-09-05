@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     const db = initServerDb();
 
-    const memorization = db.prepare("SELECT * FROM verse_memorizations WHERE id = ?").get(verseId);
+    const memorization = db.prepare("SELECT * FROM verse_memorizations WHERE id = ?").get(verseId) as any;
 
     if (!memorization || memorization.userId !== userId) {
       return NextResponse.json({ error: "Fiche de mémorisation introuvable" }, { status: 404 });

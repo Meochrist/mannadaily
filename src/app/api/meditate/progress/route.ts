@@ -57,7 +57,7 @@ export async function GET(req: Request) {
     const activityDate = todayFor(req.headers);
     const db = initServerDb();
     
-    const user = db.prepare('SELECT meditationProgress FROM users WHERE id = ?').get(userId);
+    const user = db.prepare('SELECT meditationProgress FROM users WHERE id = ?').get(userId) as any;
     if (!user || !isProgress(user.meditationProgress)) {
       return NextResponse.json({ progress: emptyProgress(activityDate) });
     }
@@ -100,7 +100,7 @@ export async function POST(req: Request) {
     }
 
     const db = initServerDb();
-    const currentUser = db.prepare('SELECT meditationProgress FROM users WHERE id = ?').get(userId);
+    const currentUser = db.prepare('SELECT meditationProgress FROM users WHERE id = ?').get(userId) as any;
     const existing = isProgress(currentUser?.meditationProgress) && currentUser.meditationProgress.lastActivityDate === activityDate
       ? normalizeProgress(currentUser.meditationProgress, activityDate)
       : emptyProgress(activityDate);

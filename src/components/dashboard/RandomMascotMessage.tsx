@@ -6,6 +6,7 @@ import { useCharacterState } from "@/hooks/useCharacterState";
 import { resolveMascotState, moodToVisual } from "@/lib/mascotState";
 import { MeditationProgress } from "@/lib/mascots";
 import { MannyMood } from "@/types";
+import { apiFetch } from "@/lib/api";
 
 interface RandomMascotMessageProps {
   userName: string;
@@ -65,8 +66,7 @@ export default function RandomMascotMessage({
   // sans ça, le tableau de bord gardait un état obsolète après une méditation.
   // Le state `mounted` est levé après le premier fetch pour éviter un flash visuel.
   useEffect(() => {
-    fetch("/api/meditate/progress")
-      .then((res) => (res.ok ? res.json() : null))
+    apiFetch("/api/meditate/progress")
       .then((data) => {
         if (data?.progress) setProgress(data.progress);
       })

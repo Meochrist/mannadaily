@@ -63,13 +63,13 @@ export async function POST(request: NextRequest) {
       const chapter = parseInt(match[2], 10);
       const verseNum = parseInt(match[3], 10);
 
-      const dbVerse = db.prepare("SELECT id FROM verses WHERE book = ? AND chapter = ? AND verse = ?").get(bookName, chapter, verseNum);
+      const dbVerse = db.prepare("SELECT id FROM verses WHERE book = ? AND chapter = ? AND verse = ?").get(bookName, chapter, verseNum) as any;
       if (dbVerse) {
         verseId = dbVerse.id;
       }
     }
 
-    const existing = db.prepare("SELECT id FROM verse_memorizations WHERE userId = ? AND reference = ?").get(userId, reference);
+    const existing = db.prepare("SELECT id FROM verse_memorizations WHERE userId = ? AND reference = ?").get(userId, reference) as any;
 
     if (existing) {
       db.prepare(`

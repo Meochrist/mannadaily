@@ -45,6 +45,18 @@ dependencies {
     // Firebase
     implementation platform('com.google.firebase:firebase-bom:33.1.0')
     implementation 'com.google.firebase:firebase-messaging'
+    
+    // Jetpack Glance (widget moderne, déclaratif comme Compose)
+    implementation "androidx.glance:glance-appwidget:1.1.1"
+    implementation "androidx.glance:glance-material3:1.1.1"
+    
+    // ViewModel + LiveData (architecture MVVM comme Duolingo)
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.9.4"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.9.4"
+    
+    // Coroutines pour les appels async
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1"
 }
 
 apply from: 'capacitor.build.gradle'

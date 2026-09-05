@@ -110,6 +110,16 @@ export function initServerDb(): Database.Database {
       FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS verses (
+      id TEXT PRIMARY KEY,
+      book TEXT NOT NULL,
+      chapter INTEGER NOT NULL,
+      verse INTEGER NOT NULL,
+      text TEXT NOT NULL,
+      translation TEXT DEFAULT 'LSG',
+      UNIQUE(book, chapter, verse, translation)
+    );
+
     CREATE TABLE IF NOT EXISTS bible_verses (
       id TEXT PRIMARY KEY,
       book TEXT NOT NULL,
