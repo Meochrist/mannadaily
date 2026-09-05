@@ -1,5 +1,5 @@
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { NextResponse } from "next/server";
+import { initServerDb } from "@/server/db";
 import { 
   generateMeditation, 
   generatePersonalizedSummary, 
@@ -7,9 +7,21 @@ import {
   generateBibleChat,
   generateCommentary
 } from "@/lib/ai";
-import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
+
+// Décoder un JWT simple
+function decodeToken(token: string): { userId: string; email: string; exp: number } | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1]));
+    if (payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return { userId: payload.userId, email: payload.email, exp: payload.exp };
+  } catch {
+    return null;
+  }
+}
 
 function parseReference(ref: string) {
   const parts = ref.trim().split(" ");
@@ -27,9 +39,16 @@ function parseReference(ref: string) {
 
 export async function POST(req: Request) {
   try {
-    const session = await auth();
-    if (!session?.user) {
+    // Auth JWT
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const token = authHeader.slice(7);
+    const decoded = decodeToken(token);
+    if (!decoded?.userId) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     const body = await req.json();
@@ -50,6 +69,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Answers are invalid or too long" }, { status: 400 });
     }
 
+    const db = initServerDb();
+
     // Prise en charge du commentaire IA
     if (type === "commentary") {
       if (!verse || !reference) {
@@ -57,29 +78,18 @@ export async function POST(req: Request) {
       }
       const { book, chapter, verse: verseNumber } = parseReference(reference);
       
-      const bibleVerse = await db.bibleVerse.findFirst({
-        where: {
-          book,
-          chapter,
-          verse: verseNumber
-        }
-      });
+      const bibleVerse = db.prepare("SELECT * FROM bible_verses WHERE book = ? AND chapter = ? AND verse = ?").get(book, chapter, verseNumber) as any;
       const bookNumber = bibleVerse?.bookNumber || 1;
 
       const commentaryText = await generateCommentary(book, chapter, verseNumber, verse);
 
-      const createdCommentary = await db.bibleCommentary.create({
-        data: {
-          book: bookNumber,
-          chapter,
-          verse: verseNumber,
-          author: "MannaDaily AI",
-          content: commentaryText,
-          language: "fr"
-        }
-      });
+      const id = crypto.randomUUID();
+      db.prepare(`
+        INSERT INTO bible_commentaries (id, book, chapter, verse, author, content, language)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).run(id, bookNumber, chapter, verseNumber, "MannaDaily AI", commentaryText, "fr");
 
-      return NextResponse.json({ commentary: createdCommentary });
+      return NextResponse.json({ commentary: { id, content: commentaryText } });
     }
 
     // Prise en charge du chat biblique
@@ -115,42 +125,29 @@ export async function POST(req: Request) {
 
     const { book, chapter, verse: verseNumber } = parseReference(reference);
 
-    const dbVerse = await db.verse.upsert({
-      where: {
-        book_chapter_verse_translation: {
-          book,
-          chapter,
-          verse: verseNumber,
-          translation: "LSG",
-        },
-      },
-      update: {},
-      create: {
-        book,
-        chapter,
-        verse: verseNumber,
-        text: verse,
-        translation: "LSG",
-      },
-    });
+    // Upsert le verset
+    const existingVerse = db.prepare("SELECT id FROM verses WHERE book = ? AND chapter = ? AND verse = ? AND translation = ?").get(book, chapter, verseNumber, "LSG");
+    let verseId: string;
+    
+    if (existingVerse) {
+      verseId = (existingVerse as any).id;
+    } else {
+      verseId = crypto.randomUUID();
+      db.prepare("INSERT INTO verses (id, book, chapter, verse, text, translation) VALUES (?, ?, ?, ?, ?, ?)").run(verseId, book, chapter, verseNumber, verse, "LSG");
+    }
 
     const generationType = type as "meditation" | "contexte_biblique" | "contexte_historique" | "priere";
     const meditationText = await generateMeditation(verse, reference, theme, generationType);
 
     // On ne sauvegarde dans l'historique d'étude que la méditation classique de base
     if (type === "meditation") {
-      await db.meditation.create({
-        data: {
-          verseId: dbVerse.id,
-          content: meditationText,
-        },
-      });
+      db.prepare("INSERT INTO meditations (id, verseId, content) VALUES (?, ?, ?)").run(crypto.randomUUID(), verseId, meditationText);
     }
 
     return NextResponse.json({ meditation: meditationText });
   } catch (error: unknown) {
     console.error("Error in meditation generation API:", error);
-    const message = error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error";
+    const message = error instanceof Error ? error.message : "Internal Server Error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

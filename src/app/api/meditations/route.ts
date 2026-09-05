@@ -1,34 +1,47 @@
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { initServerDb } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
+// Décoder un JWT simple
+function decodeToken(token: string): { userId: string; email: string; exp: number } | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1]));
+    if (payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return { userId: payload.userId, email: payload.email, exp: payload.exp };
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(req: Request) {
   try {
-    const session = await auth();
-    if (!session?.user) {
+    // Auth JWT
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const token = authHeader.slice(7);
+    const decoded = decodeToken(token);
+    if (!decoded?.userId) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    const userId = decoded.userId;
     const { searchParams } = new URL(req.url);
     const sessionId = searchParams.get("sessionId");
 
+    const db = initServerDb();
+
     // Single session view
     if (sessionId) {
-      const s = await db.dailySession.findFirst({
-        where: { id: sessionId, userId },
-        select: {
-          id: true,
-          type: true,
-          period: true,
-          xpEarned: true,
-          duration: true,
-          notes: true,
-          createdAt: true,
-        },
-      });
+      const s = db.prepare(`
+        SELECT id, type, period, xpEarned, duration, notes, createdAt 
+        FROM daily_sessions WHERE id = ? AND userId = ?
+      `).get(sessionId, userId);
 
       if (!s) {
         return NextResponse.json({ error: "Session not found" }, { status: 404 });
@@ -38,19 +51,10 @@ export async function GET(req: Request) {
     }
 
     // List all sessions
-    const sessions = await db.dailySession.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        type: true,
-        period: true,
-        xpEarned: true,
-        duration: true,
-        notes: true,
-        createdAt: true,
-      },
-    });
+    const sessions = db.prepare(`
+      SELECT id, type, period, xpEarned, duration, notes, createdAt 
+      FROM daily_sessions WHERE userId = ? ORDER BY createdAt DESC
+    `).all(userId);
 
     return NextResponse.json({ sessions });
   } catch (error: unknown) {

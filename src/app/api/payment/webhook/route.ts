@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { initServerDb } from "@/server/db";
 import { verifyTransaction } from "@/lib/fedapay";
 import { creditApprovedPayment, isPaymentProduct, PAYMENT_PRODUCTS } from "@/lib/payments";
 import { Resend } from "resend";
@@ -25,7 +25,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ received: true, status: "ignored" });
     }
 
-    // Never trust the webhook body alone: retrieve the transaction directly from FedaPay.
     const verification = await verifyTransaction(transactionId);
     if (verification.status !== "approved") {
       return NextResponse.json({ error: "Transaction is not approved" }, { status: 400 });
@@ -39,7 +38,8 @@ export async function POST(req: Request) {
     const userId = typeof metadataUserId === "string" ? metadataUserId : null;
     if (!userId) return NextResponse.json({ error: "Missing user identifier" }, { status: 400 });
 
-    const user = await db.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true } });
+    const db = initServerDb();
+    const user = db.prepare("SELECT id, name, email FROM users WHERE id = ?").get(userId) as any;
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     const result = await creditApprovedPayment({

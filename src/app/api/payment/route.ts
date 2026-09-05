@@ -2,9 +2,22 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { createTransaction, verifyTransaction } from "@/lib/fedapay";
 import { creditApprovedPayment, isPaymentProduct, PAYMENT_PRODUCTS } from "@/lib/payments";
-import { db } from "@/lib/db";
+import { initServerDb } from "@/server/db";
 
 export const dynamic = "force-dynamic";
+
+// Décoder un JWT simple
+function decodeToken(token: string): { userId: string; email: string; exp: number } | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1]));
+    if (payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return { userId: payload.userId, email: payload.email, exp: payload.exp };
+  } catch {
+    return null;
+  }
+}
 
 function publicBaseUrl() {
   return process.env.NEXTAUTH_URL || "https://mannadaily.vercel.app";
@@ -13,21 +26,33 @@ function publicBaseUrl() {
 async function resolveUserId(metadata: Record<string, unknown>, customerEmail?: string) {
   if (typeof metadata.userId === "string" && metadata.userId) return metadata.userId;
   if (!customerEmail) return null;
-  const user = await db.user.findUnique({ where: { email: customerEmail.trim().toLowerCase() }, select: { id: true } });
+  
+  const db = initServerDb();
+  const user = db.prepare("SELECT id FROM users WHERE email = ?").get(customerEmail.trim().toLowerCase()) as any;
   return user?.id ?? null;
 }
 
 export async function POST(req: Request) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
-    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Auth JWT
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
+    const token = authHeader.slice(7);
+    const decoded = decodeToken(token);
+    if (!decoded?.userId) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    const userId = decoded.userId;
     const body = await req.json();
     const product = body?.product;
     if (!isPaymentProduct(product)) return NextResponse.json({ error: "Invalid product" }, { status: 400 });
 
-    const user = await db.user.findUnique({ where: { id: userId }, select: { name: true, email: true } });
+    const db = initServerDb();
+    const user = db.prepare("SELECT name, email FROM users WHERE id = ?").get(userId) as any;
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     const callbackUrl = `${publicBaseUrl()}/shop?status=verify&payment=${product}`;
@@ -50,10 +75,19 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
-    const session = await auth();
-    const currentUserId = session?.user?.id;
-    if (!currentUserId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Auth JWT
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
+    const token = authHeader.slice(7);
+    const decoded = decodeToken(token);
+    if (!decoded?.userId) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    const currentUserId = decoded.userId;
     const transactionId = new URL(req.url).searchParams.get("transactionId");
     if (!transactionId || !/^\d+$/.test(transactionId)) {
       return NextResponse.json({ error: "Invalid transactionId" }, { status: 400 });

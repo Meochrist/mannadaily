@@ -1,6 +1,5 @@
 import React from "react";
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { redirect } from "next/navigation";
 import { LEVELS } from "@/types";
 import { cn } from "@/lib/utils";
 import { getLevelFromXP, getXPProgress } from "@/lib/gamification";
@@ -17,8 +16,22 @@ import {
   Share2
 } from "lucide-react";
 import ShareCard from "@/components/sharing/ShareCard";
+import { initServerDb } from "@/server/db";
+import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
+
+function decodeToken(token: string): { userId: string; email: string; exp: number } | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1]));
+    if (payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return { userId: payload.userId, email: payload.email, exp: payload.exp };
+  } catch {
+    return null;
+  }
+}
 
 interface ProgressData {
   progress: {
@@ -47,9 +60,18 @@ interface ProgressData {
 }
 
 export default async function ProgressPage() {
-  const session = await auth();
-  const userId = session?.user?.id;
-  const userName = session?.user?.name || "Ami";
+  const cookieStore = await cookies();
+  const token = cookieStore.get("mannadaily_token")?.value;
+  
+  let userId: string | undefined;
+  let userName = "Ami";
+
+  if (token) {
+    const decoded = decodeToken(token);
+    if (decoded?.userId) {
+      userId = decoded.userId;
+    }
+  }
 
   let data: ProgressData = {
     progress: {
@@ -76,83 +98,40 @@ export default async function ProgressPage() {
 
   if (userId) {
     try {
-      const dbUser = await db.user.findUnique({
-        where: { id: userId },
-        select: { createdAt: true },
-      });
-      if (dbUser) {
-        signUpDate = dbUser.createdAt;
+      const db = initServerDb();
+
+      const user = db.prepare("SELECT id, name, createdAt FROM users WHERE id = ?").get(userId) as any;
+      if (user) {
+        signUpDate = new Date(user.createdAt);
+        userName = user.name || "Ami";
       }
 
-      let progress = await db.userProgress.findUnique({
-        where: { userId },
-        select: {
-          totalXP: true,
-          level: true,
-          versesLearned: true,
-          sessionsTotal: true,
-        }
-      });
+      let progress = db.prepare("SELECT * FROM user_progress WHERE userId = ?").get(userId) as any;
 
       if (!progress) {
-        const createdProgress = await db.userProgress.create({
-          data: {
-            userId,
-            totalXP: 0,
-            level: "Semence",
-            versesLearned: 0,
-            sessionsTotal: 0,
-          },
-          select: {
-            totalXP: true,
-            level: true,
-            versesLearned: true,
-            sessionsTotal: true,
-          }
-        });
-        progress = createdProgress;
+        db.prepare(`
+          INSERT INTO user_progress (id, userId, totalXP, level, versesLearned, sessionsTotal, lingots)
+          VALUES (?, ?, 0, 'Semence', 0, 0, 0)
+        `).run(crypto.randomUUID(), userId);
+        progress = db.prepare("SELECT * FROM user_progress WHERE userId = ?").get(userId) as any;
       }
 
-      let streak = await db.streak.findUnique({
-        where: { userId },
-        select: {
-          currentStreak: true,
-          longestStreak: true,
-          lastActivityAt: true,
-        }
-      });
+      let streak = db.prepare("SELECT * FROM streaks WHERE userId = ?").get(userId) as any;
 
       if (!streak) {
-        const createdStreak = await db.streak.create({
-          data: {
-            userId,
-            currentStreak: 0,
-            longestStreak: 0,
-            lastActivityAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-          },
-          select: {
-            currentStreak: true,
-            longestStreak: true,
-            lastActivityAt: true,
-          }
-        });
-        streak = createdStreak;
+        db.prepare(`
+          INSERT INTO streaks (id, userId, currentStreak, longestStreak, lastActivityAt)
+          VALUES (?, ?, 0, 0, ?)
+        `).run(crypto.randomUUID(), userId, new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString());
+        streak = db.prepare("SELECT * FROM streaks WHERE userId = ?").get(userId) as any;
       }
 
-      const userBadges = await db.userBadge.findMany({
-        where: { userId },
-        select: {
-          earnedAt: true,
-          badge: {
-            select: {
-              id: true,
-              name: true,
-              description: true,
-              icon: true,
-            }
-          }
-        }
-      });
+      const userBadges = db.prepare(`
+        SELECT ub.badgeId, ub.earnedAt, b.id, b.name, b.description, b.icon
+        FROM user_badges ub
+        JOIN badges b ON ub.badgeId = b.id
+        WHERE ub.userId = ?
+      `).all(userId) as any[];
 
       const levelInfo = getLevelFromXP(progress.totalXP);
       const progressPercent = getXPProgress(progress.totalXP);
@@ -172,26 +151,25 @@ export default async function ProgressPage() {
         streak: {
           currentStreak: streak.currentStreak,
           longestStreak: streak.longestStreak,
-          lastActivityAt: streak.lastActivityAt.toISOString(),
+          lastActivityAt: streak.lastActivityAt,
         },
         badges: userBadges.map((ub: any) => ({
-          id: ub.badge.id,
-          name: ub.badge.name,
-          description: ub.badge.description,
-          icon: ub.badge.icon,
-          earnedAt: ub.earnedAt.toISOString(),
+          id: ub.badgeId,
+          name: ub.name,
+          description: ub.description,
+          icon: ub.icon,
+          earnedAt: ub.earnedAt,
         })),
       };
 
-      const sessions = await db.dailySession.findMany({
-        where: { userId },
-        select: { createdAt: true, period: true },
-        orderBy: { createdAt: "desc" },
-      });
+      // Calculer les jours complets (matin + soir)
+      const sessions = db.prepare(`
+        SELECT createdAt, period FROM daily_sessions WHERE userId = ? ORDER BY createdAt DESC
+      `).all(userId) as any[];
 
       const daysMap = new Map<string, Set<string>>();
       for (const s of sessions) {
-        const dateStr = s.createdAt.toISOString().split("T")[0];
+        const dateStr = new Date(s.createdAt).toISOString().split("T")[0];
         if (!daysMap.has(dateStr)) {
           daysMap.set(dateStr, new Set());
         }
@@ -204,40 +182,19 @@ export default async function ProgressPage() {
         }
       }
     } catch (error) {
-      console.error("Error fetching custom progress in ProgressPage:", error);
+      console.error("Error fetching progress data:", error);
     }
   }
 
   // 5 badges du système
   const allSystemBadges = [
-    {
-      name: "Premier Pas",
-      description: "Terminez votre première session quotidienne",
-      icon: "Compass",
-    },
-    {
-      name: "Fidèle Étoile",
-      description: "Atteignez une série de 7 jours consécutifs",
-      icon: "Flame",
-    },
-    {
-      name: "Guerrier de la Parole",
-      description: "Atteignez une série de 30 jours consécutifs",
-      icon: "Crown",
-    },
-    {
-      name: "Scribe de l'Esprit",
-      description: "Apprenez 10 versets de la Bible",
-      icon: "BookOpen",
-    },
-    {
-      name: "Pilier de Foi",
-      description: "Complétez 50 sessions au total",
-      icon: "Shield",
-    },
+    { name: "Premier Pas", description: "Terminez votre première session quotidienne", icon: "Compass" },
+    { name: "Fidèle Étoile", description: "Atteignez une série de 7 jours consécutifs", icon: "Flame" },
+    { name: "Guerrier de la Parole", description: "Atteignez une série de 30 jours consécutifs", icon: "Crown" },
+    { name: "Scribe de l'Esprit", description: "Apprenez 10 versets de la Bible", icon: "BookOpen" },
+    { name: "Pilier de Foi", description: "Complétez 50 sessions au total", icon: "Shield" },
   ];
 
-  // Associer la date d'obtention si elle existe
   const badgesToDisplay = allSystemBadges.map((sysBadge) => {
     const earned = data.badges.find((b) => b.name === sysBadge.name);
     return {
@@ -252,7 +209,7 @@ export default async function ProgressPage() {
 
   return (
     <div className="space-y-10 max-w-5xl mx-auto pb-12">
-      {/* En-tête de page */}
+      {/* En-tête */}
       <section className="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="space-y-2">
           <h1 className="text-3xl font-black text-slate-800 tracking-tight">Ma Progression</h1>
@@ -266,16 +223,16 @@ export default async function ProgressPage() {
         </div>
       </section>
 
-      {/* Message d'encouragement de Manny */}
+      {/* Message Manny */}
       <section className="flex justify-center md:justify-start">
         <MannyMessage
           mood="happy"
-          message={`"Voici ton parcours spirituel, ${userName} !"\nChaque moment passé dans la Parole est une semence précieuse qui produit des fruits d'éternité.`}
+          message={`"Voici ton parcours spirituel, ${userName} !"\\nChaque moment passé dans la Parole est une semence précieuse qui produit des fruits d'éternité.`}
           size={110}
         />
       </section>
 
-      {/* Gamification : Barres d'XP & Streaks */}
+      {/* XP & Streak */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
           <XPBar
@@ -292,7 +249,7 @@ export default async function ProgressPage() {
         </div>
       </section>
 
-      {/* Roadmap Visuelle des 7 Niveaux */}
+      {/* Roadmap */}
       <section className="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6">
         <div className="flex items-center gap-2 border-b pb-4 mb-2">
           <Trophy className="w-5 h-5 text-amber-500" />
@@ -305,9 +262,7 @@ export default async function ProgressPage() {
           Progresse en accumulant de l'XP à travers tes méditations et proclamations pour élever ton esprit :
         </p>
 
-        {/* Timeline des Niveaux */}
         <div className="relative pt-6 pb-6">
-          {/* Ligne centrale horizontale sur desktop / verticale sur mobile */}
           <div className="absolute top-1/2 left-0 right-0 h-1 bg-slate-100 -translate-y-1/2 hidden md:block" />
           
           <div className="grid grid-cols-1 md:grid-cols-7 gap-6 relative z-10">
@@ -323,11 +278,10 @@ export default async function ProgressPage() {
                     isCurrent && "bg-indigo-50/50 border border-indigo-100 shadow-sm"
                   )}
                 >
-                  {/* Badge de niveau / Cercle */}
                   <div className={cn(
                     "w-12 h-12 rounded-full flex items-center justify-center font-black transition-all duration-500",
                     isAchieved 
-                      ? "bg-gradient-to-br from-indigo-500 to-indigo-650 text-white shadow-lg ring-4 ring-indigo-100" 
+                      ? "bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-lg ring-4 ring-indigo-100" 
                       : "bg-slate-100 text-slate-400"
                   )}>
                     {isAchieved ? (
@@ -337,7 +291,6 @@ export default async function ProgressPage() {
                     )}
                   </div>
 
-                  {/* Libellés */}
                   <div className="space-y-1">
                     <h4 className={cn(
                       "font-extrabold text-sm tracking-tight",
@@ -356,7 +309,7 @@ export default async function ProgressPage() {
         </div>
       </section>
 
-      {/* Statistiques complètes */}
+      {/* Statistiques */}
       <section className="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm">
         <div className="flex items-center gap-2 border-b pb-4 mb-6">
           <Zap className="w-5 h-5 text-indigo-500" />
@@ -392,7 +345,7 @@ export default async function ProgressPage() {
         </div>
       </section>
 
-      {/* Section des Badges spirituels */}
+      {/* Badges */}
       <section className="space-y-4">
         <div className="flex items-center justify-between border-b pb-3">
           <div className="flex items-center gap-2">
@@ -419,7 +372,7 @@ export default async function ProgressPage() {
         </div>
       </section>
 
-      {/* Section Partager ma progression */}
+      {/* Partager */}
       <section className="space-y-4">
         <div className="flex items-center gap-2 border-b pb-3">
           <Share2 className="w-5 h-5 text-indigo-500" />
