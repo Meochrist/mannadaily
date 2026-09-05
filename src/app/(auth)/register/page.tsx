@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import Manny from "@/components/mascot/Manny";
 import { User, Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { setAuthToken } from "@/lib/api";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -48,11 +48,10 @@ export default function RegisterPage() {
     }
 
     try {
+      // 1. Créer le compte
       const res = await fetch("/api/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
       });
 
@@ -64,17 +63,22 @@ export default function RegisterPage() {
         return;
       }
 
-      const loginRes = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
+      // 2. Connexion automatique - obtenir le token JWT
+      const loginRes = await fetch("/api/auth/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (loginRes?.error) {
-        setError("Création réussie, mais impossible de se connecter automatiquement. Veuillez vous connecter manuellement.");
-      } else {
+      const loginData = await loginRes.json();
+
+      if (loginRes.ok && loginData.token) {
+        setAuthToken(loginData.token);
         router.push("/dashboard");
         router.refresh();
+      } else {
+        setError("Création réussie ! Connecte-toi maintenant.");
+        router.push("/login");
       }
     } catch (_unused) {
       setError("Une erreur est survenue lors de la création du compte.");
@@ -182,7 +186,7 @@ export default function RegisterPage() {
         </form>
 
         <div className="text-center mt-6">
-          <Link href="/login" className="text-xs font-bold text-indigo-650 hover:underline">
+          <Link href="/login" className="text-xs font-bold text-indigo-600 hover:underline">
             Déjà un compte ? Se connecter
           </Link>
         </div>

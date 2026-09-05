@@ -56,12 +56,26 @@ function decodeToken(token: string): { userId: string; email: string; exp: numbe
   }
 }
 
+// Récupérer le token depuis le cookie ou le header Authorization
+function getToken(request: NextRequest): string | undefined {
+  // D'abord chercher dans le cookie
+  const cookieToken = request.cookies.get('mannadaily_token')?.value;
+  if (cookieToken) return cookieToken;
+  
+  // Sinon chercher dans le header Authorization
+  const authHeader = request.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.slice(7);
+  }
+  
+  return undefined;
+}
+
 export async function proxy(request: NextRequest) {
   const { nextUrl } = request;
   const { pathname } = nextUrl;
 
-  // Récupérer le token depuis le cookie
-  const rawToken = request.cookies.get('mannadaily_token')?.value;
+  const rawToken = getToken(request);
 
   // 1. Auth : route protégée sans session → login
   if (matches(pathname, PROTECTED_ROUTES) && !rawToken) {

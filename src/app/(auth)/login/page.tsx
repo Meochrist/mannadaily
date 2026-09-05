@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import Manny from "@/components/mascot/Manny";
 import { Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { setAuthToken } from "@/lib/api";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -27,15 +27,18 @@ export default function LoginPage() {
     }
 
     try {
-      const res = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
+      const res = await fetch("/api/auth/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (res?.error) {
-        setError("Adresse e-mail ou mot de passe incorrect.");
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Adresse e-mail ou mot de passe incorrect.");
       } else {
+        setAuthToken(data.token);
         router.push("/dashboard");
         router.refresh();
       }
@@ -48,7 +51,7 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     try {
-      await signIn("google", { callbackUrl: "/dashboard" });
+      await fetch("/api/auth/google", { method: "POST" });
     } catch (_unused) {
       setError("Impossible de se connecter avec Google.");
     }
@@ -65,7 +68,7 @@ export default function LoginPage() {
           Ravi de te revoir !
         </h2>
         <p className="text-slate-400 font-semibold text-xs text-center mb-6">
-          Connecte-toi pour nourrir ton âme aujourd'hui
+          Connecte-toi pour nourrir ton âme aujourd&apos;hui
         </p>
 
         {error && (
@@ -145,8 +148,8 @@ export default function LoginPage() {
         </button>
 
         <div className="text-center mt-6">
-          <Link href="/register" className="text-xs font-bold text-indigo-650 hover:underline">
-            Pas encore de compte ? S'inscrire
+          <Link href="/register" className="text-xs font-bold text-indigo-600 hover:underline">
+            Pas encore de compte ? S&apos;inscrire
           </Link>
         </div>
       </div>
