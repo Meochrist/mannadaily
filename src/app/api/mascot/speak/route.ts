@@ -40,8 +40,8 @@ export async function POST(req: Request) {
     };
 
     const db = initServerDb();
-    const progress = db.prepare("SELECT * FROM user_progress WHERE userId = ?").get(userId);
-    const streak = db.prepare("SELECT * FROM streaks WHERE userId = ?").get(userId);
+    const progress = db.prepare("SELECT * FROM user_progress WHERE userId = ?").get(userId) as any;
+    const streak = db.prepare("SELECT * FROM streaks WHERE userId = ?").get(userId) as any;
 
     if (progress) {
       const levelInfo = getLevelFromXP(progress.totalXP);
