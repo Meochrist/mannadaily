@@ -87,7 +87,7 @@ export async function sendPushNotification(
     icon: icon || "/icon-192x192.png",
   });
 
-  const promises = subscriptions.map((sub) => {
+  const promises = subscriptions.map((sub: any) => {
     const pushSub = {
       endpoint: sub.endpoint,
       keys: {

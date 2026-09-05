@@ -12,7 +12,7 @@ export async function GET(req: Request) {
 
     const db = initServerDb();
 
-    const user = db.prepare('SELECT id, name, email FROM users WHERE id = ?').get(userId);
+    const user = db.prepare("SELECT id, name, email FROM users WHERE id = ?").get(userId) as any;
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }

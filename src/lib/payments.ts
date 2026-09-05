@@ -1,4 +1,4 @@
-import { db } from "@/lib/db";
+import { initServerDb } from '@/server/db';
 
 export const PAYMENT_PRODUCTS = {
   lingots_100: { amount: 500, title: "100 Lingots" },
@@ -27,51 +27,48 @@ export async function creditApprovedPayment({
   const expected = PAYMENT_PRODUCTS[product].amount;
   if (amount !== expected) throw new Error("Payment amount does not match the selected product");
 
-  return db.$transaction(async (tx) => {
-    try {
-      await tx.payment.create({
-        data: {
-          provider: "fedapay",
-          providerId,
-          userId,
-          product,
-          amount,
-          status: "approved",
-          processedAt: new Date(),
-        },
-      });
-    } catch (error) {
-      if (typeof error === "object" && error !== null && "code" in error && error.code === "P2002") {
-        return { alreadyProcessed: true };
-      }
-      throw error;
+  const db = initServerDb();
+
+  try {
+    // Vérifier si le paiement a déjà été traité (idempotence)
+    const existing = db.prepare('SELECT id FROM payments WHERE providerId = ?').get(providerId);
+    if (existing) {
+      return { alreadyProcessed: true };
     }
+
+    // Enregistrer le paiement
+    db.prepare(`
+      INSERT INTO payments (id, provider, providerId, userId, product, amount, status, processedAt)
+      VALUES (?, ?, ?, ?, ?, ?, 'approved', ?)
+    `).run(crypto.randomUUID(), "fedapay", providerId, userId, product, amount, new Date().toISOString());
 
     if (product === "lingots_100" || product === "lingots_500") {
       const lingots = product === "lingots_100" ? 100 : 500;
-      await tx.userProgress.upsert({
-        where: { userId },
-        update: { lingots: { increment: lingots } },
-        create: { userId, totalXP: 0, level: "Semence", lingots },
-      });
+      db.prepare(`
+        INSERT INTO user_progress (id, userId, totalXP, level, versesLearned, sessionsTotal, lingots)
+        VALUES (?, ?, 0, 'Semence', 0, 0, ?)
+        ON CONFLICT(userId) DO UPDATE SET lingots = lingots + ?
+      `).run(crypto.randomUUID(), userId, lingots, lingots);
     } else if (product === "freeze_pack") {
-      await tx.streakFreeze.upsert({
-        where: { userId },
-        update: { freezesAvailable: { increment: 5 } },
-        create: { userId, freezesAvailable: 5 },
-      });
+      db.prepare(`
+        INSERT INTO streak_freeze (id, userId, freezesAvailable, lastUsedAt)
+        VALUES (?, ?, 5, NULL)
+        ON CONFLICT(userId) DO UPDATE SET freezesAvailable = freezesAvailable + 5
+      `).run(crypto.randomUUID(), userId);
     } else {
-      const current = await tx.user.findUnique({ where: { id: userId }, select: { premiumUntil: true } });
-      const start = current?.premiumUntil && current.premiumUntil > new Date() ? current.premiumUntil : new Date();
-      await tx.user.update({
-        where: { id: userId },
-        data: {
-          isPremium: true,
-          premiumUntil: new Date(start.getTime() + 30 * 24 * 60 * 60 * 1000),
-        },
-      });
+      // Premium
+      const start = new Date();
+      db.prepare(`
+        UPDATE users SET isPremium = 1, premiumUntil = ?
+        WHERE id = ?
+      `).run(new Date(start.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(), userId);
     }
 
     return { alreadyProcessed: false };
-  });
+  } catch (error) {
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "P2002") {
+      return { alreadyProcessed: true };
+    }
+    throw error;
+  }
 }

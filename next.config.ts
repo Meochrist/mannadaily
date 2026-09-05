@@ -3,7 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Exclure better-sqlite3 du bundle (module Node.js natif)
   serverExternalPackages: ["better-sqlite3"],
-  output: "export",
   trailingSlash: true,
   images: {
     unoptimized: true,
