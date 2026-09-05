@@ -1,8 +1,7 @@
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { NextResponse } from "next/server";
+import { initServerDb } from "@/server/db";
 import { getDailyVerse } from "@/lib/verses";
 import { resolveMascotState } from "@/lib/mascotState";
-import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
@@ -45,24 +44,30 @@ function getAnonymousMessage(hourLocal: number, minuteLocal: number): { mood: st
   }
 }
 
+// Décoder un JWT simple
+function decodeToken(token: string): { userId: string; email: string; exp: number } | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1]));
+    if (payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return { userId: payload.userId, email: payload.email, exp: payload.exp };
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(req: Request) {
   try {
     let userId: string | undefined;
 
-    // Try cookie-based auth first
-    const session = await auth();
-    if (session?.user?.id) {
-      userId = session.user.id;
-    } else {
-      // Fallback: token-based auth for widget
-      const authHeader = req.headers.get("authorization");
-      if (authHeader?.startsWith("Bearer ")) {
-        const token = authHeader.slice(7);
-        const user = await db.user.findFirst({
-          where: { widgetToken: token },
-          select: { id: true },
-        });
-        if (user) userId = user.id;
+    // Token-based auth (header Authorization)
+    const authHeader = req.headers.get("authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.slice(7);
+      const decoded = decodeToken(token);
+      if (decoded?.userId) {
+        userId = decoded.userId;
       }
     }
 
@@ -73,14 +78,10 @@ export async function GET(req: Request) {
 
     // Mode authentifié
     if (userId) {
-      const streak = await db.streak.findUnique({
-        where: { userId },
-      });
+      const db = initServerDb();
 
-      const user = await db.user.findUnique({
-        where: { id: userId },
-        select: { meditationProgress: true, timezoneOffset: true },
-      });
+      const streak = db.prepare("SELECT * FROM streaks WHERE userId = ?").get(userId) as { currentStreak: number; longestStreak: number } | undefined;
+      const user = db.prepare("SELECT meditationProgress, timezoneOffset FROM users WHERE id = ?").get(userId) as { meditationProgress: string | null; timezoneOffset: number | null } | undefined;
 
       const nowLocal = new Date(nowUTC.getTime() + (user?.timezoneOffset ?? 0) * 60000);
       const todayLocal = nowLocal.toISOString().split("T")[0];
@@ -88,12 +89,16 @@ export async function GET(req: Request) {
       let sessionsCompleted = 0;
       let dayCompleted = false;
 
-      if (user?.meditationProgress && isProgress(user.meditationProgress)) {
-        const mp = user.meditationProgress;
-        if (mp.lastActivityDate === todayLocal) {
-          const sessions = Array.isArray(mp.sessionsCompleted) ? mp.sessionsCompleted : [];
-          sessionsCompleted = sessions.length;
-          dayCompleted = mp.dayCompleted === true || sessionsCompleted === 3;
+      if (user?.meditationProgress) {
+        try {
+          const mp = JSON.parse(user.meditationProgress);
+          if (isProgress(mp) && mp.lastActivityDate === todayLocal) {
+            const sessions = Array.isArray(mp.sessionsCompleted) ? mp.sessionsCompleted : [];
+            sessionsCompleted = sessions.length;
+            dayCompleted = mp.dayCompleted === true || sessionsCompleted === 3;
+          }
+        } catch {
+          // ignore
         }
       }
 
@@ -129,7 +134,7 @@ export async function GET(req: Request) {
       });
     }
 
-    // Mode anonyme (pas d'auth) → données basées sur l'heure UTC
+    // Mode anonyme
     const anon = getAnonymousMessage(hourLocal, minuteLocal);
     return NextResponse.json({
       streak: { currentStreak: 0, longestStreak: 0 },
