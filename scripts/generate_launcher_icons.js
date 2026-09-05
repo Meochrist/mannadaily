@@ -6,7 +6,6 @@ const ROOT = process.cwd();
 const MANNY_DIR = path.join(ROOT, 'public', 'assets', 'characters', 'manny');
 const MIPMAP_DIR = path.join(ROOT, 'android', 'app', 'src', 'main', 'res');
 
-// Tailles Android pour icône launcher (px)
 const SIZES = {
   mdpi: 48,
   hdpi: 72,
@@ -15,7 +14,6 @@ const SIZES = {
   xxxhdpi: 192,
 };
 
-// Tailles foreground (plus grand, avec padding)
 const FG_SIZES = {
   mdpi: 108,
   hdpi: 162,
@@ -32,13 +30,13 @@ async function main() {
   }
   const svgBuffer = fs.readFileSync(svgPath);
 
-  console.log(' Génération icônes launcher Manny (50% du canvas)...');
+  console.log(' Génération icônes launcher Manny (Manny 30% foreground)...');
 
   for (const [density, size] of Object.entries(SIZES)) {
     const dir = path.join(MIPMAP_DIR, `mipmap-${density}`);
     if (!fs.existsSync(dir)) continue;
 
-    // ic_launcher.png = mascotte sur fond transparent (adaptive icon background)
+    // ic_launcher.png = fond blanc + Manny centré (50% canvas, 25% padding)
     const launcherPng = await sharp(svgBuffer)
       .resize(Math.round(size * 0.5), Math.round(size * 0.5), { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
       .extend({
@@ -46,34 +44,34 @@ async function main() {
         bottom: Math.round(size * 0.25),
         left: Math.round(size * 0.25),
         right: Math.round(size * 0.25),
-        background: { r: 0, g: 0, b: 0, alpha: 0 }
+        background: { r: 255, g: 255, b: 255, alpha: 1 }
       })
       .png()
       .toBuffer();
     fs.writeFileSync(path.join(dir, 'ic_launcher.png'), launcherPng);
 
-    // ic_launcher_foreground.png = mascotte plus grande (pour adaptive icon)
+    // ic_launcher_foreground.png = Manny 75% (zone sûre adaptive icon)
     const fgSize = FG_SIZES[density];
     const fgPng = await sharp(svgBuffer)
-      .resize(Math.round(fgSize * 0.5), Math.round(fgSize * 0.5), { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .resize(Math.round(fgSize * 0.75), Math.round(fgSize * 0.75), { fit: 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } })
       .extend({
-        top: Math.round(fgSize * 0.25),
-        bottom: Math.round(fgSize * 0.25),
-        left: Math.round(fgSize * 0.25),
-        right: Math.round(fgSize * 0.25),
+        top: Math.round(fgSize * 0.125),
+        bottom: Math.round(fgSize * 0.125),
+        left: Math.round(fgSize * 0.125),
+        right: Math.round(fgSize * 0.125),
         background: { r: 0, g: 0, b: 0, alpha: 0 }
       })
       .png()
       .toBuffer();
     fs.writeFileSync(path.join(dir, 'ic_launcher_foreground.png'), fgPng);
 
-    // ic_launcher_round.png = mascotte ronde (même que launcher)
+    // ic_launcher_round.png = même que launcher
     fs.writeFileSync(path.join(dir, 'ic_launcher_round.png'), launcherPng);
 
     console.log(`   ${density}: launcher=${size}px, foreground=${fgSize}px`);
   }
 
-  console.log('\n ICônes launcher Manny générées (50% du canvas)');
+  console.log('\n ICônes launcher Manny générées (Manny 30% foreground)');
 }
 
 main().catch(err => {
