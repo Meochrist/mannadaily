@@ -1,8 +1,7 @@
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { NextResponse } from "next/server";
+import { initServerDb } from "@/server/db";
 import { awardXP, updateStreak, checkAndAwardBadges } from "@/lib/gamification";
 import { addXPToLeague } from "@/lib/leaderboard";
-import { NextResponse } from "next/server";
 import { trackEvent } from "@/lib/posthog";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +14,6 @@ function getActivityDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
-// Détermine la période (matin/midi/soir) depuis l'heure locale
 function getPeriodFromHour(): string {
   const hour = new Date().getHours();
   if (hour < 12) return "morning";
@@ -23,17 +21,16 @@ function getPeriodFromHour(): string {
   return "evening";
 }
 
-function isUniqueConstraintError(error: unknown) {
-  return typeof error === "object" && error !== null && "code" in error && error.code === "P2002";
-}
-
 export async function POST(req: Request) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
-    if (!userId) {
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const token = authHeader.slice(7);
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    const userId = decoded.userId;
 
     const contentLength = Number(req.headers.get("content-length") || 0);
     if (contentLength > 32_000) {
@@ -41,67 +38,52 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { type, period, notes } = body as {
-      type?: unknown;
-      period?: unknown;
-      notes?: unknown;
-    };
+    const { type, period, notes } = body;
 
     if (typeof type !== "string" || !ALLOWED_TYPES.has(type)) {
       return NextResponse.json({ error: "Invalid or missing session type" }, { status: 400 });
     }
-    // period est optionnel : pour les activités sans notion de période (proclamation),
-    // on le déduit de l'heure courante.
-    const resolvedPeriod =
-      typeof period === "string" && ALLOWED_PERIODS.has(period) ? period : getPeriodFromHour();
+
+    const resolvedPeriod = typeof period === "string" && ALLOWED_PERIODS.has(period) ? period : getPeriodFromHour();
     if (notes !== undefined && notes !== null && (typeof notes !== "string" || notes.length > MAX_NOTES_LENGTH)) {
       return NextResponse.json({ error: "Notes are too long" }, { status: 400 });
     }
 
     const activityDate = getActivityDate();
+    const db = initServerDb();
 
-    // The composite unique key is the server-side idempotency guard.
-    try {
-      await db.dailySession.create({
-        data: {
-          userId,
-          type,
-          period: resolvedPeriod,
-          activityDate,
-          xpEarned: 15,
-          duration: 120,
-          notes: typeof notes === "string" && notes.trim() ? notes.trim() : null,
-        },
+    // Idempotency guard
+    const existingSession = db.prepare("SELECT id FROM daily_sessions WHERE userId = ? AND activityDate = ? AND period = ?").get(userId, activityDate, resolvedPeriod);
+    if (existingSession) {
+      const progress = db.prepare("SELECT * FROM user_progress WHERE userId = ?").get(userId);
+      const streak = db.prepare("SELECT currentStreak FROM streaks WHERE userId = ?").get(userId);
+      return NextResponse.json({
+        success: true,
+        alreadyCompleted: true,
+        dayComplete: Boolean(progress?.morningSessionToday && progress.middaySessionToday && progress.eveningSessionToday),
+        morningDone: progress?.lastSessionDate === activityDate && progress.morningSessionToday,
+        middayDone: progress?.lastSessionDate === activityDate && progress.middaySessionToday,
+        eveningDone: progress?.lastSessionDate === activityDate && progress.eveningSessionToday,
+        xpEarned: 0,
+        bonusXP: 0,
+        newXP: progress?.totalXP ?? 0,
+        leveledUp: false,
+        newLevel: progress?.level ?? "Semence",
+        levelName: progress?.level ?? "Semence",
+        streak: streak?.currentStreak ?? 0,
+        newBadges: [],
       });
-    } catch (error) {
-      if (isUniqueConstraintError(error)) {
-        const progress = await db.userProgress.findUnique({ where: { userId } });
-        const currentStreak = (await db.streak.findUnique({ where: { userId }, select: { currentStreak: true } }))?.currentStreak ?? 0;
-        return NextResponse.json({
-          success: true,
-          alreadyCompleted: true,
-          dayComplete: Boolean(progress?.morningSessionToday && progress.middaySessionToday && progress.eveningSessionToday),
-          morningDone: progress?.lastSessionDate === activityDate && progress.morningSessionToday,
-          middayDone: progress?.lastSessionDate === activityDate && progress.middaySessionToday,
-          eveningDone: progress?.lastSessionDate === activityDate && progress.eveningSessionToday,
-          xpEarned: 0,
-          bonusXP: 0,
-          newXP: progress?.totalXP ?? 0,
-          leveledUp: false,
-          newLevel: progress?.level ?? "Semence",
-          levelName: progress?.level ?? "Semence",
-          streak: currentStreak,
-          newBadges: [],
-        });
-      }
-      throw error;
     }
 
-    // Une méditation classique est déjà récompensée par les trois mini-sessions
-    // via /api/meditate/progress. Cette route persiste uniquement le journal final
-    // afin d'éviter de créditer deux fois l'XP.
+    // Create session
+    db.prepare(`
+      INSERT INTO daily_sessions (id, userId, type, period, activityDate, xpEarned, duration, notes)
+      VALUES (?, ?, ?, ?, ?, 15, 120, ?)
+    `).run(crypto.randomUUID(), userId, type, resolvedPeriod, activityDate, typeof notes === "string" && notes.trim() ? notes.trim() : null);
+
+    // Classic type is already rewarded via mini-sessions
     if (type === "classic") {
-      const progress = await db.userProgress.findUnique({ where: { userId } });
+      const progress = db.prepare("SELECT * FROM user_progress WHERE userId = ?").get(userId);
       const sameDay = progress?.lastSessionDate === activityDate;
       const morningDone = Boolean(sameDay && progress?.morningSessionToday);
       const middayDone = Boolean(sameDay && progress?.middaySessionToday);
@@ -119,26 +101,15 @@ export async function POST(req: Request) {
         leveledUp: false,
         newLevel: progress?.level ?? "Semence",
         levelName: progress?.level ?? "Semence",
-        streak: (await db.streak.findUnique({ where: { userId }, select: { currentStreak: true } }))?.currentStreak ?? 0,
+        streak: 0,
         newBadges: [],
       });
     }
 
-    let progress = await db.userProgress.findUnique({ where: { userId } });
+    let progress = db.prepare("SELECT * FROM user_progress WHERE userId = ?").get(userId);
     if (!progress) {
-      progress = await db.userProgress.create({
-        data: {
-          userId,
-          totalXP: 0,
-          level: "Semence",
-          versesLearned: 0,
-          sessionsTotal: 0,
-          lingots: 0,
-          morningSessionToday: false,
-          middaySessionToday: false,
-          eveningSessionToday: false,
-        },
-      });
+      db.prepare("INSERT INTO user_progress (id, userId, totalXP, level, versesLearned, sessionsTotal, lingots) VALUES (?, ?, 0, 'Semence', 0, 0, 0)").run(crypto.randomUUID(), userId);
+      progress = db.prepare("SELECT * FROM user_progress WHERE userId = ?").get(userId);
     }
 
     const sameDay = progress.lastSessionDate === activityDate;
@@ -153,21 +124,14 @@ export async function POST(req: Request) {
     const dayComplete = morningDone && middayDone && eveningDone;
     const dayJustCompleted = dayComplete && !wasDayComplete;
 
-    await db.userProgress.update({
-      where: { userId },
-      data: {
-        morningSessionToday: morningDone,
-        middaySessionToday: middayDone,
-        eveningSessionToday: eveningDone,
-        lastSessionDate: activityDate,
-        sessionsTotal: { increment: 1 },
-      },
-    });
+    db.prepare(`
+      UPDATE user_progress SET morningSessionToday = ?, middaySessionToday = ?, eveningSessionToday = ?, lastSessionDate = ?, sessionsTotal = sessionsTotal + 1 WHERE userId = ?
+    `).run(morningDone, middayDone, eveningDone, activityDate, userId);
 
     const baseXPResult = await awardXP(userId, "morning_session");
     let finalXPResult = baseXPResult;
     let bonusXP = 0;
-    let currentStreak = (await db.streak.findUnique({ where: { userId }, select: { currentStreak: true } }))?.currentStreak ?? 0;
+    let currentStreak = 0;
 
     if (dayJustCompleted) {
       bonusXP = 10;

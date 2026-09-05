@@ -1,5 +1,5 @@
-import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { initServerDb } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     const book = searchParams.get("book");
     const chapter = searchParams.get("chapter");
     const verse = searchParams.get("verse");
-    const language = searchParams.get("language"); // hebrew / greek
+    const language = searchParams.get("language");
 
     if (!book || !chapter || !verse || !language) {
       return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
@@ -23,29 +23,21 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Invalid book, chapter or verse format" }, { status: 400 });
     }
 
+    const db = initServerDb();
+
     if (language === "hebrew") {
-      const words = await db.hebrewWord.findMany({
-        where: {
-          book: bookNum,
-          chapter: chapterNum,
-          verse: verseNum
-        },
-        orderBy: {
-          wordPosition: "asc"
-        }
-      });
+      const words = db.prepare(`
+        SELECT * FROM hebrew_words
+        WHERE book = ? AND chapter = ? AND verse = ?
+        ORDER BY wordPosition ASC
+      `).all(bookNum, chapterNum, verseNum);
       return NextResponse.json({ words });
     } else if (language === "greek") {
-      const words = await db.greekWord.findMany({
-        where: {
-          book: bookNum,
-          chapter: chapterNum,
-          verse: verseNum
-        },
-        orderBy: {
-          wordPosition: "asc"
-        }
-      });
+      const words = db.prepare(`
+        SELECT * FROM greek_words
+        WHERE book = ? AND chapter = ? AND verse = ?
+        ORDER BY wordPosition ASC
+      `).all(bookNum, chapterNum, verseNum);
       return NextResponse.json({ words });
     } else {
       return NextResponse.json({ error: "Invalid language. Must be 'hebrew' or 'greek'" }, { status: 400 });

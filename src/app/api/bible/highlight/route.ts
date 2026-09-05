@@ -1,17 +1,18 @@
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { initServerDb } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
-
-    if (!userId) {
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const token = authHeader.slice(7);
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    const userId = decoded.userId;
 
     const body = await req.json();
     const { verseId, color } = body;
@@ -25,24 +26,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid highlight color" }, { status: 400 });
     }
 
-    const highlight = await db.verseHighlight.upsert({
-      where: {
-        userId_verseId: {
-          userId,
-          verseId,
-        },
-      },
-      update: {
-        color,
-      },
-      create: {
-        userId,
-        verseId,
-        color,
-      },
-    });
+    const db = initServerDb();
+    const existing = db.prepare("SELECT id FROM verse_highlights WHERE userId = ? AND verseId = ?").get(userId, verseId);
 
-    return NextResponse.json({ highlight });
+    if (existing) {
+      db.prepare("UPDATE verse_highlights SET color = ? WHERE userId = ? AND verseId = ?").run(color, userId, verseId);
+    } else {
+      db.prepare("INSERT INTO verse_highlights (id, userId, verseId, color) VALUES (?, ?, ?, ?)").run(crypto.randomUUID(), userId, verseId, color);
+    }
+
+    return NextResponse.json({ success: true });
   } catch (error: unknown) {
     console.error("Error upserting highlight:", error);
     return NextResponse.json({ error: "Failed to save highlight" }, { status: 500 });
@@ -51,12 +44,14 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
-
-    if (!userId) {
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const token = authHeader.slice(7);
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    const userId = decoded.userId;
 
     const { searchParams } = new URL(req.url);
     const verseId = searchParams.get("verseId");
@@ -65,21 +60,8 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Missing verseId parameter" }, { status: 400 });
     }
 
-    try {
-      await db.verseHighlight.delete({
-        where: {
-          userId_verseId: {
-            userId,
-            verseId,
-          },
-        },
-      });
-    } catch (dbErr: unknown) {
-      // Si le highlight n'existait pas, on ignore l'erreur
-      if (!(dbErr instanceof Error) || dbErr.message !== "P2025") {
-        throw dbErr;
-      }
-    }
+    const db = initServerDb();
+    db.prepare("DELETE FROM verse_highlights WHERE userId = ? AND verseId = ?").run(userId, verseId);
 
     return NextResponse.json({ success: true });
   } catch (error: unknown) {

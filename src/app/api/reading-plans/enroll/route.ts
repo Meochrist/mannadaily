@@ -1,16 +1,18 @@
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { initServerDb } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const userId = session.user.id;
+
+    const token = authHeader.slice(7);
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    const userId = decoded.userId;
 
     const body = await req.json();
     const { planId } = body;
@@ -19,41 +21,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing planId parameter" }, { status: 400 });
     }
 
-    // Vérifier si le plan existe
-    const plan = await db.readingPlan.findUnique({
-      where: { id: planId }
-    });
+    const db = initServerDb();
+
+    const plan = db.prepare("SELECT id FROM reading_plans WHERE id = ?").get(planId);
     if (!plan) {
       return NextResponse.json({ error: "Reading plan not found" }, { status: 404 });
     }
 
-    // Inscrire l'utilisateur
-    const enrollment = await db.readingPlanEnrollment.upsert({
-      where: {
-        userId_planId: { userId, planId }
-      },
-      update: {
-        currentDay: 1,
-        completed: false,
-        completedAt: null,
-        startDate: new Date()
-      },
-      create: {
-        userId,
-        planId,
-        currentDay: 1,
-        completed: false
-      }
-    });
+    const now = new Date().toISOString();
+    const existing = db.prepare("SELECT id FROM reading_plan_enrollments WHERE userId = ? AND planId = ?").get(userId, planId);
 
-    // Optionnel : réinitialiser la progression individuelle de ce plan
-    await db.readingPlanProgress.deleteMany({
-      where: { userId, planId }
-    });
+    if (existing) {
+      db.prepare(`
+        UPDATE reading_plan_enrollments SET currentDay = 1, completed = 0, completedAt = NULL, startDate = ? WHERE userId = ? AND planId = ?
+      `).run(now, userId, planId);
+    } else {
+      db.prepare(`
+        INSERT INTO reading_plan_enrollments (id, userId, planId, currentDay, completed, startDate) VALUES (?, ?, ?, 1, 0, ?)
+      `).run(crypto.randomUUID(), userId, planId, now);
+    }
 
-    return NextResponse.json({ enrollment });
+    db.prepare("DELETE FROM reading_plan_progress WHERE userId = ? AND planId = ?").run(userId, planId);
+
+    return NextResponse.json({ success: true });
   } catch (error: unknown) {
     console.error("Error in POST /api/reading-plans/enroll:", error);
-    return NextResponse.json({ error: error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to enroll" }, { status: 500 });
   }
 }

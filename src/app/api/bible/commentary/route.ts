@@ -1,5 +1,5 @@
-import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { initServerDb } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
@@ -22,25 +22,16 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Invalid query parameters: book, chapter, and verse must be numbers" }, { status: 400 });
     }
 
-    const commentaries = await db.bibleCommentary.findMany({
-      where: {
-        book,
-        chapter,
-        OR: [
-          { verse },
-          { verse: 0 }
-        ]
-      },
-      orderBy: [
-        { verse: "asc" },
-        { author: "asc" }
-      ]
-    });
+    const db = initServerDb();
+    const commentaries = db.prepare(`
+      SELECT * FROM bible_commentaries
+      WHERE book = ? AND chapter = ? AND (verse = ? OR verse = 0)
+      ORDER BY verse ASC, author ASC
+    `).all(book, chapter, verse);
 
     return NextResponse.json({ commentaries });
   } catch (error: unknown) {
     console.error("Error fetching commentaries:", error);
-    const message = error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch commentaries" }, { status: 500 });
   }
 }

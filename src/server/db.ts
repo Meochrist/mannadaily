@@ -229,6 +229,18 @@ export function initServerDb(): Database.Database {
       UNIQUE(userId, verseId)
     );
 
+    CREATE TABLE IF NOT EXISTS bible_commentaries (
+      id TEXT PRIMARY KEY,
+      book INTEGER NOT NULL,
+      chapter INTEGER NOT NULL,
+      verse INTEGER,
+      verseEnd INTEGER,
+      author TEXT NOT NULL,
+      content TEXT NOT NULL,
+      language TEXT DEFAULT 'fr',
+      createdAt TEXT DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS streak_freeze (
       id TEXT PRIMARY KEY,
       userId TEXT UNIQUE NOT NULL,

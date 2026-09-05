@@ -114,15 +114,15 @@ export async function GET(req: Request) {
       const activeEnrollment = user.readingPlans[0];
       if (activeEnrollment && user.readingReminders) {
         const hasCompletedToday = user.readingProgress.some(
-          (p) => p.planId === activeEnrollment.planId && p.dayNumber === activeEnrollment.currentDay
+          (p: any) => p.planId === activeEnrollment.planId && p.dayNumber === activeEnrollment.currentDay
         );
 
         if (!hasCompletedToday) {
           const dayData = activeEnrollment.plan.days.find(
-            (d) => d.dayNumber === activeEnrollment.currentDay
+            (d: any) => d.dayNumber === activeEnrollment.currentDay
           );
           const readings = dayData?.readings || [];
-          const chaptersStr = readings.map((r) => `${r.book} ${r.chapter}`).join(", ");
+          const chaptersStr = readings.map((r: any) => `${r.book} ${r.chapter}`).join(", ");
           const firstReading = readings[0];
           const firstBook = firstReading?.book || "";
           const firstChapter = firstReading?.chapter ? String(firstReading?.chapter) : "";

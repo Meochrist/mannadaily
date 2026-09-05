@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { initServerDb } from "@/server/db";
 import { translateStrongEntry } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
@@ -14,9 +14,8 @@ export async function GET(
     // Normaliser : H001 -> H1, G001 -> G1, etc.
     const normalized = number.toUpperCase().replace(/^([HG])0+(\d+)$/, "$1$2");
 
-    const entry = await db.strongEntry.findUnique({
-      where: { number: normalized },
-    });
+    const db = initServerDb();
+    const entry = db.prepare("SELECT * FROM strong_entries WHERE number = ?").get(normalized) as any;
 
     if (!entry) {
       return NextResponse.json(
@@ -37,16 +36,12 @@ export async function GET(
           entry.kjvUsage
         );
 
-        translated = await db.strongEntry.update({
-          where: { id: entry.id },
-          data: {
-            definitionFr,
-            kjvUsageFr: kjvUsageFr || null,
-            translatedAt: new Date(),
-          },
-        });
+        db.prepare(`
+          UPDATE strong_entries SET definitionFr = ?, kjvUsageFr = ?, translatedAt = ? WHERE id = ?
+        `).run(definitionFr, kjvUsageFr || null, new Date().toISOString(), entry.id);
+
+        translated = { ...entry, definitionFr, kjvUsageFr: kjvUsageFr || null, translatedAt: new Date().toISOString() };
       } catch (translationError) {
-        // La traduction échoue → on renvoie l'entrée anglaise sans bloquer.
         console.warn(
           `Traduction FR indisponible pour ${normalized}:`,
           translationError instanceof Error ? translationError.message : translationError
@@ -58,7 +53,6 @@ export async function GET(
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        // Cache 24h — données statiques
         "Cache-Control": "public, max-age=86400, s-maxage=86400",
       },
     });

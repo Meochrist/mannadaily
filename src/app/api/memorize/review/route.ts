@@ -1,32 +1,32 @@
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
+import { initServerDb } from "@/server/db";
 import { calculateSM2 } from "@/lib/sm2";
 import { awardXP, checkAndAwardBadges } from "@/lib/gamification";
 import { addXPToLeague } from "@/lib/leaderboard";
-import { NextRequest, NextResponse } from "next/server";
 import { trackEvent } from "@/lib/posthog";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
-  const userId = session?.user?.id;
-
-  if (!userId) {
-    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-  }
-
   try {
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+
+    const token = authHeader.slice(7);
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    const userId = decoded.userId;
+
     const { verseId, quality } = await request.json();
 
     if (!verseId || quality === undefined || quality < 0 || quality > 5) {
       return NextResponse.json({ error: "Paramètres invalides" }, { status: 400 });
     }
 
-    // Récupérer la mémorisation en cours
-    const memorization = await db.verseMemorization.findUnique({
-      where: { id: verseId },
-    });
+    const db = initServerDb();
+
+    const memorization = db.prepare("SELECT * FROM verse_memorizations WHERE id = ?").get(verseId);
 
     if (!memorization || memorization.userId !== userId) {
       return NextResponse.json({ error: "Fiche de mémorisation introuvable" }, { status: 404 });
@@ -34,7 +34,6 @@ export async function POST(request: NextRequest) {
 
     const oldStatus = memorization.status;
 
-    // Calculer le SM2
     const sm2Result = calculateSM2(
       quality,
       memorization.interval,
@@ -42,7 +41,6 @@ export async function POST(request: NextRequest) {
       memorization.repetitions
     );
 
-    // Déterminer le nouveau statut
     let newStatus = "learning";
     if (sm2Result.repetitions >= 3 || quality === 5) {
       newStatus = "mastered";
@@ -50,61 +48,42 @@ export async function POST(request: NextRequest) {
       newStatus = "reviewing";
     }
 
-    // Mettre à jour l'entité de mémorisation
-    const updatedMemorization = await db.verseMemorization.update({
-      where: { id: verseId },
-      data: {
-        interval: sm2Result.interval,
-        easeFactor: sm2Result.easeFactor,
-        repetitions: sm2Result.repetitions,
-        nextReview: sm2Result.nextReview,
-        lastReview: new Date(),
-        status: newStatus,
-      },
-    });
+    const now = new Date().toISOString();
+
+    db.prepare(`
+      UPDATE verse_memorizations SET interval = ?, easeFactor = ?, repetitions = ?, nextReview = ?, lastReview = ?, status = ? WHERE id = ?
+    `).run(sm2Result.interval, sm2Result.easeFactor, sm2Result.repetitions, sm2Result.nextReview.toISOString(), now, newStatus, verseId);
 
     let xpEarned = 0;
     let leveledUp = false;
     let newLevel = "";
     let newBadges: unknown[] = [];
 
-    // Si le statut passe à "mastered", on attribue 25 XP
     if (newStatus === "mastered" && oldStatus !== "mastered") {
       xpEarned = 25;
       
-      // Mettre à jour les versets appris dans UserProgress
-      await db.userProgress.update({
-        where: { userId },
-        data: {
-          versesLearned: {
-            increment: 1,
-          },
-        },
-      });
+      db.prepare("UPDATE user_progress SET versesLearned = versesLearned + 1 WHERE userId = ?").run(userId);
 
-      // Octroyer l'XP et ajouter au classement de la ligue hebdomadaire
       const xpResult = await awardXP(userId, "MEMORIZATION");
       leveledUp = xpResult.leveledUp;
       newLevel = xpResult.levelName;
 
       await addXPToLeague(userId, xpEarned);
 
-      // Vérifier les badges débloqués
       newBadges = await checkAndAwardBadges(userId);
     }
 
-    // PostHog event tracking (Tâche #79)
     trackEvent(userId, "verse_reviewed", { quality, mastered: newStatus === "mastered" });
 
     return NextResponse.json({
       success: true,
-      memorization: updatedMemorization,
+      memorization: { ...memorization, status: newStatus, interval: sm2Result.interval, easeFactor: sm2Result.easeFactor, repetitions: sm2Result.repetitions },
       xpEarned,
       leveledUp,
       newLevel,
       newBadges,
     });
   } catch (error: unknown) {
-    const __message = error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error"; return NextResponse.json({ error: __message }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

@@ -1,66 +1,60 @@
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
+import { initServerDb } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  const session = await auth();
-  const userId = session?.user?.id;
-
-  if (!userId) {
-    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-  }
-
+export async function GET(req: Request) {
   try {
-    const now = new Date();
-    
-    // Récupérer les versets dont nextReview est dans le passé ou égal à maintenant
-    const memorizations = await db.verseMemorization.findMany({
-      where: {
-        userId,
-        nextReview: {
-          lte: now,
-        },
-      },
-      orderBy: {
-        nextReview: "asc",
-      },
-    });
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
 
-    // Récupérer tous les versets mémorisés pour l'utilisateur (pour le récap/historique)
-    const mastered = await db.verseMemorization.findMany({
-      where: {
-        userId,
-        status: "mastered",
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const token = authHeader.slice(7);
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    const userId = decoded.userId;
+
+    const db = initServerDb();
+    const now = new Date().toISOString();
+
+    const memorizations = db.prepare(`
+      SELECT * FROM verse_memorizations
+      WHERE userId = ? AND nextReview <= ?
+      ORDER BY nextReview ASC
+    `).all(userId, now);
+
+    const mastered = db.prepare(`
+      SELECT * FROM verse_memorizations
+      WHERE userId = ? AND status = 'mastered'
+      ORDER BY createdAt DESC
+    `).all(userId);
 
     return NextResponse.json({ memorizations, mastered });
   } catch (error: unknown) {
-    return NextResponse.json({ error: (error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error") }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
-  const userId = session?.user?.id;
-
-  if (!userId) {
-    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-  }
-
   try {
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+
+    const token = authHeader.slice(7);
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    const userId = decoded.userId;
+
     const { reference, verseText } = await request.json();
 
     if (!reference || !verseText) {
       return NextResponse.json({ error: "Référence et texte requis" }, { status: 400 });
     }
 
-    // Tenter de lier un verseId existant en parsant la référence
+    const db = initServerDb();
+    const now = new Date().toISOString();
+
     let verseId = "placeholder-id";
     const refRegex = /^(.+?)\s+(\d+)[:v](\d+)$/;
     const match = reference.trim().match(refRegex);
@@ -69,45 +63,26 @@ export async function POST(request: NextRequest) {
       const chapter = parseInt(match[2], 10);
       const verseNum = parseInt(match[3], 10);
 
-      const dbVerse = await db.verse.findFirst({
-        where: {
-          book: bookName,
-          chapter: chapter,
-          verse: verseNum,
-        },
-      });
+      const dbVerse = db.prepare("SELECT id FROM verses WHERE book = ? AND chapter = ? AND verse = ?").get(bookName, chapter, verseNum);
       if (dbVerse) {
         verseId = dbVerse.id;
       }
     }
 
-    const memorization = await db.verseMemorization.upsert({
-      where: {
-        userId_reference: {
-          userId,
-          reference,
-        },
-      },
-      update: {
-        verseText,
-        nextReview: new Date(),
-        status: "learning",
-        repetitions: 0,
-        interval: 1,
-        easeFactor: 2.5,
-      },
-      create: {
-        userId,
-        verseId,
-        reference,
-        verseText,
-        status: "learning",
-        nextReview: new Date(),
-      },
-    });
+    const existing = db.prepare("SELECT id FROM verse_memorizations WHERE userId = ? AND reference = ?").get(userId, reference);
 
-    return NextResponse.json({ success: true, memorization });
+    if (existing) {
+      db.prepare(`
+        UPDATE verse_memorizations SET verseText = ?, nextReview = ?, status = 'learning', repetitions = 0, interval = 1, easeFactor = 2.5 WHERE id = ?
+      `).run(verseText, now, existing.id);
+    } else {
+      db.prepare(`
+        INSERT INTO verse_memorizations (id, userId, verseId, reference, verseText, status, nextReview) VALUES (?, ?, ?, ?, ?, 'learning', ?)
+      `).run(crypto.randomUUID(), userId, verseId, reference, verseText, now);
+    }
+
+    return NextResponse.json({ success: true });
   } catch (error: unknown) {
-    return NextResponse.json({ error: (error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error") }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
