@@ -9,7 +9,10 @@ let dbInstance: Database.Database | null = null;
 export function getServerDb(): Database.Database {
   if (dbInstance) return dbInstance;
   
-  const dataDir = path.join(process.cwd(), 'data');
+  // Sur Vercel, utiliser /tmp (seul répertoire writable)
+  const isVercel = !!process.env.VERCEL;
+  const dataDir = isVercel ? path.join('/tmp', 'data') : path.join(process.cwd(), 'data');
+  
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
   }
