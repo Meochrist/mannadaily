@@ -74,7 +74,7 @@ export async function GET(request: Request) {
     // traduction) est bien plus pertinent qu'une occurrence noyée dans une
     // longue définition. On privilégie aussi les correspondances de mot entier.
     const primary = searchTerms[0]?.toLowerCase() || "";
-    const scored = results.map((entry) => {
+    const scored = results.map((entry: any) => {
       const usage = (entry.kjvUsage || "").toLowerCase();
       const definition = (entry.definition || "").toLowerCase();
       let score = 0;
@@ -107,9 +107,9 @@ export async function GET(request: Request) {
     });
 
     const sorted = scored
-      .sort((a, b) => b.score - a.score)
+      .sort((a: any, b: any) => b.score - a.score)
       .slice(0, 25)
-      .map((s) => s.entry);
+      .map((s: any) => s.entry);
 
     return NextResponse.json({
       results: sorted,

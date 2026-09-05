@@ -1,94 +1,38 @@
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { getLevelFromXP, getXPProgress } from "@/lib/gamification";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
+import { getServerDb, initServerDb } from '@/server/db';
 
-export const dynamic = "force-dynamic";
-
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get('userId');
+
+    if (!userId) {
+      return NextResponse.json({ error: 'userId requis' }, { status: 400 });
     }
 
-    const userId = session.user.id;
+    const db = initServerDb();
 
-    let progress = await db.userProgress.findUnique({
-      where: { userId },
-    });
+    const progress = db.prepare('SELECT * FROM user_progress WHERE userId = ?').get(userId);
+    const streak = db.prepare('SELECT * FROM streaks WHERE userId = ?').get(userId);
+    const user = db.prepare('SELECT id, name, email, meditationProgress FROM users WHERE id = ?').get(userId);
 
-    if (!progress) {
-      progress = await db.userProgress.create({
-        data: {
-          userId,
-          totalXP: 0,
-          level: "Semence",
-          versesLearned: 0,
-          sessionsTotal: 0,
-        },
-      });
+    let meditationProgress = null;
+    if (user?.meditationProgress) {
+      try {
+        meditationProgress = JSON.parse(user.meditationProgress);
+      } catch {
+        meditationProgress = null;
+      }
     }
-
-    let streak = await db.streak.findUnique({
-      where: { userId },
-    });
-
-    if (!streak) {
-      streak = await db.streak.create({
-        data: {
-          userId,
-          currentStreak: 0,
-          longestStreak: 0,
-          lastActivityAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        },
-      });
-    }
-
-    const userBadges = await db.userBadge.findMany({
-      where: { userId },
-      include: {
-        badge: true,
-      },
-    });
-
-    const levelInfo = getLevelFromXP(progress.totalXP);
-    const progressPercent = getXPProgress(progress.totalXP);
 
     return NextResponse.json({
-      progress: {
-        totalXP: progress.totalXP,
-        level: progress.level,
-        levelNumber: levelInfo.level,
-        levelName: levelInfo.name,
-        xpRequired: levelInfo.xpRequired,
-        xpNext: levelInfo.xpNext,
-        progressPercent,
-        versesLearned: progress.versesLearned,
-        sessionsTotal: progress.sessionsTotal,
-        morningSessionToday: progress.morningSessionToday,
-        middaySessionToday: progress.middaySessionToday,
-        eveningSessionToday: progress.eveningSessionToday,
-        lastSessionDate: progress.lastSessionDate,
-      },
-      streak: {
-        currentStreak: streak.currentStreak,
-        longestStreak: streak.longestStreak,
-        lastActivityAt: streak.lastActivityAt,
-      },
-      userName: session.user.name || "Ami",
-      userEmail: session.user.email,
-      badges: userBadges.map((ub: (typeof userBadges)[number]) => ({
-        id: ub.badge.id,
-        name: ub.badge.name,
-        description: ub.badge.description,
-        icon: ub.badge.icon,
-        earnedAt: ub.earnedAt,
-      })),
+      progress,
+      streak,
+      meditationProgress,
     });
   } catch (error: unknown) {
-    console.error("Error in progress fetching API:", error);
-    const message = error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error";
+    console.error('Error in user progress API:', error);
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

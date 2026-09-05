@@ -66,7 +66,7 @@ export default async function ReadingPlansPage() {
         <div className="flex items-center gap-3">
           <div className="bg-indigo-950/40 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-indigo-500/20 text-center">
             <span className="block text-xs font-bold text-indigo-300 uppercase tracking-wider">Plans Actifs</span>
-            <span className="text-xl font-black">{enrollments.filter(e => !e.completed).length}</span>
+            <span className="text-xl font-black">{enrollments.filter((e: any) => !e.completed).length}</span>
           </div>
         </div>
       </div>

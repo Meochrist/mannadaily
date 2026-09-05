@@ -1,14 +1,10 @@
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { awardXP, updateStreak } from "@/lib/gamification";
-import { dateStrForOffset, offsetFromHeaders } from "@/lib/localDate";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
+import { awardXP, updateStreak } from '@/lib/gamification';
+import { dateStrForOffset, offsetFromHeaders } from '@/lib/localDate';
+import { getServerDb, initServerDb } from '@/server/db';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
-// La journée est calculée dans le fuseau de l'utilisateur, PAS en UTC :
-// sur Vercel (serveur UTC) un utilisateur en UTC+1 voyait sa progression
-// traitée comme « celle d'hier » et remise à zéro après avoir médité.
 const todayFor = (headers: Headers) => dateStrForOffset(offsetFromHeaders(headers));
 const emptyProgress = (date: string) => ({
   currentMiniSession: 1,
@@ -19,32 +15,22 @@ const emptyProgress = (date: string) => ({
 });
 
 function isProgress(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function normalizeProgress(input: Record<string, unknown>, activityDate: string) {
   const rawSessions = Array.isArray(input.sessionsCompleted) ? input.sessionsCompleted : [];
   const sessionsCompleted = [...new Set(rawSessions.filter((value): value is number =>
-    typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= 3
+    typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 3
   ))].sort((a, b) => a - b);
-  // currentStep vaut 0 ou 1 dans le flux OIA+ (2 écrans par mini-session).
-  // Le borner à 7 laissait passer des valeurs impossibles ; on garde
-  // fidèlement l'étape en cours pour pouvoir reprendre au bon endroit.
-  const rawStep = typeof input.currentStep === "number" && Number.isInteger(input.currentStep)
+  const rawStep = typeof input.currentStep === 'number' && Number.isInteger(input.currentStep)
     ? Math.max(0, Math.min(1, input.currentStep))
     : 0;
-
-  // GARDE-FOU : la position courante ne peut pas être ANTÉRIEURE aux
-  // mini-sessions déjà validées. Un état incohérent (« mini 1 » alors que
-  // [1,2] sont faites) renvoyait l'utilisateur au tout début de sa journée.
-  // La position minimale légitime est donc « première mini non validée ».
   const minMiniSession = Math.min(3, sessionsCompleted.length + 1);
-  const rawMini = typeof input.currentMiniSession === "number" && [1, 2, 3].includes(input.currentMiniSession)
+  const rawMini = typeof input.currentMiniSession === 'number' && [1, 2, 3].includes(input.currentMiniSession)
     ? input.currentMiniSession
     : minMiniSession;
   const currentMiniSession = Math.max(rawMini, minMiniSession);
-  // Si le garde-fou a fait avancer la position, on repart au 1er écran
-  // de cette mini-session plutôt que d'hériter d'une étape sans rapport.
   const currentStep = currentMiniSession === rawMini ? rawStep : 0;
 
   return {
@@ -53,59 +39,68 @@ function normalizeProgress(input: Record<string, unknown>, activityDate: string)
     sessionsCompleted,
     lastActivityDate: activityDate,
     dayCompleted: sessionsCompleted.length === 3,
-    verseReference: typeof input.verseReference === "string" ? input.verseReference : undefined,
+    verseReference: typeof input.verseReference === 'string' ? input.verseReference : undefined,
   };
 }
 
 export async function GET(req: Request) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
-    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const token = authHeader.slice(7);
+    const decoded = JSON.parse(atob(token.split('.')[1]));
+    const userId = decoded.userId;
 
     const activityDate = todayFor(req.headers);
-    const user = await db.user.findUnique({ where: { id: userId }, select: { meditationProgress: true } });
+    const db = initServerDb();
+    
+    const user = db.prepare('SELECT meditationProgress FROM users WHERE id = ?').get(userId);
     if (!user || !isProgress(user.meditationProgress)) {
       return NextResponse.json({ progress: emptyProgress(activityDate) });
     }
 
     if (user.meditationProgress.lastActivityDate !== activityDate) {
-      // Progression d'un autre jour : on renvoie une journée vierge SANS écrire
-      // en base. Un GET ne doit jamais détruire des données — si le fuseau est
-      // mal transmis (en-tête absent), l'écriture effaçait la progression du
-      // jour de façon irréversible. Le prochain POST écrasera de lui-même.
       return NextResponse.json({ progress: emptyProgress(activityDate) });
     }
 
     return NextResponse.json({ progress: normalizeProgress(user.meditationProgress, activityDate) });
   } catch (error) {
-    console.error("Error in GET meditate progress:", error);
-    return NextResponse.json({ error: "Unable to load meditation progress" }, { status: 500 });
+    console.error('Error in GET meditate progress:', error);
+    return NextResponse.json({ error: 'Unable to load meditation progress' }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
-    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    const contentLength = Number(req.headers.get("content-length") || 0);
-    if (contentLength > 32_000) return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+    const token = authHeader.slice(7);
+    const decoded = JSON.parse(atob(token.split('.')[1]));
+    const userId = decoded.userId;
+
+    const contentLength = Number(req.headers.get('content-length') || 0);
+    if (contentLength > 32_000) return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
 
     const body = await req.json();
     if (!isProgress(body?.progress)) {
-      return NextResponse.json({ error: "Missing progress object" }, { status: 400 });
+      return NextResponse.json({ error: 'Missing progress object' }, { status: 400 });
     }
 
     const activityDate = todayFor(req.headers);
     const requested = normalizeProgress(body.progress, activityDate);
     const claim = body.claimXPForSession;
     if (claim !== undefined && (!Number.isInteger(claim) || claim < 1 || claim > 3)) {
-      return NextResponse.json({ error: "Invalid mini-session" }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid mini-session' }, { status: 400 });
     }
 
-    const currentUser = await db.user.findUnique({ where: { id: userId }, select: { meditationProgress: true } });
+    const db = initServerDb();
+    const currentUser = db.prepare('SELECT meditationProgress FROM users WHERE id = ?').get(userId);
     const existing = isProgress(currentUser?.meditationProgress) && currentUser.meditationProgress.lastActivityDate === activityDate
       ? normalizeProgress(currentUser.meditationProgress, activityDate)
       : emptyProgress(activityDate);
@@ -113,40 +108,35 @@ export async function POST(req: Request) {
     let shouldAward = false;
     if (claim !== undefined) {
       if (!requested.sessionsCompleted.includes(claim)) {
-        return NextResponse.json({ error: "The claimed mini-session is not completed" }, { status: 400 });
+        return NextResponse.json({ error: 'The claimed mini-session is not completed' }, { status: 400 });
       }
       if (existing.sessionsCompleted.includes(claim)) {
         return NextResponse.json({ success: true, alreadyClaimed: true, progress: existing, xpResult: null, streak: 0 });
       }
       const prerequisites = claim === 1 ? [] : claim === 2 ? [1] : [1, 2];
       if (!prerequisites.every((item) => existing.sessionsCompleted.includes(item))) {
-        return NextResponse.json({ error: "Mini-sessions must be completed in order" }, { status: 409 });
+        return NextResponse.json({ error: 'Mini-sessions must be completed in order' }, { status: 409 });
       }
       const newSessions = [...existing.sessionsCompleted, claim].sort((a, b) => a - b);
       if (newSessions.some((value) => !requested.sessionsCompleted.includes(value)) || newSessions.length !== requested.sessionsCompleted.length) {
-        return NextResponse.json({ error: "Invalid progress transition" }, { status: 409 });
+        return NextResponse.json({ error: 'Invalid progress transition' }, { status: 409 });
       }
       shouldAward = true;
     }
 
-    const updatedUser = await db.user.update({
-      where: { id: userId },
-      data: { meditationProgress: requested },
-      select: { meditationProgress: true },
-    });
+    db.prepare('UPDATE users SET meditationProgress = ? WHERE id = ?').run(JSON.stringify(requested), userId);
 
     let xpResult = null;
     let streak = 0;
     if (shouldAward) {
-      const action = claim === 1 ? "meditation_mini_1" : claim === 2 ? "meditation_mini_2" : "meditation_mini_3";
+      const action = claim === 1 ? 'meditation_mini_1' : claim === 2 ? 'meditation_mini_2' : 'meditation_mini_3';
       xpResult = await awardXP(userId, action);
-      // Update streak on every claim — updateStreak has built-in same-day dedup
       streak = await updateStreak(userId);
     }
 
-    return NextResponse.json({ success: true, alreadyClaimed: false, progress: updatedUser.meditationProgress, xpResult, streak });
+    return NextResponse.json({ success: true, alreadyClaimed: false, progress: requested, xpResult, streak });
   } catch (error) {
-    console.error("Error in POST meditate progress:", error);
-    return NextResponse.json({ error: "Unable to save meditation progress" }, { status: 500 });
+    console.error('Error in POST meditate progress:', error);
+    return NextResponse.json({ error: 'Unable to save meditation progress' }, { status: 500 });
   }
 }

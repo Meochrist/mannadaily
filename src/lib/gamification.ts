@@ -1,120 +1,98 @@
-import { db } from "@/lib/db";
-import { LEVELS, XP_RULES } from "@/types";
-import { differenceInCalendarDays } from "date-fns";
-import { getLevelFromXP, getXPProgress } from "@/lib/xp-utils";
+// Gamification — Version SQLite (remplace Prisma)
+import { getServerDb, initServerDb } from '@/server/db';
+import { XP_RULES, LEVELS } from '@/types';
+import { differenceInCalendarDays } from 'date-fns';
+import { getLevelFromXP, getXPProgress } from '@/lib/xp-utils';
 
 export { getLevelFromXP, getXPProgress };
-export type { LevelResult } from "@/lib/xp-utils";
+export type { LevelResult } from '@/lib/xp-utils';
 
 export async function awardXP(
-  userId: string, 
-  action: keyof typeof XP_RULES | "session_complete" | "perfect_session" | "streak_bonus" | "morning_session" | "evening_session" | "day_complete_bonus"
+  userId: string,
+  action: keyof typeof XP_RULES | 'session_complete' | 'perfect_session' | 'streak_bonus' | 'morning_session' | 'evening_session' | 'day_complete_bonus'
 ) {
   try {
     let xpToAdd = (action in XP_RULES) ? XP_RULES[action as keyof typeof XP_RULES] : 0;
     let lingotsToAdd = 0;
 
-    if (action === "morning_session" || action === "evening_session") {
+    if (action === 'morning_session' || action === 'evening_session') {
       xpToAdd = 15;
       lingotsToAdd = 5;
-    } else if (action === "day_complete_bonus") {
+    } else if (action === 'day_complete_bonus') {
       xpToAdd = 10;
       lingotsToAdd = 5;
-    } else if (action === "session_complete" || action === "DAILY_MEDITATION" || action === "PROCLAMATION_SESSION" || action === "MEMORIZATION") {
+    } else if (action === 'session_complete' || action === 'DAILY_MEDITATION' || action === 'PROCLAMATION_SESSION' || action === 'MEMORIZATION') {
       lingotsToAdd = 5;
-    } else if (action === "perfect_session") {
+    } else if (action === 'perfect_session') {
       lingotsToAdd = 10;
-    } else if (action === "streak_bonus" || action === "STREAK_BONUS_BASE") {
+    } else if (action === 'streak_bonus' || action === 'STREAK_BONUS_BASE') {
       lingotsToAdd = 3;
-    } else if (action === "meditation_mini_1") {
+    } else if (action === 'meditation_mini_1') {
       lingotsToAdd = 2;
-    } else if (action === "meditation_mini_2") {
+    } else if (action === 'meditation_mini_2') {
       lingotsToAdd = 3;
-    } else if (action === "meditation_mini_3") {
+    } else if (action === 'meditation_mini_3') {
       lingotsToAdd = 5;
     }
 
-    return await db.$transaction(async (tx) => {
-      let progress = await tx.userProgress.findUnique({
-        where: { userId },
-      });
+    const db = initServerDb();
 
-      if (!progress) {
-        progress = await tx.userProgress.create({
-          data: {
-            userId,
-            totalXP: 0,
-            level: "Semence",
-            versesLearned: 0,
-            sessionsTotal: 0,
-            lingots: 0,
-            morningSessionToday: false,
-            middaySessionToday: false,
-            eveningSessionToday: false,
-          },
-        });
-      }
+    let progress = db.prepare('SELECT * FROM user_progress WHERE userId = ?').get(userId);
+    
+    if (!progress) {
+      db.prepare(`
+        INSERT INTO user_progress (id, userId, totalXP, level, versesLearned, sessionsTotal, lingots)
+        VALUES (?, ?, 0, 'Semence', 0, 0, 0)
+      `).run(crypto.randomUUID(), userId);
+      progress = db.prepare('SELECT * FROM user_progress WHERE userId = ?').get(userId);
+    }
 
-      const oldXP = progress.totalXP;
-      const newXP = oldXP + xpToAdd;
-      
-      const oldLevelInfo = getLevelFromXP(oldXP);
-      const newLevelInfo = getLevelFromXP(newXP);
-      
-      const leveledUp = newLevelInfo.level > oldLevelInfo.level;
-      const newLingots = progress.lingots + lingotsToAdd;
+    const oldXP = progress.totalXP;
+    const newXP = oldXP + xpToAdd;
+    
+    const oldLevelInfo = getLevelFromXP(oldXP);
+    const newLevelInfo = getLevelFromXP(newXP);
+    
+    const leveledUp = newLevelInfo.level > oldLevelInfo.level;
+    const newLingots = progress.lingots + lingotsToAdd;
 
-      await tx.userProgress.update({
-        where: { userId },
-        data: {
-          totalXP: newXP,
-          level: newLevelInfo.name,
-          lingots: newLingots,
-        },
-      });
+    db.prepare(`
+      UPDATE user_progress SET totalXP = ?, level = ?, lingots = ? WHERE userId = ?
+    `).run(newXP, newLevelInfo.name, newLingots, userId);
 
-      if (xpToAdd > 0) {
-        await tx.xPTransaction.create({
-          data: {
-            userId,
-            amount: xpToAdd,
-            reason: action,
-          },
-        });
-      }
+    if (xpToAdd > 0) {
+      db.prepare(`
+        INSERT INTO xp_transactions (id, userId, amount, reason) VALUES (?, ?, ?, ?)
+      `).run(crypto.randomUUID(), userId, xpToAdd, action);
+    }
 
-      return {
-        newXP,
-        leveledUp,
-        newLevel: newLevelInfo.level,
-        levelName: newLevelInfo.name,
-        newLingots,
-      };
-    });
+    return {
+      newXP,
+      leveledUp,
+      newLevel: newLevelInfo.level,
+      levelName: newLevelInfo.name,
+      newLingots,
+    };
   } catch (error: unknown) {
-    console.error("Error awarding XP:", error);
+    console.error('Error awarding XP:', error);
     throw error;
   }
 }
 
 export async function checkDayCompletion(userId: string) {
   try {
-    const todayStr = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-    const progress = await db.userProgress.findUnique({
-      where: { userId },
-      select: {
-        morningSessionToday: true,
-        middaySessionToday: true,
-        eveningSessionToday: true,
-        lastSessionDate: true,
-      }
-    });
+    const todayStr = new Date().toISOString().split('T')[0];
+    const db = initServerDb();
+    
+    const progress = db.prepare(`
+      SELECT morningSessionToday, middaySessionToday, eveningSessionToday, lastSessionDate
+      FROM user_progress WHERE userId = ?
+    `).get(userId);
 
     if (!progress) {
       return { morningDone: false, middayDone: false, eveningDone: false, dayComplete: false };
     }
 
-    // Si le jour a changé par rapport à la dernière session enregistrée, on considère qu'aucune session n'est faite pour aujourd'hui
     if (progress.lastSessionDate !== todayStr) {
       return { morningDone: false, middayDone: false, eveningDone: false, dayComplete: false };
     }
@@ -127,7 +105,7 @@ export async function checkDayCompletion(userId: string) {
       dayComplete,
     };
   } catch (error) {
-    console.error("Error checking day completion:", error);
+    console.error('Error checking day completion:', error);
     return { morningDone: false, eveningDone: false, dayComplete: false };
   }
 }
@@ -135,75 +113,54 @@ export async function checkDayCompletion(userId: string) {
 export async function updateStreak(userId: string): Promise<number> {
   try {
     const today = new Date();
+    const db = initServerDb();
 
-    let streak = await db.streak.findUnique({
-      where: { userId },
-    });
+    let streak = db.prepare('SELECT * FROM streaks WHERE userId = ?').get(userId);
 
     if (!streak) {
-      // Initialisation : lastActivityAt = hier pour que la première complétion donne streak = 1
-      streak = await db.streak.create({
-        data: {
-          userId,
-          currentStreak: 0,
-          longestStreak: 0,
-          lastActivityAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        },
-      });
+      db.prepare(`
+        INSERT INTO streaks (id, userId, currentStreak, longestStreak, lastActivityAt)
+        VALUES (?, ?, 0, 0, ?)
+      `).run(crypto.randomUUID(), userId, new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+      streak = db.prepare('SELECT * FROM streaks WHERE userId = ?').get(userId);
     }
 
-    // differenceInCalendarDays compare les dates calendaires (ignore les heures, minutes, secondes)
-    const daysDiff = differenceInCalendarDays(today, streak.lastActivityAt);
+    const daysDiff = differenceInCalendarDays(today, new Date(streak.lastActivityAt));
 
     let newCurrentStreak: number;
 
     if (daysDiff === 0) {
-      // Même jour calendaire → pas de changement, on ne compte pas deux fois le même jour
       return streak.currentStreak;
     } else if (daysDiff === 1) {
-      // Hier → le streak continue, on incrémente de 1
       newCurrentStreak = streak.currentStreak + 1;
     } else {
-      // Plus d'un jour calendaire complet sans activité → le streak est brisé
-      // On vérifie si un streak freeze est disponible pour le protéger
       const freezeResult = await applyStreakFreezeIfNeeded(userId);
       if (freezeResult.freezeUsed) {
-        // Le freeze maintient le streak intact SANS l'incrémenter
-        // (l'utilisateur n'a pas médité ce jour manquant)
         newCurrentStreak = streak.currentStreak;
       } else {
-        // Streak brisé → on recommence à 1 (aujourd'hui est le nouveau jour 1 de la série)
         newCurrentStreak = 1;
       }
     }
 
     const newLongestStreak = Math.max(streak.longestStreak, newCurrentStreak);
 
-    await db.streak.update({
-      where: { userId },
-      data: {
-        currentStreak: newCurrentStreak,
-        longestStreak: newLongestStreak,
-        lastActivityAt: today,
-      },
-    });
+    db.prepare(`
+      UPDATE streaks SET currentStreak = ?, longestStreak = ?, lastActivityAt = ? WHERE userId = ?
+    `).run(newCurrentStreak, newLongestStreak, today.toISOString(), userId);
 
     return newCurrentStreak;
   } catch (error: unknown) {
-    console.error("Error updating streak:", error);
+    console.error('Error updating streak:', error);
     throw error;
   }
 }
 
 export async function checkAndAwardBadges(userId: string) {
   try {
-    const progress = await db.userProgress.findUnique({
-      where: { userId },
-    });
-
-    const streak = await db.streak.findUnique({
-      where: { userId },
-    });
+    const db = initServerDb();
+    
+    const progress = db.prepare('SELECT * FROM user_progress WHERE userId = ?').get(userId);
+    const streak = db.prepare('SELECT * FROM streaks WHERE userId = ?').get(userId);
 
     if (!progress) return [];
 
@@ -212,74 +169,32 @@ export async function checkAndAwardBadges(userId: string) {
     const versesLearned = progress.versesLearned;
 
     const badgeConditions = [
-      {
-        condition: "first_session",
-        name: "Premier Pas",
-        description: "Terminez votre première session quotidienne",
-        icon: "Compass",
-        met: sessionsTotal >= 1,
-      },
-      {
-        condition: "streak_7",
-        name: "Fidèle Étoile",
-        description: "Atteignez une série de 7 jours consécutifs",
-        icon: "Flame",
-        met: currentStreak >= 7,
-      },
-      {
-        condition: "streak_30",
-        name: "Guerrier de la Parole",
-        description: "Atteignez une série de 30 jours consécutifs",
-        icon: "Crown",
-        met: currentStreak >= 30,
-      },
-      {
-        condition: "verses_10",
-        name: "Scribe de l'Esprit",
-        description: "Apprenez 10 versets de la Bible",
-        icon: "BookOpen",
-        met: versesLearned >= 10,
-      },
-      {
-        condition: "sessions_50",
-        name: "Pilier de Foi",
-        description: "Complétez 50 sessions au total",
-        icon: "Shield",
-        met: sessionsTotal >= 50,
-      },
+      { condition: 'first_session', name: 'Premier Pas', description: 'Terminez votre première session quotidienne', icon: 'Compass', met: sessionsTotal >= 1 },
+      { condition: 'streak_7', name: 'Fidèle Étoile', description: 'Atteignez une série de 7 jours consécutifs', icon: 'Flame', met: currentStreak >= 7 },
+      { condition: 'streak_30', name: 'Guerrier de la Parole', description: 'Atteignez une série de 30 jours consécutifs', icon: 'Crown', met: currentStreak >= 30 },
+      { condition: 'verses_10', name: 'Scribe de l\'Esprit', description: 'Apprenez 10 versets de la Bible', icon: 'BookOpen', met: versesLearned >= 10 },
+      { condition: 'sessions_50', name: 'Pilier de Foi', description: 'Complétez 50 sessions au total', icon: 'Shield', met: sessionsTotal >= 50 },
     ];
 
     const newlyAwardedBadges: Array<{ name: string; icon: string; description: string }> = [];
 
     for (const b of badgeConditions) {
       if (b.met) {
-        const badge = await db.badge.upsert({
-          where: { name: b.name },
-          update: {},
-          create: {
-            name: b.name,
-            description: b.description,
-            icon: b.icon,
-            condition: b.condition,
-          },
-        });
+        let badge = db.prepare('SELECT * FROM badges WHERE name = ?').get(b.name);
+        
+        if (!badge) {
+          db.prepare(`
+            INSERT INTO badges (id, name, description, icon, condition) VALUES (?, ?, ?, ?, ?)
+          `).run(crypto.randomUUID(), b.name, b.description, b.icon, b.condition);
+          badge = db.prepare('SELECT * FROM badges WHERE name = ?').get(b.name);
+        }
 
-        const alreadyHasBadge = await db.userBadge.findUnique({
-          where: {
-            userId_badgeId: {
-              userId,
-              badgeId: badge.id,
-            },
-          },
-        });
+        const alreadyHasBadge = db.prepare('SELECT * FROM user_badges WHERE userId = ? AND badgeId = ?').get(userId, badge.id);
 
         if (!alreadyHasBadge) {
-          await db.userBadge.create({
-            data: {
-              userId,
-              badgeId: badge.id,
-            },
-          });
+          db.prepare(`
+            INSERT INTO user_badges (id, userId, badgeId) VALUES (?, ?, ?)
+          `).run(crypto.randomUUID(), userId, badge.id);
 
           newlyAwardedBadges.push({
             name: badge.name,
@@ -292,59 +207,45 @@ export async function checkAndAwardBadges(userId: string) {
 
     return newlyAwardedBadges;
   } catch (error: unknown) {
-    console.error("Error checking and awarding badges:", error);
+    console.error('Error checking and awarding badges:', error);
     throw error;
   }
 }
 
-// === LOGIQUE LIÉE AUX LINGOTS ET STREAK FREEZE (Tâche #41) ===
-
 export async function awardLingots(userId: string, amount: number): Promise<number> {
-  const progress = await db.userProgress.upsert({
-    where: { userId },
-    update: {
-      lingots: { increment: amount }
-    },
-    create: {
-      userId,
-      totalXP: 0,
-      level: "Semence",
-      versesLearned: 0,
-      sessionsTotal: 0,
-      lingots: amount
-    }
-  });
+  const db = initServerDb();
+  
+  db.prepare(`
+    INSERT INTO user_progress (id, userId, totalXP, level, versesLearned, sessionsTotal, lingots)
+    VALUES (?, ?, 0, 'Semence', 0, 0, ?)
+    ON CONFLICT(userId) DO UPDATE SET lingots = lingots + ?
+  `).run(crypto.randomUUID(), userId, amount, amount);
+
+  const progress = db.prepare('SELECT lingots FROM user_progress WHERE userId = ?').get(userId);
   return progress.lingots;
 }
 
 export async function spendLingots(userId: string, amount: number): Promise<{ success: boolean; newTotal: number }> {
-  return await db.$transaction(async (tx) => {
-    const progress = await tx.userProgress.findUnique({
-      where: { userId }
-    });
-    
-    if (!progress || progress.lingots < amount) {
-      return { success: false, newTotal: progress ? progress.lingots : 0 };
-    }
+  const db = initServerDb();
+  
+  const progress = db.prepare('SELECT lingots FROM user_progress WHERE userId = ?').get(userId);
+  
+  if (!progress || progress.lingots < amount) {
+    return { success: false, newTotal: progress ? progress.lingots : 0 };
+  }
 
-    const updated = await tx.userProgress.update({
-      where: { userId },
-      data: {
-        lingots: { decrement: amount }
-      }
-    });
-
-    return { success: true, newTotal: updated.lingots };
-  });
+  db.prepare('UPDATE user_progress SET lingots = lingots - ? WHERE userId = ?').run(amount, userId);
+  
+  const updated = db.prepare('SELECT lingots FROM user_progress WHERE userId = ?').get(userId);
+  return { success: true, newTotal: updated.lingots };
 }
 
 export async function buyStreakFreeze(userId: string): Promise<{ success: boolean; freezesAvailable: number; lingotsRemaining: number }> {
   const spendResult = await spendLingots(userId, 10);
   
   if (!spendResult.success) {
-    const freeze = await db.streakFreeze.findUnique({
-      where: { userId }
-    });
+    const db = initServerDb();
+    const freeze = db.prepare('SELECT freezesAvailable FROM streak_freeze WHERE userId = ?').get(userId);
     return {
       success: false,
       freezesAvailable: freeze ? freeze.freezesAvailable : 0,
@@ -352,41 +253,32 @@ export async function buyStreakFreeze(userId: string): Promise<{ success: boolea
     };
   }
 
-  const streakFreeze = await db.streakFreeze.upsert({
-    where: { userId },
-    update: {
-      freezesAvailable: { increment: 1 }
-    },
-    create: {
-      userId,
-      freezesAvailable: 1
-    }
-  });
+  const db = initServerDb();
+  db.prepare(`
+    INSERT INTO streak_freeze (id, userId, freezesAvailable, lastUsedAt)
+    VALUES (?, ?, 1, NULL)
+    ON CONFLICT(userId) DO UPDATE SET freezesAvailable = freezesAvailable + 1
+  `).run(crypto.randomUUID(), userId);
 
+  const freeze = db.prepare('SELECT freezesAvailable FROM streak_freeze WHERE userId = ?').get(userId);
   return {
     success: true,
-    freezesAvailable: streakFreeze.freezesAvailable,
+    freezesAvailable: freeze.freezesAvailable,
     lingotsRemaining: spendResult.newTotal
   };
 }
 
 export async function applyStreakFreezeIfNeeded(userId: string): Promise<{ freezeUsed: boolean }> {
-  return await db.$transaction(async (tx) => {
-    const freeze = await tx.streakFreeze.findUnique({
-      where: { userId }
-    });
+  const db = initServerDb();
+  
+  const freeze = db.prepare('SELECT * FROM streak_freeze WHERE userId = ?').get(userId);
 
-    if (freeze && freeze.freezesAvailable > 0) {
-      await tx.streakFreeze.update({
-        where: { userId },
-        data: {
-          freezesAvailable: { decrement: 1 },
-          lastUsedAt: new Date()
-        }
-      });
-      return { freezeUsed: true };
-    }
+  if (freeze && freeze.freezesAvailable > 0) {
+    db.prepare(`
+      UPDATE streak_freeze SET freezesAvailable = freezesAvailable - 1, lastUsedAt = ? WHERE userId = ?
+    `).run(new Date().toISOString(), userId);
+    return { freezeUsed: true };
+  }
 
-    return { freezeUsed: false };
-  });
+  return { freezeUsed: false };
 }

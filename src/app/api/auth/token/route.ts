@@ -1,29 +1,39 @@
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { NextResponse } from "next/server";
-import crypto from "crypto";
+import { NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
+import { getServerDb, initServerDb } from '@/server/db';
 
-export const dynamic = "force-dynamic";
-
-export async function GET() {
+export async function POST(req: Request) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const body = await req.json();
+    const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
+    const password = typeof body?.password === 'string' ? body.password : '';
+
+    if (!email || !password) {
+      return NextResponse.json({ error: 'Email et mot de passe requis' }, { status: 400 });
     }
 
-    // Generate a secure random token for the widget
-    const token = crypto.randomBytes(32).toString("hex");
+    const db = initServerDb();
 
-    // Store the token in the user's record
-    await db.user.update({
-      where: { id: session.user.id },
-      data: { widgetToken: token },
+    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as any;
+    if (!user) {
+      return NextResponse.json({ error: 'Email ou mot de passe incorrect' }, { status: 401 });
+    }
+
+    const isValid = await bcrypt.compare(password, user.password || '');
+    if (!isValid) {
+      return NextResponse.json({ error: 'Email ou mot de passe incorrect' }, { status: 401 });
+    }
+
+    return NextResponse.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
     });
-
-    return NextResponse.json({ token, userId: session.user.id });
   } catch (error: unknown) {
-    console.error("Error generating widget token:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error('Error in login API:', error);
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -169,7 +169,7 @@ export default async function ProfilePage() {
 
   // Calculs & fallbacks
   const initials = user.name 
-    ? user.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) 
+    ? user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) 
     : "U";
   
   const favoriteMascot = user.favoriteMascot || "manny";
@@ -183,8 +183,8 @@ export default async function ProfilePage() {
   const longestStreak = user.streak?.longestStreak ?? 0;
   const versesLearned = user.progress?.versesLearned ?? 0;
   
-  const activePlans = user.readingPlans.filter(p => !p.completed);
-  const completedPlans = user.readingPlans.filter(p => p.completed);
+  const activePlans = user.readingPlans.filter((p: any) => !p.completed);
+  const completedPlans = user.readingPlans.filter((p: any) => p.completed);
 
   // Couleurs de surlignement des versets
   const highlightColors: Record<string, string> = {
@@ -305,9 +305,9 @@ export default async function ProfilePage() {
               <p className="text-xs text-slate-400 font-bold py-3 text-center">Vous n'êtes inscrit à aucun plan de lecture actuellement.</p>
             ) : (
               <div className="space-y-4">
-                {user.readingPlans.map((enrollment) => {
+                {user.readingPlans.map((enrollment: any) => {
                   const completedDaysCount = readingProgress.filter(
-                    (p) => p.planId === enrollment.planId
+                    (p: any) => p.planId === enrollment.planId
                   ).length;
                   const percent = Math.min(100, Math.round((completedDaysCount / enrollment.plan.duration) * 100));
                   
@@ -358,7 +358,7 @@ export default async function ProfilePage() {
               <p className="text-xs text-slate-400 font-bold py-6 text-center">Vous n'avez rédigé aucune note d'étude biblique pour le moment.</p>
             ) : (
               <div className="space-y-4 max-h-[480px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200">
-                {user.verseNotes.map((note) => (
+                {user.verseNotes.map((note: any) => (
                   <div key={note.id} className="bg-slate-50/50 border border-slate-100 rounded-2xl p-4 space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-[10px] font-black text-indigo-650 bg-indigo-50/80 px-2.5 py-0.5 rounded-lg">
@@ -400,7 +400,7 @@ export default async function ProfilePage() {
               <p className="text-xs text-slate-400 font-bold py-6 text-center">Vous n'avez surligné aucun verset dans la Bible.</p>
             ) : (
               <div className="space-y-3.5 max-h-[400px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200">
-                {user.highlights.map((h) => (
+                {user.highlights.map((h: any) => (
                   <div 
                     key={h.id} 
                     className={cn("p-4 rounded-2xl flex flex-col justify-between gap-2.5", highlightColors[h.color] || highlightColors.yellow)}
@@ -437,8 +437,8 @@ export default async function ProfilePage() {
             </h3>
 
             <div className="grid grid-cols-2 gap-3.5">
-              {allBadges.map((badge) => {
-                const userBadge = user.badges.find(ub => ub.badgeId === badge.id);
+              {allBadges.map((badge: any) => {
+                const userBadge = user.badges.find((ub: any) => ub.badgeId === badge.id);
                 return (
                   <BadgeCard 
                     key={badge.id}
@@ -463,7 +463,7 @@ export default async function ProfilePage() {
               <p className="text-xs text-slate-400 font-bold py-6 text-center">Aucune session enregistrée.</p>
             ) : (
               <div className="space-y-3">
-                {user.sessions.map((session) => (
+                {user.sessions.map((session: any) => (
                   <div key={session.id} className="border-b border-slate-50 pb-3 last:border-b-0 last:pb-0 flex justify-between items-center gap-2">
                     <div className="space-y-0.5">
                       <span className="text-[10px] font-black text-slate-800 capitalize tracking-wide block">

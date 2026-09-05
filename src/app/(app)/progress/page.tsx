@@ -174,7 +174,7 @@ export default async function ProgressPage() {
           longestStreak: streak.longestStreak,
           lastActivityAt: streak.lastActivityAt.toISOString(),
         },
-        badges: userBadges.map((ub) => ({
+        badges: userBadges.map((ub: any) => ({
           id: ub.badge.id,
           name: ub.badge.name,
           description: ub.badge.description,

@@ -56,7 +56,7 @@ export async function GET(request: Request) {
 
     // Pour chaque référence, récupérer le texte LSG
     const results = await Promise.all(
-      crossRefs.map(async (ref) => {
+      crossRefs.map(async (ref: any) => {
         const bookName = BIBLE_BOOKS_MAP[ref.toBook] || `Livre ${ref.toBook}`;
         const refLabel = ref.toVerseEnd
           ? `${bookName} ${ref.toChapter}:${ref.toVerse}-${ref.toVerseEnd}`
@@ -77,7 +77,7 @@ export async function GET(request: Request) {
           },
         });
 
-        const text = targetVerses.map((v) => v.text).join(" ") || "Texte non trouvé";
+        const text = targetVerses.map((v: any) => v.text).join(" ") || "Texte non trouvé";
 
         return {
           id: ref.id,

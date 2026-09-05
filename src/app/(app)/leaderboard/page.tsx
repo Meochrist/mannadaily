@@ -69,13 +69,13 @@ export default async function LeaderboardPage() {
   const TierIcon = tierConfig.icon;
 
   // Séparer les membres pour le podium et le reste du tableau
-  const firstPlace = members.find((m) => m.rank === 1);
-  const secondPlace = members.find((m) => m.rank === 2);
-  const thirdPlace = members.find((m) => m.rank === 3);
-  const otherMembers = members.filter((m) => m.rank > 3);
+  const firstPlace = members.find((m: any) => m.rank === 1);
+  const secondPlace = members.find((m: any) => m.rank === 2);
+  const thirdPlace = members.find((m: any) => m.rank === 3);
+  const otherMembers = members.filter((m: any) => m.rank > 3);
 
   // Trouver le rang de l&apos;utilisateur courant
-  const currentUserMember = members.find((m) => m.isCurrentUser);
+  const currentUserMember = members.find((m: any) => m.isCurrentUser);
   const userRank = currentUserMember ? currentUserMember.rank : 0;
 
   // Message de motivation dynamique de Manny
@@ -212,7 +212,7 @@ export default async function LeaderboardPage() {
         </div>
 
         <div className="divide-y divide-slate-100">
-          {members.map((member) => (
+          {members.map((member: any) => (
             <div
               key={member.userId}
               className={`flex items-center justify-between p-4 px-6 transition-all duration-350 ${
