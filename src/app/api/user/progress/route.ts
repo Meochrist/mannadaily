@@ -14,7 +14,7 @@ export async function GET(req: Request) {
 
     const progress = db.prepare('SELECT * FROM user_progress WHERE userId = ?').get(userId);
     const streak = db.prepare('SELECT * FROM streaks WHERE userId = ?').get(userId);
-    const user = db.prepare('SELECT id, name, email, meditationProgress FROM users WHERE id = ?').get(userId);
+    const user = db.prepare('SELECT id, name, email, meditationProgress FROM users WHERE id = ?').get(userId) as any;
 
     let meditationProgress = null;
     if (user?.meditationProgress) {
