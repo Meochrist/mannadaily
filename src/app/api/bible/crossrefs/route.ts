@@ -1,5 +1,5 @@
-import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { initServerDb } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
@@ -41,58 +41,51 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Invalid parameters format" }, { status: 400 });
     }
 
-    // Récupérer les 10 références croisées les plus votées
-    const crossRefs = await db.crossReference.findMany({
-      where: {
-        fromBook,
-        fromChapter,
-        fromVerse,
-      },
-      orderBy: {
-        votes: "desc",
-      },
-      take: 10,
-    });
+    const db = initServerDb();
+
+    // Récupérer les références croisées
+    const crossRefs = db.prepare(`
+      SELECT * FROM cross_references 
+      WHERE from_book = ? AND from_chapter = ? AND from_verse = ? 
+      ORDER BY votes DESC LIMIT 10
+    `).all(fromBook, fromChapter, fromVerse) as any[];
 
     // Pour chaque référence, récupérer le texte LSG
     const results = await Promise.all(
-      crossRefs.map(async (ref: any) => {
-        const bookName = BIBLE_BOOKS_MAP[ref.toBook] || `Livre ${ref.toBook}`;
-        const refLabel = ref.toVerseEnd
-          ? `${bookName} ${ref.toChapter}:${ref.toVerse}-${ref.toVerseEnd}`
-          : `${bookName} ${ref.toChapter}:${ref.toVerse}`;
+      crossRefs.map(async (ref) => {
+        const bookName = BIBLE_BOOKS_MAP[ref.to_book] || `Livre ${ref.to_book}`;
+        const refLabel = ref.to_verse_end
+          ? `${bookName} ${ref.to_chapter}:${ref.to_verse}-${ref.to_verse_end}`
+          : `${bookName} ${ref.to_chapter}:${ref.to_verse}`;
 
         // Récupérer les versets associés
-        const targetVerses = await db.bibleVerse.findMany({
-          where: {
-            bookNumber: ref.toBook,
-            chapter: ref.toChapter,
-            verse: ref.toVerseEnd
-              ? { gte: ref.toVerse, lte: ref.toVerseEnd }
-              : ref.toVerse,
-            translation: "LSG",
-          },
-          orderBy: {
-            verse: "asc",
-          },
-        });
+        const targetVerses = db.prepare(`
+          SELECT text FROM bible_verses 
+          WHERE book_number = ? AND chapter = ? AND verse >= ? AND verse <= ? AND translation = 'LSG'
+          ORDER BY verse ASC
+        `).all(
+          ref.to_book,
+          ref.to_chapter,
+          ref.to_verse,
+          ref.to_verse_end || ref.to_verse
+        ) as { text: string }[];
 
-        const text = targetVerses.map((v: any) => v.text).join(" ") || "Texte non trouvé";
+        const text = targetVerses.map((v) => v.text).join(" ") || "Texte non trouvé";
 
         return {
           id: ref.id,
           refLabel,
-          toBook: ref.toBook,
-          toChapter: ref.toChapter,
-          toVerse: ref.toVerse,
-          toVerseEnd: ref.toVerseEnd,
+          toBook: ref.to_book,
+          toChapter: ref.to_chapter,
+          toVerse: ref.to_verse,
+          toVerseEnd: ref.to_verse_end,
           votes: ref.votes,
           text,
         };
       })
     );
 
-    // Retourner le résultat avec en-tête de cache pour 1 heure (3600 secondes)
+    // Retourner le résultat avec en-tête de cache pour 1 heure
     const response = NextResponse.json({ crossRefs: results });
     response.headers.set("Cache-Control", "public, max-age=3600, s-maxage=3600");
     return response;

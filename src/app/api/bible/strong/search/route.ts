@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { initServerDb } from "@/server/db";
 import { resolveFrToEn } from "@/lib/strongFrIndex";
 
 export const dynamic = "force-dynamic";
@@ -7,18 +7,13 @@ export const dynamic = "force-dynamic";
 /**
  * Recherche d'entrées Strong par mot-clé plutôt que par numéro.
  *
- * L'utilisateur ne connaît pas les codes (H430, G3056...) : il tape un mot
- * ("amour", "lumière", "logos", "elohim") et on lui retourne les entrées
- * correspondantes en cherchant dans la définition, l'usage KJV, la
- * translittération et le lemme original.
- *
- * GET /api/bible/strong/search?q=amour&language=hebrew|greek (language optionnel)
+ * GET /api/bible/strong/search?q=amour&language=hebrew|greek
  */
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const rawQuery = (searchParams.get("q") || "").trim();
-    const language = searchParams.get("language"); // hebrew | greek | null
+    const language = searchParams.get("language");
 
     if (rawQuery.length < 2) {
       return NextResponse.json(
@@ -31,51 +26,64 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Requête trop longue" }, { status: 400 });
     }
 
-    // Si l'utilisateur tape directement un numéro Strong, on le renvoie tel quel
+    // Si l'utilisateur tape directement un numéro Strong
     const asNumber = rawQuery.toUpperCase().replace(/^([HG])0+(\d+)$/, "$1$2");
     if (/^[HG]\d+$/.test(asNumber)) {
-      const direct = await db.strongEntry.findUnique({ where: { number: asNumber } });
+      const db = initServerDb();
+      const direct = db.prepare("SELECT * FROM strong_entries WHERE number = ?").get(asNumber);
       if (direct) {
         return NextResponse.json({ results: [direct], exact: true });
       }
     }
 
-    const languageFilter =
-      language === "hebrew" || language === "greek" ? { language } : {};
+    const db = initServerDb();
 
-    // Les définitions Strong sont en anglais : on traduit la requête française
-    // en mots-clés anglais. Si le mot est absent de l'index, on cherche brut.
+    // Traduire la requête française en mots-clés anglais
     const enTerms = resolveFrToEn(rawQuery);
     const searchTerms = enTerms.length > 0 ? enTerms : [rawQuery];
 
-    const orConditions = searchTerms.flatMap((term) => [
-      { transliteration: { contains: term, mode: "insensitive" as const } },
-      { lemma: { contains: term, mode: "insensitive" as const } },
-      { kjvUsage: { contains: term, mode: "insensitive" as const } },
-      { definition: { contains: term, mode: "insensitive" as const } },
-    ]);
+    // Construire la requête SQL
+    const conditions: string[] = [];
+    const params: string[] = [];
 
-    // Chercher aussi dans les traductions françaises déjà en cache
-    const frConditions = [
-      { definitionFr: { contains: rawQuery, mode: "insensitive" as const } },
-      { kjvUsageFr: { contains: rawQuery, mode: "insensitive" as const } },
-    ];
+    // Filtre langue
+    if (language === "hebrew" || language === "greek") {
+      conditions.push("language = ?");
+      params.push(language);
+    }
 
-    const results = await db.strongEntry.findMany({
-      where: {
-        ...languageFilter,
-        OR: [...orConditions, ...frConditions],
-      },
-      take: 60,
-      orderBy: { number: "asc" },
-    });
+    // Conditions de recherche
+    const searchConditions: string[] = [];
+    for (const term of searchTerms) {
+      searchConditions.push("transliteration LIKE ?");
+      params.push(`%${term}%`);
+      searchConditions.push("lemma LIKE ?");
+      params.push(`%${term}%`);
+      searchConditions.push("kjv_usage LIKE ?");
+      params.push(`%${term}%`);
+      searchConditions.push("definition LIKE ?");
+      params.push(`%${term}%`);
+    }
 
-    // Tri par pertinence : un mot-clé présent dans kjvUsage (usage réel de la
-    // traduction) est bien plus pertinent qu'une occurrence noyée dans une
-    // longue définition. On privilégie aussi les correspondances de mot entier.
+    // Recherche dans les traductions françaises
+    searchConditions.push("definition_fr LIKE ?");
+    params.push(`%${rawQuery}%`);
+    searchConditions.push("kjv_usage_fr LIKE ?");
+    params.push(`%${rawQuery}%`);
+
+    if (searchConditions.length > 0) {
+      conditions.push(`(${searchConditions.join(" OR ")})`);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+    const sql = `SELECT * FROM strong_entries ${whereClause} ORDER BY number ASC LIMIT 60`;
+
+    const results = db.prepare(sql).all(...params) as any[];
+
+    // Tri par pertinence
     const primary = searchTerms[0]?.toLowerCase() || "";
-    const scored = results.map((entry: any) => {
-      const usage = (entry.kjvUsage || "").toLowerCase();
+    const scored = results.map((entry) => {
+      const usage = (entry.kjv_usage || "").toLowerCase();
       const definition = (entry.definition || "").toLowerCase();
       let score = 0;
 
@@ -90,26 +98,23 @@ export async function GET(request: Request) {
         else if (definition.includes(t)) score += 2;
       }
 
-      // Bonus si le terme principal apparaît en tête de l'usage KJV
       if (primary && usage.startsWith(primary)) score += 8;
 
-      // Bonus fort si la traduction française contient littéralement la requête
-      const usageFr = (entry.kjvUsageFr || "").toLowerCase();
-      const definitionFr = (entry.definitionFr || "").toLowerCase();
+      const usageFr = (entry.kjv_usage_fr || "").toLowerCase();
+      const definitionFr = (entry.definition_fr || "").toLowerCase();
       const q = rawQuery.toLowerCase();
       if (usageFr.includes(q)) score += 20;
       if (definitionFr.includes(q)) score += 10;
 
-      // Malus pour les définitions très longues (souvent des correspondances fortuites)
       if (definition.length > 400) score -= 2;
 
       return { entry, score };
     });
 
     const sorted = scored
-      .sort((a: any, b: any) => b.score - a.score)
+      .sort((a, b) => b.score - a.score)
       .slice(0, 25)
-      .map((s: any) => s.entry);
+      .map((s) => s.entry);
 
     return NextResponse.json({
       results: sorted,
