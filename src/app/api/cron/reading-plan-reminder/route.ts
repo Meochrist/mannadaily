@@ -1,13 +1,24 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { initServerDb } from "@/server/db";
 import { getRandomNotification } from "@/lib/notifications";
 import { generateNotificationEmail } from "@/lib/emailTemplates";
 import { sendPushNotification } from "@/lib/webPush";
 import { Resend } from "resend";
 
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 export const dynamic = "force-dynamic";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+interface EnrollmentRow {
+  id: string;
+  userId: string;
+  planId: string;
+  currentDay: number;
+}
+
+interface DayRow {
+  id: string;
+}
 
 export async function GET(req: Request) {
   try {
@@ -15,7 +26,6 @@ export async function GET(req: Request) {
     const cronSecret = process.env.CRON_SECRET;
 
     if (!cronSecret) {
-      console.error("CRON_SECRET env variable is not configured");
       return NextResponse.json({ error: "Non autorisé - Secret non configuré" }, { status: 401 });
     }
 
@@ -23,49 +33,29 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    // Récupérer tous les enrollments actifs pour les utilisateurs acceptant les rappels
-    const enrollments = await db.readingPlanEnrollment.findMany({
-      where: {
-        completed: false,
-        user: {
-          readingReminders: true
-        }
-      },
-      include: {
-        user: {
-          include: {
-            pushSubscriptions: true,
-            readingProgress: true
-          }
-        },
-        plan: {
-          include: {
-            days: {
-              include: {
-                readings: true
-              }
-            }
-          }
-        }
-      }
-    });
+    const db = initServerDb();
+
+    const enrollments = db.prepare(`
+      SELECT rpe.*, rp.name as planName
+      FROM reading_plan_enrollments rpe
+      JOIN reading_plans rp ON rpe.planId = rp.id
+      JOIN users u ON rpe.userId = u.id
+      WHERE rpe.completed = 0 AND u.readingReminders = 1
+    `).all() as EnrollmentRow[];
 
     let emailsSent = 0;
     let pushsSent = 0;
     let usersProcessed = 0;
 
     for (const enrollment of enrollments) {
-      const { user, plan } = enrollment;
+      const user = db.prepare("SELECT * FROM users WHERE id = ?").get(enrollment.userId) as any;
       
-      // Ignorer les comptes de bots
-      if (user.id.startsWith("bot_") || user.email?.endsWith("@mascot.local")) {
+      if (!user || user.id.startsWith("bot_") || user.email?.endsWith("@mascot.local")) {
         continue;
       }
 
-      // Vérifier si l'utilisateur a complété sa lecture du jour
-      const hasCompletedToday = user.readingProgress.some(
-        (p) => p.planId === enrollment.planId && p.dayNumber === enrollment.currentDay
-      );
+      const readingProgress = db.prepare("SELECT * FROM reading_plan_progress WHERE userId = ? AND planId = ?").all(enrollment.userId, enrollment.planId) as any[];
+      const hasCompletedToday = readingProgress.some((p: any) => p.dayNumber === enrollment.currentDay);
 
       if (hasCompletedToday) {
         continue;
@@ -74,10 +64,9 @@ export async function GET(req: Request) {
       usersProcessed++;
       const userName = user.name || "Ami";
 
-      // Récupérer les chapitres du jour
-      const dayData = plan.days.find((d) => d.dayNumber === enrollment.currentDay);
-      const readings = dayData?.readings || [];
-      const chaptersStr = readings.map((r) => `${r.book} ${r.chapter}`).join(", ");
+      const dayData = db.prepare("SELECT * FROM reading_plan_days WHERE planId = ? AND dayNumber = ?").get(enrollment.planId, enrollment.currentDay) as DayRow | undefined;
+      const readings = dayData ? db.prepare("SELECT * FROM reading_plan_readings WHERE dayId = ?").all(dayData.id) as any[] : [];
+      const chaptersStr = readings.map((r: any) => `${r.book} ${r.chapter}`).join(", ");
       const firstReading = readings[0];
       const firstBook = firstReading?.book || "";
       const firstChapter = firstReading?.chapter ? String(firstReading.chapter) : "";
@@ -93,7 +82,6 @@ export async function GET(req: Request) {
         }
       );
 
-      // 1. Envoi de l'email via Resend
       if (user.email && process.env.RESEND_API_KEY) {
         try {
           await resend.emails.send({
@@ -108,18 +96,16 @@ export async function GET(req: Request) {
         }
       }
 
-      // 2. Envoi de la notification push
-      if (user.pushSubscriptions && user.pushSubscriptions.length > 0) {
+      const pushSubs = db.prepare("SELECT * FROM push_subscriptions WHERE userId = ?").all(user.id);
+      if (pushSubs.length > 0) {
         try {
           await sendPushNotification(user.id, notification.title, notification.body);
-          pushsSent += user.pushSubscriptions.length;
+          pushsSent += pushSubs.length;
         } catch (pushErr) {
           console.error(`[Cron Reading Plan] Erreur d'envoi push pour l'utilisateur ${user.id} :`, pushErr);
         }
       }
     }
-
-    console.log(`[Cron Reading Plan Reminder] Rappels envoyés à ${usersProcessed} utilisateurs. Emails: ${emailsSent}, Pushs: ${pushsSent}`);
 
     return NextResponse.json({
       success: true,
@@ -129,7 +115,6 @@ export async function GET(req: Request) {
     });
   } catch (error: unknown) {
     console.error("Erreur d'exécution du cron reading-plan-reminder :", error);
-    const message = error instanceof Error ? (error instanceof Error ? error.message : "") : "Erreur interne";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: "Erreur interne" }, { status: 500 });
   }
 }

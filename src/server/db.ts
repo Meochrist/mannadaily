@@ -229,6 +229,16 @@ export function initServerDb(): Database.Database {
       UNIQUE(userId, verseId)
     );
 
+    CREATE TABLE IF NOT EXISTS push_subscriptions (
+      id TEXT PRIMARY KEY,
+      userId TEXT NOT NULL,
+      endpoint TEXT UNIQUE NOT NULL,
+      p256dh TEXT,
+      auth TEXT,
+      createdAt TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+    );
+
     CREATE TABLE IF NOT EXISTS bible_commentaries (
       id TEXT PRIMARY KEY,
       book INTEGER NOT NULL,

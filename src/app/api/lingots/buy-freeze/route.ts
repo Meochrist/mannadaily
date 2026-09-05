@@ -1,23 +1,23 @@
-import { auth } from "@/lib/auth";
-import { buyStreakFreeze } from "@/lib/gamification";
 import { NextResponse } from "next/server";
+import { buyStreakFreeze } from "@/lib/gamification";
 
 export const dynamic = "force-dynamic";
 
-export async function POST() {
+export async function POST(req: Request) {
   try {
-    const session = await auth();
-    if (!session?.user) {
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = session.user.id;
-    const result = await buyStreakFreeze(userId);
+    const token = authHeader.slice(7);
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    const userId = decoded.userId;
 
+    const result = await buyStreakFreeze(userId);
     return NextResponse.json(result);
   } catch (error: unknown) {
     console.error("Error in buy-freeze API route:", error);
-    const message = error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

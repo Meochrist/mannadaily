@@ -1,37 +1,30 @@
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { initServerDb } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const session = await auth();
-    if (!session?.user) {
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const token = authHeader.slice(7);
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    const userId = decoded.userId;
 
-    // Récupérer le solde de lingots
-    const progress = await db.userProgress.findUnique({
-      where: { userId },
-      select: { lingots: true }
-    });
+    const db = initServerDb();
 
-    // Récupérer les streak freezes disponibles
-    const freeze = await db.streakFreeze.findUnique({
-      where: { userId },
-      select: { freezesAvailable: true }
-    });
+    const progress = db.prepare("SELECT lingots FROM user_progress WHERE userId = ?").get(userId) as any;
+    const freeze = db.prepare("SELECT freezesAvailable FROM streak_freeze WHERE userId = ?").get(userId) as any;
 
     return NextResponse.json({
-      lingots: progress ? progress.lingots : 0,
-      freezesAvailable: freeze ? freeze.freezesAvailable : 0
+      lingots: progress?.lingots ?? 0,
+      freezesAvailable: freeze?.freezesAvailable ?? 0
     });
   } catch (error: unknown) {
     console.error("Error in balance API route:", error);
-    const message = error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

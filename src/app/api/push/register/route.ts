@@ -1,36 +1,33 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { auth } from "@/lib/auth";
+import { initServerDb } from "@/server/db";
 
 export async function POST(req: Request) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    const { token } = await req.json();
-    if (!token) {
+    const token = authHeader.slice(7);
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    const userId = decoded.userId;
+
+    const { token: fcmToken } = await req.json();
+    if (!fcmToken) {
       return NextResponse.json({ error: "Token manquant" }, { status: 400 });
     }
 
-    // Sauvegarder le token FCM
-    await db.pushSubscription.upsert({
-      where: {
-        endpoint: token,
-      },
-      update: {
-        userId: session.user.id,
-        p256dh: token,
-        auth: token,
-      },
-      create: {
-        userId: session.user.id,
-        endpoint: token,
-        p256dh: token,
-        auth: token,
-      },
-    });
+    const db = initServerDb();
+
+    const existing = db.prepare("SELECT id FROM push_subscriptions WHERE endpoint = ?").get(fcmToken);
+
+    if (existing) {
+      db.prepare("UPDATE push_subscriptions SET userId = ? WHERE endpoint = ?").run(userId, fcmToken);
+    } else {
+      db.prepare(`
+        INSERT INTO push_subscriptions (id, userId, endpoint, p256dh, auth) VALUES (?, ?, ?, ?, ?)
+      `).run(crypto.randomUUID(), userId, fcmToken, fcmToken, fcmToken);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

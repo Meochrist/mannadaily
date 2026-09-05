@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { initServerDb } from "@/server/db";
 import { getMascotReply, UserState } from "@/lib/mascots";
 import { getLevelFromXP } from "@/lib/gamification";
 
@@ -24,10 +23,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid theme" }, { status: 400 });
     }
 
-    const session = await auth();
-    if (!session?.user?.id) {
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const token = authHeader.slice(7);
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    const userId = decoded.userId;
+
     const finalUserState: UserState = {
       streakCount: 0,
       hasMissedADay: false,
@@ -35,36 +39,27 @@ export async function POST(req: Request) {
       level: 1,
     };
 
-    if (session?.user) {
-      const userId = session.user.id;
+    const db = initServerDb();
+    const progress = db.prepare("SELECT * FROM user_progress WHERE userId = ?").get(userId);
+    const streak = db.prepare("SELECT * FROM streaks WHERE userId = ?").get(userId);
 
-      // Recherche des infos de progression et de streak de l'utilisateur connecté
-      const [progress, streak] = await Promise.all([
-        db.userProgress.findUnique({ where: { userId } }),
-        db.streak.findUnique({ where: { userId } }),
-      ]);
+    if (progress) {
+      const levelInfo = getLevelFromXP(progress.totalXP);
+      finalUserState.xp = progress.totalXP;
+      finalUserState.level = levelInfo.level;
+    }
 
-      if (progress) {
-        const levelInfo = getLevelFromXP(progress.totalXP);
-        finalUserState.xp = progress.totalXP;
-        finalUserState.level = levelInfo.level;
-      }
-
-      if (streak) {
-        finalUserState.streakCount = streak.currentStreak;
-        
-        // Calcul pour savoir s'il a raté un jour
-        // Si la dernière activité remonte à plus de 36 heures, on considère qu'il a raté un jour
-        if (streak.lastActivityAt) {
-          const lastActivity = new Date(streak.lastActivityAt).getTime();
-          const now = Date.now();
-          const hoursSinceLastActivity = (now - lastActivity) / (1000 * 60 * 60);
-          finalUserState.hasMissedADay = hoursSinceLastActivity > 36;
-        }
+    if (streak) {
+      finalUserState.streakCount = streak.currentStreak;
+      
+      if (streak.lastActivityAt) {
+        const lastActivity = new Date(streak.lastActivityAt).getTime();
+        const now = Date.now();
+        const hoursSinceLastActivity = (now - lastActivity) / (1000 * 60 * 60);
+        finalUserState.hasMissedADay = hoursSinceLastActivity > 36;
       }
     }
 
-    // L'état de progression provient exclusivement de la base de données.
     const result = await getMascotReply(character, theme || "general", finalUserState);
 
     return NextResponse.json({
@@ -77,7 +72,6 @@ export async function POST(req: Request) {
     });
   } catch (error: unknown) {
     console.error("Error generating mascot speech:", error);
-    const message = error instanceof Error ? (error instanceof Error ? error.message : "") : "Internal Server Error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
