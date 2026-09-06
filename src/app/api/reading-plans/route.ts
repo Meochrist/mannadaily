@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { query, queryOne } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
@@ -14,15 +14,14 @@ export async function GET(req: Request) {
       userId = decoded.userId;
     }
 
-    const db = initServerDb();
-    const plans = db.prepare("SELECT * FROM reading_plans ORDER BY duration ASC").all();
+    const plans = await query("SELECT * FROM reading_plans ORDER BY duration ASC");
 
-    const plansWithEnrollment = plans.map((plan: any) => {
+    const plansWithEnrollment = await Promise.all(plans.map(async (plan: any) => {
       const enrollment = userId 
-        ? db.prepare("SELECT * FROM reading_plan_enrollments WHERE userId = ? AND planId = ?").get(userId, plan.id)
+        ? await queryOne("SELECT * FROM reading_plan_enrollments WHERE userId = $1 AND planId = $2", [userId, plan.id])
         : null;
       return { ...plan, enrollment };
-    });
+    }));
 
     return NextResponse.json({ plans: plansWithEnrollment });
   } catch (error: unknown) {

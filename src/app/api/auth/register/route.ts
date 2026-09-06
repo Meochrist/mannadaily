@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { getServerDb, initServerDb } from '@/server/db';
+import { query, execute } from '@/server/db';
 
 export async function POST(req: Request) {
   try {
@@ -17,10 +17,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Le mot de passe doit contenir entre 8 et 128 caractères' }, { status: 400 });
     }
 
-    const db = initServerDb();
-
-    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
-    if (existing) {
+    const existing = await query('SELECT id FROM users WHERE email = $1', [email]);
+    if (existing.length > 0) {
       return NextResponse.json({ error: 'Cette adresse e-mail est déjà utilisée' }, { status: 400 });
     }
 
@@ -28,20 +26,20 @@ export async function POST(req: Request) {
     const userId = crypto.randomUUID();
     const now = new Date().toISOString();
 
-    db.prepare(`
+    await execute(`
       INSERT INTO users (id, name, email, password, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `).run(userId, name, email, hashedPassword, now, now);
+      VALUES ($1, $2, $3, $4, $5, $6)
+    `, [userId, name, email, hashedPassword, now, now]);
 
-    db.prepare(`
+    await execute(`
       INSERT INTO streaks (id, userId, currentStreak, longestStreak, lastActivityAt)
-      VALUES (?, ?, 0, 0, ?)
-    `).run(crypto.randomUUID(), userId, now);
+      VALUES ($1, $2, 0, 0, $3)
+    `, [crypto.randomUUID(), userId, now]);
 
-    db.prepare(`
+    await execute(`
       INSERT INTO user_progress (id, userId, totalXP, level, versesLearned, sessionsTotal, lingots)
-      VALUES (?, ?, 0, 'Semence', 0, 0, 0)
-    `).run(crypto.randomUUID(), userId);
+      VALUES ($1, $2, 0, 'Semence', 0, 0, 0)
+    `, [crypto.randomUUID(), userId]);
 
     return NextResponse.json({ message: 'Utilisateur créé avec succès', userId });
   } catch (error: unknown) {

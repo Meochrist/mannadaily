@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { query, queryOne, execute } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
@@ -21,24 +21,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const db = initServerDb();
-
     // Si le contenu est vide, supprimer la note
     if (content.trim() === "") {
-      db.prepare("DELETE FROM verse_notes WHERE userId = ? AND verseId = ?").run(userId, verseId);
+      await execute("DELETE FROM verse_notes WHERE userId = $1 AND verseId = $2", [userId, verseId]);
       return NextResponse.json({ success: true, message: "Note deleted" });
     }
 
     // Upsert la note
-    const existing = db.prepare("SELECT id FROM verse_notes WHERE userId = ? AND verseId = ?").get(userId, verseId);
+    const existing = await queryOne("SELECT id FROM verse_notes WHERE userId = $1 AND verseId = $2", [userId, verseId]);
     const now = new Date().toISOString();
 
     if (existing) {
-      db.prepare("UPDATE verse_notes SET content = ?, isVoice = ?, updatedAt = ? WHERE userId = ? AND verseId = ?")
-        .run(content, isVoice ? 1 : 0, now, userId, verseId);
+      await execute(
+        "UPDATE verse_notes SET content = $1, isVoice = $2, updatedAt = $3 WHERE userId = $4 AND verseId = $5",
+        [content, isVoice ? 1 : 0, now, userId, verseId]
+      );
     } else {
-      db.prepare("INSERT INTO verse_notes (id, userId, verseId, content, isVoice, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)")
-        .run(crypto.randomUUID(), userId, verseId, content, isVoice ? 1 : 0, now, now);
+      await execute(
+        "INSERT INTO verse_notes (id, userId, verseId, content, isVoice, createdAt, updatedAt) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+        [crypto.randomUUID(), userId, verseId, content, isVoice ? 1 : 0, now, now]
+      );
     }
 
     return NextResponse.json({ success: true });
@@ -59,14 +61,13 @@ export async function GET(req: Request) {
     const decoded = JSON.parse(atob(token.split(".")[1]));
     const userId = decoded.userId;
 
-    const db = initServerDb();
-    const notes = db.prepare(`
+    const notes = await query(`
       SELECT vn.*, bv.book, bv.chapter, bv.verse, bv.text as verseText, bv.translation
       FROM verse_notes vn
       JOIN bible_verses bv ON vn.verseId = bv.id
-      WHERE vn.userId = ?
+      WHERE vn.userId = $1
       ORDER BY vn.createdAt DESC
-    `).all(userId);
+    `, [userId]);
 
     return NextResponse.json({ notes });
   } catch (error: unknown) {

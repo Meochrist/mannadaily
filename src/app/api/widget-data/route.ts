@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { query } from "@/server/db";
 import { getDailyVerse } from "@/lib/verses";
 import { resolveMascotState } from "@/lib/mascotState";
 
@@ -9,7 +9,6 @@ function isProgress(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-// Messages génériques par heure (mode anonyme)
 function getAnonymousMessage(hourLocal: number, minuteLocal: number): { mood: string; message: string } {
   if (hourLocal >= 6 && hourLocal < 11) {
     const messages = [
@@ -44,7 +43,6 @@ function getAnonymousMessage(hourLocal: number, minuteLocal: number): { mood: st
   }
 }
 
-// Décoder un JWT simple
 function decodeToken(token: string): { userId: string; email: string; exp: number } | null {
   try {
     const parts = token.split(".");
@@ -61,7 +59,6 @@ export async function GET(req: Request) {
   try {
     let userId: string | undefined;
 
-    // Token-based auth (header Authorization)
     const authHeader = req.headers.get("authorization");
     if (authHeader?.startsWith("Bearer ")) {
       const token = authHeader.slice(7);
@@ -76,22 +73,19 @@ export async function GET(req: Request) {
     const hourLocal = nowUTC.getUTCHours();
     const minuteLocal = nowUTC.getUTCMinutes();
 
-    // Mode authentifié
     if (userId) {
-      const db = initServerDb();
+      const streak = await query("SELECT * FROM streaks WHERE userId = $1", [userId]);
+      const user = await query("SELECT meditationProgress, timezoneOffset FROM users WHERE id = $1", [userId]);
 
-      const streak = db.prepare("SELECT * FROM streaks WHERE userId = ?").get(userId) as { currentStreak: number; longestStreak: number } | undefined;
-      const user = db.prepare("SELECT meditationProgress, timezoneOffset FROM users WHERE id = ?").get(userId) as { meditationProgress: string | null; timezoneOffset: number | null } | undefined;
-
-      const nowLocal = new Date(nowUTC.getTime() + (user?.timezoneOffset ?? 0) * 60000);
+      const nowLocal = new Date(nowUTC.getTime() + (user[0]?.timezoneOffset ?? 0) * 60000);
       const todayLocal = nowLocal.toISOString().split("T")[0];
 
       let sessionsCompleted = 0;
       let dayCompleted = false;
 
-      if (user?.meditationProgress) {
+      if (user[0]?.meditationProgress) {
         try {
-          const mp = JSON.parse(user.meditationProgress);
+          const mp = JSON.parse(user[0].meditationProgress);
           if (isProgress(mp) && mp.lastActivityDate === todayLocal) {
             const sessions = Array.isArray(mp.sessionsCompleted) ? mp.sessionsCompleted : [];
             sessionsCompleted = sessions.length;
@@ -105,7 +99,7 @@ export async function GET(req: Request) {
       const mascotState = resolveMascotState({
         sessionsCompletedToday: sessionsCompleted,
         dayCompleted,
-        streakCount: streak?.currentStreak ?? 0,
+        streakCount: streak[0]?.currentStreak ?? 0,
         inactivityDays: 0,
         isMeditatingNow: sessionsCompleted >= 3,
       });
@@ -119,8 +113,8 @@ export async function GET(req: Request) {
 
       return NextResponse.json({
         streak: {
-          currentStreak: streak?.currentStreak ?? 0,
-          longestStreak: streak?.longestStreak ?? 0,
+          currentStreak: streak[0]?.currentStreak ?? 0,
+          longestStreak: streak[0]?.longestStreak ?? 0,
         },
         verse: `${verse.text} — ${verse.reference}`,
         sessionsCompleted,
@@ -134,7 +128,6 @@ export async function GET(req: Request) {
       });
     }
 
-    // Mode anonyme
     const anon = getAnonymousMessage(hourLocal, minuteLocal);
     return NextResponse.json({
       streak: { currentStreak: 0, longestStreak: 0 },

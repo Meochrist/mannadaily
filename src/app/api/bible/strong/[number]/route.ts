@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { queryOne, execute } from "@/server/db";
 import { translateStrongEntry } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
@@ -14,8 +14,7 @@ export async function GET(
     // Normaliser : H001 -> H1, G001 -> G1, etc.
     const normalized = number.toUpperCase().replace(/^([HG])0+(\d+)$/, "$1$2");
 
-    const db = initServerDb();
-    const entry = db.prepare("SELECT * FROM strong_entries WHERE number = ?").get(normalized) as any;
+    const entry = await queryOne("SELECT * FROM strong_entries WHERE number = $1", [normalized]) as any;
 
     if (!entry) {
       return NextResponse.json(
@@ -36,9 +35,9 @@ export async function GET(
           entry.kjvUsage
         );
 
-        db.prepare(`
-          UPDATE strong_entries SET definitionFr = ?, kjvUsageFr = ?, translatedAt = ? WHERE id = ?
-        `).run(definitionFr, kjvUsageFr || null, new Date().toISOString(), entry.id);
+        await execute(`
+          UPDATE strong_entries SET definitionFr = $1, kjvUsageFr = $2, translatedAt = $3 WHERE id = $4
+        `, [definitionFr, kjvUsageFr || null, new Date().toISOString(), entry.id]);
 
         translated = { ...entry, definitionFr, kjvUsageFr: kjvUsageFr || null, translatedAt: new Date().toISOString() };
       } catch (translationError) {

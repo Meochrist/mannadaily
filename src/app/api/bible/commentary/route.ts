@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { query } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
@@ -22,12 +22,11 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Invalid query parameters: book, chapter, and verse must be numbers" }, { status: 400 });
     }
 
-    const db = initServerDb();
-    const commentaries = db.prepare(`
+    const commentaries = await query(`
       SELECT * FROM bible_commentaries
-      WHERE book = ? AND chapter = ? AND (verse = ? OR verse = 0)
+      WHERE book = $1 AND chapter = $2 AND (verse = $3 OR verse = 0)
       ORDER BY verse ASC, author ASC
-    `).all(book, chapter, verse);
+    `, [book, chapter, verse]);
 
     return NextResponse.json({ commentaries });
   } catch (error: unknown) {

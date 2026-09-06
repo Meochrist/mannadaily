@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { query } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
@@ -41,14 +41,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Invalid parameters format" }, { status: 400 });
     }
 
-    const db = initServerDb();
-
     // Récupérer les références croisées
-    const crossRefs = db.prepare(`
-      SELECT * FROM cross_references 
-      WHERE from_book = ? AND from_chapter = ? AND from_verse = ? 
+    const crossRefs = await query(`
+      SELECT * FROM cross_references
+      WHERE from_book = $1 AND from_chapter = $2 AND from_verse = $3
       ORDER BY votes DESC LIMIT 10
-    `).all(fromBook, fromChapter, fromVerse) as any[];
+    `, [fromBook, fromChapter, fromVerse]) as any[];
 
     // Pour chaque référence, récupérer le texte LSG
     const results = await Promise.all(
@@ -59,16 +57,16 @@ export async function GET(request: Request) {
           : `${bookName} ${ref.to_chapter}:${ref.to_verse}`;
 
         // Récupérer les versets associés
-        const targetVerses = db.prepare(`
-          SELECT text FROM bible_verses 
-          WHERE book_number = ? AND chapter = ? AND verse >= ? AND verse <= ? AND translation = 'LSG'
+        const targetVerses = await query(`
+          SELECT text FROM bible_verses
+          WHERE book_number = $1 AND chapter = $2 AND verse >= $3 AND verse <= $4 AND translation = 'LSG'
           ORDER BY verse ASC
-        `).all(
+        `, [
           ref.to_book,
           ref.to_chapter,
           ref.to_verse,
           ref.to_verse_end || ref.to_verse
-        ) as { text: string }[];
+        ]) as { text: string }[];
 
         const text = targetVerses.map((v) => v.text).join(" ") || "Texte non trouvé";
 

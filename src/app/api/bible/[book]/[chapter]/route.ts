@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getServerDb, initServerDb } from '@/server/db';
+import { query } from '@/server/db';
 
 export async function GET(req: Request) {
   try {
@@ -12,13 +12,11 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'book et chapter requis' }, { status: 400 });
     }
 
-    const db = initServerDb();
-
-    const verses = db.prepare(`
-      SELECT * FROM bible_verses 
-      WHERE book = ? AND chapter = ? AND translation = ?
+    const verses = await query(`
+      SELECT * FROM bible_verses
+      WHERE book = $1 AND chapter = $2 AND translation = $3
       ORDER BY verse
-    `).all(book, parseInt(chapter), translation);
+    `, [book, parseInt(chapter), translation]);
 
     return NextResponse.json({ verses });
   } catch (error: unknown) {

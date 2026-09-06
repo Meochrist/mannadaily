@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { query, queryOne, execute } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
@@ -21,27 +21,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing planId parameter" }, { status: 400 });
     }
 
-    const db = initServerDb();
-
-    const plan = db.prepare("SELECT id FROM reading_plans WHERE id = ?").get(planId);
+    const plan = await queryOne("SELECT id FROM reading_plans WHERE id = $1", [planId]);
     if (!plan) {
       return NextResponse.json({ error: "Reading plan not found" }, { status: 404 });
     }
 
     const now = new Date().toISOString();
-    const existing = db.prepare("SELECT id FROM reading_plan_enrollments WHERE userId = ? AND planId = ?").get(userId, planId);
+    const existing = await queryOne("SELECT id FROM reading_plan_enrollments WHERE userId = $1 AND planId = $2", [userId, planId]);
 
     if (existing) {
-      db.prepare(`
-        UPDATE reading_plan_enrollments SET currentDay = 1, completed = 0, completedAt = NULL, startDate = ? WHERE userId = ? AND planId = ?
-      `).run(now, userId, planId);
+      await execute(`
+        UPDATE reading_plan_enrollments SET currentDay = 1, completed = 0, completedAt = NULL, startDate = $1 WHERE userId = $2 AND planId = $3
+      `, [now, userId, planId]);
     } else {
-      db.prepare(`
-        INSERT INTO reading_plan_enrollments (id, userId, planId, currentDay, completed, startDate) VALUES (?, ?, ?, 1, 0, ?)
-      `).run(crypto.randomUUID(), userId, planId, now);
+      await execute(`
+        INSERT INTO reading_plan_enrollments (id, userId, planId, currentDay, completed, startDate) VALUES ($1, $2, $3, 1, 0, $4)
+      `, [crypto.randomUUID(), userId, planId, now]);
     }
 
-    db.prepare("DELETE FROM reading_plan_progress WHERE userId = ? AND planId = ?").run(userId, planId);
+    await execute("DELETE FROM reading_plan_progress WHERE userId = $1 AND planId = $2", [userId, planId]);
 
     return NextResponse.json({ success: true });
   } catch (error: unknown) {

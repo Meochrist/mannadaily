@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query, queryOne } from "@/server/sql";
+import { query, queryOne } from "@/server/db";
 
 export async function GET(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
@@ -17,21 +17,21 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
       userId = decoded.userId;
     }
 
-    const plan = queryOne<any>("SELECT * FROM reading_plans WHERE slug = ?", [slug]);
+    const plan = await queryOne("SELECT * FROM reading_plans WHERE slug = $1", [slug]);
 
     if (!plan) {
       return NextResponse.json({ error: "Reading plan not found" }, { status: 404 });
     }
 
-    const days = query<any>("SELECT * FROM reading_plan_days WHERE planId = ? ORDER BY dayNumber ASC", [plan.id]);
+    const days = await query("SELECT * FROM reading_plan_days WHERE planId = $1 ORDER BY dayNumber ASC", [plan.id]);
 
-    const daysWithReadings = days.map((day: any) => {
-      const readings = query<any>("SELECT * FROM reading_plan_readings WHERE dayId = ? ORDER BY id ASC", [day.id]);
+    const daysWithReadings = await Promise.all(days.map(async (day: any) => {
+      const readings = await query("SELECT * FROM reading_plan_readings WHERE dayId = $1 ORDER BY id ASC", [day.id]);
       return { ...day, readings };
-    });
+    }));
 
     const enrollment = userId 
-      ? queryOne<any>("SELECT * FROM reading_plan_enrollments WHERE userId = ? AND planId = ?", [userId, plan.id])
+      ? await queryOne("SELECT * FROM reading_plan_enrollments WHERE userId = $1 AND planId = $2", [userId, plan.id])
       : null;
 
     return NextResponse.json({ plan: { ...plan, days: daysWithReadings, enrollment } });

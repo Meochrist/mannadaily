@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query, queryOne } from "@/server/sql";
+import { query, queryOne, execute } from "@/server/db";
 import { awardXP } from "@/lib/gamification";
 import { addXPToLeague } from "@/lib/leaderboard";
 
@@ -16,12 +16,12 @@ export async function GET(req: Request) {
     const decoded = JSON.parse(atob(token.split(".")[1]));
     const userId = decoded.userId;
 
-    const progress = query("SELECT * FROM reading_plan_progress WHERE userId = ?", [userId]);
-    const enrollments = query<any>(`
+    const progress = await query("SELECT * FROM reading_plan_progress WHERE userId = $1", [userId]);
+    const enrollments = await query(`
       SELECT rpe.*, rp.name, rp.slug, rp.duration
       FROM reading_plan_enrollments rpe
       JOIN reading_plans rp ON rpe.planId = rp.id
-      WHERE rpe.userId = ?
+      WHERE rpe.userId = $1
     `, [userId]);
 
     return NextResponse.json({ progress, enrollments });
@@ -49,17 +49,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing planId or dayNumber parameters" }, { status: 400 });
     }
 
-    const plan = queryOne<any>("SELECT * FROM reading_plans WHERE id = ?", [planId]);
+    const plan = await queryOne("SELECT * FROM reading_plans WHERE id = $1", [planId]);
     if (!plan) {
       return NextResponse.json({ error: "Reading plan not found" }, { status: 404 });
     }
 
-    const existing = queryOne("SELECT id FROM reading_plan_progress WHERE userId = ? AND planId = ? AND dayNumber = ?", [userId, planId, dayNumber]);
+    const existing = await queryOne("SELECT id FROM reading_plan_progress WHERE userId = $1 AND planId = $2 AND dayNumber = $3", [userId, planId, dayNumber]);
     if (!existing) {
-      query("INSERT INTO reading_plan_progress (id, userId, planId, dayNumber) VALUES (?, ?, ?, ?)", [crypto.randomUUID(), userId, planId, dayNumber]);
+      await execute("INSERT INTO reading_plan_progress (id, userId, planId, dayNumber) VALUES ($1, $2, $3, $4)", [crypto.randomUUID(), userId, planId, dayNumber]);
     }
 
-    const enrollment = queryOne<any>("SELECT * FROM reading_plan_enrollments WHERE userId = ? AND planId = ?", [userId, planId]);
+    const enrollment = await queryOne("SELECT * FROM reading_plan_enrollments WHERE userId = $1 AND planId = $2", [userId, planId]);
 
     if (!enrollment) {
       return NextResponse.json({ error: "User is not enrolled in this reading plan" }, { status: 400 });
@@ -77,7 +77,7 @@ export async function POST(req: Request) {
         completedAt = new Date().toISOString();
       }
 
-      query("UPDATE reading_plan_enrollments SET currentDay = ?, completed = ?, completedAt = ? WHERE userId = ? AND planId = ?", [nextDay, completed, completedAt, userId, planId]);
+      await execute("UPDATE reading_plan_enrollments SET currentDay = $1, completed = $2, completedAt = $3 WHERE userId = $4 AND planId = $5", [nextDay, completed, completedAt, userId, planId]);
     }
 
     const xpResult = await awardXP(userId, "READING_PLAN_DAY");

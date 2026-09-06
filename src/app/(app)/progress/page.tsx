@@ -16,7 +16,7 @@ import {
   Share2
 } from "lucide-react";
 import ShareCard from "@/components/sharing/ShareCard";
-import { initServerDb } from "@/server/db";
+import { query, queryOne, execute } from "@/server/db";
 import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
@@ -98,40 +98,54 @@ export default async function ProgressPage() {
 
   if (userId) {
     try {
-      const db = initServerDb();
-
-      const user = db.prepare("SELECT id, name, createdAt FROM users WHERE id = ?").get(userId) as any;
+      const user = await queryOne(
+        "SELECT id, name, createdAt FROM users WHERE id = $1",
+        [userId]
+      ) as any;
       if (user) {
         signUpDate = new Date(user.createdAt);
         userName = user.name || "Ami";
       }
 
-      let progress = db.prepare("SELECT * FROM user_progress WHERE userId = ?").get(userId) as any;
+      let progress = await queryOne(
+        "SELECT * FROM user_progress WHERE userId = $1",
+        [userId]
+      ) as any;
 
       if (!progress) {
-        db.prepare(`
-          INSERT INTO user_progress (id, userId, totalXP, level, versesLearned, sessionsTotal, lingots)
-          VALUES (?, ?, 0, 'Semence', 0, 0, 0)
-        `).run(crypto.randomUUID(), userId);
-        progress = db.prepare("SELECT * FROM user_progress WHERE userId = ?").get(userId) as any;
+        await execute(
+          "INSERT INTO user_progress (id, userId, totalXP, level, versesLearned, sessionsTotal, lingots) VALUES ($1, $2, 0, 'Semence', 0, 0, 0)",
+          [crypto.randomUUID(), userId]
+        );
+        progress = await queryOne(
+          "SELECT * FROM user_progress WHERE userId = $1",
+          [userId]
+        ) as any;
       }
 
-      let streak = db.prepare("SELECT * FROM streaks WHERE userId = ?").get(userId) as any;
+      let streak = await queryOne(
+        "SELECT * FROM streaks WHERE userId = $1",
+        [userId]
+      ) as any;
 
       if (!streak) {
-        db.prepare(`
-          INSERT INTO streaks (id, userId, currentStreak, longestStreak, lastActivityAt)
-          VALUES (?, ?, 0, 0, ?)
-        `).run(crypto.randomUUID(), userId, new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString());
-        streak = db.prepare("SELECT * FROM streaks WHERE userId = ?").get(userId) as any;
+        await execute(
+          "INSERT INTO streaks (id, userId, currentStreak, longestStreak, lastActivityAt) VALUES ($1, $2, 0, 0, $3)",
+          [crypto.randomUUID(), userId, new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()]
+        );
+        streak = await queryOne(
+          "SELECT * FROM streaks WHERE userId = $1",
+          [userId]
+        ) as any;
       }
 
-      const userBadges = db.prepare(`
-        SELECT ub.badgeId, ub.earnedAt, b.id, b.name, b.description, b.icon
-        FROM user_badges ub
-        JOIN badges b ON ub.badgeId = b.id
-        WHERE ub.userId = ?
-      `).all(userId) as any[];
+      const userBadges = await query(
+        `SELECT ub.badgeId, ub.earnedAt, b.id, b.name, b.description, b.icon
+         FROM user_badges ub
+         JOIN badges b ON ub.badgeId = b.id
+         WHERE ub.userId = $1`,
+        [userId]
+      ) as any[];
 
       const levelInfo = getLevelFromXP(progress.totalXP);
       const progressPercent = getXPProgress(progress.totalXP);
@@ -163,9 +177,10 @@ export default async function ProgressPage() {
       };
 
       // Calculer les jours complets (matin + soir)
-      const sessions = db.prepare(`
-        SELECT createdAt, period FROM daily_sessions WHERE userId = ? ORDER BY createdAt DESC
-      `).all(userId) as any[];
+      const sessions = await query(
+        "SELECT createdAt, period FROM daily_sessions WHERE userId = $1 ORDER BY createdAt DESC",
+        [userId]
+      ) as any[];
 
       const daysMap = new Map<string, Set<string>>();
       for (const s of sessions) {

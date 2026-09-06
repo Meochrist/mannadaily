@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query, queryOne } from "@/server/sql";
+import { query, queryOne } from "@/server/db";
 import { getRandomNotification } from "@/lib/notifications";
 import { generateNotificationEmail } from "@/lib/emailTemplates";
 import { sendPushNotification } from "@/lib/webPush";
@@ -45,13 +45,13 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    const allUsers = query<any>("SELECT * FROM users") as any[];
+    const allUsers = await query("SELECT * FROM users");
 
     let emailsSent = 0;
     let pushsSent = 0;
     let usersNotified = 0;
 
-    for (const user of allUsers as any[]) {
+    for (const user of allUsers) {
       if (user.id.startsWith("bot_") || user.email?.endsWith("@mascot.local")) {
         continue;
       }
@@ -80,16 +80,16 @@ export async function GET(req: Request) {
       const userName = user.name || "Ami";
       let notification;
 
-      const enrollments = query<any>("SELECT * FROM reading_plan_enrollments WHERE userId = ? AND completed = 0", [user.id]);
+      const enrollments = await query("SELECT * FROM reading_plan_enrollments WHERE userId = $1 AND completed = 0", [user.id]);
       const activeEnrollment = enrollments[0];
 
       if (activeEnrollment && user.readingReminders) {
-        const readingProgress = query<any>("SELECT * FROM reading_plan_progress WHERE userId = ? AND planId = ?", [user.id, activeEnrollment.planId]);
+        const readingProgress = await query("SELECT * FROM reading_plan_progress WHERE userId = $1 AND planId = $2", [user.id, activeEnrollment.planId]);
         const hasCompletedToday = readingProgress.some((p: any) => p.dayNumber === activeEnrollment.currentDay);
 
         if (!hasCompletedToday) {
-          const dayData = queryOne<any>("SELECT * FROM reading_plan_days WHERE planId = ? AND dayNumber = ?", [activeEnrollment.planId, activeEnrollment.currentDay]);
-          const readings = dayData ? query<any>("SELECT * FROM reading_plan_readings WHERE dayId = ?", [dayData.id]) : [];
+          const dayData = await queryOne("SELECT * FROM reading_plan_days WHERE planId = $1 AND dayNumber = $2", [activeEnrollment.planId, activeEnrollment.currentDay]);
+          const readings = dayData ? await query("SELECT * FROM reading_plan_readings WHERE dayId = $1", [dayData.id]) : [];
           const chaptersStr = readings.map((r: any) => `${r.book} ${r.chapter}`).join(", ");
           const firstReading = readings[0];
           const firstBook = firstReading?.book || "";
@@ -122,7 +122,7 @@ export async function GET(req: Request) {
         }
       }
 
-      const pushSubs = query<any>("SELECT * FROM push_subscriptions WHERE userId = ?", [user.id]);
+      const pushSubs = await query("SELECT * FROM push_subscriptions WHERE userId = $1", [user.id]);
       if (pushSubs.length > 0) {
         try {
           await sendPushNotification(user.id, notification.title, notification.body);

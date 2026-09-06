@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { createTransaction, verifyTransaction } from "@/lib/fedapay";
 import { creditApprovedPayment, isPaymentProduct, PAYMENT_PRODUCTS } from "@/lib/payments";
-import { initServerDb } from "@/server/db";
+import { query } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
-// Décoder un JWT simple
 function decodeToken(token: string): { userId: string; email: string; exp: number } | null {
   try {
     const parts = token.split(".");
@@ -27,14 +25,12 @@ async function resolveUserId(metadata: Record<string, unknown>, customerEmail?: 
   if (typeof metadata.userId === "string" && metadata.userId) return metadata.userId;
   if (!customerEmail) return null;
   
-  const db = initServerDb();
-  const user = db.prepare("SELECT id FROM users WHERE email = ?").get(customerEmail.trim().toLowerCase()) as any;
-  return user?.id ?? null;
+  const user = await query("SELECT id FROM users WHERE email = $1", [customerEmail.trim().toLowerCase()]);
+  return user[0]?.id ?? null;
 }
 
 export async function POST(req: Request) {
   try {
-    // Auth JWT
     const authHeader = req.headers.get("authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -51,16 +47,15 @@ export async function POST(req: Request) {
     const product = body?.product;
     if (!isPaymentProduct(product)) return NextResponse.json({ error: "Invalid product" }, { status: 400 });
 
-    const db = initServerDb();
-    const user = db.prepare("SELECT name, email FROM users WHERE id = ?").get(userId) as any;
-    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+    const user = await query("SELECT name, email FROM users WHERE id = $1", [userId]);
+    if (!user[0]) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     const callbackUrl = `${publicBaseUrl()}/shop?status=verify&payment=${product}`;
     const transaction = await createTransaction(
       PAYMENT_PRODUCTS[product].amount,
       `${PAYMENT_PRODUCTS[product].title} MannaDaily`,
-      user.name || "Ami",
-      user.email || `client-${userId}@mannadaily.app`,
+      user[0].name || "Ami",
+      user[0].email || `client-${userId}@mannadaily.app`,
       "",
       callbackUrl,
       { userId, product },
@@ -75,7 +70,6 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
-    // Auth JWT
     const authHeader = req.headers.get("authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

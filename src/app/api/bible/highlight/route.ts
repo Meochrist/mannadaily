@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { queryOne, execute } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
@@ -26,13 +26,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid highlight color" }, { status: 400 });
     }
 
-    const db = initServerDb();
-    const existing = db.prepare("SELECT id FROM verse_highlights WHERE userId = ? AND verseId = ?").get(userId, verseId);
+    const existing = await queryOne("SELECT id FROM verse_highlights WHERE userId = $1 AND verseId = $2", [userId, verseId]);
 
     if (existing) {
-      db.prepare("UPDATE verse_highlights SET color = ? WHERE userId = ? AND verseId = ?").run(color, userId, verseId);
+      await execute("UPDATE verse_highlights SET color = $1 WHERE userId = $2 AND verseId = $3", [color, userId, verseId]);
     } else {
-      db.prepare("INSERT INTO verse_highlights (id, userId, verseId, color) VALUES (?, ?, ?, ?)").run(crypto.randomUUID(), userId, verseId, color);
+      await execute("INSERT INTO verse_highlights (id, userId, verseId, color) VALUES ($1, $2, $3, $4)", [crypto.randomUUID(), userId, verseId, color]);
     }
 
     return NextResponse.json({ success: true });
@@ -60,8 +59,7 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Missing verseId parameter" }, { status: 400 });
     }
 
-    const db = initServerDb();
-    db.prepare("DELETE FROM verse_highlights WHERE userId = ? AND verseId = ?").run(userId, verseId);
+    await execute("DELETE FROM verse_highlights WHERE userId = $1 AND verseId = $2", [userId, verseId]);
 
     return NextResponse.json({ success: true });
   } catch (error: unknown) {

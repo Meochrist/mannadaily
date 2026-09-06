@@ -4,12 +4,11 @@ import RandomMascotMessage from "@/components/dashboard/RandomMascotMessage";
 import GameMap from "@/components/dashboard/GameMap";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import { isAdminEmail } from "@/lib/features";
-import { initServerDb } from "@/server/db";
+import { query } from "@/server/db";
 import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
-// Décoder un JWT simple
 function decodeToken(token: string): { userId: string; email: string; exp: number } | null {
   try {
     const parts = token.split(".");
@@ -45,27 +44,25 @@ export default async function DashboardPage() {
 
   if (userId) {
     try {
-      const db = initServerDb();
-      
-      const user = db.prepare("SELECT id, name, email, meditationProgress FROM users WHERE id = ?").get(userId) as any;
-      if (user) {
-        userName = user.name || "Ami";
-        isAdmin = isAdminEmail(user.email);
+      const user = await query("SELECT id, name, email, meditationProgress FROM users WHERE id = $1", [userId]);
+      if (user.length > 0) {
+        userName = user[0].name || "Ami";
+        isAdmin = isAdminEmail(user[0].email);
       }
 
-      const progress = db.prepare("SELECT totalXP FROM user_progress WHERE userId = ?").get(userId) as any;
-      totalXP = progress?.totalXP ?? 0;
+      const progress = await query("SELECT totalXP FROM user_progress WHERE userId = $1", [userId]);
+      totalXP = progress[0]?.totalXP ?? 0;
 
-      const streak = db.prepare("SELECT currentStreak, lastActivityAt FROM streaks WHERE userId = ?").get(userId) as any;
-      if (streak) {
-        currentStreak = streak.currentStreak;
-        const diffTime = Math.abs(new Date().getTime() - new Date(streak.lastActivityAt).getTime());
+      const streak = await query("SELECT currentStreak, lastActivityAt FROM streaks WHERE userId = $1", [userId]);
+      if (streak.length > 0) {
+        currentStreak = streak[0].currentStreak;
+        const diffTime = Math.abs(new Date().getTime() - new Date(streak[0].lastActivityAt).getTime());
         inactivityDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
       }
 
-      if (user?.meditationProgress) {
+      if (user[0]?.meditationProgress) {
         try {
-          const mp = JSON.parse(user.meditationProgress);
+          const mp = JSON.parse(user[0].meditationProgress);
           const now = new Date();
           const acceptable = new Set(
             [-1, 0, 1].map((delta) =>

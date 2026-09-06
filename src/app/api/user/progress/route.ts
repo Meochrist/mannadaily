@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getServerDb, initServerDb } from '@/server/db';
+import { queryOne } from '@/server/db';
 
 export async function GET(req: Request) {
   try {
@@ -10,11 +10,12 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'userId requis' }, { status: 400 });
     }
 
-    const db = initServerDb();
-
-    const progress = db.prepare('SELECT * FROM user_progress WHERE userId = ?').get(userId);
-    const streak = db.prepare('SELECT * FROM streaks WHERE userId = ?').get(userId);
-    const user = db.prepare('SELECT id, name, email, meditationProgress FROM users WHERE id = ?').get(userId) as any;
+    const progress = await queryOne('SELECT * FROM user_progress WHERE userId = $1', [userId]);
+    const streak = await queryOne('SELECT * FROM streaks WHERE userId = $1', [userId]);
+    const user = await queryOne<{ id: string; name: string; email: string; meditationProgress: string }>(
+      'SELECT id, name, email, meditationProgress FROM users WHERE id = $1',
+      [userId]
+    );
 
     let meditationProgress = null;
     if (user?.meditationProgress) {

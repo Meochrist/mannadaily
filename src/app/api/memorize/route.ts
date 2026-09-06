@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { query, queryOne, execute } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
@@ -14,20 +14,19 @@ export async function GET(req: Request) {
     const decoded = JSON.parse(atob(token.split(".")[1]));
     const userId = decoded.userId;
 
-    const db = initServerDb();
     const now = new Date().toISOString();
 
-    const memorizations = db.prepare(`
+    const memorizations = await query(`
       SELECT * FROM verse_memorizations
-      WHERE userId = ? AND nextReview <= ?
+      WHERE userId = $1 AND nextReview <= $2
       ORDER BY nextReview ASC
-    `).all(userId, now);
+    `, [userId, now]);
 
-    const mastered = db.prepare(`
+    const mastered = await query(`
       SELECT * FROM verse_memorizations
-      WHERE userId = ? AND status = 'mastered'
+      WHERE userId = $1 AND status = 'mastered'
       ORDER BY createdAt DESC
-    `).all(userId);
+    `, [userId]);
 
     return NextResponse.json({ memorizations, mastered });
   } catch (error: unknown) {
@@ -52,7 +51,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Référence et texte requis" }, { status: 400 });
     }
 
-    const db = initServerDb();
     const now = new Date().toISOString();
 
     let verseId = "placeholder-id";
@@ -63,22 +61,22 @@ export async function POST(request: NextRequest) {
       const chapter = parseInt(match[2], 10);
       const verseNum = parseInt(match[3], 10);
 
-      const dbVerse = db.prepare("SELECT id FROM verses WHERE book = ? AND chapter = ? AND verse = ?").get(bookName, chapter, verseNum) as any;
+      const dbVerse = await queryOne("SELECT id FROM verses WHERE book = $1 AND chapter = $2 AND verse = $3", [bookName, chapter, verseNum]);
       if (dbVerse) {
         verseId = dbVerse.id;
       }
     }
 
-    const existing = db.prepare("SELECT id FROM verse_memorizations WHERE userId = ? AND reference = ?").get(userId, reference) as any;
+    const existing = await queryOne("SELECT id FROM verse_memorizations WHERE userId = $1 AND reference = $2", [userId, reference]);
 
     if (existing) {
-      db.prepare(`
-        UPDATE verse_memorizations SET verseText = ?, nextReview = ?, status = 'learning', repetitions = 0, interval = 1, easeFactor = 2.5 WHERE id = ?
-      `).run(verseText, now, existing.id);
+      await execute(`
+        UPDATE verse_memorizations SET verseText = $1, nextReview = $2, status = 'learning', repetitions = 0, interval = 1, easeFactor = 2.5 WHERE id = $3
+      `, [verseText, now, existing.id]);
     } else {
-      db.prepare(`
-        INSERT INTO verse_memorizations (id, userId, verseId, reference, verseText, status, nextReview) VALUES (?, ?, ?, ?, ?, 'learning', ?)
-      `).run(crypto.randomUUID(), userId, verseId, reference, verseText, now);
+      await execute(`
+        INSERT INTO verse_memorizations (id, userId, verseId, reference, verseText, status, nextReview) VALUES ($1, $2, $3, $4, $5, 'learning', $6)
+      `, [crypto.randomUUID(), userId, verseId, reference, verseText, now]);
     }
 
     return NextResponse.json({ success: true });

@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { query } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const db = initServerDb();
-    const verses = db.prepare("SELECT DISTINCT translation FROM bible_verses ORDER BY translation").all();
+    const verses = await query("SELECT DISTINCT translation FROM bible_verses ORDER BY translation");
     const translations = verses.map((v: any) => v.translation);
 
     return NextResponse.json({ translations });

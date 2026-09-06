@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { queryOne, execute } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
@@ -34,29 +34,29 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { readingReminders, notificationTime, favoriteMascot, onboardingCompleted } = body;
 
-    const db = initServerDb();
     const updates: string[] = [];
     const params: any[] = [];
+    let paramIndex = 1;
 
     if (readingReminders !== undefined) {
-      updates.push("readingReminders = ?");
+      updates.push(`readingReminders = $${paramIndex++}`);
       params.push(Boolean(readingReminders) ? 1 : 0);
     }
 
     if (onboardingCompleted !== undefined) {
-      updates.push("onboardingCompleted = ?");
+      updates.push(`onboardingCompleted = $${paramIndex++}`);
       params.push(Boolean(onboardingCompleted) ? 1 : 0);
     }
 
     if (favoriteMascot !== undefined) {
-      updates.push("favoriteMascot = ?");
+      updates.push(`favoriteMascot = $${paramIndex++}`);
       params.push(favoriteMascot);
     }
 
     if (notificationTime !== undefined) {
       const allowedTimes = ["07:00", "12:00", "19:00", "21:00"];
       if (allowedTimes.includes(notificationTime)) {
-        updates.push("notificationTime = ?");
+        updates.push(`notificationTime = $${paramIndex++}`);
         params.push(notificationTime);
       } else {
         return NextResponse.json({ error: "Heure de notification invalide" }, { status: 400 });
@@ -67,16 +67,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Aucune mise à jour" }, { status: 400 });
     }
 
-    updates.push("updatedAt = ?");
+    updates.push(`updatedAt = $${paramIndex++}`);
     params.push(new Date().toISOString());
     params.push(userId);
 
-    db.prepare(`UPDATE users SET ${updates.join(", ")} WHERE id = ?`).run(...params);
+    await execute(`UPDATE users SET ${updates.join(", ")} WHERE id = $${paramIndex}`, params);
 
-    const updatedUser = db.prepare(`
-      SELECT id, readingReminders, notificationTime, onboardingCompleted, favoriteMascot 
-      FROM users WHERE id = ?
-    `).get(userId);
+    const updatedUser = await queryOne(
+      `SELECT id, readingReminders, notificationTime, onboardingCompleted, favoriteMascot FROM users WHERE id = $1`,
+      [userId]
+    );
 
     return NextResponse.json({ success: true, user: updatedUser });
   } catch (error: unknown) {
@@ -101,12 +101,11 @@ export async function GET(req: Request) {
     }
 
     const userId = decoded.userId;
-    const db = initServerDb();
 
-    const user = db.prepare(`
-      SELECT readingReminders, notificationTime, onboardingCompleted, favoriteMascot 
-      FROM users WHERE id = ?
-    `).get(userId);
+    const user = await queryOne(
+      `SELECT readingReminders, notificationTime, onboardingCompleted, favoriteMascot FROM users WHERE id = $1`,
+      [userId]
+    );
 
     if (!user) {
       return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });

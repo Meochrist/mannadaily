@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getServerDb, initServerDb } from '@/server/db';
+import { queryOne } from '@/server/db';
 
 export async function GET(req: Request) {
   try {
@@ -10,9 +10,10 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'userId requis' }, { status: 400 });
     }
 
-    const db = initServerDb();
-
-    const user = db.prepare("SELECT id, name, email FROM users WHERE id = ?").get(userId) as any;
+    const user = await queryOne<{ id: string; name: string; email: string }>(
+      "SELECT id, name, email FROM users WHERE id = $1",
+      [userId]
+    );
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }

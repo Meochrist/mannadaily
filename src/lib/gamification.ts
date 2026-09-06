@@ -1,5 +1,5 @@
-// Gamification — Version SQLite (remplace Prisma)
-import { getServerDb, initServerDb } from '@/server/db';
+// Gamification — Version PostgreSQL (remplace SQLite)
+import { query, queryOne, execute, insert } from '@/server/db';
 import { XP_RULES } from '@/types';
 import { differenceInCalendarDays } from 'date-fns';
 import { getLevelFromXP, getXPProgress } from '@/lib/xp-utils';
@@ -53,35 +53,33 @@ export async function awardXP(
       lingotsToAdd = 5;
     }
 
-    const db = initServerDb();
-
-    let progress = db.prepare('SELECT * FROM user_progress WHERE userId = ?').get(userId) as Progress | undefined;
+    let progress = await queryOne<Progress>('SELECT * FROM user_progress WHERE userId = $1', [userId]);
 
     if (!progress) {
-      db.prepare(`
+      await execute(`
         INSERT INTO user_progress (id, userId, totalXP, level, versesLearned, sessionsTotal, lingots)
-        VALUES (?, ?, 0, 'Semence', 0, 0, 0)
-      `).run(crypto.randomUUID(), userId);
-      progress = db.prepare('SELECT * FROM user_progress WHERE userId = ?').get(userId) as Progress;
+        VALUES ($1, $2, 0, 'Semence', 0, 0, 0)
+      `, [crypto.randomUUID(), userId]);
+      progress = await queryOne<Progress>('SELECT * FROM user_progress WHERE userId = $1', [userId]);
     }
 
-    const oldXP = progress.totalXP;
+    const oldXP = progress!.totalXP;
     const newXP = oldXP + xpToAdd;
 
     const oldLevelInfo = getLevelFromXP(oldXP);
     const newLevelInfo = getLevelFromXP(newXP);
 
     const leveledUp = newLevelInfo.level > oldLevelInfo.level;
-    const newLingots = progress.lingots + lingotsToAdd;
+    const newLingots = progress!.lingots + lingotsToAdd;
 
-    db.prepare(`
-      UPDATE user_progress SET totalXP = ?, level = ?, lingots = ? WHERE userId = ?
-    `).run(newXP, newLevelInfo.name, newLingots, userId);
+    await execute(`
+      UPDATE user_progress SET totalXP = $1, level = $2, lingots = $3 WHERE userId = $4
+    `, [newXP, newLevelInfo.name, newLingots, userId]);
 
     if (xpToAdd > 0) {
-      db.prepare(`
-        INSERT INTO xp_transactions (id, userId, amount, reason) VALUES (?, ?, ?, ?)
-      `).run(crypto.randomUUID(), userId, xpToAdd, action);
+      await execute(`
+        INSERT INTO xp_transactions (id, userId, amount, reason) VALUES ($1, $2, $3, $4)
+      `, [crypto.randomUUID(), userId, xpToAdd, action]);
     }
 
     return {
@@ -100,12 +98,11 @@ export async function awardXP(
 export async function checkDayCompletion(userId: string) {
   try {
     const todayStr = new Date().toISOString().split('T')[0];
-    const db = initServerDb();
 
-    const progress = db.prepare(`
+    const progress = await queryOne<Progress>(`
       SELECT morningSessionToday, middaySessionToday, eveningSessionToday, lastSessionDate
-      FROM user_progress WHERE userId = ?
-    `).get(userId) as Progress | undefined;
+      FROM user_progress WHERE userId = $1
+    `, [userId]);
 
     if (!progress) {
       return { morningDone: false, middayDone: false, eveningDone: false, dayComplete: false };
@@ -131,40 +128,39 @@ export async function checkDayCompletion(userId: string) {
 export async function updateStreak(userId: string): Promise<number> {
   try {
     const today = new Date();
-    const db = initServerDb();
 
-    let streak = db.prepare('SELECT * FROM streaks WHERE userId = ?').get(userId) as Streak | undefined;
+    let streak = await queryOne<Streak>('SELECT * FROM streaks WHERE userId = $1', [userId]);
 
     if (!streak) {
-      db.prepare(`
+      await execute(`
         INSERT INTO streaks (id, userId, currentStreak, longestStreak, lastActivityAt)
-        VALUES (?, ?, 0, 0, ?)
-      `).run(crypto.randomUUID(), userId, new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
-      streak = db.prepare('SELECT * FROM streaks WHERE userId = ?').get(userId) as Streak;
+        VALUES ($1, $2, 0, 0, $3)
+      `, [crypto.randomUUID(), userId, new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()]);
+      streak = await queryOne<Streak>('SELECT * FROM streaks WHERE userId = $1', [userId]);
     }
 
-    const daysDiff = differenceInCalendarDays(today, new Date(streak.lastActivityAt));
+    const daysDiff = differenceInCalendarDays(today, new Date(streak!.lastActivityAt));
 
     let newCurrentStreak: number;
 
     if (daysDiff === 0) {
-      return streak.currentStreak;
+      return streak!.currentStreak;
     } else if (daysDiff === 1) {
-      newCurrentStreak = streak.currentStreak + 1;
+      newCurrentStreak = streak!.currentStreak + 1;
     } else {
       const freezeResult = await applyStreakFreezeIfNeeded(userId);
       if (freezeResult.freezeUsed) {
-        newCurrentStreak = streak.currentStreak;
+        newCurrentStreak = streak!.currentStreak;
       } else {
         newCurrentStreak = 1;
       }
     }
 
-    const newLongestStreak = Math.max(streak.longestStreak, newCurrentStreak);
+    const newLongestStreak = Math.max(streak!.longestStreak, newCurrentStreak);
 
-    db.prepare(`
-      UPDATE streaks SET currentStreak = ?, longestStreak = ?, lastActivityAt = ? WHERE userId = ?
-    `).run(newCurrentStreak, newLongestStreak, today.toISOString(), userId);
+    await execute(`
+      UPDATE streaks SET currentStreak = $1, longestStreak = $2, lastActivityAt = $3 WHERE userId = $4
+    `, [newCurrentStreak, newLongestStreak, today.toISOString(), userId]);
 
     return newCurrentStreak;
   } catch (error: unknown) {
@@ -175,10 +171,8 @@ export async function updateStreak(userId: string): Promise<number> {
 
 export async function checkAndAwardBadges(userId: string) {
   try {
-    const db = initServerDb();
-
-    const progress = db.prepare('SELECT * FROM user_progress WHERE userId = ?').get(userId) as Progress | undefined;
-    const streak = db.prepare('SELECT * FROM streaks WHERE userId = ?').get(userId) as Streak | undefined;
+    const progress = await queryOne<Progress>('SELECT * FROM user_progress WHERE userId = $1', [userId]);
+    const streak = await queryOne<Streak>('SELECT * FROM streaks WHERE userId = $1', [userId]);
 
     if (!progress) return [];
 
@@ -198,26 +192,26 @@ export async function checkAndAwardBadges(userId: string) {
 
     for (const b of badgeConditions) {
       if (b.met) {
-        let badge = db.prepare('SELECT * FROM badges WHERE name = ?').get(b.name) as { id: string; name: string; icon: string; description: string } | undefined;
+        let badge = await queryOne<{ id: string; name: string; icon: string; description: string }>('SELECT * FROM badges WHERE name = $1', [b.name]);
 
         if (!badge) {
-          db.prepare(`
-            INSERT INTO badges (id, name, description, icon, condition) VALUES (?, ?, ?, ?, ?)
-          `).run(crypto.randomUUID(), b.name, b.description, b.icon, b.condition);
-          badge = db.prepare('SELECT * FROM badges WHERE name = ?').get(b.name) as { id: string; name: string; icon: string; description: string };
+          await execute(`
+            INSERT INTO badges (id, name, description, icon, condition) VALUES ($1, $2, $3, $4, $5)
+          `, [crypto.randomUUID(), b.name, b.description, b.icon, b.condition]);
+          badge = await queryOne<{ id: string; name: string; icon: string; description: string }>('SELECT * FROM badges WHERE name = $1', [b.name]);
         }
 
-        const alreadyHasBadge = db.prepare('SELECT * FROM user_badges WHERE userId = ? AND badgeId = ?').get(userId, badge.id);
+        const alreadyHasBadge = await queryOne('SELECT * FROM user_badges WHERE userId = $1 AND badgeId = $2', [userId, badge!.id]);
 
         if (!alreadyHasBadge) {
-          db.prepare(`
-            INSERT INTO user_badges (id, userId, badgeId) VALUES (?, ?, ?)
-          `).run(crypto.randomUUID(), userId, badge.id);
+          await execute(`
+            INSERT INTO user_badges (id, userId, badgeId) VALUES ($1, $2, $3)
+          `, [crypto.randomUUID(), userId, badge!.id]);
 
           newlyAwardedBadges.push({
-            name: badge.name,
-            icon: badge.icon,
-            description: badge.description,
+            name: badge!.name,
+            icon: badge!.icon,
+            description: badge!.description,
           });
         }
       }
@@ -231,39 +225,34 @@ export async function checkAndAwardBadges(userId: string) {
 }
 
 export async function awardLingots(userId: string, amount: number): Promise<number> {
-  const db = initServerDb();
-
-  db.prepare(`
+  await execute(`
     INSERT INTO user_progress (id, userId, totalXP, level, versesLearned, sessionsTotal, lingots)
-    VALUES (?, ?, 0, 'Semence', 0, 0, ?)
-    ON CONFLICT(userId) DO UPDATE SET lingots = lingots + ?
-  `).run(crypto.randomUUID(), userId, amount, amount);
+    VALUES ($1, $2, 0, 'Semence', 0, 0, $3)
+    ON CONFLICT(userId) DO UPDATE SET lingots = user_progress.lingots + EXCLUDED.lingots
+  `, [crypto.randomUUID(), userId, amount]);
 
-  const progress = db.prepare('SELECT lingots FROM user_progress WHERE userId = ?').get(userId) as { lingots: number };
-  return progress.lingots;
+  const progress = await queryOne<{ lingots: number }>('SELECT lingots FROM user_progress WHERE userId = $1', [userId]);
+  return progress!.lingots;
 }
 
 export async function spendLingots(userId: string, amount: number): Promise<{ success: boolean; newTotal: number }> {
-  const db = initServerDb();
-
-  const progress = db.prepare('SELECT lingots FROM user_progress WHERE userId = ?').get(userId) as { lingots: number } | undefined;
+  const progress = await queryOne<{ lingots: number }>('SELECT lingots FROM user_progress WHERE userId = $1', [userId]);
 
   if (!progress || progress.lingots < amount) {
     return { success: false, newTotal: progress ? progress.lingots : 0 };
   }
 
-  db.prepare('UPDATE user_progress SET lingots = lingots - ? WHERE userId = ?').run(amount, userId);
+  await execute('UPDATE user_progress SET lingots = lingots - $1 WHERE userId = $2', [amount, userId]);
 
-  const updated = db.prepare('SELECT lingots FROM user_progress WHERE userId = ?').get(userId) as { lingots: number };
-  return { success: true, newTotal: updated.lingots };
+  const updated = await queryOne<{ lingots: number }>('SELECT lingots FROM user_progress WHERE userId = $1', [userId]);
+  return { success: true, newTotal: updated!.lingots };
 }
 
 export async function buyStreakFreeze(userId: string): Promise<{ success: boolean; freezesAvailable: number; lingotsRemaining: number }> {
   const spendResult = await spendLingots(userId, 10);
 
   if (!spendResult.success) {
-    const db = initServerDb();
-    const freeze = db.prepare('SELECT freezesAvailable FROM streak_freeze WHERE userId = ?').get(userId) as { freezesAvailable: number } | undefined;
+    const freeze = await queryOne<{ freezesAvailable: number }>('SELECT freezesAvailable FROM streak_freeze WHERE userId = $1', [userId]);
     return {
       success: false,
       freezesAvailable: freeze ? freeze.freezesAvailable : 0,
@@ -271,30 +260,27 @@ export async function buyStreakFreeze(userId: string): Promise<{ success: boolea
     };
   }
 
-  const db = initServerDb();
-  db.prepare(`
+  await execute(`
     INSERT INTO streak_freeze (id, userId, freezesAvailable, lastUsedAt)
-    VALUES (?, ?, 1, NULL)
+    VALUES ($1, $2, 1, NULL)
     ON CONFLICT(userId) DO UPDATE SET freezesAvailable = freezesAvailable + 1
-  `).run(crypto.randomUUID(), userId);
+  `, [crypto.randomUUID(), userId]);
 
-  const freeze = db.prepare('SELECT freezesAvailable FROM streak_freeze WHERE userId = ?').get(userId) as { freezesAvailable: number };
+  const freeze = await queryOne<{ freezesAvailable: number }>('SELECT freezesAvailable FROM streak_freeze WHERE userId = $1', [userId]);
   return {
     success: true,
-    freezesAvailable: freeze.freezesAvailable,
+    freezesAvailable: freeze!.freezesAvailable,
     lingotsRemaining: spendResult.newTotal
   };
 }
 
 export async function applyStreakFreezeIfNeeded(userId: string): Promise<{ freezeUsed: boolean }> {
-  const db = initServerDb();
-
-  const freeze = db.prepare('SELECT * FROM streak_freeze WHERE userId = ?').get(userId) as { freezesAvailable: number } | undefined;
+  const freeze = await queryOne<{ freezesAvailable: number }>('SELECT * FROM streak_freeze WHERE userId = $1', [userId]);
 
   if (freeze && freeze.freezesAvailable > 0) {
-    db.prepare(`
-      UPDATE streak_freeze SET freezesAvailable = freezesAvailable - 1, lastUsedAt = ? WHERE userId = ?
-    `).run(new Date().toISOString(), userId);
+    await execute(`
+      UPDATE streak_freeze SET freezesAvailable = freezesAvailable - 1, lastUsedAt = $1 WHERE userId = $2
+    `, [new Date().toISOString(), userId]);
     return { freezeUsed: true };
   }
 

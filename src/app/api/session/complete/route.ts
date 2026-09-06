@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query, queryOne } from "@/server/sql";
+import { query, queryOne, execute } from "@/server/db";
 import { awardXP, updateStreak, checkAndAwardBadges } from "@/lib/gamification";
 import { addXPToLeague } from "@/lib/leaderboard";
 import { trackEvent } from "@/lib/posthog";
@@ -52,10 +52,10 @@ export async function POST(req: Request) {
     const activityDate = getActivityDate();
 
     // Idempotency guard
-    const existingSession = queryOne("SELECT id FROM daily_sessions WHERE userId = ? AND activityDate = ? AND period = ?", [userId, activityDate, resolvedPeriod]);
+    const existingSession = await queryOne("SELECT id FROM daily_sessions WHERE userId = $1 AND activityDate = $2 AND period = $3", [userId, activityDate, resolvedPeriod]);
     if (existingSession) {
-      const progress = queryOne<any>("SELECT * FROM user_progress WHERE userId = ?", [userId]);
-      const streak = queryOne<{currentStreak: number}>("SELECT currentStreak FROM streaks WHERE userId = ?", [userId]);
+      const progress = await queryOne("SELECT * FROM user_progress WHERE userId = $1", [userId]);
+      const streak = await queryOne("SELECT currentStreak FROM streaks WHERE userId = $1", [userId]);
       return NextResponse.json({
         success: true,
         alreadyCompleted: true,
@@ -75,11 +75,11 @@ export async function POST(req: Request) {
     }
 
     // Create session
-    query("INSERT INTO daily_sessions (id, userId, type, period, activityDate, xpEarned, duration, notes) VALUES (?, ?, ?, ?, ?, 15, 120, ?)", [crypto.randomUUID(), userId, type, resolvedPeriod, activityDate, typeof notes === "string" && notes.trim() ? notes.trim() : null]);
+    await execute("INSERT INTO daily_sessions (id, userId, type, period, activityDate, xpEarned, duration, notes) VALUES ($1, $2, $3, $4, $5, 15, 120, $6)", [crypto.randomUUID(), userId, type, resolvedPeriod, activityDate, typeof notes === "string" && notes.trim() ? notes.trim() : null]);
 
     // Classic type is already rewarded via mini-sessions
     if (type === "classic") {
-      const progress = queryOne<any>("SELECT * FROM user_progress WHERE userId = ?", [userId]);
+      const progress = await queryOne("SELECT * FROM user_progress WHERE userId = $1", [userId]);
       const sameDay = progress?.lastSessionDate === activityDate;
       const morningDone = Boolean(sameDay && progress?.morningSessionToday);
       const middayDone = Boolean(sameDay && progress?.middaySessionToday);
@@ -102,10 +102,10 @@ export async function POST(req: Request) {
       });
     }
 
-    let progress = queryOne<any>("SELECT * FROM user_progress WHERE userId = ?", [userId]);
+    let progress = await queryOne("SELECT * FROM user_progress WHERE userId = $1", [userId]);
     if (!progress) {
-      query("INSERT INTO user_progress (id, userId, totalXP, level, versesLearned, sessionsTotal, lingots) VALUES (?, ?, 0, 'Semence', 0, 0, 0)", [crypto.randomUUID(), userId]);
-      progress = queryOne<any>("SELECT * FROM user_progress WHERE userId = ?", [userId]);
+      await execute("INSERT INTO user_progress (id, userId, totalXP, level, versesLearned, sessionsTotal, lingots) VALUES ($1, $2, 0, 'Semence', 0, 0, 0)", [crypto.randomUUID(), userId]);
+      progress = await queryOne("SELECT * FROM user_progress WHERE userId = $1", [userId]);
     }
 
     const sameDay = progress.lastSessionDate === activityDate;
@@ -120,7 +120,7 @@ export async function POST(req: Request) {
     const dayComplete = morningDone && middayDone && eveningDone;
     const dayJustCompleted = dayComplete && !wasDayComplete;
 
-    query("UPDATE user_progress SET morningSessionToday = ?, middaySessionToday = ?, eveningSessionToday = ?, lastSessionDate = ?, sessionsTotal = sessionsTotal + 1 WHERE userId = ?", [morningDone, middayDone, eveningDone, activityDate, userId]);
+    await execute("UPDATE user_progress SET morningSessionToday = $1, middaySessionToday = $2, eveningSessionToday = $3, lastSessionDate = $4, sessionsTotal = sessionsTotal + 1 WHERE userId = $5", [morningDone, middayDone, eveningDone, activityDate, userId]);
 
     const baseXPResult = await awardXP(userId, "morning_session");
     let finalXPResult = baseXPResult;

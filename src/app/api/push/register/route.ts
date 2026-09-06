@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { query, queryOne, execute } from "@/server/db";
 
 export async function POST(req: Request) {
   try {
@@ -17,16 +17,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Token manquant" }, { status: 400 });
     }
 
-    const db = initServerDb();
-
-    const existing = db.prepare("SELECT id FROM push_subscriptions WHERE endpoint = ?").get(fcmToken);
+    const existing = await queryOne("SELECT id FROM push_subscriptions WHERE endpoint = $1", [fcmToken]);
 
     if (existing) {
-      db.prepare("UPDATE push_subscriptions SET userId = ? WHERE endpoint = ?").run(userId, fcmToken);
+      await execute("UPDATE push_subscriptions SET userId = $1 WHERE endpoint = $2", [userId, fcmToken]);
     } else {
-      db.prepare(`
-        INSERT INTO push_subscriptions (id, userId, endpoint, p256dh, auth) VALUES (?, ?, ?, ?, ?)
-      `).run(crypto.randomUUID(), userId, fcmToken, fcmToken, fcmToken);
+      await execute(`INSERT INTO push_subscriptions (id, userId, endpoint, p256dh, auth) VALUES ($1, $2, $3, $4, $5)`,
+        [crypto.randomUUID(), userId, fcmToken, fcmToken, fcmToken]);
     }
 
     return NextResponse.json({ success: true });

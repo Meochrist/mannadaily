@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { queryOne, execute } from "@/server/db";
 import { 
   generateMeditation, 
   generatePersonalizedSummary, 
@@ -10,7 +10,6 @@ import {
 
 export const dynamic = "force-dynamic";
 
-// Décoder un JWT simple
 function decodeToken(token: string): { userId: string; email: string; exp: number } | null {
   try {
     const parts = token.split(".");
@@ -39,7 +38,6 @@ function parseReference(ref: string) {
 
 export async function POST(req: Request) {
   try {
-    // Auth JWT
     const authHeader = req.headers.get("authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -69,8 +67,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Answers are invalid or too long" }, { status: 400 });
     }
 
-    const db = initServerDb();
-
     // Prise en charge du commentaire IA
     if (type === "commentary") {
       if (!verse || !reference) {
@@ -78,18 +74,17 @@ export async function POST(req: Request) {
       }
       const { book, chapter, verse: verseNumber } = parseReference(reference);
       
-      const bibleVerse = db.prepare("SELECT * FROM bible_verses WHERE book = ? AND chapter = ? AND verse = ?").get(book, chapter, verseNumber) as any;
-      const bookNumber = bibleVerse?.bookNumber || 1;
+      const bibleVerse = await queryOne("SELECT * FROM bible_verses WHERE book = $1 AND chapter = $2 AND verse = $3", [book, chapter, verseNumber]);
+      const bookNumber = (bibleVerse as any)?.bookNumber || 1;
 
       const commentaryText = await generateCommentary(book, chapter, verseNumber, verse);
 
-      const id = crypto.randomUUID();
-      db.prepare(`
+      await execute(`
         INSERT INTO bible_commentaries (id, book, chapter, verse, author, content, language)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `).run(id, bookNumber, chapter, verseNumber, "MannaDaily AI", commentaryText, "fr");
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `, [crypto.randomUUID(), bookNumber, chapter, verseNumber, "MannaDaily AI", commentaryText, "fr"]);
 
-      return NextResponse.json({ commentary: { id, content: commentaryText } });
+      return NextResponse.json({ commentary: { content: commentaryText } });
     }
 
     // Prise en charge du chat biblique
@@ -126,22 +121,21 @@ export async function POST(req: Request) {
     const { book, chapter, verse: verseNumber } = parseReference(reference);
 
     // Upsert le verset
-    const existingVerse = db.prepare("SELECT id FROM verses WHERE book = ? AND chapter = ? AND verse = ? AND translation = ?").get(book, chapter, verseNumber, "LSG");
+    const existingVerse = await queryOne("SELECT id FROM verses WHERE book = $1 AND chapter = $2 AND verse = $3 AND translation = $4", [book, chapter, verseNumber, "LSG"]);
     let verseId: string;
     
     if (existingVerse) {
       verseId = (existingVerse as any).id;
     } else {
       verseId = crypto.randomUUID();
-      db.prepare("INSERT INTO verses (id, book, chapter, verse, text, translation) VALUES (?, ?, ?, ?, ?, ?)").run(verseId, book, chapter, verseNumber, verse, "LSG");
+      await execute("INSERT INTO verses (id, book, chapter, verse, text, translation) VALUES ($1, $2, $3, $4, $5, $6)", [verseId, book, chapter, verseNumber, verse, "LSG"]);
     }
 
     const generationType = type as "meditation" | "contexte_biblique" | "contexte_historique" | "priere";
     const meditationText = await generateMeditation(verse, reference, theme, generationType);
 
-    // On ne sauvegarde dans l'historique d'étude que la méditation classique de base
     if (type === "meditation") {
-      db.prepare("INSERT INTO meditations (id, verseId, content) VALUES (?, ?, ?)").run(crypto.randomUUID(), verseId, meditationText);
+      await execute("INSERT INTO meditations (id, verseId, content) VALUES ($1, $2, $3)", [crypto.randomUUID(), verseId, meditationText]);
     }
 
     return NextResponse.json({ meditation: meditationText });

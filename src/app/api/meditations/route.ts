@@ -1,60 +1,39 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { query, queryOne, execute } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
-// Décoder un JWT simple
-function decodeToken(token: string): { userId: string; email: string; exp: number } | null {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const payload = JSON.parse(atob(parts[1]));
-    if (payload.exp < Math.floor(Date.now() / 1000)) return null;
-    return { userId: payload.userId, email: payload.email, exp: payload.exp };
-  } catch {
-    return null;
-  }
-}
-
 export async function GET(req: Request) {
   try {
-    // Auth JWT
     const authHeader = req.headers.get("authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const token = authHeader.slice(7);
-    const decoded = decodeToken(token);
-    if (!decoded?.userId) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
-
+    const decoded = JSON.parse(atob(token.split(".")[1]));
     const userId = decoded.userId;
+
     const { searchParams } = new URL(req.url);
     const sessionId = searchParams.get("sessionId");
 
-    const db = initServerDb();
-
-    // Single session view
     if (sessionId) {
-      const s = db.prepare(`
+      const s = await query(`
         SELECT id, type, period, xpEarned, duration, notes, createdAt 
-        FROM daily_sessions WHERE id = ? AND userId = ?
-      `).get(sessionId, userId);
+        FROM daily_sessions WHERE id = $1 AND userId = $2
+      `, [sessionId, userId]);
 
-      if (!s) {
+      if (s.length === 0) {
         return NextResponse.json({ error: "Session not found" }, { status: 404 });
       }
 
-      return NextResponse.json(s);
+      return NextResponse.json(s[0]);
     }
 
-    // List all sessions
-    const sessions = db.prepare(`
+    const sessions = await query(`
       SELECT id, type, period, xpEarned, duration, notes, createdAt 
-      FROM daily_sessions WHERE userId = ? ORDER BY createdAt DESC
-    `).all(userId);
+      FROM daily_sessions WHERE userId = $1 ORDER BY createdAt DESC
+    `, [userId]);
 
     return NextResponse.json({ sessions });
   } catch (error: unknown) {

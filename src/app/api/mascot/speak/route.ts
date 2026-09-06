@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { query } from "@/server/db";
 import { getMascotReply, UserState } from "@/lib/mascots";
 import { getLevelFromXP } from "@/lib/gamification";
 
@@ -39,21 +39,20 @@ export async function POST(req: Request) {
       level: 1,
     };
 
-    const db = initServerDb();
-    const progress = db.prepare("SELECT * FROM user_progress WHERE userId = ?").get(userId) as any;
-    const streak = db.prepare("SELECT * FROM streaks WHERE userId = ?").get(userId) as any;
+    const progress = await query("SELECT * FROM user_progress WHERE userId = $1", [userId]);
+    const streak = await query("SELECT * FROM streaks WHERE userId = $1", [userId]);
 
-    if (progress) {
-      const levelInfo = getLevelFromXP(progress.totalXP);
-      finalUserState.xp = progress.totalXP;
+    if (progress.length > 0) {
+      const levelInfo = getLevelFromXP(progress[0].totalXP);
+      finalUserState.xp = progress[0].totalXP;
       finalUserState.level = levelInfo.level;
     }
 
-    if (streak) {
-      finalUserState.streakCount = streak.currentStreak;
+    if (streak.length > 0) {
+      finalUserState.streakCount = streak[0].currentStreak;
       
-      if (streak.lastActivityAt) {
-        const lastActivity = new Date(streak.lastActivityAt).getTime();
+      if (streak[0].lastActivityAt) {
+        const lastActivity = new Date(streak[0].lastActivityAt).getTime();
         const now = Date.now();
         const hoursSinceLastActivity = (now - lastActivity) / (1000 * 60 * 60);
         finalUserState.hasMissedADay = hoursSinceLastActivity > 36;

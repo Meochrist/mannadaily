@@ -1,55 +1,54 @@
-import { initServerDb } from '@/server/db';
+import { query, queryOne, execute } from '@/server/db';
 import { startOfWeek, endOfWeek } from 'date-fns';
 
 /**
  * Recalcule et met à jour les rangs (ranks) de tous les membres d'une ligue donnée.
  */
-function recalculateRanks(leagueId: string) {
-  const db = initServerDb();
-  const members = db.prepare('SELECT * FROM league_members WHERE leagueId = ? ORDER BY xpThisWeek DESC').all(leagueId) as { id: string }[];
+async function recalculateRanks(leagueId: string) {
+  const members = await query<{ id: string }>(
+    'SELECT * FROM league_members WHERE leagueId = $1 ORDER BY xpThisWeek DESC',
+    [leagueId]
+  );
   
   for (let i = 0; i < members.length; i++) {
-    db.prepare('UPDATE league_members SET rank = ? WHERE id = ?').run(i + 1, members[i].id);
+    await execute('UPDATE league_members SET rank = $1 WHERE id = $2', [i + 1, members[i].id]);
   }
 }
 
 /**
  * Récupère ou crée la ligue active pour l'utilisateur de la semaine en cours.
- * Intègre des bots mascottes fictifs pour simuler un classement vivant (wow factor).
  */
 export async function getOrCreateLeague(userId: string) {
   const today = new Date();
-  const weekStart = startOfWeek(today, { weekStartsOn: 1 }); // Lundi
-  const weekEnd = endOfWeek(today, { weekStartsOn: 1 });     // Dimanche
-
-  const db = initServerDb();
+  const weekStart = startOfWeek(today, { weekStartsOn: 1 });
+  const weekEnd = endOfWeek(today, { weekStartsOn: 1 });
 
   // 1. Chercher si l'utilisateur est déjà inscrit dans une ligue cette semaine
-  const memberRecord = db.prepare(`
+  const memberRecord = await query(`
     SELECT lm.*, l.id as league_id, l.name, l.tier, l.weekStart, l.weekEnd
     FROM league_members lm
     JOIN leagues l ON lm.leagueId = l.id
-    WHERE lm.userId = ? AND l.weekStart = ? AND l.weekEnd = ?
-  `).get(userId, weekStart.toISOString(), weekEnd.toISOString());
+    WHERE lm.userId = $1 AND l.weekStart = $2 AND l.weekEnd = $3
+  `, [userId, weekStart.toISOString(), weekEnd.toISOString()]);
 
   let leagueId: string;
 
-  if (!memberRecord) {
+  if (memberRecord.length === 0) {
     // 2. Si aucune adhésion, on cherche s'il existe une ligue Bronze active cette semaine
-    let league = db.prepare('SELECT * FROM leagues WHERE tier = ? AND weekStart = ? AND weekEnd = ?').get('bronze', weekStart.toISOString(), weekEnd.toISOString()) as { id: string } | undefined;
+    let league = await queryOne(
+      'SELECT * FROM leagues WHERE tier = $1 AND weekStart = $2 AND weekEnd = $3',
+      ['bronze', weekStart.toISOString(), weekEnd.toISOString()]
+    ) as { id: string } | null;
 
     if (!league) {
       // Création de la ligue de Bronze pour la semaine
       leagueId = crypto.randomUUID();
-      db.prepare('INSERT INTO leagues (id, name, tier, weekStart, weekEnd) VALUES (?, ?, ?, ?, ?)').run(
-        leagueId,
-        'Ligue de Bronze',
-        'bronze',
-        weekStart.toISOString(),
-        weekEnd.toISOString()
+      await execute(
+        'INSERT INTO leagues (id, name, tier, weekStart, weekEnd) VALUES ($1, $2, $3, $4, $5)',
+        [leagueId, 'Ligue de Bronze', 'bronze', weekStart.toISOString(), weekEnd.toISOString()]
       );
 
-      // Création des comptes de bots mascottes pour simuler la compétition
+      // Création des comptes de bots mascottes
       const bots = [
         { id: 'bot_samson', name: 'Samson', email: 'samson@mascot.local' },
         { id: 'bot_esther', name: 'Esther', email: 'esther@mascot.local' },
@@ -58,38 +57,56 @@ export async function getOrCreateLeague(userId: string) {
       ];
 
       for (const bot of bots) {
-        db.prepare('INSERT OR IGNORE INTO users (id, name, email) VALUES (?, ?, ?)').run(bot.id, bot.name, bot.email);
+        await execute(
+          'INSERT INTO users (id, name, email) VALUES ($1, $2, $3) ON CONFLICT (id) DO NOTHING',
+          [bot.id, bot.name, bot.email]
+        );
       }
 
-      // Ajout des bots avec des scores de base dans cette ligue
-      db.prepare('INSERT INTO league_members (id, leagueId, userId, xpThisWeek, rank) VALUES (?, ?, ?, ?, ?)').run(crypto.randomUUID(), leagueId, 'bot_samson', 80, 1);
-      db.prepare('INSERT INTO league_members (id, leagueId, userId, xpThisWeek, rank) VALUES (?, ?, ?, ?, ?)').run(crypto.randomUUID(), leagueId, 'bot_esther', 60, 2);
-      db.prepare('INSERT INTO league_members (id, leagueId, userId, xpThisWeek, rank) VALUES (?, ?, ?, ?, ?)').run(crypto.randomUUID(), leagueId, 'bot_noe', 40, 3);
-      db.prepare('INSERT INTO league_members (id, leagueId, userId, xpThisWeek, rank) VALUES (?, ?, ?, ?, ?)').run(crypto.randomUUID(), leagueId, 'bot_gedeon', 15, 4);
+      // Ajout des bots avec des scores de base
+      await execute(
+        'INSERT INTO league_members (id, leagueId, userId, xpThisWeek, rank) VALUES ($1, $2, $3, $4, $5)',
+        [crypto.randomUUID(), leagueId, 'bot_samson', 80, 1]
+      );
+      await execute(
+        'INSERT INTO league_members (id, leagueId, userId, xpThisWeek, rank) VALUES ($1, $2, $3, $4, $5)',
+        [crypto.randomUUID(), leagueId, 'bot_esther', 60, 2]
+      );
+      await execute(
+        'INSERT INTO league_members (id, leagueId, userId, xpThisWeek, rank) VALUES ($1, $2, $3, $4, $5)',
+        [crypto.randomUUID(), leagueId, 'bot_noe', 40, 3]
+      );
+      await execute(
+        'INSERT INTO league_members (id, leagueId, userId, xpThisWeek, rank) VALUES ($1, $2, $3, $4, $5)',
+        [crypto.randomUUID(), leagueId, 'bot_gedeon', 15, 4]
+      );
     } else {
       leagueId = league.id;
     }
 
     // Inscription de notre utilisateur dans la ligue
-    db.prepare('INSERT INTO league_members (id, leagueId, userId, xpThisWeek, rank) VALUES (?, ?, ?, ?, ?)').run(crypto.randomUUID(), leagueId, userId, 0, 5);
+    await execute(
+      'INSERT INTO league_members (id, leagueId, userId, xpThisWeek, rank) VALUES ($1, $2, $3, $4, $5)',
+      [crypto.randomUUID(), leagueId, userId, 0, 5]
+    );
 
     // Recalculer les rangs de la ligue
-    recalculateRanks(leagueId);
+    await recalculateRanks(leagueId);
   } else {
-    leagueId = (memberRecord as { league_id: string }).league_id;
+    leagueId = (memberRecord[0] as any).league_id;
   }
 
   // Récupérer la ligue ordonnée
-  return db.prepare(`
+  return await query(`
     SELECT l.*, 
            lm.userId, lm.xpThisWeek, lm.rank,
            u.name, u.image
     FROM leagues l
     JOIN league_members lm ON lm.leagueId = l.id
     JOIN users u ON u.id = lm.userId
-    WHERE l.id = ?
+    WHERE l.id = $1
     ORDER BY lm.xpThisWeek DESC
-  `).all(leagueId);
+  `, [leagueId]);
 }
 
 /**
@@ -97,14 +114,19 @@ export async function getOrCreateLeague(userId: string) {
  */
 export async function addXPToLeague(userId: string, amount: number) {
   const league = await getOrCreateLeague(userId);
-  if (!league) return;
+  if (!league || league.length === 0) return;
 
-  const db = initServerDb();
-  const member = db.prepare('SELECT * FROM league_members WHERE userId = ? AND leagueId = ?').get(userId, (league[0] as { id: string }).id);
+  const member = await queryOne(
+    'SELECT * FROM league_members WHERE userId = $1 AND leagueId = $2',
+    [userId, (league[0] as any).id]
+  );
 
   if (member) {
-    db.prepare('UPDATE league_members SET xpThisWeek = xpThisWeek + ? WHERE id = ?').run(amount, (member as { id: string }).id);
-    recalculateRanks((league[0] as { id: string }).id);
+    await execute(
+      'UPDATE league_members SET xpThisWeek = xpThisWeek + $1 WHERE id = $2',
+      [amount, (member as any).id]
+    );
+    await recalculateRanks((league[0] as any).id);
   }
 }
 
@@ -113,23 +135,24 @@ export async function addXPToLeague(userId: string, amount: number) {
  */
 export async function getLeaderboard(userId: string) {
   const league = await getOrCreateLeague(userId);
-  if (!league) return null;
+  if (!league || league.length === 0) return null;
 
-  const db = initServerDb();
-  const leagueId = (league[0] as { id: string }).id;
+  const leagueId = (league[0] as any).id;
 
-  const members = db.prepare(`
+  const members = await query<{
+    userId: string; xpThisWeek: number; rank: number; name: string; image: string | null;
+  }>(`
     SELECT lm.userId, lm.xpThisWeek, lm.rank, u.name, u.image
     FROM league_members lm
     JOIN users u ON u.id = lm.userId
-    WHERE lm.leagueId = ?
+    WHERE lm.leagueId = $1
     ORDER BY lm.xpThisWeek DESC
-  `).all(leagueId) as { userId: string; xpThisWeek: number; rank: number; name: string; image: string | null }[];
+  `, [leagueId]);
 
   return {
     leagueId,
-    leagueName: (league[0] as { name: string }).name,
-    tier: (league[0] as { tier: string }).tier,
+    leagueName: (league[0] as any).name,
+    tier: (league[0] as any).tier,
     members: members.map((m) => ({
       userId: m.userId,
       name: m.name || 'Ami',

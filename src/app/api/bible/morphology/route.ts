@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { query } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
@@ -23,21 +23,19 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Invalid book, chapter or verse format" }, { status: 400 });
     }
 
-    const db = initServerDb();
-
     if (language === "hebrew") {
-      const words = db.prepare(`
+      const words = await query(`
         SELECT * FROM hebrew_words
-        WHERE book = ? AND chapter = ? AND verse = ?
+        WHERE book = $1 AND chapter = $2 AND verse = $3
         ORDER BY wordPosition ASC
-      `).all(bookNum, chapterNum, verseNum);
+      `, [bookNum, chapterNum, verseNum]);
       return NextResponse.json({ words });
     } else if (language === "greek") {
-      const words = db.prepare(`
+      const words = await query(`
         SELECT * FROM greek_words
-        WHERE book = ? AND chapter = ? AND verse = ?
+        WHERE book = $1 AND chapter = $2 AND verse = $3
         ORDER BY wordPosition ASC
-      `).all(bookNum, chapterNum, verseNum);
+      `, [bookNum, chapterNum, verseNum]);
       return NextResponse.json({ words });
     } else {
       return NextResponse.json({ error: "Invalid language. Must be 'hebrew' or 'greek'" }, { status: 400 });

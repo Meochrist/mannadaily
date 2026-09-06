@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { execute } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
-// Décoder un JWT simple
 function decodeToken(token: string): { userId: string; email: string; exp: number } | null {
   try {
     const parts = token.split(".");
@@ -18,7 +17,6 @@ function decodeToken(token: string): { userId: string; email: string; exp: numbe
 
 export async function DELETE(req: Request) {
   try {
-    // Auth JWT
     const authHeader = req.headers.get("authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
@@ -34,12 +32,10 @@ export async function DELETE(req: Request) {
     const body = await req.json().catch(() => ({}));
     const { endpoint } = body;
 
-    const db = initServerDb();
-
     if (endpoint) {
-      db.prepare("DELETE FROM push_subscriptions WHERE userId = ? AND endpoint = ?").run(userId, endpoint);
+      await execute("DELETE FROM push_subscriptions WHERE userId = $1 AND endpoint = $2", [userId, endpoint]);
     } else {
-      db.prepare("DELETE FROM push_subscriptions WHERE userId = ?").run(userId);
+      await execute("DELETE FROM push_subscriptions WHERE userId = $1", [userId]);
     }
 
     return NextResponse.json({ success: true, message: "Désabonnement push réussi" });

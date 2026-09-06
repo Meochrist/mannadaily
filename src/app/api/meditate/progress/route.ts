@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { awardXP, updateStreak } from '@/lib/gamification';
 import { dateStrForOffset, offsetFromHeaders } from '@/lib/localDate';
-import { getServerDb, initServerDb } from '@/server/db';
+import { query } from '@/server/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,18 +55,17 @@ export async function GET(req: Request) {
     const userId = decoded.userId;
 
     const activityDate = todayFor(req.headers);
-    const db = initServerDb();
+    const user = await query('SELECT meditationProgress FROM users WHERE id = $1', [userId]);
     
-    const user = db.prepare('SELECT meditationProgress FROM users WHERE id = ?').get(userId) as any;
-    if (!user || !isProgress(user.meditationProgress)) {
+    if (!user.length || !isProgress(user[0].meditationProgress)) {
       return NextResponse.json({ progress: emptyProgress(activityDate) });
     }
 
-    if (user.meditationProgress.lastActivityDate !== activityDate) {
+    if (user[0].meditationProgress.lastActivityDate !== activityDate) {
       return NextResponse.json({ progress: emptyProgress(activityDate) });
     }
 
-    return NextResponse.json({ progress: normalizeProgress(user.meditationProgress, activityDate) });
+    return NextResponse.json({ progress: normalizeProgress(user[0].meditationProgress, activityDate) });
   } catch (error) {
     console.error('Error in GET meditate progress:', error);
     return NextResponse.json({ error: 'Unable to load meditation progress' }, { status: 500 });
@@ -99,10 +98,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid mini-session' }, { status: 400 });
     }
 
-    const db = initServerDb();
-    const currentUser = db.prepare('SELECT meditationProgress FROM users WHERE id = ?').get(userId) as any;
-    const existing = isProgress(currentUser?.meditationProgress) && currentUser.meditationProgress.lastActivityDate === activityDate
-      ? normalizeProgress(currentUser.meditationProgress, activityDate)
+    const currentUser = await query('SELECT meditationProgress FROM users WHERE id = $1', [userId]);
+    const existing = isProgress(currentUser[0]?.meditationProgress) && currentUser[0].meditationProgress.lastActivityDate === activityDate
+      ? normalizeProgress(currentUser[0].meditationProgress, activityDate)
       : emptyProgress(activityDate);
 
     let shouldAward = false;
@@ -124,7 +122,7 @@ export async function POST(req: Request) {
       shouldAward = true;
     }
 
-    db.prepare('UPDATE users SET meditationProgress = ? WHERE id = ?').run(JSON.stringify(requested), userId);
+    await query('UPDATE users SET meditationProgress = $1 WHERE id = $2', [JSON.stringify(requested), userId]);
 
     let xpResult = null;
     let streak = 0;

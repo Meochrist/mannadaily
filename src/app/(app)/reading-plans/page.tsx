@@ -2,7 +2,7 @@ import React from "react";
 import { redirect } from "next/navigation";
 import ReadingPlansClient from "@/components/reading-plans/ReadingPlansClient";
 import { Calendar } from "lucide-react";
-import { initServerDb } from "@/server/db";
+import { query, queryOne, execute } from "@/server/db";
 import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
@@ -36,40 +36,43 @@ export default async function ReadingPlansPage() {
   }
 
   try {
-    const db = initServerDb();
-
     // Récupérer les plans avec les jours et lectures associées
-    const plans = db.prepare(`
-      SELECT * FROM reading_plans ORDER BY duration ASC
-    `).all() as any[];
+    const plans = await query(
+      "SELECT * FROM reading_plans ORDER BY duration ASC"
+    ) as any[];
 
     // Pour chaque plan, récupérer les jours et lectures
     for (const plan of plans) {
-      plan.days = db.prepare(`
-        SELECT * FROM reading_plan_days WHERE planId = ? ORDER BY dayNumber ASC
-      `).all(plan.id) as any[];
+      plan.days = await query(
+        "SELECT * FROM reading_plan_days WHERE planId = $1 ORDER BY dayNumber ASC",
+        [plan.id]
+      ) as any[];
       
       for (const day of plan.days) {
-        day.readings = db.prepare(`
-          SELECT * FROM reading_plan_readings WHERE dayId = ? ORDER BY id ASC
-        `).all(day.id) as any[];
+        day.readings = await query(
+          "SELECT * FROM reading_plan_readings WHERE dayId = $1 ORDER BY id ASC",
+          [day.id]
+        ) as any[];
       }
     }
 
     // Récupérer les inscriptions de l'utilisateur
-    const enrollments = db.prepare(`
-      SELECT * FROM reading_plan_enrollments WHERE userId = ?
-    `).all(userId) as any[];
+    const enrollments = await query(
+      "SELECT * FROM reading_plan_enrollments WHERE userId = $1",
+      [userId]
+    ) as any[];
 
     // Récupérer la progression
-    const progress = db.prepare(`
-      SELECT * FROM reading_plan_progress WHERE userId = ?
-    `).all(userId) as any[];
+    const progress = await query(
+      "SELECT * FROM reading_plan_progress WHERE userId = $1",
+      [userId]
+    ) as any[];
 
     // Récupérer les préférences de rappel
-    const user = db.prepare(`
-      SELECT readingReminders, notificationTime FROM users WHERE id = ?
-    `).get(userId) as any;
+    const user = await queryOne(
+      "SELECT readingReminders, notificationTime FROM users WHERE id = $1",
+      [userId]
+    ) as any;
 
     return (
       <div className="flex flex-col h-full space-y-6 max-w-7xl mx-auto p-4">

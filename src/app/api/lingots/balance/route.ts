@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { query } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
@@ -14,14 +14,12 @@ export async function GET(req: Request) {
     const decoded = JSON.parse(atob(token.split(".")[1]));
     const userId = decoded.userId;
 
-    const db = initServerDb();
-
-    const progress = db.prepare("SELECT lingots FROM user_progress WHERE userId = ?").get(userId) as any;
-    const freeze = db.prepare("SELECT freezesAvailable FROM streak_freeze WHERE userId = ?").get(userId) as any;
+    const progress = await query("SELECT lingots FROM user_progress WHERE userId = $1", [userId]);
+    const freeze = await query("SELECT freezesAvailable FROM streak_freeze WHERE userId = $1", [userId]);
 
     return NextResponse.json({
-      lingots: progress?.lingots ?? 0,
-      freezesAvailable: freeze?.freezesAvailable ?? 0
+      lingots: progress[0]?.lingots ?? 0,
+      freezesAvailable: freeze[0]?.freezesAvailable ?? 0
     });
   } catch (error: unknown) {
     console.error("Error in balance API route:", error);

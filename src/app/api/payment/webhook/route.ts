@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { query } from "@/server/db";
 import { verifyTransaction } from "@/lib/fedapay";
 import { creditApprovedPayment, isPaymentProduct, PAYMENT_PRODUCTS } from "@/lib/payments";
 import { Resend } from "resend";
@@ -38,9 +38,8 @@ export async function POST(req: Request) {
     const userId = typeof metadataUserId === "string" ? metadataUserId : null;
     if (!userId) return NextResponse.json({ error: "Missing user identifier" }, { status: 400 });
 
-    const db = initServerDb();
-    const user = db.prepare("SELECT id, name, email FROM users WHERE id = ?").get(userId) as any;
-    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+    const user = await query("SELECT id, name, email FROM users WHERE id = $1", [userId]);
+    if (!user[0]) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     const result = await creditApprovedPayment({
       providerId: transactionId,
@@ -49,12 +48,12 @@ export async function POST(req: Request) {
       amount: verification.amount,
     });
 
-    if (!result.alreadyProcessed && user.email && resend) {
+    if (!result.alreadyProcessed && user[0].email && resend) {
       const title = escapeHtml(PAYMENT_PRODUCTS[product].title);
-      const name = escapeHtml(user.name || "Ami");
+      const name = escapeHtml(user[0].name || "Ami");
       await resend.emails.send({
         from: "MannaDaily <onboarding@resend.dev>",
-        to: user.email,
+        to: user[0].email,
         subject: "MannaDaily - Confirmation d'achat !",
         html: `<p>Bonjour ${name},</p><p>Votre achat <strong>${title}</strong> a été crédité sur votre compte MannaDaily.</p>`,
       });

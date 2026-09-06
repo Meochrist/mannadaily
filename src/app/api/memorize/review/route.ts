@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { query, queryOne, execute } from "@/server/db";
 import { calculateSM2 } from "@/lib/sm2";
 import { awardXP, checkAndAwardBadges } from "@/lib/gamification";
 import { addXPToLeague } from "@/lib/leaderboard";
@@ -24,9 +24,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Paramètres invalides" }, { status: 400 });
     }
 
-    const db = initServerDb();
-
-    const memorization = db.prepare("SELECT * FROM verse_memorizations WHERE id = ?").get(verseId) as any;
+    const memorization = await queryOne("SELECT * FROM verse_memorizations WHERE id = $1", [verseId]);
 
     if (!memorization || memorization.userId !== userId) {
       return NextResponse.json({ error: "Fiche de mémorisation introuvable" }, { status: 404 });
@@ -50,9 +48,9 @@ export async function POST(request: NextRequest) {
 
     const now = new Date().toISOString();
 
-    db.prepare(`
-      UPDATE verse_memorizations SET interval = ?, easeFactor = ?, repetitions = ?, nextReview = ?, lastReview = ?, status = ? WHERE id = ?
-    `).run(sm2Result.interval, sm2Result.easeFactor, sm2Result.repetitions, sm2Result.nextReview.toISOString(), now, newStatus, verseId);
+    await execute(`
+      UPDATE verse_memorizations SET interval = $1, easeFactor = $2, repetitions = $3, nextReview = $4, lastReview = $5, status = $6 WHERE id = $7
+    `, [sm2Result.interval, sm2Result.easeFactor, sm2Result.repetitions, sm2Result.nextReview.toISOString(), now, newStatus, verseId]);
 
     let xpEarned = 0;
     let leveledUp = false;
@@ -62,7 +60,7 @@ export async function POST(request: NextRequest) {
     if (newStatus === "mastered" && oldStatus !== "mastered") {
       xpEarned = 25;
       
-      db.prepare("UPDATE user_progress SET versesLearned = versesLearned + 1 WHERE userId = ?").run(userId);
+      await execute("UPDATE user_progress SET versesLearned = versesLearned + 1 WHERE userId = $1", [userId]);
 
       const xpResult = await awardXP(userId, "MEMORIZATION");
       leveledUp = xpResult.leveledUp;

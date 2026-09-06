@@ -1,14 +1,9 @@
 import { NextResponse } from "next/server";
-import { initServerDb } from "@/server/db";
+import { query, queryOne } from "@/server/db";
 import { resolveFrToEn } from "@/lib/strongFrIndex";
 
 export const dynamic = "force-dynamic";
 
-/**
- * Recherche d'entrées Strong par mot-clé plutôt que par numéro.
- *
- * GET /api/bible/strong/search?q=amour&language=hebrew|greek
- */
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -16,10 +11,7 @@ export async function GET(request: Request) {
     const language = searchParams.get("language");
 
     if (rawQuery.length < 2) {
-      return NextResponse.json(
-        { error: "Requête trop courte (2 caractères minimum)" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Requête trop courte (2 caractères minimum)" }, { status: 400 });
     }
 
     if (rawQuery.length > 60) {
@@ -29,60 +21,47 @@ export async function GET(request: Request) {
     // Si l'utilisateur tape directement un numéro Strong
     const asNumber = rawQuery.toUpperCase().replace(/^([HG])0+(\d+)$/, "$1$2");
     if (/^[HG]\d+$/.test(asNumber)) {
-      const db = initServerDb();
-      const direct = db.prepare("SELECT * FROM strong_entries WHERE number = ?").get(asNumber);
+      const direct = await queryOne("SELECT * FROM strong_entries WHERE number = $1", [asNumber]);
       if (direct) {
         return NextResponse.json({ results: [direct], exact: true });
       }
     }
 
-    const db = initServerDb();
-
     // Traduire la requête française en mots-clés anglais
     const enTerms = resolveFrToEn(rawQuery);
     const searchTerms = enTerms.length > 0 ? enTerms : [rawQuery];
 
-    // Construire la requête SQL
+    // Construire la requête SQL avec paramètres dynamiques
     const conditions: string[] = [];
-    const params: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 1;
 
     // Filtre langue
     if (language === "hebrew" || language === "greek") {
-      conditions.push("language = ?");
+      conditions.push(`language = $${paramIndex++}`);
       params.push(language);
     }
 
     // Conditions de recherche
-    const searchConditions: string[] = [];
     for (const term of searchTerms) {
-      searchConditions.push("transliteration LIKE ?");
+      conditions.push(`(transliteration ILIKE $${paramIndex} OR lemma ILIKE $${paramIndex} OR kjv_usage ILIKE $${paramIndex} OR definition ILIKE $${paramIndex})`);
       params.push(`%${term}%`);
-      searchConditions.push("lemma LIKE ?");
-      params.push(`%${term}%`);
-      searchConditions.push("kjv_usage LIKE ?");
-      params.push(`%${term}%`);
-      searchConditions.push("definition LIKE ?");
-      params.push(`%${term}%`);
+      paramIndex++;
     }
 
     // Recherche dans les traductions françaises
-    searchConditions.push("definition_fr LIKE ?");
+    conditions.push(`(definition_fr ILIKE $${paramIndex} OR kjv_usage_fr ILIKE $${paramIndex})`);
     params.push(`%${rawQuery}%`);
-    searchConditions.push("kjv_usage_fr LIKE ?");
-    params.push(`%${rawQuery}%`);
-
-    if (searchConditions.length > 0) {
-      conditions.push(`(${searchConditions.join(" OR ")})`);
-    }
+    paramIndex++;
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
     const sql = `SELECT * FROM strong_entries ${whereClause} ORDER BY number ASC LIMIT 60`;
 
-    const results = db.prepare(sql).all(...params) as any[];
+    const results = await query(sql, params);
 
     // Tri par pertinence
     const primary = searchTerms[0]?.toLowerCase() || "";
-    const scored = results.map((entry) => {
+    const scored = results.map((entry: any) => {
       const usage = (entry.kjv_usage || "").toLowerCase();
       const definition = (entry.definition || "").toLowerCase();
       let score = 0;
@@ -111,10 +90,11 @@ export async function GET(request: Request) {
       return { entry, score };
     });
 
-    const sorted = scored
-      .sort((a, b) => b.score - a.score)
+    const scoredArray = Array.isArray(scored) ? scored : [];
+    const sorted = scoredArray
+      .sort((a: any, b: any) => b.score - a.score)
       .slice(0, 25)
-      .map((s) => s.entry);
+      .map((s: any) => s.entry);
 
     return NextResponse.json({
       results: sorted,
@@ -124,9 +104,6 @@ export async function GET(request: Request) {
     });
   } catch (error: unknown) {
     console.error("Error searching Strong entries:", error);
-    return NextResponse.json(
-      { error: "Failed to search Strong entries" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to search Strong entries" }, { status: 500 });
   }
 }
