@@ -1,0 +1,547 @@
+{
+  "Genèse": {
+    "author": "Moïse (traditionnellement)",
+    "period": "~1450-1400 av. J.-C.",
+    "historicalContext": "Le livre de la Genèse couvre la période de la Création jusqu'à la mort de Joseph en Égypte. Il retrace les origines de l'humanité, le déluge, la Tour de Babel, et l'histoire des patriarches Abraham, Isaac, Jacob et Joseph.",
+    "culturalNotes": "À l'époque patriarcale, la société était organisée en clans familiaux nomades. L'hospitalité était sacrée, les alliances scellées par des serments. La circoncision était le signe de l'alliance.",
+    "keyEvents": "Création, Chute, Déluge, Appel d'Abraham, Joseph en Égypte.",
+    "chapters": {
+      "1": "Récit de la Création en 7 jours — Dieu crée le ciel, la terre, la lumière, les êtres vivants et l'humanité à son image.",
+      "2": "Détail de la création de l'homme et de la femme, le jardin d'Éden, l'arbre de la connaissance du bien et du mal.",
+      "3": "La Chute : tentation du serpent, péché d'Adam et Ève, expulsion du jardin d'Éden.",
+      "12": "Appel d'Abram — Dieu promet une descendance, une terre et une bénédiction pour toutes les nations.",
+      "22": "Le sacrifice d'Isaac : mise à l'épreuve de la foi d'Abraham sur le mont Morija.",
+      "37": "Joseph vendu par ses frères, début de son parcours vers l'Égypte."
+    }
+  },
+  "Exode": {
+    "author": "Moïse (traditionnellement)",
+    "period": "~1450-1400 av. J.-C.",
+    "historicalContext": "L'Exode raconte la libération d'Israël de l'esclavage en Égypte sous le Nouvel Empire (18e-19e dynasties). Les Hébreux étaient une minorité asservie aux travaux de construction.",
+    "culturalNotes": "Les dix plaies visaient les divinités égyptiennes (Râ, Hâpi, Héqet). La Pâque est le rite fondateur d'Israël.",
+    "keyEvents": "Dix Plaies, Traversée de la Mer Rouge, Don de la Loi au Sinaï.",
+    "chapters": {
+      "3": "Le buisson ardent — Dieu révèle son nom (Je suis) à Moïse et l'envoie libérer Israël.",
+      "12": "Institution de la Pâque : l'agneau sacrifié, le sang sur les linteaux, la sortie d'Égypte.",
+      "20": "Les Dix Commandements donnés au mont Sinaï, fondement de l'alliance mosaïque."
+    }
+  },
+  "Lévitique": {
+    "author": "Moïse (traditionnellement)",
+    "period": "~1445 av. J.-C.",
+    "historicalContext": "Manuel de sainteté donné à Israël au Sinaï. Règles pour les sacrificateurs, les sacrifices, la pureté rituelle et les fêtes. Le livre établit comment un Dieu saint habite au milieu d'un peuple pécheur.",
+    "culturalNotes": "Les sacrifices d'expiation (holocauste, offrande, paix, culpabilité) structuraient le culte. Le jour des Expiations (Yom Kippour) est central.",
+    "keyEvents": "Consécration d'Aaron, Mort de Nadab et Abihu, Jour des Expiations, Code de sainteté."
+  },
+  "Nombres": {
+    "author": "Moïse (traditionnellement)",
+    "period": "~1450-1400 av. J.-C.",
+    "historicalContext": "Quarante ans d'errance d'Israël dans le désert entre le Sinaï et les plaines de Moab. Recensements, rébellions, et préparation à entrer en Canaan.",
+    "culturalNotes": "Le camp était organisé autour du Tabernacle, chaque tribu ayant sa place. Les Lévites remplaçaient les premiers-nés pour le service sacré.",
+    "keyEvents": "Exploration de Canaan par les 12 espions, Révolte de Koré, Serpent d'airain, Prophétie de Balaam."
+  },
+  "Deutéronome": {
+    "author": "Moïse (traditionnellement)",
+    "period": "~1400 av. J.-C.",
+    "historicalContext": "Dernier discours de Moïse aux portes de Canaan. Israël est sur le point d'entrer dans la Terre Promise. Le livre rappelle l'alliance et la Loi, avec bénédictions et malédictions.",
+    "culturalNotes": "Deutéronome signifie 'seconde loi'. Le Shema Israël (Deut. 6:4) est la confession de foi fondamentale du judaïsme. Le livre suit le modèle des traités de vassalité hittites.",
+    "keyEvents": "Discours d'adieu de Moïse, Renouvellement de l'alliance, Mort de Moïse.",
+    "chapters": {
+      "6": "Shema Israël — Écoute Israël, l'Éternel notre Dieu est le seul Éternel.",
+      "28": "Bénédictions et malédictions de l'alliance."
+    }
+  },
+  "Josué": {
+    "author": "Josué (traditionnellement)",
+    "period": "~1400-1375 av. J.-C.",
+    "historicalContext": "Conquête et partage de Canaan sous Josué. Après 40 ans dans le désert, Israël traverse le Jourdain. Les cités-États cananéennes tombent une à une.",
+    "culturalNotes": "La guerre sainte (hérem) était une pratique où tout était consacré à Dieu. Jéricho est la plus ancienne ville fortifiée connue. Rahab la prostituée est sauvée par sa foi.",
+    "keyEvents": "Traversée du Jourdain, Chute de Jéricho, Conquête et partage du pays.",
+    "chapters": {
+      "1": "Sois fort et courageux — médite ce livre de la loi jour et nuit (Josué 1:8).",
+      "6": "Chute de Jéricho par la foi et l'obéissance à Dieu."
+    }
+  },
+  "Juges": {
+    "author": "Samuel (traditionnellement)",
+    "period": "~1375-1050 av. J.-C.",
+    "historicalContext": "Période obscure entre Josué et les rois. Israël oscille entre idolâtrie, oppression par des peuples voisins, repentance et délivrance par des juges temporaires.",
+    "culturalNotes": "Le cycle répété : péché → oppression → repentance → délivrance. 'Chacun faisait ce qui lui semblait bon' résume l'anarchie spirituelle de cette époque.",
+    "keyEvents": "Cycle des Juges, Victoires de Débora/Barak, Gédéon, Samson."
+  },
+  "Ruth": {
+    "author": "Samuel (traditionnellement)",
+    "period": "~1150 av. J.-C.",
+    "historicalContext": "Pendant le temps des Juges, une famille de Bethléhem émigre à Moab à cause d'une famine. L'histoire de loyauté de Ruth la Moabite envers sa belle-mère Naomi illustre la rédemption.",
+    "culturalNotes": "Le droit du rachat (goël) permettait à un parent de racheter la terre et d'épouser la veuve pour perpétuer le nom du défunt. Boaz incarne le goël.",
+    "keyEvents": "Loyauté de Ruth, Rachat par Boaz, Généalogie de David."
+  },
+  "1 Samuel": {
+    "author": "Samuel, Nathan, Gad",
+    "period": "~1050-1010 av. J.-C.",
+    "historicalContext": "Transition d'Israël des Juges à la monarchie. Naissance de Samuel, premier roi Saül, onction de David. Les Philistins sont la menace principale.",
+    "culturalNotes": "L'Arche de l'Alliance était le trône visible de Dieu. Le prophète Samuel est le dernier des Juges et établit l'onction royale.",
+    "keyEvents": "Naissance de Samuel, Règne de Saül, David et Goliath, Fuite de David.",
+    "chapters": { "17": "David et Goliath — la foi d'un jeune berger face au géant philistin." }
+  },
+  "2 Samuel": {
+    "author": "Nathan, Gad",
+    "period": "~1010-970 av. J.-C.",
+    "historicalContext": "Règne de David sur Juda puis tout Israël. Conquête de Jérusalem, transfert de l'Arche, alliance davidique. Puis chute : adultère avec Bath-Schéba, révolte d'Absalom.",
+    "culturalNotes": "Jérusalem devient la capitale politique et religieuse. L'alliance davidique promet un trône éternel à la descendance de David — annonce messianique.",
+    "keyEvents": "Règne de David, Péché avec Bath-Schéba, Révolte d'Absalom.",
+    "chapters": { "7": "Alliance davidique — Dieu promet à David une dynastie éternelle." }
+  },
+  "1 Rois": {
+    "author": "Jérémie (traditionnellement)",
+    "period": "~970-853 av. J.-C.",
+    "historicalContext": "Succession de David par Salomon, construction du Temple, puis division du royaume. Élie le prophète affronte Achab et Jézabel.",
+    "culturalNotes": "Le Temple de Salomon, merveille architecturale, devient le centre du culte. La division du royaume (Israël au nord, Juda au sud) marque le début du déclin.",
+    "keyEvents": "Règne de Salomon, Construction du Temple, Division du royaume, Ministère d'Élie.",
+    "chapters": { "18": "Élie au Mont Carmel — Dieu répond par le feu face aux prophètes de Baal." }
+  },
+  "2 Rois": {
+    "author": "Jérémie (traditionnellement)",
+    "period": "~853-586 av. J.-C.",
+    "historicalContext": "Suite du déclin : les deux royaumes tombent. Israël (nord) est détruit par l'Assyrie en 722. Juda (sud) tombe face à Babylone en 586. Élisée succède à Élie.",
+    "culturalNotes": "Les réformes d'Ézéchias et de Josias retardent le jugement. La découverte du livre de la Loi sous Josias est un moment clé.",
+    "keyEvents": "Ministère d'Élisée, Chute de Samarie, Réforme de Josias, Destruction de Jérusalem."
+  },
+  "1 Chroniques": {
+    "author": "Esdras (traditionnellement)",
+    "period": "~450 av. J.-C.",
+    "historicalContext": "Histoire d'Israël racontée du point de vue sacerdotal après l'exil. Généalogies depuis Adam, accent sur le règne de David et la préparation du Temple.",
+    "culturalNotes": "Écrit pour encourager les Juifs de retour d'exil en rappelant leur héritage. David est présenté comme le grand organisateur du culte.",
+    "keyEvents": "Généalogies, Règne de David, Préparation du Temple."
+  },
+  "2 Chroniques": {
+    "author": "Esdras (traditionnellement)",
+    "period": "~450 av. J.-C.",
+    "historicalContext": "Suite de 1 Chroniques. Règne de Salomon, construction du Temple, rois de Juda jusqu'à la déportation à Babylone et l'édit de Cyrus autorisant le retour.",
+    "culturalNotes": "Se concentre sur les rois de Juda (le sud) fidèles à l'alliance. Les réformes spirituelles des bons rois sont mises en avant.",
+    "keyEvents": "Construction du Temple par Salomon, Réformes d'Ézéchias et Josias, Édit de Cyrus."
+  },
+  "Esdras": {
+    "author": "Esdras, scribe",
+    "period": "~458-440 av. J.-C.",
+    "historicalContext": "Retour des Juifs de l'exil babylonien sous Cyrus le Perse. Reconstruction du Temple de Jérusalem (achevé en 516) et réformes spirituelles d'Esdras.",
+    "culturalNotes": "Le décret de Cyrus est un accomplissement de la prophétie de Jérémie. Esdras ramène la Loi et réforme le peuple contre les mariages mixtes.",
+    "keyEvents": "Retour d'exil, Reconstruction du Temple, Ministère d'Esdras."
+  },
+  "Néhémie": {
+    "author": "Néhémie, Esdras",
+    "period": "~445-430 av. J.-C.",
+    "historicalContext": "Néhémie, échanson d'Artaxerxès, obtient la permission de reconstruire les murailles de Jérusalem. Opposition et défis, mais projet achevé en 52 jours.",
+    "culturalNotes": "La reconstruction des murailles est à la fois physique (sécurité) et spirituelle (identité). Esdras lit la Loi publiquement.",
+    "keyEvents": "Reconstruction des murailles, Lecture de la Loi, Réformes.",
+    "chapters": { "8": "Esdras lit la Loi — le peuple pleure puis se réjouit car il comprend." }
+  },
+  "Esther": {
+    "author": "Inconnu (Mardochée ?)",
+    "period": "~483-473 av. J.-C.",
+    "historicalContext": "Histoire d'Esther, jeune Juive devenue reine de Perse sous Xerxès (Assuérus). Elle sauve son peuple d'un génocide planifié par Haman, donnant naissance à la fête de Pourim.",
+    "culturalNotes": "L'Empire perse s'étendait de l'Inde à l'Éthiopie. C'est le seul livre biblique où le nom de Dieu n'apparaît pas, mais Sa providence est omniprésente.",
+    "keyEvents": "Esther reine, Complot d'Haman, Délivrance du peuple juif, Fête de Pourim."
+  },
+  "Job": {
+    "author": "Anonyme (peut-être Job, Moïse ou Élihu)",
+    "period": "~2000-500 av. J.-C. (patriarcal)",
+    "historicalContext": "L'histoire de Job, homme intègre d'Ous (région d'Édom), confronté à une souffrance extrême. Le livre explore la question de la justice divine face au mal et à la souffrance innocente.",
+    "culturalNotes": "Les amis de Job représentent la sagesse conventionnelle de l'époque : la souffrance serait toujours la conséquence du péché. Le livre est un chef-d'œuvre poétique.",
+    "keyEvents": "Épreuves de Job, Discours des amis, Théophanie finale."
+  },
+  "Psaumes": {
+    "author": "David (majorité), Asaph, Fils de Koré, Salomon, Moïse",
+    "period": "~1000-400 av. J.-C.",
+    "historicalContext": "Le livre des Psaumes est le recueil de cantiques d'Israël compilé sur plusieurs siècles, couvrant la monarchie, l'exil à Babylone (586 av. J.-C.) et le retour. Le temple de Jérusalem était le centre du culte.",
+    "culturalNotes": "Les psaumes étaient chantés avec instruments (lyre, harpe). Genres : louange, lamentation, action de grâce. Le parallélisme hébraïque est la technique poétique principale.",
+    "keyEvents": "Onction de David, Construction du Temple, Exil à Babylone.",
+    "chapters": {
+      "1": "Deux voies : le juste médite la Loi jour et nuit, l'impie est comme la paille emportée par le vent.",
+      "23": "Le Psaume du Berger — l'Éternel est mon berger, je ne manquerai de rien.",
+      "51": "Psaume de repentance de David après son péché avec Bath-Schéba — crée en moi un cœur pur.",
+      "91": "Celui qui demeure sous l'abri du Très-Haut repose à l'ombre du Tout-Puissant.",
+      "119": "Le plus long psaume, entièrement consacré à la beauté et la puissance de la Parole de Dieu."
+    }
+  },
+  "Proverbes": {
+    "author": "Salomon (majorité), Agur, Lemuel",
+    "period": "~970-700 av. J.-C.",
+    "historicalContext": "Recueil de maximes de sagesse compilé sous la monarchie israélite. Les proverbes étaient destinés à former les jeunes à une vie sage, craignant Dieu, dans le cadre de l'alliance.",
+    "culturalNotes": "La sagesse en Israël était pratique : gérer sa maison, ses affaires, ses relations. Le parallélisme antithétique est dominant. La 'femme vertueuse' de Proverbes 31 est un modèle d'excellence.",
+    "keyEvents": "Règne de Salomon, Compilation par les gens d'Ézéchias.",
+    "chapters": {
+      "1": "Introduction — la crainte de l'Éternel est le commencement de la sagesse.",
+      "3": "Confie-toi en l'Éternel de tout ton cœur, ne t'appuie pas sur ta sagesse.",
+      "31": "La femme vertueuse — éloge alphabétique de la femme qui craint l'Éternel."
+    }
+  },
+  "Ecclésiaste": {
+    "author": "Salomon (traditionnellement) / Qohéleth",
+    "period": "~935 av. J.-C.",
+    "historicalContext": "Méditation philosophique sur le sens de la vie par un roi vieillissant. 'Vanité des vanités' reflète une quête existentielle universelle dans une culture où la sagesse humaine montre ses limites.",
+    "culturalNotes": "Qohéleth observe la vie 'sous le soleil' — sans perspective céleste. Le livre oscille entre pessimisme et foi. La conclusion : crains Dieu et garde ses commandements.",
+    "keyEvents": "Règne de Salomon, Quête du sens de la vie.",
+    "chapters": { "3": "Il y a un temps pour tout — le rythme divin de la vie sous le soleil." }
+  },
+  "Cantique des cantiques": {
+    "author": "Salomon",
+    "period": "~960 av. J.-C.",
+    "historicalContext": "Poème d'amour entre un berger et une bergère (ou Salomon et la Sulamithe). Célébration de l'amour conjugal dans le cadre de la création. Traditionnellement interprété comme allégorie de l'amour entre Dieu et Israël, ou Christ et l'Église.",
+    "culturalNotes": "La poésie orientale utilise des métaphores de la nature (lis, grenade, cèdre). Le langage est sensuel mais chaste. Lu à la Pâque juive.",
+    "keyEvents": "Dialogue amoureux, Recherche du bien-aimé, Union célébrée."
+  },
+  "Ésaïe": {
+    "author": "Ésaïe ben Amots",
+    "period": "~740-680 av. J.-C.",
+    "historicalContext": "Ésaïe prophétise sous les rois Ozias, Jotham, Achaz et Ézéchias. L'Assyrie domine le Proche-Orient. En 722, le Royaume du Nord tombe. Jérusalem est sauvée en 701.",
+    "culturalNotes": "Les prophètes hébreux étaient des porte-parole de Dieu, confrontés aux rois. Le Serviteur souffrant d'Ésaïe 53 est l'un des textes les plus commentés.",
+    "keyEvents": "Invasion assyrienne, Siège de Jérusalem, Ambassade babylonienne.",
+    "chapters": {
+      "6": "Vision et appel d'Ésaïe dans le temple — 'Me voici, envoie-moi'.",
+      "9": "Prophétie messianique : un enfant nous est né, le Prince de la paix.",
+      "40": "Consolez, consolez mon peuple — début du 'livre de la consolation'.",
+      "53": "Le Serviteur souffrant — prophétie poignante sur les souffrances et la mort du Messie."
+    }
+  },
+  "Jérémie": {
+    "author": "Jérémie, fils de Hilkija",
+    "period": "~627-585 av. J.-C.",
+    "historicalContext": "Prophète pendant les derniers jours de Juda, sous Josias, Jojakim et Sédécias. Il assiste à la chute de Jérusalem en 586 et à la déportation.",
+    "culturalNotes": "Surnommé le 'prophète des lamentations', il utilise des actions symboliques. Sa fidélité malgré la persécution est exemplaire.",
+    "keyEvents": "Réforme de Josias, Siège et chute de Jérusalem, Exil.",
+    "chapters": {
+      "1": "Appel de Jérémie — 'Avant de te former dans le ventre de ta mère, je te connaissais'.",
+      "29": "Lettre aux exilés — 'Car je connais les projets que j'ai formés sur vous'.",
+      "31": "La Nouvelle Alliance — je mettrai ma loi au-dedans d'eux."
+    }
+  },
+  "Lamentations": {
+    "author": "Jérémie (traditionnellement)",
+    "period": "~586 av. J.-C.",
+    "historicalContext": "Cinq poèmes de deuil sur la destruction de Jérusalem par Babylone. Écrits depuis les ruines fumantes de la ville sainte. Le livre est une méditation sur la justice et la miséricorde de Dieu.",
+    "culturalNotes": "Les quatre premiers chapitres sont des acrostiches alphabétiques (22 lettres hébraïques). Lu lors du jeûne du 9 Av commémorant la destruction du Temple.",
+    "keyEvents": "Destruction de Jérusalem, Souffrance du peuple, Espérance au milieu des ruines."
+  },
+  "Ézéchiel": {
+    "author": "Ézéchiel, prêtre et prophète",
+    "period": "~593-571 av. J.-C.",
+    "historicalContext": "Ézéchiel fait partie des premiers déportés à Babylone en 597 av. J.-C. Il prophétise depuis la terre d'exil, annonçant à la fois le jugement sur Jérusalem et sa restauration future.",
+    "culturalNotes": "Ézéchiel utilise des visions spectaculaires (les ossements desséchés, le char céleste), des actions symboliques et des allégories saisissantes.",
+    "keyEvents": "Vision du char de Dieu, Siège de Jérusalem, Vision du Temple futur.",
+    "chapters": {
+      "1": "Vision de la gloire de Dieu — le char céleste et les quatre êtres vivants.",
+      "37": "La vallée des ossements desséchés — prophétie de la restauration d'Israël."
+    }
+  },
+  "Daniel": {
+    "author": "Daniel",
+    "period": "~605-530 av. J.-C.",
+    "historicalContext": "Daniel est déporté à Babylone comme jeune noble. Il sert sous Nébucadnetsar, Belschatsar et Darius. Le livre couvre l'exil et l'avènement de l'Empire médo-perse.",
+    "culturalNotes": "Daniel et ses compagnons refusent de se souiller avec les mets du roi. Le livre alterne récits historiques et visions prophétiques apocalyptiques.",
+    "keyEvents": "Fosse aux lions, Statue de Nébucadnetsar, Vision des 70 semaines.",
+    "chapters": {
+      "1": "Daniel et ses amis refusent la nourriture du roi — fidélité en terre étrangère.",
+      "6": "Daniel dans la fosse aux lions — Dieu ferme la gueule des lions."
+    }
+  },
+  "Osée": {
+    "author": "Osée, fils de Beéri",
+    "period": "~755-715 av. J.-C.",
+    "historicalContext": "Prophète au Royaume du Nord (Israël) avant sa chute en 722. Son mariage avec Gomer, femme infidèle, illustre l'amour inconditionnel de Dieu pour Israël adultère.",
+    "culturalNotes": "Le mariage d'Osée est une allégorie vivante de la relation d'alliance entre Dieu et Israël. Les noms de ses enfants sont prophétiques.",
+    "keyEvents": "Mariage avec Gomer, Procès de Dieu contre Israël, Promesse de restauration."
+  },
+  "Joël": {
+    "author": "Joël, fils de Pethuel",
+    "period": "~835 av. J.-C. (ou post-exilique)",
+    "historicalContext": "Une invasion dévastatrice de sauterelles sert de métaphore au Jour du Seigneur. Appel à la repentance et promesse de l'effusion de l'Esprit sur toute chair.",
+    "culturalNotes": "La plaie de sauterelles était une catastrophe agricole et économique. La prophétie de l'Esprit est citée par Pierre à la Pentecôte (Actes 2).",
+    "keyEvents": "Invasion de sauterelles, Jour de l'Éternel, Promesse de l'Esprit.",
+    "chapters": { "2": "Je répandrai mon Esprit sur toute chair — promesse accomplie à la Pentecôte." }
+  },
+  "Amos": {
+    "author": "Amos, berger de Tekoa",
+    "period": "~760 av. J.-C.",
+    "historicalContext": "Amos, simple berger du Sud, est envoyé prophétiser contre le Royaume du Nord prospère mais corrompu. Il dénonce l'injustice sociale et l'hypocrisie religieuse.",
+    "culturalNotes": "Les oracles contre les nations montrent que Dieu juge tous les peuples. L'expression 'vendre le juste pour de l'argent' reflète la corruption généralisée.",
+    "keyEvents": "Jugement sur les nations, Condamnation d'Israël, Vision de la restauration finale."
+  },
+  "Abdias": {
+    "author": "Abdias",
+    "period": "~586 av. J.-C.",
+    "historicalContext": "Le plus court livre de l'AT. Prophétie contre Édom, peuple frère qui a profité de la chute de Jérusalem pour piller et trahir Juda.",
+    "culturalNotes": "Édom est la descendance d'Ésaü, frère de Jacob. Le conflit entre les deux peuples remonte à la naissance.",
+    "keyEvents": "Jugement d'Édom, Restauration d'Israël, Règne de l'Éternel."
+  },
+  "Jonas": {
+    "author": "Jonas, fils d'et ses",
+    "period": "~760 av. J.-C.",
+    "historicalContext": "Dieu envoie Jonas à Ninive, la grande ville assyrienne, ennemie d'Israël. Sa fuite, le grand poisson, sa prédication, et l'étonnante repentance de Ninive.",
+    "culturalNotes": "Ninive était la capitale de l'empire le plus cruel du Proche-Orient. La conversion des Ninivites est un signe de la miséricorde universelle de Dieu.",
+    "keyEvents": "Fuite de Jonas, Grand poisson, Prédication à Ninive, Leçon du ricin."
+  },
+  "Michée": {
+    "author": "Michée, de Morésheth",
+    "period": "~735-700 av. J.-C.",
+    "historicalContext": "Contemporain d'Ésaïe, Michée prophétise contre Juda et Israël. Il annonce le jugement mais aussi la venue du Messie né à Bethléhem.",
+    "culturalNotes": "Michée dénonce les chefs corrompus et les faux prophètes. Sa prophétie de Bethléhem est citée par les mages dans Matthieu 2.",
+    "keyEvents": "Jugement de Samarie et Jérusalem, Promesse messianique, Exigences de Dieu.",
+    "chapters": { "6": "Qu'est-ce que l'Éternel demande ? Pratiquer la justice, aimer la miséricorde, marcher humblement avec Dieu." }
+  },
+  "Nahum": {
+    "author": "Nahum, d'Elkosch",
+    "period": "~660-612 av. J.-C.",
+    "historicalContext": "Prophétie contre Ninive, un siècle après Jonas. Cette fois, pas de repentance — annonce de la destruction totale de l'Empire assyrien (survenue en 612).",
+    "culturalNotes": "Ninive était réputée pour sa cruauté sans égale. Nahum décrit sa chute avec un style poétique puissant.",
+    "keyEvents": "Jugement de Ninive, Chute de l'Assyrie."
+  },
+  "Habakuk": {
+    "author": "Habakuk",
+    "period": "~609-597 av. J.-C.",
+    "historicalContext": "Le prophète dialogue avec Dieu : comment tolérer la violence en Juda, puis comment accepter que Babylone (pire encore) serve d'instrument de jugement ?",
+    "culturalNotes": "Dialogue prophétique unique dans la Bible. La réponse : 'Le juste vivra par la foi' est clé dans le NT (Romains, Galates, Hébreux).",
+    "keyEvents": "Dialogue avec Dieu, Justice divine, Cantique de foi.",
+    "chapters": { "3": "Le juste vivra par la foi — même dans l'épreuve, je me réjouirai en l'Éternel." }
+  },
+  "Sophonie": {
+    "author": "Sophonie, descendant d'Ézéchias",
+    "period": "~640-609 av. J.-C.",
+    "historicalContext": "Prophétie sous le roi Josias, avant sa réforme. Annonce du Jour de l'Éternel, jugement sur Juda et les nations, mais promesse de restauration.",
+    "culturalNotes": "Le 'Jour de l'Éternel' est un jugement universel. Le 'reste' fidèle est une clé théologique.",
+    "keyEvents": "Jugement universel, Restauration du reste d'Israël."
+  },
+  "Aggée": {
+    "author": "Aggée",
+    "period": "~520 av. J.-C.",
+    "historicalContext": "Après le retour d'exil, le Temple restait en ruines. Aggée exhorte le peuple et Zorobabel à reprendre la construction, promettant que la gloire du second Temple surpasserait celle du premier.",
+    "culturalNotes": "La reconstruction du Temple était le signe visible de la restauration de l'alliance. Les prophéties post-exiliques recentrent le peuple sur ses priorités.",
+    "keyEvents": "Reprise de la construction du Temple, Promesse de gloire future."
+  },
+  "Zacharie": {
+    "author": "Zacharie",
+    "period": "~520-470 av. J.-C.",
+    "historicalContext": "Contemporain d'Aggée, Zacharie encourage aussi la reconstruction du Temple à travers huit visions nocturnes. Il contient de nombreuses prophéties messianiques accomplies par Jésus.",
+    "culturalNotes": "Les visions apocalyptiques de Zacharie (chevaux, chandelier, rouleau volant) influencent l'Apocalypse. L'entrée triomphale de Jésus sur un ânon accomplit Zacharie 9:9.",
+    "keyEvents": "Huit visions, Couronnement de Josué, Prophéties messianiques."
+  },
+  "Malachie": {
+    "author": "Malachie",
+    "period": "~430 av. J.-C.",
+    "historicalContext": "Dernier prophète de l'Ancien Testament. Le peuple est devenu tiède : offrandes médiocres, mariages mixtes, dîmes négligées. Dieu appelle à revenir à Lui avant le Jour du Seigneur.",
+    "culturalNotes": "Le livre utilise un style de dialogue/débat. Il annonce la venue du messager (Jean-Baptiste) qui préparera le chemin du Seigneur.",
+    "keyEvents": "Corruption du sacerdoce, Appel à la fidélité, Promesse du messager.",
+    "chapters": { "3": "Apportez la dîme — Dieu promet de déverser la bénédiction en abondance." }
+  },
+  "Matthieu": {
+    "author": "Matthieu (Lévi), apôtre",
+    "period": "~60-80 ap. J.-C.",
+    "historicalContext": "Évangile adressé à un public juif après la destruction du Temple (70 ap. J.-C.). La Palestine est sous domination romaine. Pharisiens et sadducéens sont les groupes religieux dominants.",
+    "culturalNotes": "Plus de 60 citations de l'Ancien Testament. Le Sermon sur la Montagne réinterprète la Loi mosaïque. Les paraboles utilisent des images agricoles galiléennes.",
+    "keyEvents": "Nativité, Sermon sur la Montagne, Multiplication des pains, Crucifixion, Résurrection.",
+    "chapters": {
+      "5": "Les Béatitudes — Heureux les pauvres en esprit, le sel de la terre, la lumière du monde.",
+      "6": "Le Notre Père, les trésors dans le ciel, ne vous inquiétez pas du lendemain.",
+      "28": "La Grande Mission — Allez, faites de toutes les nations des disciples."
+    }
+  },
+  "Marc": {
+    "author": "Marc (Jean-Marc), compagnon de Pierre",
+    "period": "~55-65 ap. J.-C.",
+    "historicalContext": "Premier évangile écrit, à Rome, pour un public non-juif sous persécution néronienne. Style vif et direct, avec l'adverbe 'aussitôt' qui scande le récit.",
+    "culturalNotes": "Marc explique les coutumes juives pour ses lecteurs romains. Il insiste sur les actions de Jésus plus que ses discours.",
+    "keyEvents": "Baptême de Jésus, Multiplications des pains, Confession de Pierre, Crucifixion, Résurrection."
+  },
+  "Luc": {
+    "author": "Luc, médecin et compagnon de Paul",
+    "period": "~60-80 ap. J.-C.",
+    "historicalContext": "Évangile écrit pour Théophile (un Grec cultivé). Luc adopte une approche historique, avec une attention particulière aux pauvres, aux femmes et à l'universalité du salut.",
+    "culturalNotes": "Seul évangéliste non-juif. Il rapporte les cantiques de Marie, Zacharie et Siméon, et des paraboles uniques (le bon Samaritain, le fils prodigue).",
+    "keyEvents": "Annonciation, Nativité, Parabole du fils prodigue, Emmaüs.",
+    "chapters": { "15": "Les paraboles de la miséricorde : la brebis perdue, la pièce perdue, le fils prodigue." }
+  },
+  "Jean": {
+    "author": "Jean, fils de Zébédée",
+    "period": "~85-95 ap. J.-C.",
+    "historicalContext": "Dernier des quatre évangiles, écrit depuis Éphèse. Le christianisme se sépare du judaïsme. Les chrétiens sont expulsés des synagogues. L'Empire romain, sous Domitien, persécute les chrétiens.",
+    "culturalNotes": "Vocabulaire dualiste (lumière/ténèbres). Les 7 'Je suis' de Jésus répondent aux besoins spirituels universels. La philosophie grecque (Logos) influence le prologue.",
+    "keyEvents": "Noces de Cana, Résurrection de Lazare, Dernier discours, Crucifixion.",
+    "chapters": {
+      "1": "Le Prologue — Au commencement était la Parole, la Parole était Dieu.",
+      "15": "La vigne et les sarments — Demeurez en moi, et je demeurerai en vous."
+    }
+  },
+  "Actes": {
+    "author": "Luc",
+    "period": "~62-80 ap. J.-C.",
+    "historicalContext": "Suite de l'Évangile de Luc, les Actes racontent la naissance et l'expansion de l'Église primitive, de Jérusalem à Rome, portée par la puissance du Saint-Esprit.",
+    "culturalNotes": "La Pentecôte accomplit les fêtes juives (Shavouot). Paul utilise sa citoyenneté romaine pour se défendre. Le livre documente le premier concile de Jérusalem.",
+    "keyEvents": "Pentecôte, Conversion de Paul, Concile de Jérusalem, Voyages missionnaires de Paul.",
+    "chapters": { "2": "La Pentecôte — l'Esprit descend, les disciples parlent en langues, Pierre prêche." }
+  },
+  "Romains": {
+    "author": "Paul (Saul de Tarse)",
+    "period": "~57 ap. J.-C.",
+    "historicalContext": "Écrite depuis Corinthe, 3e voyage missionnaire. L'Église de Rome compte Juifs et non-Juifs. Néron est empereur. Paul expose systématiquement le salut par la foi.",
+    "culturalNotes": "Rome, ~1 million d'habitants, centre du monde méditerranéen. La citoyenneté romaine confère des privilèges. L'esclavage est omniprésent.",
+    "keyEvents": "Justification par la foi, Adoption, Vie par l'Esprit.",
+    "chapters": {
+      "8": "Il n'y a donc maintenant aucune condamnation — la vie par l'Esprit, enfants de Dieu.",
+      "12": "Le culte raisonnable — offrez vos corps comme un sacrifice vivant, transformez votre intelligence."
+    }
+  },
+  "1 Corinthiens": {
+    "author": "Paul",
+    "period": "~55 ap. J.-C.",
+    "historicalContext": "Écrite depuis Éphèse. Corinthe, ville portuaire cosmopolite et corrompue, abrite une église divisée, confrontée à l'immoralité et aux désordres cultuels.",
+    "culturalNotes": "Corinthe était célèbre pour son temple d'Aphrodite et ses mœurs dissolues. L'église devait se démarquer dans cette culture païenne.",
+    "keyEvents": "Divisions dans l'Église, Discipline ecclésiastique, La Sainte-Cène, Résurrection.",
+    "chapters": { "13": "L'hymne à l'amour — l'amour est patient, plein de bonté, il ne cherche pas son intérêt." }
+  },
+  "2 Corinthiens": {
+    "author": "Paul",
+    "period": "~56 ap. J.-C.",
+    "historicalContext": "Paul défend son apostolat face aux 'super-apôtres' qui le critiquent. Il évoque ses souffrances, ses visions et sa faiblesse comme lieu de la puissance de Dieu.",
+    "culturalNotes": "Paul parle de sa 'vision du troisième ciel' et de son 'écharde dans la chair'. Il exhorte à la générosité pour la collecte en faveur des pauvres de Jérusalem.",
+    "keyEvents": "Défense de l'apostolat, Collecte pour Jérusalem, L'écharde dans la chair."
+  },
+  "Galates": {
+    "author": "Paul",
+    "period": "~48-55 ap. J.-C.",
+    "historicalContext": "Paul s'oppose aux judaïsants qui veulent imposer la circoncision aux chrétiens non-juifs. Il défend la liberté en Christ et la justification par la foi sans les œuvres de la loi.",
+    "culturalNotes": "Paul rappelle sa rencontre avec les apôtres à Jérusalem. L'épître est un manifeste passionné pour la liberté chrétienne.",
+    "keyEvents": "Confrontation avec Pierre à Antioche, Allégorie d'Agar et Sara.",
+    "chapters": { "5": "C'est pour la liberté que Christ nous a affranchis — le fruit de l'Esprit." }
+  },
+  "Éphésiens": {
+    "author": "Paul",
+    "period": "~60-62 ap. J.-C.",
+    "historicalContext": "Écrite probablement pendant l'emprisonnement de Paul à Rome. Éphèse, grand centre commercial et religieux d'Asie Mineure, abrite le temple d'Artémis (une des 7 merveilles).",
+    "culturalNotes": "Le mur de séparation dans le temple entre Juifs et non-Juifs illustre l'unité en Christ. L'armure du soldat romain sert d'image pour les armes spirituelles.",
+    "keyEvents": "Élection en Christ, Unité de l'Église, Armure de Dieu.",
+    "chapters": { "6": "L'armure de Dieu — tenez ferme contre les ruses du diable." }
+  },
+  "Philippiens": {
+    "author": "Paul",
+    "period": "~61-62 ap. J.-C.",
+    "historicalContext": "Lettre de joie écrite depuis la prison (probablement à Rome). Paul remercie les Philippiens pour leur soutien financier et les encourage à persévérer malgré les souffrances.",
+    "culturalNotes": "Philippes était une colonie romaine fière de sa citoyenneté, ce qui donne tout son sens à 'notre cité à nous est dans les cieux'.",
+    "keyEvents": "Hymne christologique, Course vers le but, Contentement en toute circonstance.",
+    "chapters": { "4": "Réjouissez-vous toujours — je puis tout par celui qui me fortifie." }
+  },
+  "Colossiens": {
+    "author": "Paul",
+    "period": "~60-62 ap. J.-C.",
+    "historicalContext": "Écrite pour contrer une hérésie naissante mêlant philosophie grecque, mysticisme juif et pratiques ascétiques. Paul exalte la suprématie absolue de Christ.",
+    "culturalNotes": "Colosses était une petite ville de Phrygie, éclipsée par Laodicée et Hiérapolis voisines. La lettre insiste sur la plénitude de la divinité en Christ.",
+    "keyEvents": "Hymne christologique — Christ, image du Dieu invisible, premier-né de toute la création."
+  },
+  "1 Thessaloniciens": {
+    "author": "Paul",
+    "period": "~50-51 ap. J.-C.",
+    "historicalContext": "Premier écrit du Nouveau Testament. Paul, depuis Corinthe, encourage une jeune église persécutée et répond à leurs questions sur le retour du Seigneur.",
+    "culturalNotes": "Thessalonique, capitale de la Macédoine, était un port prospère et carrefour commercial. L'église y faisait face à l'hostilité de la synagogue.",
+    "keyEvents": "L'enlèvement de l'Église, Le Jour du Seigneur."
+  },
+  "2 Thessaloniciens": {
+    "author": "Paul",
+    "period": "~51-52 ap. J.-C.",
+    "historicalContext": "Suite de 1 Thessaloniciens. Paul corrige des malentendus sur le retour du Seigneur et exhorte à ne pas être oisifs en attendant.",
+    "culturalNotes": "L'homme d'iniquité (l'Antichrist) est introduit. Paul insiste sur l'importance du travail.",
+    "keyEvents": "L'homme du péché, Jour du Seigneur, Appel à la persévérance."
+  },
+  "1 Timothée": {
+    "author": "Paul",
+    "period": "~62-64 ap. J.-C.",
+    "historicalContext": "Paul écrit à Timothée, son fils spirituel et jeune pasteur à Éphèse. Instructions sur l'organisation de l'Église, les qualifications des responsables et la saine doctrine.",
+    "culturalNotes": "Éphèse était un centre de culte païen (Artémis) et de magie. Timothée devait lutter contre les faux enseignants.",
+    "keyEvents": "Qualifications des anciens et diacres, Garder le bon dépôt, Conseils pastoraux."
+  },
+  "2 Timothée": {
+    "author": "Paul",
+    "period": "~64-67 ap. J.-C.",
+    "historicalContext": "Le dernier écrit de Paul avant son martyre. Prisonnier à Rome dans des conditions difficiles, il exhorte Timothée à rester fidèle et à prêcher la Parole en tout temps.",
+    "culturalNotes": "Paul attend son exécution imminente sous Néron. Il fait ses adieux en transmettant le flambeau à la génération suivante.",
+    "keyEvents": "J'ai combattu le bon combat, Toute Écriture est inspirée de Dieu.",
+    "chapters": { "3": "Dans les derniers jours — toute Écriture est inspirée de Dieu et utile pour enseigner." }
+  },
+  "Tite": {
+    "author": "Paul",
+    "period": "~63-65 ap. J.-C.",
+    "historicalContext": "Tite est en Crète pour organiser les églises. Paul donne des instructions similaires à celles de 1 Timothée : qualification des anciens, saine doctrine, œuvres bonnes.",
+    "culturalNotes": "Les Crétois avaient mauvaise réputation — Paul cite même un de leurs poètes. La lettre insiste sur la cohérence entre la foi et la conduite.",
+    "keyEvents": "Organisation des églises crétoises, Grâce salvatrice de Dieu."
+  },
+  "Philémon": {
+    "author": "Paul",
+    "period": "~60-62 ap. J.-C.",
+    "historicalContext": "Lettre personnelle à Philémon en faveur d'Onésime, son esclave fugitif converti par Paul en prison. Paul demande son affranchissement au nom de l'amour fraternel.",
+    "culturalNotes": "L'esclavage était une institution légale dans l'Empire romain. Paul ne l'attaque pas frontalement mais le rend caduc par la fraternité en Christ.",
+    "keyEvents": "Conversion d'Onésime, Appel au pardon et à la réconciliation."
+  },
+  "Hébreux": {
+    "author": "Anonyme (traditionnellement Paul ou Apollos)",
+    "period": "~60-69 ap. J.-C.",
+    "historicalContext": "Adressée à des chrétiens juifs tentés de retourner au judaïsme face aux persécutions. L'auteur démontre la supériorité de Christ sur les anges, Moïse, le sacerdoce lévitique et les sacrifices.",
+    "culturalNotes": "Le système sacerdotal du Temple structure l'argumentation. La Nouvelle Alliance en Christ accomplit et dépasse les ombres de l'Ancienne.",
+    "keyEvents": "Christ grand-prêtre, La foi des héros, La discipline de Dieu.",
+    "chapters": { "11": "Le chapitre de la foi — la nuée de témoins, la foi d'Abraham, de Moïse, de Rahab." }
+  },
+  "Jacques": {
+    "author": "Jacques, frère du Seigneur",
+    "period": "~45-50 ap. J.-C.",
+    "historicalContext": "Première épître du NT, écrite par le chef de l'Église de Jérusalem aux croyants juifs dispersés. Insiste sur une foi qui se manifeste par des œuvres concrètes.",
+    "culturalNotes": "Style proche de la littérature de sagesse juive et du Sermon sur la Montagne. Conseils pratiques sur la maîtrise de la langue.",
+    "keyEvents": "La foi sans les œuvres est morte, La maîtrise de la langue."
+  },
+  "1 Pierre": {
+    "author": "Pierre, apôtre",
+    "period": "~62-64 ap. J.-C.",
+    "historicalContext": "Écrite aux chrétiens persécutés d'Asie Mineure sous Néron. Pierre les encourage à tenir ferme dans la souffrance, suivant l'exemple de Christ.",
+    "culturalNotes": "Pierre écrit depuis 'Babylone' (nom symbolique de Rome). L'épître est remplie d'espérance malgré les épreuves et les calomnies.",
+    "keyEvents": "Une espérance vivante, Peuple de Dieu, Pierres vivantes."
+  },
+  "2 Pierre": {
+    "author": "Pierre, apôtre",
+    "period": "~64-68 ap. J.-C.",
+    "historicalContext": "Dernière lettre de Pierre avant son martyre. Il met en garde contre les faux docteurs qui viendront. Il rappelle la certitude du retour du Seigneur.",
+    "culturalNotes": "Pierre évoque sa propre mort imminente et la Transfiguration comme témoignage oculaire. Le jour du Seigneur viendra comme un voleur.",
+    "keyEvents": "Mise en garde contre les faux docteurs, Retour de Christ promis."
+  },
+  "1 Jean": {
+    "author": "Jean, apôtre",
+    "period": "~85-95 ap. J.-C.",
+    "historicalContext": "Jean combat les prémices du gnosticisme qui niait l'incarnation de Christ. Il insiste sur l'amour fraternel, la confession des péchés et la certitude du salut.",
+    "culturalNotes": "Jean oppose lumière et ténèbres, amour et haine, vérité et mensonge. Sa théologie est centrée sur la communion avec Dieu.",
+    "keyEvents": "Dieu est lumière, Dieu est amour, La certitude de la vie éternelle."
+  },
+  "2 Jean": {
+    "author": "Jean, apôtre",
+    "period": "~85-95 ap. J.-C.",
+    "historicalContext": "Courte lettre à une 'dame élue' (probablement une église locale). Jean exhorte à marcher dans l'amour et la vérité et à rejeter les faux docteurs.",
+    "culturalNotes": "L'hospitalité chrétienne ne doit pas être accordée aux séducteurs qui nient l'incarnation.",
+    "keyEvents": "Marche dans l'amour, Rejet des faux docteurs."
+  },
+  "3 Jean": {
+    "author": "Jean, apôtre",
+    "period": "~85-95 ap. J.-C.",
+    "historicalContext": "Lettre à Gaïus, chrétien hospitalier, pour l'encourager et dénoncer Diotrèphe, chef autoritaire qui rejette les envoyés de Jean.",
+    "culturalNotes": "L'hospitalité envers les missionnaires itinérants était cruciale pour l'expansion de l'Église primitive.",
+    "keyEvents": "Éloge de Gaïus, Condamnation de Diotrèphe."
+  },
+  "Jude": {
+    "author": "Jude, frère de Jacques",
+    "period": "~65-80 ap. J.-C.",
+    "historicalContext": "Exhortation urgente à combattre pour la foi face aux impies qui s'infiltrent dans l'Église. Utilise des exemples de l'AT et des apocryphes (Hénoch).",
+    "culturalNotes": "Jude fait référence au livre d'Hénoch, très connu dans le judaïsme du 1er siècle. La doxologie finale est l'une des plus belles du NT.",
+    "keyEvents": "Combat pour la foi, Exemples de jugement, Doxologie."
+  },
+  "Apocalypse": {
+    "author": "Jean, apôtre",
+    "period": "~90-96 ap. J.-C.",
+    "historicalContext": "Jean, exilé sur l'île de Patmos sous Domitien, reçoit la révélation de Jésus-Christ. Les sept églises d'Asie Mineure subissent persécution, compromis et tiédeur.",
+    "culturalNotes": "L'apocalyptique juive utilise un langage symbolique (sceaux, trompettes, coupes). Les visions culminent dans le triomphe final de l'Agneau.",
+    "keyEvents": "Lettres aux sept Églises, Sceaux et Trompettes, Retour glorieux de Christ, Nouvelle Création.",
+    "chapters": { "21": "La Nouvelle Jérusalem — un nouveau ciel et une nouvelle terre, Dieu essuiera toute larme." }
+  }
+}

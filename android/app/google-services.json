@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "767630557552",
+    "project_id": "mannadayli",
+    "storage_bucket": "mannadayli.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:767630557552:android:dc47b74c68f9d0396fcfb5",
+        "android_client_info": {
+          "package_name": "com.mannadaily.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4m8PTcWqytlPGs2mnxg1ACo0SmM3-P7g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

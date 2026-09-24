@@ -1,0 +1,152 @@
+import { NextResponse } from "next/server";
+import { query, queryOne } from "@/server/db";
+import { getRandomNotification } from "@/lib/notifications";
+import { generateNotificationEmail } from "@/lib/emailTemplates";
+import { sendPushNotification } from "@/lib/webPush";
+import { Resend } from "resend";
+
+export const dynamic = "force-dynamic";
+
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+
+function getLocalHour(timezoneOffset: number | null): number {
+  const nowUTC = new Date();
+  const local = new Date(nowUTC.getTime() + (timezoneOffset ?? 0) * 60000);
+  return local.getUTCHours();
+}
+
+function getLocalDateString(timezoneOffset: number | null): string {
+  const nowUTC = new Date();
+  const local = new Date(nowUTC.getTime() + (timezoneOffset ?? 0) * 60000);
+  return local.toISOString().split("T")[0];
+}
+
+function getSituation(localHour: number, sessionsCompleted: number, dayCompleted: boolean): "morning" | "midday" | "afternoon" | "evening" | "urgent" {
+  if (dayCompleted || sessionsCompleted >= 3) return "morning";
+  if (sessionsCompleted >= 1 && localHour >= 18) return "evening";
+  if (sessionsCompleted >= 1 && localHour >= 14) return "afternoon";
+  if (localHour >= 5 && localHour < 11) return "morning";
+  if (localHour >= 11 && localHour < 14) return "midday";
+  if (localHour >= 14 && localHour < 18) return "afternoon";
+  if (localHour >= 18 && localHour < 22) return "evening";
+  return "urgent";
+}
+
+export async function GET(req: Request) {
+  try {
+    const authHeader = req.headers.get("authorization");
+    const cronSecret = process.env.CRON_SECRET;
+
+    if (!cronSecret) {
+      return NextResponse.json({ error: "Non autorisé - Secret non configuré" }, { status: 401 });
+    }
+
+    if (!authHeader || authHeader !== `Bearer ${cronSecret}`) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+
+    const allUsers = await query("SELECT * FROM users");
+
+    let emailsSent = 0;
+    let pushsSent = 0;
+    let usersNotified = 0;
+
+    for (const user of allUsers) {
+      if (user.id.startsWith("bot_") || user.email?.endsWith("@mascot.local")) {
+        continue;
+      }
+
+      const localHour = getLocalHour(user.timezoneOffset);
+      const localDateStr = getLocalDateString(user.timezoneOffset);
+
+      let meditationProgress = null;
+      if (user.meditationProgress) {
+        try {
+          meditationProgress = JSON.parse(user.meditationProgress);
+        } catch {
+          meditationProgress = null;
+        }
+      }
+
+      const hasMeditatedToday = meditationProgress?.lastActivityDate === localDateStr;
+      const sessionsCompleted = hasMeditatedToday && Array.isArray(meditationProgress?.sessionsCompleted) ? meditationProgress.sessionsCompleted.length : 0;
+      const dayCompleted = meditationProgress?.dayCompleted === true || sessionsCompleted >= 3;
+
+      if (dayCompleted) continue;
+
+      const situation = getSituation(localHour, sessionsCompleted, dayCompleted);
+      if (situation === "morning" && sessionsCompleted >= 1 && localHour < 10) continue;
+
+      const userName = user.name || "Ami";
+      let notification;
+
+      const enrollments = await query("SELECT * FROM reading_plan_enrollments WHERE userId = $1 AND completed = 0", [user.id]);
+      const activeEnrollment = enrollments[0];
+
+      if (activeEnrollment && user.readingReminders) {
+        const readingProgress = await query("SELECT * FROM reading_plan_progress WHERE userId = $1 AND planId = $2", [user.id, activeEnrollment.planId]);
+        const hasCompletedToday = readingProgress.some((p: any) => p.dayNumber === activeEnrollment.currentDay);
+
+        if (!hasCompletedToday) {
+          const dayData = await queryOne("SELECT * FROM reading_plan_days WHERE planId = $1 AND dayNumber = $2", [activeEnrollment.planId, activeEnrollment.currentDay]);
+          const readings = dayData ? await query("SELECT * FROM reading_plan_readings WHERE dayId = $1", [dayData.id]) : [];
+          const chaptersStr = readings.map((r: any) => `${r.book} ${r.chapter}`).join(", ");
+          const firstReading = readings[0];
+          const firstBook = firstReading?.book || "";
+          const firstChapter = firstReading?.chapter ? String(firstReading.chapter) : "";
+
+          notification = getRandomNotification(
+            "reading_plan_reminder",
+            userName,
+            firstReading ? `${firstBook} ${firstChapter}` : "",
+            { chapitres: chaptersStr, Livre: firstBook, Chapitre: firstChapter }
+          );
+        }
+      }
+
+      if (!notification) {
+        notification = getRandomNotification(situation, userName, undefined, undefined, sessionsCompleted);
+      }
+
+      if (user.email && resend) {
+        try {
+          await resend.emails.send({
+            from: "MannaDaily <onboarding@resend.dev>",
+            to: user.email,
+            subject: notification.title,
+            html: generateNotificationEmail(notification, userName),
+          });
+          emailsSent++;
+        } catch (emailErr) {
+          console.error(`[Cron] Erreur email à ${user.email} :`, emailErr);
+        }
+      }
+
+      const pushSubs = await query("SELECT * FROM push_subscriptions WHERE userId = $1", [user.id]);
+      if (pushSubs.length > 0) {
+        try {
+          await sendPushNotification(user.id, notification.title, notification.body);
+          pushsSent += pushSubs.length;
+        } catch (pushErr) {
+          console.error(`[Cron] Erreur push pour ${user.id} :`, pushErr);
+        }
+      }
+
+      usersNotified++;
+    }
+
+    console.log(`[Cron Daily Reminder] Utilisateurs notifiés: ${usersNotified}, Emails: ${emailsSent}, Pushs: ${pushsSent}`);
+
+    return NextResponse.json({
+      success: true,
+      usersProcessed: allUsers.length,
+      usersNotified,
+      emailsSent,
+      pushsSent,
+    });
+  } catch (error: unknown) {
+    console.error("Erreur cron daily-reminder :", error);
+    const message = error instanceof Error ? error.message : "Erreur interne";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}

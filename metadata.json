@@ -1,0 +1,6 @@
+{
+  "name": "MannaDaily",
+  "description": "Méditation biblique quotidienne gamifiée avec la mascotte Manny, mémorisation de versets et ligue",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

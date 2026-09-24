@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Fond dégradé avec coins arrondis -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#4F46E5"
+                android:endColor="#1E1B4B"
+                android:angle="135" />
+            <corners android:radius="10dp" />
+        </shape>
+    </item>
+    <!-- Lettre M centrée (sous forme de shape drawable) -->
+    <item
+        android:width="24dp"
+        android:height="24dp"
+        android:gravity="center">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+</layer-list>

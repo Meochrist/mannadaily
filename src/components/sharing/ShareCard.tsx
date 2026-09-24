@@ -1,0 +1,197 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { Share2, Copy, Check, Flame, Trophy, ExternalLink } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface ShareCardProps {
+  type: "streak" | "badge";
+  streakValue?: number;
+  levelName?: string;
+  badgeName?: string;
+  badgeIcon?: string;
+  title?: string;
+}
+
+export default function ShareCard({
+  type,
+  streakValue = 0,
+  levelName = "Semence",
+  badgeName = "Pionnier",
+  badgeIcon = "🏆",
+  title
+}: ShareCardProps) {
+  const [copied, setCopied] = useState(false);
+  const [shareSupported, setShareSupported] = useState(false);
+
+  // Générer les URLs
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://mannadaily.vercel.app";
+  
+  const imageUrl = type === "streak"
+    ? `${baseUrl}/api/share/streak?streak=${streakValue}&levelName=${encodeURIComponent(levelName)}`
+    : `${baseUrl}/api/share/badge?badgeName=${encodeURIComponent(badgeName)}&badgeIcon=${encodeURIComponent(badgeIcon)}`;
+
+  const shareText = type === "streak"
+    ? `J'ai atteint une série de ${streakValue} jours de méditation biblique consécutifs sur MannaDaily ! 🔥`
+    : `J'ai débloqué le badge "${badgeName}" ${badgeIcon} sur MannaDaily ! 🏆`;
+
+  const shareUrl = baseUrl; // Lien vers l'application
+
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && "share" in navigator) {
+      queueMicrotask(() => setShareSupported(true));
+    }
+  }, []);
+
+  const handleShareNatively = async () => {
+    try {
+      await navigator.share({
+        title: "MannaDaily - Progression Spirituelle",
+        text: shareText,
+        url: shareUrl,
+      });
+    } catch (err) {
+      console.log("Error sharing natively:", err);
+      // Fallback à la copie de lien
+      handleCopyLink();
+    }
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(`${shareText} Découvre l'application ici : ${shareUrl}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Liens pour réseaux sociaux
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`;
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+
+  return (
+    <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm space-y-5 flex flex-col md:flex-row gap-5 items-center md:items-stretch">
+      {/* Aperçu miniature de l'image de partage */}
+      <div className="w-full md:w-1/2 flex flex-col gap-2 flex-shrink-0">
+        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+          Aperçu de ton image de partage
+        </span>
+        <div className="relative aspect-[120/63] w-full rounded-2xl overflow-hidden border border-slate-100 shadow-sm bg-slate-50 flex items-center justify-center group">
+          <img 
+            src={imageUrl} 
+            alt={type === "streak" ? "Partage de Streak" : "Partage de Badge"} 
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-slate-950/0 group-hover:bg-slate-950/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+            <a 
+              href={imageUrl} 
+              target="_blank" 
+              rel="noreferrer" 
+              className="bg-white/95 text-slate-800 text-[10px] font-black uppercase tracking-wider px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-md"
+            >
+              Agrandir <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Actions de partage */}
+      <div className="w-full md:w-1/2 flex flex-col justify-between gap-4 py-1">
+        <div className="space-y-1">
+          <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+            {type === "streak" ? (
+              <>
+                <Flame className="w-4 h-4 text-orange-500 fill-orange-500/20" />
+                Partager mon streak 🔥
+              </>
+            ) : (
+              <>
+                <Trophy className="w-4 h-4 text-yellow-500 fill-yellow-500/20" />
+                Partager un badge 🏆
+              </>
+            )}
+          </h4>
+          <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
+            {title || (type === "streak" 
+              ? "Célèbre ta régularité dans la Parole et motive tes frères et sœurs à te rejoindre !"
+              : `Affiche fièrement ton avancement en partageant l'obtention de ton badge "${badgeName}" !`
+            )}
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          {/* Bouton de Partage Principal (Natif ou Copie) */}
+          {shareSupported ? (
+            <button
+              onClick={handleShareNatively}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 rounded-2xl text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer hover:scale-105"
+            >
+              <Share2 className="w-4 h-4" />
+              Partager maintenant
+            </button>
+          ) : (
+            <button
+              onClick={handleCopyLink}
+              className={cn(
+                "w-full font-black py-3 rounded-2xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer border hover:scale-105",
+                copied 
+                  ? "bg-emerald-50 border-emerald-200 text-emerald-700 shadow-sm" 
+                  : "bg-white border-slate-200 hover:bg-slate-50 text-slate-700"
+              )}
+            >
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4 text-emerald-600 stroke-[3px]" />
+                  Lien copié !
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4 text-slate-500" />
+                  Copier le lien de partage
+                </>
+              )}
+            </button>
+          )}
+
+          <div className="flex gap-2">
+            <a
+              href={twitterUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex-1 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 rounded-xl py-2 flex items-center justify-center gap-1.5 text-slate-700 font-bold text-[10px] uppercase tracking-wider transition hover:scale-105"
+            >
+              <svg className="w-3.5 h-3.5 text-slate-800" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              X / Twitter
+            </a>
+            
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex-1 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 rounded-xl py-2 flex items-center justify-center gap-1.5 text-slate-700 font-bold text-[10px] uppercase tracking-wider transition hover:scale-105"
+            >
+              <svg className="w-3.5 h-3.5 text-emerald-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+              </svg>
+              WhatsApp
+            </a>
+
+            <a
+              href={facebookUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex-1 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 rounded-xl py-2 flex items-center justify-center gap-1.5 text-slate-700 font-bold text-[10px] uppercase tracking-wider transition hover:scale-105"
+            >
+              <svg className="w-3.5 h-3.5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1V12h3v3h-3v6.8c4.56-.93 8-4.96 8-9.8z" />
+              </svg>
+              Facebook
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
